@@ -166,7 +166,8 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_UINT16,		"bone_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
-	v_cg_add_param(VCGP_NAME,		"name");
+	v_cg_add_param(VCGP_NAME,		"weight");
+	v_cg_add_param(VCGP_NAME,		"reference");
 	v_cg_add_param(VCGP_UINT32,		"parent");
 	v_cg_add_param(VCGP_REAL64,		"pos_x");
 	v_cg_add_param(VCGP_REAL64,		"pos_y");
@@ -175,7 +176,7 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_add_param(VCGP_REAL64,		"rot_y");
 	v_cg_add_param(VCGP_REAL64,		"rot_z");
 	v_cg_add_param(VCGP_REAL64,		"rot_w");
-	v_cg_alias(FALSE, "g_bone_destroy", "if(name[0] == 0)", 2, NULL);
+	v_cg_alias(FALSE, "g_bone_destroy", "if(weight[0] == 0)", 2, NULL);
 
 	v_cg_end_cmd();
 }

@@ -12,7 +12,8 @@ void v_gen_object_cmd_def(void)
 	v_cg_new_cmd(V_NT_OBJECT,		"o_transform_pos_real32", 32, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
-	v_cg_add_param(VCGP_UINT32,		"time");
+	v_cg_add_param(VCGP_UINT32,		"time_s");
+	v_cg_add_param(VCGP_UINT32,		"time_f");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real32");
 	v_cg_add_param(VCGP_POINTER,	"pos");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real32");
@@ -76,7 +77,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tif((mask & pow) != 0)\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &drag);\n"
 	"\t\tif(func_o_transform_pos_real32 != NULL)\n"
-	"\t\t\tfunc_o_transform_pos_real32(v_fs_get_user_data(32), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
+	"\t\t\tfunc_o_transform_pos_real32(v_fs_get_user_data(32), node_id, time_s, time_f, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_REAL32,		"drag");	
@@ -85,7 +86,8 @@ void v_gen_object_cmd_def(void)
 	v_cg_new_cmd(V_NT_OBJECT,		"o_transform_rot_real32", 33, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
-	v_cg_add_param(VCGP_UINT32,		"time");
+	v_cg_add_param(VCGP_UINT32,		"time_s");
+	v_cg_add_param(VCGP_UINT32,		"time_f");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real32");
 	v_cg_add_param(VCGP_POINTER,	"rot");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real32");
@@ -153,7 +155,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tif((mask & pow) != 0)\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &drag);\n"
 	"\t\tif(func_o_transform_rot_real32 != NULL)\n"
-	"\t\t\tfunc_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
+	"\t\t\tfunc_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time_s, time_f, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_REAL32,		"drag");	
@@ -170,7 +172,8 @@ void v_gen_object_cmd_def(void)
 	v_cg_new_cmd(V_NT_OBJECT,		"o_transform_pos_real64", 35, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
-	v_cg_add_param(VCGP_UINT32,		"time");
+	v_cg_add_param(VCGP_UINT32,		"time_s");
+	v_cg_add_param(VCGP_UINT32,		"time_f");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real64");
 	v_cg_add_param(VCGP_POINTER,	"pos");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real64");
@@ -234,7 +237,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tif((mask & pow) != 0)\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &drag);\n"
 	"\t\tif(func_o_transform_pos_real64 != NULL)\n"
-	"\t\t\tfunc_o_transform_pos_real64(v_fs_get_user_data(35), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
+	"\t\t\tfunc_o_transform_pos_real64(v_fs_get_user_data(35), node_id, time_s, time_f, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_REAL64,		"drag");	
@@ -243,7 +246,8 @@ void v_gen_object_cmd_def(void)
 	v_cg_new_cmd(V_NT_OBJECT,		"o_transform_rot_real64", 36, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
-	v_cg_add_param(VCGP_UINT32,		"time");
+	v_cg_add_param(VCGP_UINT32,		"time_s");
+	v_cg_add_param(VCGP_UINT32,		"time_f");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real64");
 	v_cg_add_param(VCGP_POINTER,	"rot");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real64");
@@ -311,7 +315,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tif((mask & pow) != 0)\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &drag);\n"
 	"\t\tif(func_o_transform_rot_real64 != NULL)\n"
-	"\t\t\tfunc_o_transform_rot_real64(v_fs_get_user_data(36), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
+	"\t\t\tfunc_o_transform_rot_real64(v_fs_get_user_data(36), node_id, time_s, time_f, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_REAL64,		"drag");	
@@ -346,7 +350,7 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_UINT16,		"link_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_NODE_ID,	"link");
-	v_cg_add_param(VCGP_NAME,		"name");
+	v_cg_add_param(VCGP_NAME,		"label");
 	v_cg_add_param(VCGP_UINT32,		"target_id");
 	v_cg_alias(TRUE, "o_link_destroy", NULL, 2, NULL);
 	v_cg_end_cmd();
@@ -371,7 +375,7 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_UINT16,		"group_id");
 	v_cg_add_param(VCGP_UINT16,		"method_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
-	v_cg_add_param(VCGP_NAME,		"name");
+	v_cg_add_param(VCGP_LONG_NAME,	"name");
 	v_cg_add_param(VCGP_UINT8,		"param_count");
 	v_cg_add_param(VCGP_POINTER_TYPE,"VNOParamType");
 	v_cg_add_param(VCGP_POINTER,	"param_types");
@@ -440,6 +444,21 @@ void v_gen_object_cmd_def(void)
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 
+	v_cg_end_cmd();
+
+	v_cg_new_cmd(V_NT_OBJECT,		"o_anim_run", 45, VCGCT_UNIQUE);
+	v_cg_add_param(VCGP_NODE_ID,	"node_id");
+	v_cg_add_param(VCGP_UINT16,		"anim_id");
+	v_cg_add_param(VCGP_END_ADDRESS, NULL);
+	v_cg_add_param(VCGP_UINT16,		"link_id");
+	v_cg_add_param(VCGP_UINT32,		"time_s");
+	v_cg_add_param(VCGP_UINT32,		"time_f");
+	v_cg_add_param(VCGP_REAL64,		"start");
+	v_cg_add_param(VCGP_REAL64,		"speed");
+	v_cg_add_param(VCGP_REAL64,		"speed_ramp");
+	v_cg_add_param(VCGP_REAL64,		"factor");
+	v_cg_add_param(VCGP_REAL64,		"factor_ramp");
+	v_cg_alias(TRUE, "o_anim_stop", NULL, 2, NULL);
 	v_cg_end_cmd();
 }
 
