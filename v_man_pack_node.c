@@ -94,16 +94,21 @@ unsigned int v_unpack_connect_accept(const char *buf, unsigned int buffer_length
 	unsigned int buffer_pos = 0;
 	VSession (* func_connect_accept)(void *user_data, VNodeID avatar, char *address);
 	VNodeID avatar;
-	char *address;
+	const VNetworkAddress *address;
+	char abuf[32] = "";
+
 	func_connect_accept = v_fs_get_user_func(1);
 	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &avatar);
+	address = v_con_get_network_address();
+	if(address != NULL)
+		v_n_get_address_string(address, abuf);
 	#if defined(V_PRINT_RECIVE_COMMANDS)
 	printf("receive: verse_send_connect_accept(avatar = %u ); callback = %p\n", avatar, user_func);
 	#endif
 	if(func_connect_accept != NULL)
-		func_connect_accept(v_fs_get_user_data(1), avatar, address);
+		func_connect_accept(v_fs_get_user_data(1), avatar, abuf);
 
 	return buffer_pos;
 }

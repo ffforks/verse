@@ -74,14 +74,16 @@ void v_gen_system_cmd_def(void)
 	v_cg_add_param(VCGP_LONG_NAME,	"text");
 	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
 	"\t\tvoid *a;\n"
-	"\t\ta = v_n_create_network_address(0, address);\n"
-	"\t\tbuffer_pos = vnp_raw_pack_uint16(&buf[buffer_pos], 1);/* a packet id */\n"
-	"\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 5);/* Packing the command */\n"
-	"\t\tbuffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, 500);\n"
-	"\t\tv_n_send_data(a, buf, buffer_pos);\n"
-	"\t\tv_n_destroy_network_address(a);\n"
-	"\t\tv_cmd_buf_free(head);\n"
-	"\t\treturn;\n"
+	"\t\tif((a = v_n_create_network_address(0, address)) != NULL)\n"
+	"\t\t{\n"
+	"\t\t\tbuffer_pos = vnp_raw_pack_uint16(&buf[buffer_pos], 1);/* a packet id */\n"
+	"\t\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 5);/* Packing the command */\n"
+	"\t\t\tbuffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, 500);\n"
+	"\t\t\tv_n_send_data(a, buf, buffer_pos);\n"
+	"\t\t\tv_n_destroy_network_address(a);\n"
+	"\t\t\tv_cmd_buf_free(head);\n"
+	"\t\t\treturn;\n"
+	"\t\t}\n"
 	"\t}\n");
 	v_cg_end_cmd();
 
