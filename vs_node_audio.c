@@ -164,8 +164,8 @@ static void callback_send_a_stream_destroy(void *user, VNodeID node_id, VLayerID
 	vs_reset_subscript_session();
 }
 
-static void callback_send_a_layer_create(void *user, VNodeID node_id, VLayerID layer_id,
-					 VNALayerType type, real64 frequency, const char *name)
+static void callback_send_a_layer_create(void *user, VNodeID node_id, VLayerID layer_id, const char *name,
+					 VNALayerType type, real64 frequency)
 {
 	VSNodeAudio *node;
 	unsigned int i, j, count;
@@ -299,6 +299,8 @@ static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID laye
 	if(node == NULL)
 		return;
 	if(node->layers[layer_id].name[0] == 0)
+		return;
+	if(type != node->layers[layer_id].type)		/* Disregard attempts to set data of wrong type. */
 		return;
 	if(block_index > node->layers[layer_id].length)
 	{
