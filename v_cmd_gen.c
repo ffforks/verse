@@ -218,10 +218,10 @@ static void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 					fprintf(f, "VNMFragmentID %s", VCGData.param_name[active]);
 				break;
 				case VCGP_ENUM :
-					if(types)
+/*					if(types)
 						fprintf(f, "uint8 %s", VCGData.param_name[active]);
 					else
-						fprintf(f, "%s %s", VCGData.param_name[active - 1], VCGData.param_name[active]);
+*/						fprintf(f, "%s %s", VCGData.param_name[active - 1], VCGData.param_name[active]);
 				break;
 			}
 			if(types)
@@ -551,6 +551,9 @@ static void v_cg_gen_unpack(void)
 	printf("generating function: v_unpack_%s\n", VCGData.func_name);
 	fprintf(f, "unsigned int v_unpack_%s(const char *buf, size_t buffer_length)\n", VCGData.func_name);
 	fprintf(f, "{\n");
+	for(i = 0; i < VCGData.param_count && VCGData.param_type[i] != VCGP_ENUM; i++);
+	if(i < VCGData.param_count)
+		fprintf(f, "\tchar enum_temp;\n");
 	fprintf(f, "\tunsigned int buffer_pos = 0;\n");
 	fprintf(f, "\tvoid (* func_%s)(void *user_data, ", VCGData.func_name);
 	v_cg_gen_func_params(f, FALSE, FALSE);
@@ -606,7 +609,8 @@ static void v_cg_gen_unpack(void)
 				fprintf(f, "\tbuffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &%s);\n", VCGData.param_name[i]);
 			break;
 			case VCGP_ENUM :
-				fprintf(f, "\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &%s);\n", VCGData.param_name[i]);
+				fprintf(f, "\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);\n");
+				fprintf(f, "\t%s = (%s)enum_temp;\n", VCGData.param_name[i], VCGData.param_name[i - 1]);
 			break;
 			case VCGP_UNPACK_INLINE :
 				if(!printed)
@@ -625,6 +629,12 @@ static void v_cg_gen_unpack(void)
 				fprintf(f, "%s\n", VCGData.param_name[i++]);
 			break;
 		}
+	}
+	if(VCGData.alias_name != NULL && VCGData.alias_bool_switch)
+	{
+		fprintf(f, "\tif(buffer_length < buffer_pos + 1)\n");
+		fprintf(f, "\t\treturn -1;\n");
+		fprintf(f, "\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);\n");
 	}
 	if(!printed)
 	{
@@ -646,12 +656,8 @@ static void v_cg_gen_unpack(void)
 	if(VCGData.alias_name != NULL)
 	{
 		if(VCGData.alias_bool_switch)
-		{
-			fprintf(f, "\tif(buffer_length < buffer_pos + 1)\n");
-			fprintf(f, "\t\treturn -1;\n");
-			fprintf(f, "\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);\n");
 			fprintf(f, "\tif(!alias_bool)\n");
-		}else
+		else
 			fprintf(f, "\t%s\n", VCGData.alias_qualifier);
 		fprintf(f, "\t{\n");
 		fprintf(f, "\t\tvoid (* alias_%s)(void *user_data, ", VCGData.alias_name);
