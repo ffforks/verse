@@ -19,9 +19,9 @@
 
 #define CONNECTION_CHUNK_SIZE	16
 #define V_MAX_CONNECT_PACKET_SIZE	1500
-#define V_CON_MAX_MICROSECOND_BETWEEN_SENDS	1000
+#define V_CON_MAX_MICROSECOND_BETWEEN_SENDS	100
 #define V_RE_CONNECTON_TIME_OUT 3
-#define V_CONNECTON_TIME_OUT 30
+#define V_CONNECTON_TIME_OUT 8
 
 typedef struct {
 	VNetOutQueue	*out_queue;
@@ -54,7 +54,7 @@ static struct {
 	uint8			host_id[V_ENCRYPTION_LOGIN_KEY_FULL_SIZE];
 } VConData;
 
-
+extern void cmd_buf_init(void);
 
 void v_con_init(void) /* since verse doesnt have an init function this function is runned over an ove ard starts whit a check it it has run before */
 {
@@ -62,6 +62,7 @@ void v_con_init(void) /* since verse doesnt have an init function this function 
 
 	if(v_con_initialized)
 		return;
+	cmd_buf_init();
 	v_con_initialized = TRUE;
 	VConData.con = malloc((sizeof *VConData.con) * CONNECTION_CHUNK_SIZE);
 	memset(VConData.con, 0, (sizeof *VConData.con) * CONNECTION_CHUNK_SIZE);	/* Clear the memory. */
@@ -171,6 +172,7 @@ extern void	verse_send_packet_nak(uint32 packet_id);
 extern void	v_callback_connect_terminate(const char *bye);
 extern boolean	v_connect_unpack_ping(const char *buf, size_t buffer_length, uint32 ip, uint16 port);
 extern void	v_ping_update(void);
+void v_fs_unpack_beginning(uint8 *data, unsigned int length);
 
 /* Main function that receives and distributes all incoming packets. */
 void v_con_network_listen(void)
@@ -199,13 +201,14 @@ void v_con_network_listen(void)
 				{
 					VConData.pending_packets++; /* We now have one more packet pending unpack. */
 					v_e_data_decrypt_packet(store, buf, size, VConData.con[VConData.current_connection].key_data); /* Decrypt the packet. */
+					v_fs_unpack_beginning(store, size);
 				}
 			}
 			else
 				v_unpack_connection(buf, size); /* This is an ongoing connecton-attempt. */
 		}
-		else if(v_connect_unpack_ping(buf, size, address.ip, address.port))
-			;	/* Ping handled. */
+		else if(v_connect_unpack_ping(buf, size, address.ip, address.port))	/* Ping handled. */
+			;
 		else if(v_fs_func_accept_connections()) /* Do we accept connection-attempts? */
 		{
 			if(VConData.current_connection >= VConData.con_count || V_RE_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue)) /* Is it a new client, or an old client that we haven't heard form in some time? */
@@ -225,22 +228,25 @@ void v_con_network_listen(void)
 	VConData.current_connection = connection; /* Reset the current connection. */
 }
 
-extern void	v_update_connection_pending(void);
+extern void	v_update_connection_pending(boolean resend);
 
 boolean v_con_callback_update(void)
 {
-	boolean		output = FALSE;
-	unsigned int	size, connection;
+	static unsigned int seconds;
+	boolean	output = FALSE;
+	unsigned int	size, connection, s;
 	VNetInPacked	*p;
 
+	v_n_get_current_time(&s, NULL);
 	connection = VConData.current_connection;
 	for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
 		if(VConData.con[VConData.current_connection].connect_stage != V_CS_CONNECTED)
-			v_update_connection_pending();
+			v_update_connection_pending(s != seconds);
+	seconds = s;
 	VConData.current_connection = connection;
-/*	if(VConData.pending_packets == 0)
+	if(VConData.pending_packets == 0)
 		return FALSE;
-*/	if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
+	if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
 	{
 		while((p = v_niq_get(&VConData.con[VConData.current_connection].in_queue, &size)) != NULL)
 		{
@@ -258,6 +264,7 @@ void verse_callback_update(unsigned int microseconds)
 {
 	unsigned int connection, passed;
 	v_ping_update();	/* Deliver any pending pings. */
+	printf("%u\n", VConData.pending_packets);
 	connection = VConData.current_connection;
 	for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
 	{
@@ -265,18 +272,16 @@ void verse_callback_update(unsigned int microseconds)
 		if(VConData.con[VConData.current_connection].destroy_flag == TRUE)
 		{
 			v_noq_destroy_network_queue(VConData.con[VConData.current_connection].out_queue);
+			VConData.pending_packets -= v_niq_free(&VConData.con[VConData.current_connection].in_queue);
 			v_destroy_ordered_storage(VConData.con[VConData.current_connection].ordered_storage);
 			if(VConData.con[VConData.current_connection].expected_key != NULL)
 				free(VConData.con[VConData.current_connection].expected_key);
 			VConData.con[VConData.current_connection] = VConData.con[--VConData.con_count];
 			if(connection >= VConData.con_count)
-			{
 				VConData.current_connection = 0;
-			}
 			return;
 		}
 	}
-
 	VConData.current_connection = connection;
 
 	if(VConData.con_count > 0)
@@ -294,7 +299,7 @@ void verse_callback_update(unsigned int microseconds)
 	if(VConData.con_count > 0)
 		if(v_con_callback_update())
 			return;
-	for(passed = 0; passed <= microseconds && VConData.pending_packets == 0;)
+	for(passed = 0; passed < microseconds && VConData.pending_packets == 0;)
 	{
 		if(V_CON_MAX_MICROSECOND_BETWEEN_SENDS < microseconds - passed)
 			passed += v_n_wait_for_incoming(V_CON_MAX_MICROSECOND_BETWEEN_SENDS);
