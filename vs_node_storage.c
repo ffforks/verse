@@ -48,7 +48,6 @@ unsigned int vs_add_new_node(VSNodeHead *node, VNodeType type)
 		VSNodeStorage.node_length = i + 1;
 	node->id = i;
 	node->type = type;
-	printf("node stored, type %d\n", node->type);
 
 	return node->id;
 }
