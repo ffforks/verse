@@ -66,6 +66,11 @@ static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypte
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);/* Packing the command */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 2);/* Stage 2 */
 	name = v_con_get_name();
+	/* Pad data area with randomness. */
+	for(i = 0; i < sizeof name_pass; i++)
+		name_pass[i] = rand();
+	/* Make sure last (MSB) byte is clear, to guarantee that data < key for RSA math. */
+	name_pass[sizeof name_pass - 1] = 0;
 	for(i = 0; name[i] != 0 && i < V_ENCRYPTION_LOGIN_KEY_SIZE / 2 - 1; i++)
 		name_pass[i] = name[i];
 	name_pass[i] = 0;
