@@ -14,21 +14,21 @@
 
 size_t vnp_raw_pack_uint8(void *buffer, uint8 data)
 {
-	*((uint8 *)buffer) = data;
+	*(uint8 *) buffer = data;
 
 	return sizeof data;
 }
 
 size_t vnp_raw_unpack_uint8(const void *buffer, uint8 *data)
 {
-	*data = *((uint8 *) buffer);
+	*data = *(uint8 *) buffer;
 
 	return sizeof *data;
 }
 
 size_t vnp_raw_pack_uint16(void *buffer, uint16 data)
 {
-	*((uint8 *) buffer) = (data & 0xFF00) >> 8;
+	*(uint8 *) buffer = (data & 0xFF00) >> 8;
 	*((uint8 *) buffer + 1) = data & 0xFF;
 
 	return sizeof data;
