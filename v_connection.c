@@ -227,10 +227,9 @@ void verse_callback_update(unsigned int milliseconds)
 	{
 		void (*callback_connect_terminate_func)(void *user, char *bye);
 		callback_connect_terminate_func = v_fs_get_user_func(3);
-		#if defined(V_PRINT_RECIVE_COMMANDS)
+		#if defined(V_PRINT_RECEIVE_COMMANDS)
 		printf("receive: verse_send_connect_terminate(connection timed out); callback = %p\n", callback_connect_terminate_func);
 		#endif
-		printf("receive: verse_send_connect_terminate(connection timed out); callback = %p\n", callback_connect_terminate_func);
 		if(callback_connect_terminate_func != NULL)
 			callback_connect_terminate_func(v_fs_get_user_data(3), "connection timed out");
 		v_nq_destroy_network_queue(VConData.con[VConData.current_connection].network_queue);
