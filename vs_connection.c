@@ -6,17 +6,17 @@
 
 #include "verse.h"
 
-#define VS_CONNCECTION_CHUNK_SIZE 256
+#define VS_CONNECTION_CHUNK_SIZE	256
 
 typedef struct{
-	VSession		*session;
+	VSession	*session;
 	unsigned int	session_count;
-}VSSubscriptionList;
+} VSSubscriptionList;
 
 typedef struct{
 	VSession	session;
 	uint32		node_id;
-}VSConnection;
+} VSConnection;
 
 static struct {
 	VSConnection	*connection;
@@ -37,8 +37,8 @@ void vs_init_connection_storage()
 
 void vs_add_new_connection(VSession session, unsigned int node_id)
 {
-	if(VSConnectionStorage.connection_length % VS_CONNCECTION_CHUNK_SIZE == 0)
-		VSConnectionStorage.connection = realloc(VSConnectionStorage.connection, (sizeof *VSConnectionStorage.connection) * (VSConnectionStorage.connection_length + VS_CONNCECTION_CHUNK_SIZE));
+	if(VSConnectionStorage.connection_length % VS_CONNECTION_CHUNK_SIZE == 0)
+		VSConnectionStorage.connection = realloc(VSConnectionStorage.connection, (sizeof *VSConnectionStorage.connection) * (VSConnectionStorage.connection_length + VS_CONNECTION_CHUNK_SIZE));
 	VSConnectionStorage.connection[VSConnectionStorage.connection_length].session = session;
 	VSConnectionStorage.connection[VSConnectionStorage.connection_length].node_id = node_id;
 	VSConnectionStorage.connection_length++;
@@ -84,8 +84,8 @@ VSSubscriptionList *vs_create_subscription_list()
 {
 	VSSubscriptionList *list;
 	list = malloc(sizeof *list);
-	if(VSConnectionStorage.list_length % VS_CONNCECTION_CHUNK_SIZE == 0)
-		VSConnectionStorage.list = realloc(VSConnectionStorage.list, (sizeof *VSConnectionStorage.list) * (VSConnectionStorage.list_length + VS_CONNCECTION_CHUNK_SIZE));
+	if(VSConnectionStorage.list_length % VS_CONNECTION_CHUNK_SIZE == 0)
+		VSConnectionStorage.list = realloc(VSConnectionStorage.list, (sizeof *VSConnectionStorage.list) * (VSConnectionStorage.list_length + VS_CONNECTION_CHUNK_SIZE));
 	VSConnectionStorage.list[VSConnectionStorage.list_length] = list;
 	list->session = NULL;
 	list->session_count = 0; 
@@ -106,8 +106,8 @@ void vs_destroy_subscription_list(VSSubscriptionList *list)
 
 void vs_add_new_subscriptor(VSSubscriptionList *list)
 {
-	if(list->session_count % VS_CONNCECTION_CHUNK_SIZE == 0)
-		list->session = realloc(list->session, (sizeof *list->session) * (list->session_count + VS_CONNCECTION_CHUNK_SIZE));
+	if(list->session_count % VS_CONNECTION_CHUNK_SIZE == 0)
+		list->session = realloc(list->session, (sizeof *list->session) * (list->session_count + VS_CONNECTION_CHUNK_SIZE));
 	list->session[list->session_count] = VSConnectionStorage.connection[VSConnectionStorage.current_session].session;
 	list->session_count++;
 }
