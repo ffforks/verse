@@ -13,7 +13,7 @@ typedef struct{
 }VNetworkAddress;
 
 extern void		v_n_set_port(unsigned short port);
-extern void		v_n_wait_for_incoming(unsigned int microseconds);
+extern unsigned int	v_n_wait_for_incoming(unsigned int microseconds);
 extern boolean	v_n_set_network_address(VNetworkAddress *address, const char *host_name);
 extern int		v_n_send_data(VNetworkAddress *address, const char *data, size_t length);
 extern int		v_n_receive_data(VNetworkAddress *address, char *data, size_t length);
