@@ -11,8 +11,7 @@ CFLAGS = -I$(shell pwd) -Wall -ansi
 
 TARGETS = libverse.a verse
 
-LIBVERSE_SRC = $(patsubst v_initialize.c,, \
-             $(wildcard v_*.c))
+LIBVERSE_SRC = $(wildcard v_*.c))
 LIBVERSE_OBJ = $(LIBVERSE_SRC:%.c=%.o)
 
 VERSE_SRC = $(wildcard vs_*.c)
