@@ -98,7 +98,7 @@ void vs_destroy_subscription_list(VSSubscriptionList *list)
 {
 	unsigned int i;
 	if(list->session != NULL)
-		list->session;
+		free(list->session);	/* FIXME: Is this correct? Ask Eskil! */
 	for(i = 0; i < VSConnectionStorage.list_length && VSConnectionStorage.list[i] != list; i++);
 	if(i < VSConnectionStorage.list_length)
 		VSConnectionStorage.list[i] = VSConnectionStorage.list[--VSConnectionStorage.list_length];
