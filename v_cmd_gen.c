@@ -458,12 +458,16 @@ static const char * v_cg_compute_buffer_size(void)
 	size = v_cg_compute_command_size(0, FALSE) + 1;
 	if(size <= 10)
 		return "VCMDBS_10";
-	else if(size <= 50)
-		return "VCMDBS_50";
-	else if(size <= 100)
-		return "VCMDBS_100";
-	else if(size <= 500)
-		return "VCMDBS_500";
+	else if(size <= 20)
+		return "VCMDBS_20";
+	else if(size <= 30)
+		return "VCMDBS_30";
+	else if(size <= 80)
+		return "VCMDBS_80";
+	else if(size <= 160)
+		return "VCMDBS_160";
+	else if(size <= 320)
+		return "VCMDBS_320";
 	return "VCMDBS_1500";
 }
 
