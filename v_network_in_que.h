@@ -13,9 +13,11 @@ typedef struct{
 	size_t	size;
 }VNetInPacked;
 
-extern void v_niq_clear(VNetInQueue *queue);
-extern VNetInPacked *v_niq_get(VNetInQueue *queue, size_t *length);
-extern void v_niq_release(VNetInQueue *queue, VNetInPacked *p);
-extern char *v_niq_store(VNetInQueue *queue, size_t length, unsigned int packet_id);
-unsigned int v_niq_free(VNetInQueue *queue);
-extern uint32 v_niq_time_out(const VNetInQueue *queue);
+extern void		v_niq_clear(VNetInQueue *queue);
+extern void		v_niq_timer_update(VNetInQueue *queue);
+
+extern VNetInPacked *	v_niq_get(VNetInQueue *queue, size_t *length);
+extern void		v_niq_release(VNetInQueue *queue, VNetInPacked *p);
+extern char *		v_niq_store(VNetInQueue *queue, size_t length, unsigned int packet_id);
+unsigned int		v_niq_free(VNetInQueue *queue);
+extern uint32		v_niq_time_out(const VNetInQueue *queue);

@@ -24,6 +24,12 @@ void v_niq_clear(VNetInQueue *queue)
 	queue->oldest = NULL;
 	queue->newest = NULL;
 	queue->packet_id = 2;
+	v_niq_timer_update(queue);
+}
+
+/* Set queue's last-used timestamp to "now". */
+void v_niq_timer_update(VNetInQueue *queue)
+{
 	v_n_get_current_time(&queue->seconds, NULL);
 }
 
@@ -31,7 +37,7 @@ uint32 v_niq_time_out(const VNetInQueue *queue)
 {
 	uint32 seconds;
 	v_n_get_current_time(&seconds, NULL);
-/*	printf("time = %u %u %u\n", seconds, queue->seconds, seconds - queue->seconds);*/
+/*	printf("queue at %p has seconds=%u, now=%u -> diff=%u\n", queue, queue->seconds, seconds, seconds - queue->seconds);*/
 	return seconds - queue->seconds;
 }
 
@@ -77,7 +83,7 @@ char *v_niq_store(VNetInQueue *queue, size_t length, unsigned int packet_id)
 {
 	VNetInPacked	*p;
 
-	v_n_get_current_time(&queue->seconds, NULL);
+	v_niq_timer_update(queue);
 
 	if(packet_id < queue->packet_id)
 		return NULL;
