@@ -124,9 +124,13 @@ VSSubscriptionList *vs_create_subscription_list(void)
 void vs_destroy_subscription_list(VSSubscriptionList *list)
 {
 	unsigned int i;
+
+	if(list == NULL)
+		return;
 	if(list->session != NULL)
 		free(list->session);
-	for(i = 0; i < VSConnectionStorage.list_length && VSConnectionStorage.list[i] != list; i++);
+	for(i = 0; i < VSConnectionStorage.list_length && VSConnectionStorage.list[i] != list; i++)
+		;
 	if(i < VSConnectionStorage.list_length)
 		VSConnectionStorage.list[i] = VSConnectionStorage.list[--VSConnectionStorage.list_length];
 	free(list);
