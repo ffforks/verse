@@ -625,7 +625,7 @@ void verse_send_tag_create(VNodeID node_id, uint16 group_id, uint16 tag_id, cons
 			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->vuint32);
 		break;
 		case VN_TAG_REAL64 :
-			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vreal64);
+			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], ((VNTag *)tag)->vreal64);
 		break;
 		case VN_TAG_STRING :
 		{
@@ -637,9 +637,9 @@ void verse_send_tag_create(VNodeID node_id, uint16 group_id, uint16 tag_id, cons
 		break;
 		case VN_TAG_REAL64_VEC3 :
 		{
-			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vreal64_vec3[0]);
-			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vreal64_vec3[1]);
-			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vreal64_vec3[2]);
+			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], ((VNTag *)tag)->vreal64_vec3[0]);
+			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], ((VNTag *)tag)->vreal64_vec3[1]);
+			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], ((VNTag *)tag)->vreal64_vec3[2]);
 		}
 		break;
 		case VN_TAG_LINK :
@@ -732,7 +732,7 @@ unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length)
 				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.vuint32);
 			break;
 			case VN_TAG_REAL64 :
-				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vreal64);
+				buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tag.vreal64);
 			break;
 			case VN_TAG_STRING :
 			{
@@ -742,9 +742,9 @@ unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length)
 			break;
 			case VN_TAG_REAL64_VEC3 :
 			{
-				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vreal64_vec3[0]);
-				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vreal64_vec3[1]);
-				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vreal64_vec3[2]);
+				buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tag.vreal64_vec3[0]);
+				buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tag.vreal64_vec3[1]);
+				buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tag.vreal64_vec3[2]);
 			}
 			break;
 			case VN_TAG_LINK :
