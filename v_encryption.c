@@ -137,7 +137,7 @@ void v_e_math_compute_gcd(VBigDig *gcd, const VBigDig *u, const VBigDig *v)
 }
 #endif
 
-void v_e_connect_create_key(uint8 *public_key, uint8 *private_key, uint8 *n)
+void v_e_connect_create_key(uint8 *private_key, uint8 *public_key, uint8 *n)
 {
 	VBigDig	VBIGNUM(p, BITS / 2), VBIGNUM(q, BITS / 2), VBIGNUM(qmo, BITS / 2), VBIGNUM(phi, BITS),
 		VBIGNUM(pub, BITS), VBIGNUM(priv, BITS), VBIGNUM(mod, BITS);
@@ -159,16 +159,16 @@ void v_e_connect_create_key(uint8 *public_key, uint8 *private_key, uint8 *n)
 /*	printf("phi=");
 	v_bignum_print_hex_lf(phi);
 */	v_bignum_set_string_hex(pub, "0x10001");
-/*	printf("e=");
+/*	printf(" pub=");
 	v_bignum_print_hex_lf(pub);
-	v_e_math_inv(priv, pub, phi);
-	printf("d=");
+*/	v_e_math_inv(priv, pub, phi);
+/*	printf("priv=");
 	v_bignum_print_hex_lf(priv);
 */
 	v_bignum_set_bignum(mod, p);
 	v_bignum_mul(mod, q);
 /*	printf("n=");
-	v_bignum_print_hex_lf(n);
+	v_bignum_print_hex_lf(mod);
 	printf("key-creation finished\n");
 */	/* Write out the keys. */
 	v_bignum_raw_export(pub, public_key);
@@ -185,9 +185,11 @@ void v_e_connect_encrypt(uint8 *output, const uint8 *data, const uint8 *key, con
 	v_bignum_raw_import(mod, key_n);
 /*	printf("RSA key: ");
 	v_bignum_print_hex_lf(expo);
+	printf("RSA mod: ");
+	v_bignum_print_hex_lf(mod);
 	printf("RSA in:  ");
 	v_bignum_print_hex_lf(packet);
-	printf("bits in packet: %d\n", v_bignum_bit_msb(packet) + 1);
+	printf("bits in packet: %d, ", v_bignum_bit_msb(packet) + 1);
 	printf("bits in modulo: %d\n", v_bignum_bit_msb(mod) + 1);
 */	v_bignum_pow_mod(packet, expo, mod);	/* Blam. */
 /*	printf("RSA out: ");
