@@ -182,7 +182,7 @@ static void callback_send_t_buffer_subscribe(void *user, VNodeID node_id, VNMBuf
 	vs_add_new_subscriptor(node->buffer[buffer_id].subscribers);
 	for(i = 0; i < node->buffer[buffer_id].length; i += VN_T_MAX_TEXT_CMD_SIZE)
 	{	
-		if(i + VN_T_MAX_TEXT_CMD_SIZE < node->buffer[buffer_id].length)
+		if(i + VN_T_MAX_TEXT_CMD_SIZE > node->buffer[buffer_id].length)
 			verse_send_t_text_set(node_id, buffer_id, i, node->buffer[buffer_id].length - i, &node->buffer[buffer_id].text[i]);
 		else
 			verse_send_t_text_set(node_id, buffer_id, i, VN_T_MAX_TEXT_CMD_SIZE, &node->buffer[buffer_id].text[i]);
