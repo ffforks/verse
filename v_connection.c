@@ -139,10 +139,9 @@ uint32 verse_session_get_avatar(void)
 
 void *v_con_get_network_address_id(unsigned int id)
 {
-	if(id < VConData.con_count)
+	if(VConData.con_count > 0 && id < VConData.con_count)
 		return VConData.con[VConData.current_connection].network_address;
-	else
-		return VConData.connect_address;
+	return VConData.connect_address;
 }
 
 unsigned int v_con_get_network_address_count(void)
