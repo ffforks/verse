@@ -57,7 +57,8 @@ else:
     env_dict = env.Dictionary()
     config = open (config_file, 'w')
     config.write ("#Configuration file for verse SCons user definable options.\n")
-    config.write ("BUILD_BINARY = 'release'")
+    config.write ("BUILD_BINARY = 'release'\n")
+    config.write ("REGEN_PROTO = 'yes'\n")
     config.write ("\n# Compiler information.\n")
     config.write ("HOST_CC = %r\n"%(env_dict['CC']))
     config.write ("HOST_CXX = %r\n"%(env_dict['CXX']))
@@ -74,6 +75,9 @@ user_options.AddOptions(
         allowed_values = ('release', 'debug'))),
     ('BUILD_DIR', 'Target directory for intermediate files.',
         root_build_dir),
+    (EnumOption ('REGEN_PROTO', 'yes',
+        'Whether to regenerate the protocol files',
+        allowed_values = ('yes', 'no'))),
     ('HOST_CC', 'C compiler for the host platfor. This is the same as target platform when not cross compiling.'),
     ('HOST_CXX', 'C++ compiler for the host platform. This is the same as target platform when not cross compiling.'),
     ('TARGET_CC', 'C compiler for the target platform.'),
@@ -102,32 +106,42 @@ library_env.Replace (CXX = user_options_dict['TARGET_CXX'])
 library_env.Replace (PATH = user_options_dict['PATH'])
 library_env.Replace (AR = user_options_dict['TARGET_AR'])
 
+cmd_gen_files = (['v_cmd_gen.c',
+                  'v_cmd_def_b.c',
+                  'v_cmd_def_c.c',
+                  'v_cmd_def_g.c',
+                  'v_cmd_def_m.c',
+                  'v_cmd_def_o.c',
+                  'v_cmd_def_s.c',
+                  'v_cmd_def_t.c'
+                  ])
+
+cmd_gen_deps = (['v_gen_pack_init.c',
+                 'v_gen_pack_b_node.c',
+                 'v_gen_pack_c_node.c',
+                 'v_gen_pack_g_node.c',
+                 'v_gen_pack_m_node.c',
+                 'v_gen_pack_o_node.c',
+                 'v_gen_pack_p_node.c',
+                 'v_gen_pack_s_node.c',
+                 'v_gen_pack_t_node.c',
+                ])
+
+if user_options_dict['REGEN_PROTO']=='yes':
+    cmd_gen_env = library_env.Copy()
+    cmd_gen_env.Append(CPPDEFINES=['V_GENERATE_FUNC_MODE'])
+    mkprot = cmd_gen_env.Program(target='mkprot', source=cmd_gen_files)
+
 lib_source_files = (['v_cmd_buf.c',
-                     'v_cmd_def_b.c',
-                     'v_cmd_def_c.c',
-                     'v_cmd_def_g.c',
-                     'v_cmd_def_m.c',
-                     'v_cmd_def_o.c',
-                     'v_cmd_def_s.c',
-                     'v_cmd_def_t.c',
-                     'v_cmd_gen.c',
                      'v_connection.c',
                      'v_func_storage.c',
-                     'v_gen_pack_b_node.c',
-                     'v_gen_pack_c_node.c',
-                     'v_gen_pack_g_node.c',
-                     'v_gen_pack_init.c',
-                     'v_gen_pack_m_node.c',
-                     'v_gen_pack_o_node.c',
-                     'v_gen_pack_p_node.c',
-                     'v_gen_pack_s_node.c',
-                     'v_gen_pack_t_node.c',
                      'v_man_pack_node.c',
                      'v_network.c',
                      'v_network_que.c',
                      'v_pack.c',
                      'v_pack_method.c'
                     ])
+lib_source_files += cmd_gen_deps
 
 server_source_files = (['vs_connection.c',
                         'vs_main.c',
@@ -160,6 +174,8 @@ verseexample_env.Append (LIBPATH = ['.'])
 verseexample_env.Append (LIBS= platform_libs)
 verseexample_env.Append (CPPPATH = ['.'])
 
-verselib_env.Library(target='libverse', source=lib_source_files)
+verselib = verselib_env.Library(target='libverse', source=lib_source_files)
+if user_options_dict['REGEN_PROTO']=='yes':
+    verselib_env.Depends(verselib, cmd_gen_deps)
 verseserver_env.Program(target='verse', source=server_source_files)
 verseexample_env.Program(target='list-nodes', source=verse_example_sources)
