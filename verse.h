@@ -400,8 +400,7 @@ extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, co
 extern VSession *verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_host_id);
 extern VSession *verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id);
 extern void verse_send_connect_terminate(const char *address, const char *bye);
-extern void verse_send_get_time(uint32 time);
-extern void verse_send_ping(const char *address, const char *text);
+extern void verse_send_ping(const char *address, const char *message);
 extern void verse_send_node_list(uint32 mask);
 extern void verse_send_node_create(VNodeID node_id, VNodeType type, VNodeOwner owner);
 extern void verse_send_node_destroy(VNodeID node_id);
@@ -433,8 +432,8 @@ extern void verse_send_o_method_group_unsubscribe(VNodeID node_id, uint16 group_
 extern void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_id, const char *name, uint8 param_count, const VNOParamType *param_types, const char * *param_names);
 extern void verse_send_o_method_destroy(VNodeID node_id, uint16 group_id, uint16 method_id);
 extern void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const void *params);
-extern void verse_send_o_anim_run(VNodeID node_id, uint16 anim_id, uint16 link_id, uint32 time_s, uint32 time_f, real64 start, real64 speed, real64 speed_ramp, real64 factor, real64 factor_ramp);
-extern void verse_send_o_anim_stop(VNodeID node_id, uint16 anim_id);
+extern void verse_send_o_anim_run(VNodeID node_id, uint16 link_id, uint32 time_s, uint32 time_f, real64 pos, real64 speed, real64 accel, real64 scale, real64 scale_speed);
+extern void verse_send_o_anim_stop(VNodeID node_id, uint16 link_id);
 
 extern void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_uint, real64 def_real);
 extern void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id);
