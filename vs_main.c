@@ -45,7 +45,7 @@ static void callback_send_ping(void *user, char *address, char *text)
 
 int main(int argc, char **argv)
 {
-	printf("Verse Server r%up%u By Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH);
+	printf("Verse Server r%up%u%s By Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
 	verse_set_port(4950); /* this is the standard port */
 	vs_init_node_storage();
 	vs_o_callback_init();
