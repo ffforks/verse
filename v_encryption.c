@@ -33,8 +33,9 @@ const uint8 * v_e_data_create_key(void) /* possibly the worst key gen ever */
 		buffer[i] = temp;
 	}
 	/* FIXME: This really isn't very pretty. */
-	buffer[sizeof buffer - 1] &= 0x3f;	/* Make sure top word is... Low. For RSA compatibility. */
-	buffer[sizeof buffer - 2] &= 0x3f;	/* Make sure top word is... Low. For RSA compatibility. */
+	buffer[0] &= 0x3f;	/* Make sure top word is... Low. For RSA compatibility. */
+	buffer[1] &= 0x3f;	/* Make sure top word is... Low. For RSA compatibility. */
+
 	return buffer;
 }
 
