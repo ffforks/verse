@@ -49,10 +49,14 @@ VSNodeObject * vs_o_create_node(unsigned int owner)
 	VSNodeObject *node;
 	unsigned int i;
 	char name[48];
+
 	node = malloc(sizeof *node);
 	vs_add_new_node(&node->head, V_NT_OBJECT);
 	sprintf(name, "Object_Node_%u", node->head.id);
 	create_node_head(&node->head, name, owner);
+
+	node->light[0] = node->light[1] = node->light[2] = V_REAL64_MAX;
+
 	node->groups = malloc((sizeof *node->groups) * 16);
 	node->group_count = 16;
 	for(i = 0; i < 16; i++)
@@ -104,7 +108,7 @@ void vs_o_subscribe(VSNodeObject *node)
 	for(i = 0; i < node->link_count; i++)
 		if(node->links[i].name[0] != 0)
 			verse_send_o_link_set(node->head.id, i, node->links[i].link, node->links[i].name, node->links[i].target_id);
-	if(node->light[0] > -0.000001 && node->light[0] < 0.000001 && node->light[1] > -0.000001 && node->light[1] < 0.000001 && node->light[2] > -0.000001 && node->light[2] < 0.000001)
+	if(node->light[0] != V_REAL64_MAX && node->light[1] != V_REAL64_MAX && node->light[2] != V_REAL64_MAX)
 		verse_send_o_light_set(node->head.id, node->light[0], node->light[1], node->light[2]);
 	for(i = 0; i < node->group_count; i++)
 		if(node->groups[i].name[0] != 0)
@@ -157,9 +161,11 @@ static void callback_send_o_link_set(void *user, VNodeID node_id, uint16 link_id
 		}
 	}
 
-	node->links[link_id].link = -1;
-	node->links[link_id].name[0] = 0;
-	node->links[link_id].target_id = -1;
+	node->links[link_id].link = link;
+	for(i = 0; i < 15 && name[i] != 0; i++)
+	    node->links[link_id].name[i] = name[i];
+	node->links[link_id].name[i] = 0;
+	node->links[link_id].target_id = target_id;
 
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
