@@ -32,6 +32,9 @@ const uint8 * v_e_data_create_key(void) /* possibly the worst key gen ever */
 		temp = (temp * (temp * temp * 15731 + 789221) + 1376312589) & 0x7fffffff;
 		buffer[i] = temp;
 	}
+	/* FIXME: This really isn't very pretty. */
+	buffer[sizeof buffer - 1] &= 0x3f;	/* Make sure top word is... Low. For RSA compatibility. */
+	buffer[sizeof buffer - 2] &= 0x3f;	/* Make sure top word is... Low. For RSA compatibility. */
 	return buffer;
 }
 
@@ -55,11 +58,6 @@ void v_e_data_decrypt_packet(uint8 *to, const uint8 *from, size_t size, const ui
 		to[i] = from[i];
 	for(i = 4; i < size; i++)
 		to[i] = from[i] ^ key[(i + pos) % V_ENCRYPTION_DATA_KEY_SIZE];
-}
-
-void v_e_encrypt_login(uint8 *data, unsigned int data_length, uint8 *key)
-{
-
 }
 
 #endif
