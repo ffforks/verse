@@ -48,14 +48,22 @@ unsigned int vs_add_new_node(VSNodeHead *node, VNodeType type)
 		VSNodeStorage.node_length = i + 1;
 	node->id = i;
 	node->type = type;
+	printf("node stored, type %d\n", node->type);
+
 	return node->id;
 }
 
 VSNodeHead *vs_get_node(unsigned int node_id, VNodeType type)
 {
+	printf("lookup: get=%u len=%u\n", node_id, VSNodeStorage.node_length);
 	if(VSNodeStorage.node_length > node_id)
-		if(VSNodeStorage.nodes[node_id] != NULL && VSNodeStorage.nodes[node_id]->type == type)
-			return VSNodeStorage.nodes[node_id];
+	{
+		VSNodeHead	*node = VSNodeStorage.nodes[node_id];
+
+		printf(" got %p, type %d (need %u)\n", node, node != NULL ? node->type : -1, type);
+		if(node != NULL && node->type == type)
+			return node;
+	}
 	return NULL;
 }
 
@@ -108,15 +116,11 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 		case V_NT_TEXT :
 			node = vs_t_create_node(owner_id);
 		break;
-/*		case V_NT_PARTICLE :
-			return 0;			
-			node = vs_p_create_node(owner_id);
-		break;*/
 		case V_NT_CURVE :
 			node = vs_c_create_node(owner_id);
 		break;
 		case V_NT_AUDIO :
-			node = vs_c_create_node(owner_id);
+			node = vs_a_create_node(owner_id);
 		break;
 	}
 	node_id = node->id;
