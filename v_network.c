@@ -171,16 +171,14 @@ VNetworkAddress * v_n_create_network_address(int my_port, const char *addr)
 
 unsigned int v_n_send_data(VNetworkAddress *address, const char *data, unsigned int length)
 {
-	unsigned int size,  i;
+	unsigned int i;
 	struct sockaddr_in address_in;
 	address_in.sin_family = AF_INET;     /* host byte order */
 	address_in.sin_port = htons(address->their_port); /* short, network byte order */
 	address_in.sin_addr.s_addr = htonl(address->their_ip);
 	for(i = 0; i < 8; i++)
 		((char *)address_in.sin_zero)[i] = 0; /* zero the rest of the struct */
-	size = sendto(address->socket, data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr));
-
-	return size;
+	return sendto(address->socket, data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr));
 }
 
 #if !defined V_GENERATE_FUNC_MODE
