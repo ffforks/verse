@@ -93,7 +93,7 @@ void *v_fs_get_alias_user_data(unsigned int cmd_id)
 	return VCmdData.alias_user_data[cmd_id];
 }
 
-void verse_callback_set(void *command, void *callback, void *user)
+void verse_callback_set(void *command, void (*callback)(), void *user)
 {
 	unsigned int i;
 	if(!v_fs_initialized)
