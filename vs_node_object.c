@@ -510,7 +510,7 @@ static void callback_send_o_method_group_subscribe(void *user, VNodeID node_id, 
 		{
 			char *names[255];
 			for(j = 0; j < node->groups[group_id].methods[i].param_count; j++)
-				names[j] = &node->groups[group_id].methods[i].name[j * 16];
+				names[j] = &node->groups[group_id].methods[i].param_names[j * 16];
 			verse_send_o_method_create(node_id, group_id, i, node->groups[group_id].methods[i].name, node->groups[group_id].methods[i].param_count, node->groups[group_id].methods[i].param_types, names);
 		}
 	}

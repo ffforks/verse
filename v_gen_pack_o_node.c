@@ -927,7 +927,6 @@ void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_
 		}
 		if(sum + buffer_pos > 1500)
 			return;
-		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], param_count);
 		for(i = 0; i < param_count; i++)
 		{
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], param_types[i]);
