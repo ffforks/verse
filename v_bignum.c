@@ -77,8 +77,10 @@ VBigNum v_bignum_new_bignum(VBigNum a, unsigned int msb, unsigned int bits)
 VBigNum v_bignum_new_string(const char *string)
 {
 	size_t	len = strlen(string);
-	int	i, here, d;
+	int	i, here, d, digits;
 	VBigNum	x;
+
+	digits = (CHAR_BIT * sizeof *x.x) / 4;	/* How many hex digits per slot? One digit is 4 bits. */
 
 	if(strncmp(string, "0x", 2) == 0)
 	{
@@ -95,7 +97,7 @@ VBigNum v_bignum_new_string(const char *string)
 		if(!isxdigit(here))
 			break;
 		here -= isdigit(here) ? '0' : 'A' - 10;
-		x.x[d >> 2] |= here << 4 * (d & 3);
+		x.x[d / digits] |= here << (4 * (d % digits));
 	}
 	return x;
 }
