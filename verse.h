@@ -152,8 +152,8 @@ typedef enum {
 
 
 typedef enum {
-	VN_O_METHOD_GROUP_SIZE = 64,
-	VN_O_METHOD_NAME_SIZE = 64,
+	VN_O_METHOD_GROUP_NAME_SIZE = 16,
+	VN_O_METHOD_NAME_SIZE = 16,
 	VN_O_METHOD_SIG_SIZE = 256
 } VNOMethodConstants;
 
