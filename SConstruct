@@ -177,6 +177,6 @@ verseexample_env.Append (CPPPATH = ['.'])
 
 verselib = verselib_env.Library(target='libverse', source=lib_source_files)
 if user_options_dict['REGEN_PROTO']=='yes':
-    verselib_env.Depends(verselib, cmd_gen_deps)
+    verselib_env.Depends(verselib, mkprot)
 verseserver_env.Program(target='verse', source=server_source_files)
 verseexample_env.Program(target='list-nodes', source=verse_example_sources)
