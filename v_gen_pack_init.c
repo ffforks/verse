@@ -23,7 +23,7 @@
 #include "verse.h"
 
 
-void init_pack_and_unpack_fucs(void)
+void init_pack_and_unpack(void)
 {
 	v_fs_add_func(0, v_unpack_connect, verse_send_connect, NULL);
 	v_fs_add_func(1, v_unpack_connect_accept, verse_send_connect_accept, NULL);

@@ -77,7 +77,7 @@ static void v_cg_init(void)
 	fprintf(f, "#include \"v_internal_verse.h\"\n\n");
 	fprintf(f, "#include \"verse.h\"\n\n\n");
 
-	fprintf(VCGData.init, "void init_pack_and_unpack_fucs(void)\n{\n");
+	fprintf(VCGData.init, "void init_pack_and_unpack(void)\n{\n");
 	fprintf(VCGData.verse_h,
 		"/*\n"
 		"** Verse API Header file (for use with libverse.a).\n"
