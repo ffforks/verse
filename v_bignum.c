@@ -109,6 +109,20 @@ void v_bignum_set_digit(VBigDig *x, VBigDig y)
 	x[1] = y;
 }
 
+/* Assigns x = <string>, with string in decimal ASCII. Kind of slow. */
+void v_bignum_set_string(VBigDig *x, const char *string)
+{
+	unsigned int	d;
+
+	v_bignum_set_zero(x);
+	for(; *string && isdigit(*string); string++)
+	{
+		v_bignum_mul_digit(x, 10);
+		d = *string - '0';
+		v_bignum_add_digit(x, d);
+	}
+}
+
 /* Assigns x = <string>, with string in hexadecimal ASCII. */
 void v_bignum_set_string_hex(VBigDig *x, const char *string)
 {
@@ -172,7 +186,7 @@ void v_bignum_set_random(VBigDig *x)
 	unsigned int	i, s = *x++;
 
 	for(i = 0; i < s; i++)
-		x[i] = rand();
+		x[i] = rand() >> 7;
 }
 
 /* Print x in hexadecimal, with 0x prefix but no linefeed. */
@@ -256,10 +270,8 @@ int v_bignum_bit_size(const VBigDig *x)
 void v_bignum_bit_shift_left(VBigDig *x, unsigned int count)
 {
 	unsigned int	t, carry, s = *x++;
-	int		i;
+	register int	i;
 
-	if(count == 0)
-		return;
 	if(count >= CHAR_BIT * sizeof *x)	/* Shift whole digits. */
 	{
 		unsigned int	places = count / (CHAR_BIT * sizeof *x);
@@ -275,12 +287,9 @@ void v_bignum_bit_shift_left(VBigDig *x, unsigned int count)
 	/* Shift bits. */
 	for(i = carry = 0; i < s; i++)
 	{
-		t = x[i];
-		t <<= count;
-		t |= carry;
-		carry = t >> (CHAR_BIT * sizeof *x);
-/*		printf("i=%d carry=%u\n", i, carry);*/
+		t = (x[i] << count) | carry;
 		x[i] = t;
+		carry = t >> (CHAR_BIT * sizeof *x);
 	}
 }
 
@@ -290,8 +299,6 @@ void v_bignum_bit_shift_right(VBigDig *x, unsigned int count)
 	unsigned int	t, carry, s = *x++;
 	int		i;
 
-	if(count == 0)
-		return;
 	/* Shift entire digits first. */
 	if(count >= CHAR_BIT * sizeof *x)
 	{
@@ -588,8 +595,9 @@ void v_bignum_div(VBigDig *x, const VBigDig *y, VBigDig *remainder)
 	}
 	if(remainder != NULL)
 	{
-		printf("div() got remainder ");
+/*		printf("div() got remainder ");
 		v_bignum_print_hex_lf(work);
+*/
 		v_bignum_set_bignum(remainder, work);
 	}
 	bignum_free(work);
@@ -603,18 +611,19 @@ void v_bignum_mod(VBigDig *x, const VBigDig *y)
 	int	digs;
 	VBigDig	*tmp;
 
-	printf("computing ");
+/*	printf("computing ");
 	v_bignum_print_hex(x);
-	printf(" %% ");
+	printf("L %% ");
 	v_bignum_print_hex(y);
-
+*/
 	digs = *x > *y ? *x : *y;
 	tmp = bignum_alloc(digs);
 	v_bignum_div(x, y, tmp);
 	v_bignum_set_bignum(x, tmp);
 	bignum_free(tmp);
-	printf(" = ");
+/*	printf("L = ");
 	v_bignum_print_hex_lf(x);
+*/
 }
 
 /* Computes x = (x^y) % n, where ^ denotes exponentiation. */
@@ -633,26 +642,18 @@ void v_bignum_pow_mod(VBigDig *x, const VBigDig *y, const VBigDig *n)
 
 	tmp = bignum_alloc(2 * *x);	/* Squaring needs twice the bits, or lossage occurs. */
 	printf("pow-mod using %u bits for tmp\n", v_bignum_bit_size(tmp));
-	printf("n=");
-	v_bignum_print_hex_lf(n);
 	v_bignum_set_bignum(tmp, x);
 	k = v_bignum_bit_msb(y);
 	for(i = k - 1; i >= 0; i--)
 	{
 		v_bignum_mul(tmp, tmp);
-		printf("early %u ", i);
-		v_bignum_print_hex_lf(tmp);
 		v_bignum_mod(tmp, n);
-		printf("mod %u ", i);
-		v_bignum_print_hex_lf(tmp);
 		if(v_bignum_bit_test(y, i))
 		{
 			v_bignum_mul(tmp, x);
 			v_bignum_mod(tmp, n);
 		}
 	}
-	printf("tmp=");
-	v_bignum_print_hex_lf(tmp);
 	v_bignum_set_bignum(x, tmp);
 	bignum_free(tmp);
 }
