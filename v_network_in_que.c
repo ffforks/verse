@@ -8,6 +8,7 @@
 #include "v_cmd_buf.h"
 #include "v_cmd_gen.h"
 #include "v_connection.h"
+#include "v_internal_verse.h"
 #include "v_network.h"
 #include "v_pack.h"
 
