@@ -8,7 +8,7 @@
 # if...elif...
 # construction about the platform specific stuff.
 #
-# I think it is quite straigth forward to add new platforms,
+# I think it is quite straight-forward to add new platforms,
 # just look at the old makefile and at the existing platforms.
 #
 # This SConstruct creates a configuration file which can be
