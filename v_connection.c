@@ -165,7 +165,8 @@ extern boolean	v_fs_buf_unpack_stored(void);
 */
 extern void v_unpack_connection(const char *buf, unsigned int buffer_length);
 
-void v_con_network_listen(void) /* main function that receves and distrobutes all incomming packets */
+/* Main function that receives and distributes all incoming packets. */
+void v_con_network_listen(void)
 {
 	VNetworkAddress address;
 	uint8 buf[V_MAX_CONNECT_PACKET_SIZE], *store;
@@ -173,44 +174,44 @@ void v_con_network_listen(void) /* main function that receves and distrobutes al
 	unsigned int connection;
 	uint32 packet_id;
 
-	v_con_init(); /* init if needed */
-	connection = VConData.current_connection; /* store current connection in a local variable so that ve can restore it later*/
-	size = v_n_receive_data(&address, buf, sizeof buf); /* ask fopr incomming data form the network */
-	while(size != -1 && size != 0) /* did we get any data? */
+	v_con_init(); /* Init if needed. */
+	connection = VConData.current_connection; /* Store current connection in a local variable so that we can restore it later. */
+	size = v_n_receive_data(&address, buf, sizeof buf); /* Ask for incoming data from the network. */
+	while(size != -1 && size != 0) /* Did we get any data? */
 	{
-		VConData.current_connection = v_co_find_connection(address.ip, address.port); /* is there a connection matching the ip and port?*/
-		vnp_raw_unpack_uint32(buf, &packet_id); /* un pack the id of the packet */
-			printf("got packet %u\n", packet_id);
-		if(VConData.current_connection < VConData.con_count && !(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED && packet_id == 0)) /* if this isnt a packet form a existing connection dissregard it */
+		VConData.current_connection = v_co_find_connection(address.ip, address.port); /* Is there a connection matching the IP and port? */
+		vnp_raw_unpack_uint32(buf, &packet_id); /* Unpack the ID of the packet. */
+/*		printf("got packet %u\n", packet_id);*/
+		if(VConData.current_connection < VConData.con_count && !(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED && packet_id == 0)) /* If this isn't a packet from an existing connection, disregard it. */
 		{
-			if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED) /* is this connection inizialized? */
+			if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED) /* Is this connection initialized? */
 			{
-				store = v_niq_store(&VConData.con[VConData.current_connection].in_queue, size, packet_id); /* store the packet */
+				store = v_niq_store(&VConData.con[VConData.current_connection].in_queue, size, packet_id); /* Store the packet. */
 				if(store != NULL)
 				{
-					VConData.pending_packets++; /* we now have one more paket pending unpacking */
-					v_e_dencrypt_data_packet(buf, store, size, VConData.con[VConData.current_connection].key_data); /* de crypt the packet*/
+					VConData.pending_packets++; /* We now have one more packet pending unpack. */
+					v_e_dencrypt_data_packet(buf, store, size, VConData.con[VConData.current_connection].key_data); /* Decrypt the packet. */
 				}
 			}
 			else
-				v_unpack_connection(buf, size); /* this is a ongoing connecton atempt */
+				v_unpack_connection(buf, size); /* This is an ongoing connecton-attempt. */
 		}
-		else if(v_fs_func_accept_connections()) /* do we accept connect atempts? */
+		else if(v_fs_func_accept_connections()) /* Do we accept connection-attempts? */
 		{
-			if(VConData.current_connection >= VConData.con_count || V_RE_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue)) /* is the i new client, or an old client that we havent heard form in some time?*/
+			if(VConData.current_connection >= VConData.con_count || V_RE_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue)) /* Is it a new client, or an old client that we haven't heard form in some time? */
 			{
 				if(VConData.current_connection < VConData.con_count)
 				{
-					VConData.con[VConData.current_connection].destroy_flag = TRUE; /* destroy old connection if there is one */
+					VConData.con[VConData.current_connection].destroy_flag = TRUE; /* Destroy old connection if there is one. */
 				}
-				v_con_connect(address.ip, address.port, V_CS_IDLE); /* create a new connection*/
-				v_unpack_connection(buf, size); /* un pack the connection atempt */
+				v_con_connect(address.ip, address.port, V_CS_IDLE); /* Create a new connection. */
+				v_unpack_connection(buf, size); /* Unpack the connection-attempt. */
 			}
 		}else
 			printf("unhandled packet!!!!!\n");
-		size = v_n_receive_data(&address, buf, sizeof buf); /* see it there aother oncomming packets */
+		size = v_n_receive_data(&address, buf, sizeof buf); /* See if there are more incoming packets. */
 	}
-	VConData.current_connection = connection; /* reset the current connection*/
+	VConData.current_connection = connection; /* Reset the current connection. */
 }
 
 void v_update_connection_pending(void);
