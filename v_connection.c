@@ -22,7 +22,6 @@
 #define V_RE_CONNECTON_TIME_OUT 3
 #define V_CONNECTON_TIME_OUT 30
 
-
 typedef struct {
 	VNetOutQueue	*out_queue;
 	VNetInQueue		in_queue;
@@ -165,6 +164,11 @@ extern boolean	v_fs_buf_unpack_stored(void);
 */
 extern void v_unpack_connection(const char *buf, unsigned int buffer_length);
 
+extern void	verse_send_packet_nak(uint32 packet_id);
+extern void	v_callback_connect_terminate(const char *bye);
+extern boolean	v_connect_unpack_ping(const char *buf, size_t buffer_length, uint32 ip, uint16 port);
+extern void	v_ping_update(void);
+
 /* Main function that receives and distributes all incoming packets. */
 void v_con_network_listen(void)
 {
@@ -196,7 +200,7 @@ void v_con_network_listen(void)
 			else
 				v_unpack_connection(buf, size); /* This is an ongoing connecton-attempt. */
 		}
-		else if(v_fs_func_accept_connections()) /* Do we accept connection-attempts? */
+		else if(!v_connect_unpack_ping(buf, size, address.ip, address.port) && v_fs_func_accept_connections()) /* Do we accept connection-attempts? */
 		{
 			if(VConData.current_connection >= VConData.con_count || V_RE_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue)) /* Is it a new client, or an old client that we haven't heard form in some time? */
 			{
@@ -207,6 +211,7 @@ void v_con_network_listen(void)
 				v_con_connect(address.ip, address.port, V_CS_IDLE); /* Create a new connection. */
 				v_unpack_connection(buf, size); /* Unpack the connection-attempt. */
 			}
+
 		}else
 			printf("unhandled packet!!!!!\n");
 		size = v_n_receive_data(&address, buf, sizeof buf); /* See if there are more incoming packets. */
@@ -242,18 +247,13 @@ boolean v_con_callback_update(void)
 		}
 		v_con_network_listen();
 	}
-
 	return output;
 }
-
-extern void verse_send_packet_nak(uint32 packet_id);
-
-void v_callback_connect_terminate(const char *bye);
-
 
 void verse_callback_update(unsigned int microseconds)
 {
 	unsigned int connection, passed;
+	v_ping_update();	/* Deliver any pending pings. */
 	connection = VConData.current_connection;
 	for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
 	{
