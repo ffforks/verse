@@ -711,46 +711,6 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	bignum_free(q);
 }
 
-/* Computes x *= x, using the algorithm 14.16 from Handbook of Applied Cryptography. */
-void v_bignum_square_half_fsck(VBigDig *x)
-{
-	int		t = *x / 2, i, j, high = 0, k = 0;
-	unsigned long	uv, c;
-	VBigDig		*w;
-
-	if(t == 0)
-		return;
-	for(; x[t] == 0; t--)	/* Reduce to find actual # of digits used. */
-		;
-	w = bignum_alloc(*x);
-	v_bignum_set_zero(w);
-	printf("x=");
-	v_bignum_print_hex_lf(x);
-	for(i = 0; i < t; i++)
-	{
-		uv = w[1 + 2 * i] + x[1 + i] * x[1 + i];
-		printf("setting w[%d]=%lX\n", 2 * i, uv);
-		w[1 + 2 * i] = uv;
-		c = uv >> V_BIGBITS;		/* c = upper 17 bits of uv (dropping MSB). */
-		printf("uv before=%X, c=%X\n", uv, c);
-		high = 0;
-		for(j = i + 1; j < t; j++)
-		{
-			uv = x[1 + j] * x[1 + i];
-			high = (uv & 0x80000000) != 0;			/* Pre-compute MSB of large product. */
-			uv *= 2;
-			uv += w[1 + i + j] + c;
-			printf("setting w[%d]=%X [inner]\n", i + j, uv);
-			w[1 + i + j] = uv;
-			c = (uv >> V_BIGBITS) | (high << V_BIGBITS);	/* Update c, set MSB manually. */
-		}
-		printf("setting w[%d]=%lX [after]\n", i + t, uv);
-		w[1 + i + t] = c;
-	}
-	v_bignum_set_bignum(x, w);
-	bignum_free(w);
-}
-
 void v_bignum_square_half(VBigDig *x)
 {
 	unsigned long	w[1024], uv, c, ouv;
@@ -827,7 +787,7 @@ void v_bignum_pow_mod(VBigDig *x, const VBigDig *y, const VBigDig *n)
 	mu = v_bignum_reduce_begin(n);
 	for(i = k - 1; i >= 0; i--)
 	{
-		v_bignum_mul(tmp, tmp);
+		v_bignum_square_half(tmp);
 		v_bignum_reduce(tmp, n, mu);
 		if(v_bignum_bit_test(y, i))
 		{
