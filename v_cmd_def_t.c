@@ -19,7 +19,6 @@ void v_gen_text_cmd_def(void)
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_BUFFER_ID,	"buffer_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
-	v_cg_add_param(VCGP_UINT16,		"index");
 	v_cg_add_param(VCGP_NAME,		"name");
 	v_cg_alias(FALSE, "t_buffer_destroy", "if(name[0] == 0)", 2, NULL);
 	v_cg_end_cmd();
