@@ -30,11 +30,11 @@ typedef struct {
 	void		*ordered_storage;
 } VConnection;
 
-struct {
+static struct {
 	VConnection	*con;
 	unsigned int	con_count;
 	unsigned int	current_connection;
-	void		*connect_address;
+	VNetworkAddress	*connect_address;
 	void		*unified_func_storage;
 	uint16		connect_port;
 } VConData;
@@ -84,6 +84,9 @@ VNetworkAddress * v_con_connect(const char *address)
 	VConData.current_connection = VConData.con_count;
 	++VConData.con_count;
 
+/*	if(VConData.connect_address == NULL)
+		VConData.connect_address = net;
+*/
 	return net;
 }
 
@@ -113,7 +116,7 @@ void * v_con_get_network_queue(void)
 	return VConData.con[VConData.current_connection].network_queue;
 }
 
-const VNetworkAddress * v_con_get_network_address(void)
+VNetworkAddress * v_con_get_network_address(void)
 {
 	return VConData.con[VConData.current_connection].network_address;
 }
@@ -152,7 +155,7 @@ unsigned int v_con_get_network_address_count(void)
 
 void v_con_network_listen(void)
 {
-	void *address;
+	VNetworkAddress *address;
 	char buf[V_MAX_CONNECT_PACKET_SIZE];
 
 	/* no mid send new work looking for now */
@@ -185,7 +188,7 @@ void verse_callback_update(unsigned int milliseconds)
 		if(VConData.connect_address == NULL)
 			VConData.connect_address = v_n_create_network_address(VERSE_STD_CONNECT_PORT/*v_connect_port*/, "localhost");
 		v_n_wait_for_incoming(milliseconds);
-		size = v_n_receive_data(VConData.connect_address, buf, V_MAX_CONNECT_PACKET_SIZE, FALSE);
+		size = v_n_receive_data(VConData.connect_address, buf, sizeof buf, FALSE);
 		if(size != -1)
 		{
 			char string[200];
@@ -201,7 +204,7 @@ void verse_callback_update(unsigned int milliseconds)
 		{
 			if(!v_fs_buf_unpack_stored() || !v_fs_func_accept_connections())
 				v_n_wait_for_incoming(milliseconds);
-			size = v_n_receive_data(address, buf, V_MAX_CONNECT_PACKET_SIZE, TRUE);
+			size = v_n_receive_data(address, buf, sizeof buf, TRUE);
 			if(size != -1 || size != 0)
 				VConData.con[VConData.current_connection].ping_timeout += milliseconds;
 			while(size != -1 && size != 0)
@@ -209,7 +212,7 @@ void verse_callback_update(unsigned int milliseconds)
 				VConData.con[VConData.current_connection].ping_timeout = 0;
 				VConData.con[VConData.current_connection].connect_timeout = 0;
 				v_fs_buf_unpack(buf, size);
-				size = v_n_receive_data(address, buf, V_MAX_CONNECT_PACKET_SIZE, TRUE);
+				size = v_n_receive_data(address, buf, sizeof buf, TRUE);
 			}
 			if(VConData.con[VConData.current_connection].ping_timeout > PING_TIMEOUT)
 			{
