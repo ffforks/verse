@@ -113,7 +113,7 @@ void * v_con_get_network_queue(void)
 	return VConData.con[VConData.current_connection].network_queue;
 }
 
-void * v_con_get_network_address(void)
+const VNetworkAddress * v_con_get_network_address(void)
 {
 	return VConData.con[VConData.current_connection].network_address;
 }
