@@ -25,7 +25,7 @@ void verse_send_connect_deny(void *address)
 		a = v_n_create_network_address(0, address);
 		buffer_pos = vnp_raw_pack_uint16(&buf[buffer_pos], 1);/* a packet id */
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 2);/* Packing the command */
-		v_n_send_data(a, buf, buffer_pos);
+		v_n_send_data(buf, a, buffer_pos);
 		v_n_destroy_network_address(a);
 		v_cmd_buf_free(head);
 		return;
@@ -34,7 +34,7 @@ void verse_send_connect_deny(void *address)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_connect_deny(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_connect_deny(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_connect_deny)(void *user_data, void *address);
@@ -68,7 +68,7 @@ void verse_send_connect_terminate(const char *bye)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_connect_terminate(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_connect_terminate(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_connect_terminate)(void *user_data, const char *bye);
@@ -103,7 +103,7 @@ void verse_send_get_time(uint32 time)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_get_time(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_get_time(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_get_time)(void *user_data, uint32 time);
@@ -121,7 +121,6 @@ unsigned int v_unpack_get_time(char *buf, unsigned int buffer_length, void *user
 
 	return buffer_pos;
 }
-
 void verse_send_ping(const char *address, const char *text)
 {
 	uint8 *buf;
@@ -131,9 +130,9 @@ void verse_send_ping(const char *address, const char *text)
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 5);/* Packing the command */
-#if defined(V_PRINT_SEND_COMMANDS)
+	#if defined(V_PRINT_SEND_COMMANDS)
 	printf("send: verse_send_ping(address = %s text = %s );\n", address, text);
-#endif
+	#endif
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], address, 512);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, 512);
 	{
@@ -142,7 +141,7 @@ void verse_send_ping(const char *address, const char *text)
 		buffer_pos = vnp_raw_pack_uint16(&buf[buffer_pos], 1);/* a packet id */
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 5);/* Packing the command */
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, 500);
-		v_n_send_data(a, buf, buffer_pos);
+		v_n_send_data(buf, a, buffer_pos);
 		v_n_destroy_network_address(a);
 		v_cmd_buf_free(head);
 		return;
@@ -151,7 +150,7 @@ void verse_send_ping(const char *address, const char *text)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_ping(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_ping(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_ping)(void *user_data, const char *address, const char *text);
@@ -192,7 +191,7 @@ void verse_send_packet_ack(uint32 packet_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_packet_ack(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_packet_ack(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_packet_ack)(void *user_data, uint32 packet_id);
@@ -224,7 +223,7 @@ void verse_send_packet_nak(uint32 packet_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_packet_nak(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_packet_nak(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_packet_nak)(void *user_data, uint32 packet_id);
@@ -257,7 +256,7 @@ void verse_send_node_list(uint32 mask)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_node_list(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_node_list(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_node_list)(void *user_data, uint32 mask);
@@ -315,7 +314,7 @@ void verse_send_node_destroy(VNodeID node_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_node_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_node_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_node_create)(void *user_data, VNodeID node_id, VNodeType type, VNodeID owner_id);
@@ -383,7 +382,7 @@ void verse_send_node_unsubscribe(VNodeID node_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_node_subscribe(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_node_subscribe(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_node_subscribe)(void *user_data, VNodeID node_id);
@@ -453,7 +452,7 @@ void verse_send_tag_group_destroy(VNodeID node_id, uint16 group_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_tag_group_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_tag_group_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_tag_group_create)(void *user_data, VNodeID node_id, uint16 group_id, const char *name);
@@ -523,7 +522,7 @@ void verse_send_tag_group_unsubscribe(VNodeID node_id, uint16 group_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_tag_group_subscribe(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_tag_group_subscribe(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_tag_group_subscribe)(void *user_data, VNodeID node_id, uint16 group_id);
@@ -653,7 +652,7 @@ void verse_send_tag_destroy(VNodeID node_id, uint16 group_id, uint16 tag_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_tag_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_tag_create)(void *user_data, VNodeID node_id, uint16 group_id, uint16 tag_id, const char *name, VNTagType type, VNTag *tag);
@@ -766,7 +765,7 @@ void verse_send_node_name_set(VNodeID node_id, const char *name)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_node_name_set(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_node_name_set(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_node_name_set)(void *user_data, VNodeID node_id, const char *name);

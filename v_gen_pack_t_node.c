@@ -27,7 +27,7 @@ void verse_send_t_set_language(VNodeID node_id, const char *language)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_t_set_language(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_t_set_language(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_t_set_language)(void *user_data, VNodeID node_id, const char *language);
@@ -89,7 +89,7 @@ void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_t_buffer_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_t_buffer_create)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint16 index, const char *name);
@@ -161,7 +161,7 @@ void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_t_buffer_subscribe(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_t_buffer_subscribe(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_t_buffer_subscribe)(void *user_data, VNodeID node_id, VNMBufferID buffer_id);
@@ -235,7 +235,7 @@ void verse_send_t_delete_line(VNodeID node_id, VNMBufferID buffer_id, uint32 lin
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_t_insert_line(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_t_insert_line(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_t_insert_line)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 line, uint16 index, const char *text);

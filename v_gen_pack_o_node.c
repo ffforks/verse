@@ -63,7 +63,7 @@ void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time, real32 *pos
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_transform_pos_real32(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_transform_pos_real32(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_transform_pos_real32)(void *user_data, VNodeID node_id, uint32 time, real32 *pos, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag);
@@ -167,7 +167,7 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time, real32 *rot
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_transform_rot_real32(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_transform_rot_real32)(void *user_data, VNodeID node_id, uint32 time, real32 *rot, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag);
@@ -237,7 +237,7 @@ void verse_send_o_transform_scale_real32(VNodeID node_id, real32 scale_x, real32
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_transform_scale_real32(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_transform_scale_real32(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_transform_scale_real32)(void *user_data, VNodeID node_id, real32 scale_x, real32 scale_y, real32 scale_z);
@@ -316,7 +316,7 @@ void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time, real64 *pos
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_transform_pos_real64(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_transform_pos_real64(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_transform_pos_real64)(void *user_data, VNodeID node_id, uint32 time, real64 *pos, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag);
@@ -420,7 +420,7 @@ void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time, real64 *rot
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_transform_rot_real64(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_transform_rot_real64)(void *user_data, VNodeID node_id, uint32 time, real64 *rot, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag);
@@ -490,7 +490,7 @@ void verse_send_o_transform_scale_real64(VNodeID node_id, real64 scale_x, real64
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_transform_scale_real64(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_transform_scale_real64(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_transform_scale_real64)(void *user_data, VNodeID node_id, real64 scale_x, real64 scale_y, real64 scale_z);
@@ -554,7 +554,7 @@ void verse_send_o_transform_unsubscribe(VNodeID node_id, VNORealFormat type)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_transform_subscribe(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_transform_subscribe(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_transform_subscribe)(void *user_data, VNodeID node_id, VNORealFormat type);
@@ -607,7 +607,7 @@ void verse_send_o_set_light(VNodeID node_id, real64 light_r, real64 light_g, rea
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_set_light(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_set_light(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_set_light)(void *user_data, VNodeID node_id, real64 light_r, real64 light_g, real64 light_b);
@@ -677,7 +677,7 @@ void verse_send_o_link_destroy(VNodeID node_id, uint16 link_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_link_set(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_link_set(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_link_set)(void *user_data, VNodeID node_id, uint16 link_id, VNodeID link, const char *name, uint32 target_id);
@@ -757,7 +757,7 @@ void verse_send_o_method_group_destroy(VNodeID node_id, uint8 group_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_method_group_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_method_group_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_method_group_create)(void *user_data, VNodeID node_id, uint8 group_id, const char *name);
@@ -827,7 +827,7 @@ void verse_send_o_method_group_unsubscribe(VNodeID node_id, uint16 group_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_method_group_subscribe(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_method_group_subscribe(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_method_group_subscribe)(void *user_data, VNodeID node_id, uint16 group_id);
@@ -919,7 +919,7 @@ void verse_send_o_method_destroy(VNodeID node_id, uint16 group_id, uint16 method
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_method_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_method_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_method_create)(void *user_data, VNodeID node_id, uint16 group_id, uint16 method_id, const char *name, uint8 param_count, VNOParamType *param_types, char * *param_names);
@@ -1005,7 +1005,7 @@ void verse_send_o_method_send(VNodeID node_id, uint16 group_id, uint16 method_id
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_method_send(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_method_send(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_o_method_send)(void *user_data, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params);

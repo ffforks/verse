@@ -135,7 +135,7 @@ void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_m_fragment_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_m_fragment_create)(void *user_data, VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment);
@@ -235,6 +235,7 @@ unsigned int v_unpack_m_fragment_create(char *buf, unsigned int buffer_length, v
 			else
 			{
 				unsigned int i, pos;
+				double last;
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.ramp.type);
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.ramp.channel);
 				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.ramp.control);
