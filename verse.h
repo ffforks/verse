@@ -381,9 +381,10 @@ typedef union {
 extern void		verse_set_port(uint16 port);
 extern void		verse_host_id_create(uint8 *id);
 extern void		verse_host_id_set(uint8 *id);
-extern void		verse_callback_set(void *send_func, void *callback, void *user_data);
+extern void		verse_callback_set(void *send_func, void (*callback)(), void *user_data);
 extern void		verse_callback_update(uint32 microseconds);
 extern void		verse_session_set(VSession session);
+extern VSession		verse_session_get(void);
 extern void		verse_session_destroy(VSession session);
 extern size_t	verse_session_get_size(void);
 extern VNodeID	verse_session_get_avatar(void);
