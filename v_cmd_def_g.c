@@ -164,7 +164,7 @@ void v_gen_geometry_cmd_def(void)
 
 	v_cg_new_cmd(V_NT_GEOMETRY,		"g_bone_create", 64, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
-	v_cg_add_param(VCGP_UINT32,		"bone_id");
+	v_cg_add_param(VCGP_UINT16,		"bone_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_NAME,		"name");
 	v_cg_add_param(VCGP_UINT32,		"parent");
