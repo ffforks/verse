@@ -136,6 +136,7 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 {
 	struct sockaddr_in	address_in;
+
 	if(v_n_socket_create() == -1)
 		return 0;
 	address_in.sin_family = AF_INET;     /* host byte order */

@@ -35,7 +35,7 @@ uint32 v_niq_time_out(const VNetInQueue *queue)
 	return seconds - queue->seconds;
 }
 
-VNetInPacked *v_niq_get(VNetInQueue *queue, size_t *length)
+VNetInPacked * v_niq_get(VNetInQueue *queue, size_t *length)
 {
 	VNetInPacked *p;
 

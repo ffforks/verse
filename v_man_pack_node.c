@@ -33,8 +33,10 @@ unsigned int v_unpack_connect_terminate(const char *buf, unsigned int buffer_len
 {
 	unsigned int buffer_pos = 0;
 	char bye[512];
+
 	buffer_pos = vnp_raw_unpack_string(buf, bye, sizeof bye, buffer_length);
 	v_callback_connect_terminate(bye);
+
 	return buffer_pos;
 }
 
