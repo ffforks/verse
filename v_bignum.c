@@ -385,7 +385,7 @@ VBigNum v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder)
 			*remainder = a;
 		return v_bignum_new_zero();
 	}
-	if(msbb == 0 && ((b.x[0] & 1) == 0))	/* Avoid division by zero. */
+	if(msbb == 0 && (b.x[0] == 0)		/* Avoid division by zero. */
 		return v_bignum_new_zero();
 
 	/* Begin by setting result to zero, and "work" to the |b| highest bits of a. */
