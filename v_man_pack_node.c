@@ -192,7 +192,10 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_c_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, real64 *pre_value, uint32 *pre_pos, real64 *value, real64 pos, real64 *post_value, uint32 *post_pos)
+void verse_send_c_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions,
+			  const real64 *pre_value, const uint32 *pre_pos,
+			  const real64 *value, real64 pos,
+			  const real64 *post_value, const uint32 *post_pos)
 {
 	uint8 *buf;
 	unsigned int i, buffer_pos = 0;

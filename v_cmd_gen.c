@@ -200,9 +200,9 @@ static void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 				break;
 				case VCGP_POINTER :
 					if(active != 0 && VCGData.param_type[active - 1] == VCGP_POINTER_TYPE)
-						fprintf(f, "%s *%s", VCGData.param_name[active - 1], VCGData.param_name[active]);
+						fprintf(f, "const %s *%s", VCGData.param_name[active - 1], VCGData.param_name[active]);
 					else
-						fprintf(f, "void *%s", VCGData.param_name[active]);
+						fprintf(f, "const void *%s", VCGData.param_name[active]);
 				break;
 				case VCGP_NAME :
 					if(types)
