@@ -29,7 +29,6 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(0, v_unpack_connect, verse_send_connect, NULL);
 	v_fs_add_func(1, v_unpack_connect_accept, verse_send_connect_accept, NULL);
 	v_fs_add_func(2, v_unpack_connect_terminate, verse_send_connect_terminate, NULL);
-	v_fs_add_func(4, v_unpack_get_time, verse_send_get_time, NULL);
 	v_fs_add_func(5, v_unpack_ping, verse_send_ping, NULL);
 	v_fs_add_func(7, v_unpack_packet_ack, verse_send_packet_ack, NULL);
 	v_fs_add_func(8, v_unpack_packet_nak, verse_send_packet_nak, NULL);
