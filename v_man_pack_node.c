@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "v_cmd_gen.h"
 
@@ -37,15 +38,17 @@ unsigned int v_unpack_connect_terminate(const char *buf, unsigned int buffer_len
 	return buffer_pos;
 }
 
-typedef struct{
+typedef struct VTempLine	VTempLine;
+
+struct VTempLine {
 	VNodeID		node_id;
 	VNMBufferID buffer_id;
 	uint32		pos;
 	uint32		length;
 	uint16		index; 
 	char		*text;
-	void		*next;
-}VTempLine;
+	VTempLine	*next;
+};
 
 typedef struct{
 	VTempLine	*text_temp;
@@ -109,14 +112,14 @@ void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, u
 
 void v_call_line(VTempLine *line)
 {
-	char null = 0, *t;
+	char *t;
 	void (* func_t_line_insert)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint16 length, char *text);
 	func_t_line_insert = v_fs_get_user_func(99);
 	#if defined V_PRINT_RECEIVE_COMMANDS
 		printf("receive: verse_send_t_line_insert(node_id = %u buffer_id = %u pos = %u length = %u text = %s ); callback = %p\n", line->node_id, line->buffer_id, line->pos, line->length, line->text, v_fs_get_user_func(99));
 	#endif
 	if(line->text == NULL)
-		t = &null;
+		t = "";
 	else
 		t = line->text;
 	if(func_t_line_insert != NULL)
@@ -167,23 +170,22 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 				line = line->next;
 			}
 		}
-	}else
+	}
+	else
 	{
 		line = malloc(sizeof *line);
 		*line = l;
 		line->next = s->text_temp;
 		s->text_temp = line;
-		for(i = 0; text[i] != 0; i++);
+		i = strlen(text);
 		if(i > 0)
-		{   
-			line->text = malloc((sizeof *line->text) * ++i);
-			for(i = 0; text[i] != 0; i++)
-				line->text[i] = text[i];
-			line->text[i] = 0;
-		}else
+		{
+			line->text = malloc(i + 1);
+			strcpy(line->text, text);
+		}
+		else
 			line->text = NULL;
 	}
-
 	return buffer_pos;
 }
 
