@@ -204,8 +204,10 @@ boolean v_con_callback_update(void)
 
 	connection = VConData.current_connection;
 	for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
+	{
 		if(VConData.con[VConData.current_connection].connect_stage != V_CS_CONNECTED)
 			v_update_connection_pending();
+	}
 	VConData.current_connection = connection;
 /*	if(VConData.pending_packets == 0)
 		return FALSE;
@@ -234,6 +236,7 @@ void v_callback_connect_terminate(const char *bye);
 void verse_callback_update(unsigned int microseconds)
 {
 	unsigned int connection, passed;
+
 	connection = VConData.current_connection;
 	for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
 	{
@@ -261,12 +264,12 @@ void verse_callback_update(unsigned int microseconds)
 	if(VConData.con_count > 0)
 		if(v_con_callback_update())
 			return;
-	for(passed = 0; passed <= microseconds && VConData.pending_packets == 0; passed += V_CON_MAX_MICROSECOND_BETWEEN_SENDS)
+	for(passed = 0; passed <= microseconds && VConData.pending_packets == 0;)
 	{
 		if(V_CON_MAX_MICROSECOND_BETWEEN_SENDS < microseconds - passed)
-			v_n_wait_for_incoming(V_CON_MAX_MICROSECOND_BETWEEN_SENDS);
+			passed += v_n_wait_for_incoming(V_CON_MAX_MICROSECOND_BETWEEN_SENDS);
 		else
-			v_n_wait_for_incoming(microseconds - passed);
+			passed += v_n_wait_for_incoming(microseconds - passed);
 		v_con_network_listen();
 		connection = VConData.current_connection;
 		for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
