@@ -293,6 +293,20 @@ void v_bignum_bit_shift_left(VBigDig *x, unsigned int count)
 	}
 }
 
+/* Perform x <<= 1. This is a frequent operation so it can have its own function. */
+void v_bignum_bit_shift_left_1(VBigDig *x)
+{
+	register unsigned int	t, carry, s = *x++, i;
+
+	/* Shift bits. */
+	for(i = carry = 0; i < s; i++)
+	{
+		t = (x[i] << 1) | carry;
+		x[i] = t;
+		carry = t >> (CHAR_BIT * sizeof *x);
+	}
+}
+
 /* Perform x >>= count. */
 void v_bignum_bit_shift_right(VBigDig *x, unsigned int count)
 {
@@ -476,7 +490,7 @@ void v_bignum_add(VBigDig *x, const VBigDig *y)
 
 	if(x == y)		/* Quick version for pointer-aliased x += x. */
 	{
-		v_bignum_bit_shift_left(x, 1);
+		v_bignum_bit_shift_left_1(x);
 		return;
 	}
 	
@@ -580,7 +594,7 @@ void v_bignum_div(VBigDig *x, const VBigDig *y, VBigDig *remainder)
 
 	for(next = msbx - (msby + 1); next >= -1; next--)
 	{
-		v_bignum_bit_shift_left(q, 1);
+		v_bignum_bit_shift_left_1(q);
 		if(v_bignum_gte(work, y))
 		{
 			q[1] |= 1;
@@ -588,7 +602,7 @@ void v_bignum_div(VBigDig *x, const VBigDig *y, VBigDig *remainder)
 		}
 		if(next >= 0)
 		{
-			v_bignum_bit_shift_left(work, 1);
+			v_bignum_bit_shift_left_1(work);
 			if(v_bignum_bit_test(x, next))
 				work[1] |= 1;
 		}
@@ -632,16 +646,15 @@ void v_bignum_pow_mod(VBigDig *x, const VBigDig *y, const VBigDig *n)
 	int	i, k;
 	VBigDig	*tmp;
 
-	printf("computing pow(");
+/*	printf("computing pow(");
 	v_bignum_print_hex(x);
 	printf("L,");
 	v_bignum_print_hex(y);
 	printf("L,");
 	v_bignum_print_hex(n);
 	printf("L)\n");
-
+*/
 	tmp = bignum_alloc(2 * *x);	/* Squaring needs twice the bits, or lossage occurs. */
-	printf("pow-mod using %u bits for tmp\n", v_bignum_bit_size(tmp));
 	v_bignum_set_bignum(tmp, x);
 	k = v_bignum_bit_msb(y);
 	for(i = k - 1; i >= 0; i--)

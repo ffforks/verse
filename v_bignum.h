@@ -53,6 +53,7 @@ extern void	v_bignum_bit_set(VBigDig *x, unsigned int bit);
 extern int	v_bignum_bit_msb(const VBigDig *x);
 extern int	v_bignum_bit_size(const VBigDig *x);
 extern void	v_bignum_bit_shift_left(VBigDig *x, unsigned int count);
+extern void	v_bignum_bit_shift_left_1(VBigDig *x);
 extern void	v_bignum_bit_shift_right(VBigDig *x, unsigned int count);
 
 /* Comparators. */
