@@ -214,8 +214,9 @@ void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 
 void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
 	if(seconds != NULL)
 	    *seconds = tv.tv_sec;
 	if(fractions != NULL)
