@@ -183,7 +183,8 @@ void v_update_connection_pending(void)
 		func_connect_accept = v_fs_get_user_func(1);
 		v_n_get_address_string(v_con_get_network_address(), address_string);
 #if defined(V_PRINT_RECEIVE_COMMANDS)
-		printf("receive: func_connect_accept(avatar = %u, address = %s, name = %s, pass = %s, key = NULL); callback = %p\n", verse_session_get_avatar(), address_string, name, pass, func_connect);
+		printf("receive: func_connect_accept(avatar = %u, address = %s, name = %s, pass = %s, key = NULL); callback = %p\n",
+		       verse_session_get_avatar(), address_string, v_con_get_name(), v_con_get_pass(), func_connect);
 #endif
 		if(func_connect_accept != 0)
 			func_connect_accept(v_fs_get_user_data(1), verse_session_get_avatar(), address_string, NULL);
