@@ -354,6 +354,16 @@ typedef enum {
 	VN_A_LAYER_REAL64,
 } VNALayerType;
 
+/* Audio commands take pointers to blocks of these. They are not packed as unions. */
+typedef union {
+	int8	vint8;
+	int16	vint16;
+	uint8	vint24[3];
+	int32	vint32;
+	real32	vreal32;
+	real64	vreal64;
+} VNASample;
+
 extern void		verse_set_port(uint16 port);
 extern void		verse_host_id_create(uint8 *id);
 extern void		verse_host_id_set(uint8 *id);
