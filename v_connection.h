@@ -28,8 +28,8 @@ typedef enum{
 extern void				v_con_network_listen(void);
 
 extern void				v_con_set_name_pass(const char *name, const char *pass);
-extern char *			v_con_get_name(void);
-extern char	*			v_con_get_pass(void);
+extern const char *			v_con_get_name(void);
+extern const char *			v_con_get_pass(void);
 
 extern void				v_con_set_avatar(uint32 avatar);
 extern void				v_con_set_time(uint32 seconds, uint32 fractions);
