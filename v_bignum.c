@@ -600,13 +600,12 @@ void v_bignum_div(VBigDig *x, const VBigDig *y, VBigDig *remainder)
 			q[1] |= 1;
 			v_bignum_sub(work, y);
 		}
-		if(next >= 0)
-		{
-			v_bignum_bit_shift_left_1(work);
-			if(v_bignum_bit_test(x, next))
-				work[1] |= 1;
-		}
+		v_bignum_bit_shift_left_1(work);
+		if(v_bignum_bit_test(x, next))
+			work[1] |= 1;
 	}
+	v_bignum_bit_shift_right(work, 1);	/* Undo the last shift (when next==-1). */
+	
 	if(remainder != NULL)
 	{
 /*		printf("div() got remainder ");
