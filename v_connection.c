@@ -188,6 +188,7 @@ void v_con_network_listen(void)
 	{
 		VConData.current_connection = v_co_find_connection(address.ip, address.port); /* Is there a connection matching the IP and port? */
 		vnp_raw_unpack_uint32(buf, &packet_id); /* Unpack the ID of the packet. */
+/*		printf("got packet ID %u\n", packet_id);*/
 		if(VConData.current_connection < VConData.con_count &&
 		   !(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED && packet_id == 0)) /* If this isn't a packet from an existing connection, disregard it. */
 		{
@@ -203,7 +204,9 @@ void v_con_network_listen(void)
 			else
 				v_unpack_connection(buf, size); /* This is an ongoing connecton-attempt. */
 		}
-		else if(!v_connect_unpack_ping(buf, size, address.ip, address.port) && v_fs_func_accept_connections()) /* Do we accept connection-attempts? */
+		else if(v_connect_unpack_ping(buf, size, address.ip, address.port))
+			;	/* Ping handled. */
+		else if(v_fs_func_accept_connections()) /* Do we accept connection-attempts? */
 		{
 			if(VConData.current_connection >= VConData.con_count || V_RE_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue)) /* Is it a new client, or an old client that we haven't heard form in some time? */
 			{
