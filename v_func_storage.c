@@ -10,7 +10,7 @@
 
 #define V_FS_MAX_CMDS 256
 
-extern void init_pack_and_unpack_fucs(void);
+extern void init_pack_and_unpack(void);
 
 static struct {
 	unsigned int	(*unpack_func[V_FS_MAX_CMDS])(const char *data, size_t length, void *user_func, void *user_data);
@@ -45,7 +45,7 @@ void v_fs_init(void)
 		VCmdData.alias_user_data[i] = NULL;
 	}
 	#if !defined(V_GENERATE_FUNC_MODE)
-	init_pack_and_unpack_fucs();
+	init_pack_and_unpack();
 	#endif
 	for(i = 0; i < V_FS_MAX_CMDS && VCmdData.pack_func[i] != verse_send_packet_ack; i++);
 	VCmdData.user_func[i] = callback_send_packet_ack;
