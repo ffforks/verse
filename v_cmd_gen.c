@@ -351,7 +351,7 @@ unsigned int v_cg_compute_command_size(unsigned int start, boolean end)
 	return size;
 }
 
-char * v_cg_compute_buffer_size(void)
+const char * v_cg_compute_buffer_size(void)
 {
 	unsigned int size; 
 	size = v_cg_compute_command_size(0, FALSE) + 1;
@@ -363,8 +363,7 @@ char * v_cg_compute_buffer_size(void)
 		return "VCMDBS_100";
 	else if(size <= 500)
 		return "VCMDBS_500";
-	else 
-		return "VCMDBS_1500";
+	return "VCMDBS_1500";
 }
 
 void v_cg_gen_pack(boolean alias)
