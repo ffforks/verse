@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "v_cmd_gen.h"
 
@@ -47,10 +48,38 @@ static void callback_send_ping(void *user, char *address, char *text)
 	verse_send_ping(address, "You have reached a Verse server, I'm not home at the moment, but please leave a message.");
 }
 
+static void vs_load_host_id(const char *file_name)
+{
+	uint8	id[V_HOST_ID_SIZE], got = 0;
+	FILE	*f;
+
+	/* Attempt to read key from given filename. Fails silently. */
+	if((f = fopen(file_name, "rb")) != NULL)
+	{
+		if((got = (fread(id, sizeof id, 1, f) == 1)))
+			verse_host_id_set(id);
+		fclose(f);
+		if(got)
+			return;
+	}
+	/* If file didn't open, or reading failed, generate a new key and write it out. */
+	verse_host_id_create(id);
+	verse_host_id_set(id);
+	if((f = fopen(file_name, "wb")) != NULL)
+	{
+		if(fwrite(id, sizeof id, 1, f) != 1)
+			fprintf(stderr, "Warning: Couldn't write host ID to \"%s\"\n", file_name);
+		fclose(f);
+	}
+	else
+		fprintf(stderr, "Warning: Couldn't open \"%s\" for host ID writing\n", file_name);
+}
+
 int main(int argc, char **argv)
 {
 	printf("Verse Server r%up%u%s By Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
-	verse_set_port(4950); /* this is the standard port */
+	verse_set_port(4950);	/* This Verse standard port. */
+	vs_load_host_id("host_id.rsa");
 	vs_init_node_storage();
 	vs_o_callback_init();
 	vs_g_callback_init();
