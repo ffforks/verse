@@ -15,7 +15,7 @@
 #include "v_encryption.h"
 #include "verse_header.h"
 
-#define	BITS		(CHAR_BIT * V_ENCRYPTION_LOGIN_KEY_SIZE)
+#define	BITS		(512)/*CHAR_BIT * V_ENCRYPTION_LOGIN_KEY_SIZE)*/
 
 #define CYCLES	10	/* Number of times to apply Miller-Rabin test. */
 
@@ -32,10 +32,7 @@ static int quick_filter(const VBigDig *n)
 		v_bignum_set_digit(m, prime[i]);
 		v_bignum_mod(tmp, m);
 		if(v_bignum_eq_zero(tmp))
-		{
-			printf("quick-killed using %u\n", prime[i]);
 			return 0;
-		}
 	}
 	return 1;
 }
@@ -107,16 +104,12 @@ void v_prime_set_random(VBigDig *x)
 
 	while(!v_prime_test(x))
 	{
-		printf(" test failed, retrying count=%d...\n", ++count);
+		count++;
 		v_bignum_add_digit(x, 2);	/* Simple step to next candidate. */
 		if(v_bignum_eq_one(x))
-		{
 			printf("prime generator overflow, not good\n");
-		}
-		printf("candidate: ");
-		v_bignum_print_hex_lf(x);
 	}
-	printf("\n***FOUND PRIME: ");
+	printf("Prime found after %d iterations: ", count);
 	v_bignum_print_hex_lf(x);
 }
 
