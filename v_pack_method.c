@@ -115,7 +115,8 @@ void * verse_method_call_pack(unsigned int param_count, const VNOParam *params, 
 
 boolean verse_method_call_unpack(const void *data, unsigned int param_count, VNOParam *params, const VNOParamType *param_type)
 {
-	unsigned int i, j, buffer_pos = 0, size, len;
+	unsigned int i, j, buffer_pos = 0, len;
+	uint16 size;
 	const uint8 *buf;
 	static char string[2048];
 	char *stringput = string;
