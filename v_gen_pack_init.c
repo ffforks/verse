@@ -48,12 +48,12 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(36, v_unpack_o_transform_rot_real64, verse_send_o_transform_rot_real64, NULL);
 	v_fs_add_func(37, v_unpack_o_transform_scale_real64, verse_send_o_transform_scale_real64, NULL);
 	v_fs_add_func(38, v_unpack_o_transform_subscribe, verse_send_o_transform_subscribe, verse_send_o_transform_unsubscribe);
-	v_fs_add_func(39, v_unpack_o_set_light, verse_send_o_set_light, NULL);
+	v_fs_add_func(39, v_unpack_o_light_set, verse_send_o_light_set, NULL);
 	v_fs_add_func(40, v_unpack_o_link_set, verse_send_o_link_set, verse_send_o_link_destroy);
 	v_fs_add_func(41, v_unpack_o_method_group_create, verse_send_o_method_group_create, verse_send_o_method_group_destroy);
 	v_fs_add_func(42, v_unpack_o_method_group_subscribe, verse_send_o_method_group_subscribe, verse_send_o_method_group_unsubscribe);
 	v_fs_add_func(43, v_unpack_o_method_create, verse_send_o_method_create, verse_send_o_method_destroy);
-	v_fs_add_func(44, v_unpack_o_method_send, verse_send_o_method_send, NULL);
+	v_fs_add_func(44, v_unpack_o_method_call, verse_send_o_method_call, NULL);
 	v_fs_add_func(48, v_unpack_g_layer_create, verse_send_g_layer_create, verse_send_g_layer_destroy);
 	v_fs_add_func(49, v_unpack_g_layer_subscribe, verse_send_g_layer_subscribe, verse_send_g_layer_unsubscribe);
 	v_fs_add_func(50, v_unpack_g_vertex_set_real32_xyz, verse_send_g_vertex_set_real32_xyz, verse_send_g_vertex_delete_real32);
@@ -76,7 +76,7 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(96, v_unpack_t_set_language, verse_send_t_set_language, NULL);
 	v_fs_add_func(97, v_unpack_t_buffer_create, verse_send_t_buffer_create, verse_send_t_buffer_destroy);
 	v_fs_add_func(98, v_unpack_t_buffer_subscribe, verse_send_t_buffer_subscribe, verse_send_t_buffer_unsubscribe);
-	v_fs_add_func(99, v_unpack_t_insert_line, verse_send_t_insert_line, verse_send_t_delete_line);
+	v_fs_add_func(99, v_unpack_t_line_insert, verse_send_t_line_insert, verse_send_t_line_delete);
 	v_fs_add_func(128, v_unpack_c_curve_create, verse_send_c_curve_create, verse_send_c_curve_destroy);
 	v_fs_add_func(129, v_unpack_c_curve_subscribe, verse_send_c_curve_subscribe, verse_send_c_curve_unsubscribe);
 	v_fs_add_func(130, v_unpack_c_curve_key_set, verse_send_c_curve_key_set, verse_send_c_curve_key_destroy);

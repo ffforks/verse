@@ -609,7 +609,7 @@ unsigned int v_unpack_o_transform_subscribe(const char *buf, size_t buffer_lengt
 	return buffer_pos;
 }
 
-void verse_send_o_set_light(VNodeID node_id, real64 light_r, real64 light_g, real64 light_b)
+void verse_send_o_light_set(VNodeID node_id, real64 light_r, real64 light_g, real64 light_b)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -619,7 +619,7 @@ void verse_send_o_set_light(VNodeID node_id, real64 light_r, real64 light_g, rea
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 39);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: o_set_light(node_id = %u light_r = %f light_g = %f light_b = %f );\n", node_id, light_r, light_g, light_b);
+	printf("send: o_light_set(node_id = %u light_r = %f light_g = %f light_b = %f );\n", node_id, light_r, light_g, light_b);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	address_size = buffer_pos;
@@ -630,16 +630,16 @@ void verse_send_o_set_light(VNodeID node_id, real64 light_r, real64 light_g, rea
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_set_light(const char *buf, size_t buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_light_set(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_set_light)(void *user_data, VNodeID node_id, real64 light_r, real64 light_g, real64 light_b);
+	void (* func_o_light_set)(void *user_data, VNodeID node_id, real64 light_r, real64 light_g, real64 light_b);
 	VNodeID node_id;
 	real64 light_r;
 	real64 light_g;
 	real64 light_b;
 	
-	func_o_set_light = user_func;
+	func_o_light_set = user_func;
 	if(buffer_length < 28)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -647,10 +647,10 @@ unsigned int v_unpack_o_set_light(const char *buf, size_t buffer_length, void *u
 	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &light_g);
 	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &light_b);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: o_set_light(node_id = %u light_r = %f light_g = %f light_b = %f ); callback = %p\n", node_id, light_r, light_g, light_b, user_func);
+	printf("receive: o_light_set(node_id = %u light_r = %f light_g = %f light_b = %f ); callback = %p\n", node_id, light_r, light_g, light_b, user_func);
 #endif
-	if(func_o_set_light != NULL)
-		func_o_set_light(user_data, node_id, light_r, light_g, light_b);
+	if(func_o_light_set != NULL)
+		func_o_light_set(user_data, node_id, light_r, light_g, light_b);
 
 	return buffer_pos;
 }
@@ -1005,7 +1005,7 @@ unsigned int v_unpack_o_method_create(const char *buf, size_t buffer_length, voi
 	return buffer_pos;
 }
 
-void verse_send_o_method_send(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params)
+void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -1015,7 +1015,7 @@ void verse_send_o_method_send(VNodeID node_id, uint16 group_id, uint16 method_id
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 44);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: o_method_send(node_id = %u group_id = %u method_id = %u sender = %u params = %p );\n", node_id, group_id, method_id, sender, params);
+	printf("send: o_method_call(node_id = %u group_id = %u method_id = %u sender = %u params = %p );\n", node_id, group_id, method_id, sender, params);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], group_id);
@@ -1033,17 +1033,17 @@ void verse_send_o_method_send(VNodeID node_id, uint16 group_id, uint16 method_id
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_o_method_send(const char *buf, size_t buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_o_method_call(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_method_send)(void *user_data, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params);
+	void (* func_o_method_call)(void *user_data, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params);
 	VNodeID node_id;
 	uint16 group_id;
 	uint16 method_id;
 	VNodeID sender;
 	void *params;
 	
-	func_o_method_send = user_func;
+	func_o_method_call = user_func;
 	if(buffer_length < 12)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -1051,7 +1051,7 @@ unsigned int v_unpack_o_method_send(const char *buf, size_t buffer_length, void 
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &method_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &sender);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: o_method_send(node_id = %u group_id = %u method_id = %u sender = %u ); callback = %p\n", node_id, group_id, method_id, sender, user_func);
+	printf("receive: o_method_call(node_id = %u group_id = %u method_id = %u sender = %u ); callback = %p\n", node_id, group_id, method_id, sender, user_func);
 #endif
 	{
 		unsigned int i;
@@ -1060,13 +1060,13 @@ unsigned int v_unpack_o_method_send(const char *buf, size_t buffer_length, void 
 		vnp_raw_unpack_uint16(&buf[buffer_pos], &size);
 		for(i = 0; i < size; i++)
 			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &par[i]);
-		if(func_o_method_send != NULL)
-			func_o_method_send(user_data, node_id, group_id, method_id, sender, par);
+		if(func_o_method_call != NULL)
+			func_o_method_call(user_data, node_id, group_id, method_id, sender, par);
 		return buffer_pos;
 	}
 
-	if(func_o_method_send != NULL)
-		func_o_method_send(user_data, node_id, group_id, method_id, sender, params);
+	if(func_o_method_call != NULL)
+		func_o_method_call(user_data, node_id, group_id, method_id, sender, params);
 
 	return buffer_pos;
 }
