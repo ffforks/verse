@@ -255,7 +255,6 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			else
 			{
 				unsigned int i, pos;
-				double last;
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
 				frag.ramp.type = (VNMRampType)temp;
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
@@ -274,9 +273,9 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			}
 			break;
 		case VN_M_FT_ANIMATION :
-			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], &frag.animation.label_r, 16, buffer_length - buffer_pos);
-			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], &frag.animation.label_g, 16, buffer_length - buffer_pos);
-			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], &frag.animation.label_b, 16, buffer_length - buffer_pos);
+			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.animation.label_r, 16, buffer_length - buffer_pos);
+			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.animation.label_g, 16, buffer_length - buffer_pos);
+			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.animation.label_b, 16, buffer_length - buffer_pos);
 			break;
 		case VN_M_FT_ALTERNATIVE :
 			if(buffer_pos + 4 > buffer_length)
