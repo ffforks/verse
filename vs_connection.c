@@ -38,7 +38,7 @@ void vs_init_connection_storage(void)
 	VSConnectionStorage.current_session = 0;
 }
 
-void vs_add_new_connection(VSession session, const char *name, const char *pass, unsigned int node_id)
+void vs_add_new_connection(VSession session, const char *name, const char *pass, VNodeID node_id)
 {
 	VSConnection	*conn;
 
