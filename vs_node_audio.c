@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "v_cmd_gen.h"
 
@@ -246,27 +247,11 @@ static void callback_send_a_layer_destroy(void *user, VNodeID node_id, VLayerID 
 	vs_reset_subscript_session();
 }
 
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8 1024
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16 512
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24 384
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32 256
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32 256
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64 128
-
-/*
-typedef enum {
-	VN_A_LAYER_INT8,
-	VN_A_LAYER_INT16,
-	VN_A_LAYER_INT24,
-	VN_A_LAYER_INT32,
-	VN_A_LAYER_REAL32,
-	VN_A_LAYER_REAL64,
-} VNALayerType;*/
-
 static void callback_send_a_layer_subscribe(void *user, VNodeID node_id, VLayerID layer_id)
 {
 	VSNodeAudio *node;
 	unsigned int i;
+
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
 	if(node == NULL)
 		return;
@@ -275,10 +260,11 @@ static void callback_send_a_layer_subscribe(void *user, VNodeID node_id, VLayerI
 	if(node->layers[layer_id].name[0] == 0)
 		return;
 	vs_add_new_subscriptor(node->layers[layer_id].subscribers);
-
 	for(i = 0; i < node->layers[layer_id].length; i++)
-		if(node->layers[layer_id].data != NULL)
+	{
+		if(node->layers[layer_id].data[i] != NULL)
 			verse_send_a_block_set(node_id, layer_id, i, node->layers[layer_id].type, node->layers[layer_id].data[i]);
+	}
 }
 
 static void callback_send_a_layer_unsubscribe(void *user, VNodeID node_id, VLayerID layer_id)
@@ -296,8 +282,20 @@ static void callback_send_a_layer_unsubscribe(void *user, VNodeID node_id, VLaye
 
 static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID layer_id, uint32 id, VNALayerType type, void *data)
 {
+	static const size_t	blocksize[] = {
+		VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8   * sizeof (int8),
+		VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16  * sizeof (int16),
+		VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24  * 3 * sizeof (int8),
+		VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32  * sizeof (int32),
+		VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32 * sizeof (real32),
+		VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64 * sizeof (real64) 
+	};
 	VSNodeAudio *node;
 	unsigned int i, count;
+
+	if(type < 0 || type > VN_A_LAYER_REAL64)	/* Protect blocksize array. */
+		return;
+
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
 	if(node == NULL)
 		return;
@@ -308,71 +306,23 @@ static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID laye
 		node->layers[layer_id].data = realloc(node->layers[layer_id].data, (sizeof *node->layers[layer_id].data) * (id + 64));
 		for(i = node->layers[layer_id].length; i < id + 64; i++)
 			node->layers[layer_id].data[i] = NULL;
+		node->layers[layer_id].length = id + 64;
 	}
 
 	if(node->layers[layer_id].data[id] == NULL)
+		node->layers[layer_id].data[id] = malloc(blocksize[type]);
+	if(node->layers[layer_id].data[id] != NULL)
 	{
-		switch(node->layers[layer_id].type)
+		memcpy(node->layers[layer_id].data[id], data, blocksize[type]);
+		count =	vs_get_subscript_count(node->layers[layer_id].subscribers);
+		for(i = 0; i < count; i++)
 		{
-			case VN_A_LAYER_INT8 :
-				node->layers[layer_id].data = malloc(sizeof(int8) * VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8 * node->layers[layer_id].length);
-			break;
-			case VN_A_LAYER_INT16 :
-				node->layers[layer_id].data = malloc(sizeof(int16) * VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16 * node->layers[layer_id].length);
-			break;
-			case VN_A_LAYER_INT24 :
-				node->layers[layer_id].data = malloc(sizeof(int32) * VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24 * node->layers[layer_id].length);
-			break;
-			case VN_A_LAYER_INT32 :
-				node->layers[layer_id].data = malloc(sizeof(int32) * VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32 * node->layers[layer_id].length);
-			break;
-			case VN_A_LAYER_REAL32 :
-				node->layers[layer_id].data = malloc(sizeof(real32) * VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32 * node->layers[layer_id].length);
-			break;
-			case VN_A_LAYER_REAL64 :
-				node->layers[layer_id].data = malloc(sizeof(real64) * VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64 * node->layers[layer_id].length);						verse_send_a_block_set(node_id, layer_id, i, node->layers[layer_id].type, &((real64 *)node->layers[layer_id].data)[i * VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64]);
-			break;
+			vs_set_subscript_session(node->layers[layer_id].subscribers, i);
+			verse_send_a_block_set(node_id, layer_id, id, type, data);
 		}
+		vs_reset_subscript_session();
 	}
-	if(node->layers[layer_id].data[id] == NULL)
-	{
-		switch(node->layers[layer_id].type)
-		{
-			case VN_A_LAYER_INT8 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8; i++)
-					((int8 *)node->layers[layer_id].data[id])[i] = ((int8 *)data)[i];
-			break;
-			case VN_A_LAYER_INT16 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16; i++)
-					((int16 *)node->layers[layer_id].data[id])[i] = ((int16 *)data)[i];
-			break;
-			case VN_A_LAYER_INT24 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24; i++)
-					((int32 * )node->layers[layer_id].data[id])[i] = ((int32 *)data)[i];
-			break;
-			case VN_A_LAYER_INT32 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32; i++)
-					((int32 *)node->layers[layer_id].data[id])[i] = ((int32 *)data)[i];
-			break;
-			case VN_A_LAYER_REAL32 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32; i++)
-					((real32 *)node->layers[layer_id].data[id])[i] = ((real32 *)data)[i];
-			break;
-			case VN_A_LAYER_REAL64 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64; i++)
-					((real64 *)node->layers[layer_id].data[id])[i] = ((real64 *)data)[i];
-			break;
-		}
-	}
-	count =	vs_get_subscript_count(node->layers[layer_id].subscribers);
-	for(i = 0; i < count; i++)
-	{
-		vs_set_subscript_session(node->layers[layer_id].subscribers, i);
-		verse_send_a_block_set(node_id, layer_id, id, type, data);
-	}
-	vs_reset_subscript_session();
 }
-
 
 static void callback_send_a_block_clear(void *user, VNodeID node_id, VLayerID layer_id, uint32 id)
 {
