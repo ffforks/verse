@@ -257,7 +257,7 @@ void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, uint16 tile_x, ui
 		{
 			case VN_B_LAYER_UINT1 :
 				for(i = 0; i < VN_B_TILE_SIZE; i++)
-					buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], tile->vuint1[8]);
+					buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], tile->vuint1[i]);
 			break;
 			case VN_B_LAYER_UINT8 :
 				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
