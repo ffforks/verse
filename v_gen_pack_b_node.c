@@ -256,7 +256,8 @@ void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, uint16 tile_x, ui
 		switch(type)
 		{
 			case VN_B_LAYER_UINT1 :
-				buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], tile->vuint1);
+				for(i = 0; i < VN_B_TILE_SIZE; i++)
+					buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], tile->vuint1[8]);
 			break;
 			case VN_B_LAYER_UINT8 :
 				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
@@ -316,7 +317,8 @@ unsigned int v_unpack_b_tile_set(const char *buf, size_t buffer_length)
 		switch(type)
 		{
 			case VN_B_LAYER_UINT1 :
-				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile.vuint1);
+				for(i = 0; i < VN_B_TILE_SIZE; i++)
+					buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &tile.vuint1[i]);
 			break;
 			case VN_B_LAYER_UINT8 :
 				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)

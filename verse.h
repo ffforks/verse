@@ -14,7 +14,7 @@
 /* Release information. */
 #define	V_RELEASE_NUMBER	4
 #define	V_RELEASE_PATCH		0
-#define	V_RELEASE_LABEL		"pre7"
+#define	V_RELEASE_LABEL		""
 
 typedef unsigned char boolean;
 typedef unsigned int uint32;
@@ -29,8 +29,10 @@ typedef double real64;
 #define V_REAL64_MAX         1.7976931348623158e+308 /* max value */
 #define V_REAL32_MAX         3.40282347e+38F
 
+#if !defined TRUE
 #define TRUE  1
 #define FALSE 0
+#endif
 
 typedef enum {
 	V_NT_OBJECT = 0, 
@@ -157,7 +159,9 @@ typedef union {
 typedef enum {
 	VN_S_CONNECT_NAME_SIZE = 32,
 	VN_S_CONNECT_KEY_SIZE = 4,
-	VN_S_CONNECT_DATA_SIZE = 32
+	VN_S_CONNECT_DATA_SIZE = 32,
+	VS_S_CONNECT_HOSTID_PRIVATE_SIZE = 3 * 2048 / 8,
+	VS_S_CONNECT_HOSTID_PUBLIC_SIZE  = 2 * 2048 / 8
 } VNSConnectConstants;
 
 typedef enum {
@@ -326,14 +330,14 @@ typedef enum {
 	VN_B_LAYER_REAL64
 } VNBLayerType;
 
-#define VN_B_TILE_SIZE 4
+#define VN_B_TILE_SIZE 8
 
 typedef union{
-	uint16 vuint1;
-	uint8  vuint8[16];
-	uint16 vuint16[16];
-	real32 vreal32[16];
-	real64 vreal64[16];
+	uint8 vuint1[8];
+	uint8 vuint8[64];
+	uint16 vuint16[64];
+	real32 vreal32[64];
+	real64 vreal64[64];
 } VNBTile;
 
 typedef enum {
