@@ -105,13 +105,13 @@ void vs_o_subscribe(VSNodeObject *node)
 		if(node->links[i].name[0] != 0)
 			verse_send_o_link_set(node->head.id, i, node->links[i].link, node->links[i].name, node->links[i].target_id);
 	if(node->light[0] > -0.000001 && node->light[0] < 0.000001 && node->light[1] > -0.000001 && node->light[1] < 0.000001 && node->light[2] > -0.000001 && node->light[2] < 0.000001)
-		verse_send_o_set_light(node->head.id, node->light[0], node->light[1], node->light[2]);
+		verse_send_o_light_set(node->head.id, node->light[0], node->light[1], node->light[2]);
 	for(i = 0; i < node->group_count; i++)
 		if(node->groups[i].name[0] != 0)
 			verse_send_o_method_group_create(node->head.id, i, node->groups[i].name);
 }
 
-static void callback_send_o_set_light(void *user, VNodeID node_id, real64 light_r, real64 light_g, real64 light_b)
+static void callback_send_o_light_set(void *user, VNodeID node_id, real64 light_r, real64 light_g, real64 light_b)
 {
 	VSNodeObject *node;
 	unsigned int i, count;
@@ -125,7 +125,7 @@ static void callback_send_o_set_light(void *user, VNodeID node_id, real64 light_
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->head.subscribers, i);
-		verse_send_o_set_light(node_id, light_r, light_g, light_b);
+		verse_send_o_light_set(node_id, light_r, light_g, light_b);
 	}
 	vs_reset_subscript_session();
 }
@@ -417,7 +417,7 @@ static void callback_send_o_method_send(void *user, VNodeID node_id, uint16 grou
 void vs_o_callback_init(void)
 {
 	verse_callback_set(verse_send_o_link_set, callback_send_o_link_set, NULL);
-	verse_callback_set(verse_send_o_set_light, callback_send_o_set_light, NULL);
+	verse_callback_set(verse_send_o_light_set, callback_send_o_light_set, NULL);
 	verse_callback_set(verse_send_o_link_set, callback_send_o_link_set, NULL);
 	verse_callback_set(verse_send_o_link_destroy, callback_send_o_link_destroy, NULL);
 	verse_callback_set(verse_send_o_method_group_create, callback_send_o_method_group_create, NULL);
