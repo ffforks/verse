@@ -124,7 +124,7 @@ void vs_remove_subscriptor(VSSubscriptionList *list)
 		list->session[i] = list->session[--list->session_count];
 }
 
-unsigned int vs_get_subscript_count(VSSubscriptionList *list)
+size_t vs_get_subscript_count(VSSubscriptionList *list)
 {
 	return list->session_count;
 }
