@@ -66,7 +66,7 @@ void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time, real32 *pos
 		}
 		vnp_raw_pack_uint8(&buf[cmd], mask);
 	}if(FALSE)
-	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], drag);
+	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], drag);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -175,7 +175,7 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time, real32 *rot
 		}
 		vnp_raw_pack_uint8(&buf[cmd], mask);
 	}if(FALSE)
-	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], drag);
+	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], drag);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -244,9 +244,9 @@ void verse_send_o_transform_scale_real32(VNodeID node_id, real32 scale_x, real32
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], scale_x);
-	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], scale_y);
-	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], scale_z);
+	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], scale_x);
+	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], scale_y);
+	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], scale_z);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -578,7 +578,7 @@ void verse_send_o_transform_unsubscribe(VNodeID node_id, VNRealFormat type)
 
 unsigned int v_unpack_o_transform_subscribe(const char *buf, size_t buffer_length)
 {
-	char enum_temp;
+	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
 	void (* func_o_transform_subscribe)(void *user_data, VNodeID node_id, VNRealFormat type);
 	VNodeID node_id;
@@ -595,7 +595,7 @@ unsigned int v_unpack_o_transform_subscribe(const char *buf, size_t buffer_lengt
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	if(alias_bool)
+	if(!alias_bool)
 		printf("receive: verse_send_o_transform_unsubscribe(node_id = %u type = %u ); callback = %p\n", node_id, type, v_fs_get_alias_user_func(38));
 	else
 		printf("receive: verse_send_o_transform_subscribe(node_id = %u type = %u ); callback = %p\n", node_id, type, v_fs_get_user_func(38));
@@ -731,7 +731,7 @@ unsigned int v_unpack_o_link_set(const char *buf, size_t buffer_length)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	if(alias_bool)
+	if(!alias_bool)
 		printf("receive: verse_send_o_link_destroy(node_id = %u link_id = %u ); callback = %p\n", node_id, link_id, v_fs_get_alias_user_func(40));
 	else
 		printf("receive: verse_send_o_link_set(node_id = %u link_id = %u link = %u name = %s target_id = %u ); callback = %p\n", node_id, link_id, link, name, target_id, v_fs_get_user_func(40));
@@ -881,7 +881,7 @@ unsigned int v_unpack_o_method_group_subscribe(const char *buf, size_t buffer_le
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	if(alias_bool)
+	if(!alias_bool)
 		printf("receive: verse_send_o_method_group_unsubscribe(node_id = %u group_id = %u ); callback = %p\n", node_id, group_id, v_fs_get_alias_user_func(42));
 	else
 		printf("receive: verse_send_o_method_group_subscribe(node_id = %u group_id = %u ); callback = %p\n", node_id, group_id, v_fs_get_user_func(42));
@@ -927,7 +927,6 @@ void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_
 		}
 		if(sum + buffer_pos > 1500)
 			return;
-		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], param_count);
 		for(i = 0; i < param_count; i++)
 		{
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], param_types[i]);
