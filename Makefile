@@ -54,7 +54,7 @@ libverse.a:	libverse.a($(LIBVERSE_OBJ))
 $(PROT_OUT):	mkprot
 		./mkprot
 
-# Build the protcol maker, from the definitions themselves.
+# Build the protocol maker, from the definitions themselves.
 mkprot:		$(PROT_TOOL)
 		$(CC) -DV_GENERATE_FUNC_MODE -o $@ $^
 
