@@ -739,7 +739,7 @@ void verse_send_o_link_destroy(VNodeID node_id, uint16 link_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], link_id);
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 0);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], FALSE);
