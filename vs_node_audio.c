@@ -89,7 +89,6 @@ void vs_a_subscribe(VSNodeAudio *node)
 	for(i = 0; i < node->stream_count; i++)
 		if(node->streams[i].name[0] != 0)
 			verse_send_a_stream_create(node->head.id, i, node->streams[i].name);
-
 }
 
 void vs_a_unsubscribe(VSNodeAudio *node)
