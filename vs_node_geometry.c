@@ -916,7 +916,7 @@ void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, co
 	if(bone_id >= node->bone_count || node->bones[bone_id].weight[0] == '\0')
 	{
 		/* Find free bone to re-use, if any. */
-		for(bone_id = 0; bone_id < node->bone_count && node->bones[bone_id].weight[0] == 0; bone_id++)
+		for(bone_id = 0; bone_id < node->bone_count && node->bones[bone_id].weight[0] == '\0'; bone_id++)
 			;
 		if(bone_id == node->bone_count)
 		{
