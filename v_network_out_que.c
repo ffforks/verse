@@ -102,7 +102,7 @@ unsigned int out_balance = 1;
 boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 {
 	VCMDBufHead *buf;
-	unsigned int i, size, limit;
+	unsigned int i, size;
 	char data[1500];
 	uint32 seconds, fractions;
 	double delta;
@@ -294,7 +294,6 @@ void v_noq_send_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 }
 void v_noq_send_buf_fake(VNetOutQueue *queue, VCMDBufHead *buf)
 {
-	VCMDBufHead *b, *last = NULL;
 	unsigned int slot;
 	slot = buf->address_sum % V_NOQ_OPTIMIZATION_SLOTS;
 	queue->unsent_size += buf->size;
