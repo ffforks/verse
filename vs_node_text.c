@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "v_cmd_gen.h"
 
@@ -210,8 +211,7 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 	if(buffer_id >= node->buffer_count || node->buffer[buffer_id].name[0] == 0)
 		return;
 
-	for(text_length = 0; text[text_length] != 0; text_length++);
-
+	text_length = strlen(text);
 
 	if(pos > node->buffer[buffer_id].length)
 		pos = node->buffer[buffer_id].length;
