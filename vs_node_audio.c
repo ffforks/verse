@@ -17,6 +17,7 @@ typedef struct {
 	unsigned int		length;
 	char				name[16];
 	VNALayerType		type;
+	real64			frequency;
 	VSSubscriptionList  *subscribers;
 } VSNLayer;
 
@@ -82,7 +83,8 @@ void vs_a_subscribe(VSNodeAudio *node)
 		return;
 	for(i = 0; i < node->layer_count; i++)
 		if(node->layers[i].name[0] != 0)
-			verse_send_a_layer_create(node->head.id, i, node->layers[i].type, node->layers[i].name);
+			verse_send_a_layer_create(node->head.id, i, node->layers[i].type,
+						  node->layers[i].frequency, node->layers[i].name);
 	for(i = 0; i < node->stream_count; i++)
 		if(node->streams[i].name[0] != 0)
 			verse_send_a_stream_create(node->head.id, i, node->streams[i].name);
@@ -163,10 +165,14 @@ static void callback_send_a_stream_destroy(void *user, VNodeID node_id, VLayerID
 	vs_reset_subscript_session();
 }
 
-static void callback_send_a_layer_create(void *user, VNodeID node_id, VLayerID layer_id, VNALayerType type, const char *name)
+static void callback_send_a_layer_create(void *user, VNodeID node_id, VLayerID layer_id,
+					 VNALayerType type, real64 frequency, const char *name)
 {
 	VSNodeAudio *node;
 	unsigned int i, j, count;
+
+	if(frequency < 0.0)
+		return;
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
 	if(node == NULL)
 		return;
@@ -201,6 +207,7 @@ static void callback_send_a_layer_create(void *user, VNodeID node_id, VLayerID l
 		}
 		node->layers[layer_id].subscribers = vs_create_subscription_list();
 		node->layers[layer_id].type = type;
+		node->layers[layer_id].frequency = frequency;
 		node->layers[layer_id].length = 64;
 		node->layers[layer_id].data = malloc(sizeof(*node->layers[layer_id].data) * node->layers[layer_id].length);
 		for(i = 0; i < node->layers[layer_id].length; i++)
@@ -214,7 +221,7 @@ static void callback_send_a_layer_create(void *user, VNodeID node_id, VLayerID l
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->head.subscribers, i);
-		verse_send_a_layer_create(node_id, layer_id, type, name);
+		verse_send_a_layer_create(node_id, layer_id, type, frequency, name);
 	}
 	vs_reset_subscript_session();
 }
@@ -418,10 +425,14 @@ static void callback_send_a_stream_unsubscribe(void *user, VNodeID node_id, VLay
 	vs_remove_subscriptor(node->streams[stream_id].subscribers);
 }
 
-static void callback_send_a_stream(void *user, VNodeID node_id, VLayerID stream_id, uint16 id, uint32 time_s, uint32 time_f, VNALayerType type, void *data)
+static void callback_send_a_stream(void *user, VNodeID node_id, VLayerID stream_id, uint16 id, uint32 time_s, uint32 time_f,
+				   VNALayerType type, real64 frequency, void *data)
 {
 	VSNodeAudio *node;
 	unsigned int i, count;
+
+	if(frequency < 0)
+		return;
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
 	if(node == NULL)
 		return;
@@ -433,7 +444,7 @@ static void callback_send_a_stream(void *user, VNodeID node_id, VLayerID stream_
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->streams[stream_id].subscribers, i);
-		verse_send_a_stream(node_id, stream_id, id, time_s, time_f, type, data);
+		verse_send_a_stream(node_id, stream_id, id, time_s, time_f, type, frequency, data);
 	}
 	vs_reset_subscript_session();
 }
