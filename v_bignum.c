@@ -92,6 +92,8 @@ VBigNum v_bignum_new_string(const char *string)
 	for(i = len - 1, d = 0; i >= 0; i--, d++)
 	{
 		here = toupper(string[i]);
+		if(!isxdigit(here))
+			break;
 		here -= isdigit(here) ? '0' : 'A' - 10;
 		x.x[d >> 2] |= here << 4 * (d & 3);
 	}
