@@ -330,12 +330,12 @@ static void callback_send_g_layer_subscribe(void *user, VNodeID node_id, VLayerI
 			{
 				for(i = 0; i < node->vertex_size; i++)
 					if(((double *)node->layer[0].layer)[i * 3] != V_REAL64_MAX)
-						verse_send_g_vertex_set_real64_xyz(node_id, layer_id, i, ((double *)layer->layer)[i * 3], ((double *)layer->layer)[i * 3 + 1], ((double *)layer->layer)[i * 3 + 2]);
+						verse_send_g_vertex_set_xyz_real64(node_id, layer_id, i, ((double *)layer->layer)[i * 3], ((double *)layer->layer)[i * 3 + 1], ((double *)layer->layer)[i * 3 + 2]);
 			}else
 			{
 				for(i = 0; i < node->vertex_size; i++)
 					if(((double *)node->layer[0].layer)[i * 3] != V_REAL64_MAX)
-						verse_send_g_vertex_set_real32_xyz(node_id, layer_id, i, (float)((double *)layer->layer)[i * 3], (float)((double *)layer->layer)[i * 3 + 1], (float)((double *)layer->layer)[i * 3 + 2]);
+						verse_send_g_vertex_set_xyz_real32(node_id, layer_id, i, (float)((double *)layer->layer)[i * 3], (float)((double *)layer->layer)[i * 3 + 1], (float)((double *)layer->layer)[i * 3 + 2]);
 			}
 			break;
 		case VN_G_LAYER_VERTEX_UINT32 :
@@ -488,7 +488,7 @@ static boolean vs_g_extend_arrays(VSNodeGeometry *node, boolean vertex, unsigned
 	return TRUE;
 }
 
-static void callback_send_g_vertex_set_real32_xyz(void *user, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, float x, float y, float z)
+static void callback_send_g_vertex_set_xyz_real32(void *user, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, float x, float y, float z)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -521,18 +521,18 @@ static void callback_send_g_vertex_set_real32_xyz(void *user, VNodeID node_id, V
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->layer[layer_id].subscribersd, i);
-		verse_send_g_vertex_set_real64_xyz(node_id, layer_id, vertex_id, (double)x, (double)y, (double)z);
+		verse_send_g_vertex_set_xyz_real64(node_id, layer_id, vertex_id, (double)x, (double)y, (double)z);
 	}
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->layer[layer_id].subscribers, i);
-		verse_send_g_vertex_set_real32_xyz(node_id, layer_id, vertex_id, x, y, z);
+		verse_send_g_vertex_set_xyz_real32(node_id, layer_id, vertex_id, x, y, z);
 	}
 	vs_reset_subscript_session();
 }
 
-static void callback_send_g_vertex_set_real64_xyz(void *user, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, double x, double y, double z)
+static void callback_send_g_vertex_set_xyz_real64(void *user, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, double x, double y, double z)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -565,13 +565,13 @@ static void callback_send_g_vertex_set_real64_xyz(void *user, VNodeID node_id, V
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->layer[layer_id].subscribersd, i);
-		verse_send_g_vertex_set_real64_xyz(node_id, layer_id, vertex_id, x, y, z);
+		verse_send_g_vertex_set_xyz_real64(node_id, layer_id, vertex_id, x, y, z);
 	}
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->layer[layer_id].subscribers, i);
-		verse_send_g_vertex_set_real32_xyz(node_id, layer_id, vertex_id, (float)x, (float)y, (float)z);
+		verse_send_g_vertex_set_xyz_real32(node_id, layer_id, vertex_id, (float)x, (float)y, (float)z);
 	}
 	vs_reset_subscript_session();
 }
@@ -995,8 +995,8 @@ void vs_g_callback_init(void)
 	verse_callback_set(verse_send_g_layer_destroy, callback_send_g_layer_destroy, NULL);
 	verse_callback_set(verse_send_g_layer_subscribe, callback_send_g_layer_subscribe, NULL);
 	verse_callback_set(verse_send_g_layer_unsubscribe, callback_send_g_layer_unsubscribe, NULL);
-	verse_callback_set(verse_send_g_vertex_set_real32_xyz, callback_send_g_vertex_set_real32_xyz, NULL);
-	verse_callback_set(verse_send_g_vertex_set_real64_xyz, callback_send_g_vertex_set_real64_xyz, NULL);
+	verse_callback_set(verse_send_g_vertex_set_xyz_real32, callback_send_g_vertex_set_xyz_real32, NULL);
+	verse_callback_set(verse_send_g_vertex_set_xyz_real64, callback_send_g_vertex_set_xyz_real64, NULL);
 	verse_callback_set(verse_send_g_vertex_set_uint32, callback_send_g_vertex_set_uint32, NULL);
 	verse_callback_set(verse_send_g_vertex_set_real32, callback_send_g_vertex_set_real32, NULL);
 	verse_callback_set(verse_send_g_vertex_set_real64, callback_send_g_vertex_set_real64, NULL);
