@@ -169,7 +169,7 @@ VNetworkAddress * v_n_create_network_address(int my_port, const char *addr)
 	return NULL;
 }
 
-unsigned int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
+int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 {
 	struct sockaddr_in	address_in;
 
@@ -208,23 +208,25 @@ void v_n_wait_for_incoming(unsigned int milliseconds)
 
 #endif
 
-unsigned int v_n_receive_data(VNetworkAddress *address, char *data, unsigned int length, int connection_exclusive)
+int v_n_receive_data(VNetworkAddress *address, char *data, size_t length, int connection_exclusive)
 {
-	unsigned int size, from_length;
-	struct sockaddr_in address_in;
+	size_t			from_length = sizeof (struct sockaddr);
+	int			got;
+	struct sockaddr_in	address_in;
+
 	memset(&address_in, 0, sizeof address_in);
 	address_in.sin_family = AF_INET;
 	address_in.sin_port = htons(address->my_port); 
 	address_in.sin_addr.s_addr = INADDR_ANY;
-	from_length = sizeof(struct sockaddr);
-	size = recvfrom(address->socket, data, length, 0, (struct sockaddr *) &address_in, &from_length);
-	if(size == -1)
+	got = recvfrom(address->socket, data, length, 0, (struct sockaddr *) &address_in, &from_length);
+	if(got == -1)
 		return -1;
 	if(connection_exclusive && ntohl(address_in.sin_addr.s_addr) != address->their_ip)
 		return -1;
-	address->their_ip = ntohl(address_in.sin_addr.s_addr);
+	address->their_ip   = ntohl(address_in.sin_addr.s_addr);
 	address->their_port = ntohs(address_in.sin_port);
-	return size;
+
+	return got;
 }
 
 void v_n_get_address_string(const VNetworkAddress *address, char *string)
