@@ -17,8 +17,6 @@
 #include "verse.h"
 
 #define CONNECTION_CHUNK_SIZE	16
-#define PING_TIMEOUT		200000		/* 200000 microseconds. */
-#define CONNECTION_TIMEOUT	50		/* 200 * 50 miliseconds. */
 
 #define V_MAX_CONNECT_PACKET_SIZE	1500
 
