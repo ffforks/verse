@@ -14,7 +14,7 @@
 /* Release information. */
 #define	V_RELEASE_NUMBER	4
 #define	V_RELEASE_PATCH		0
-#define	V_RELEASE_LABEL		"pre2"
+#define	V_RELEASE_LABEL		"pre3"
 
 typedef unsigned char boolean;
 typedef unsigned int uint32;
@@ -473,11 +473,11 @@ extern void verse_send_t_buffer_subscribe(VNodeID node_id, VNMBufferID buffer_id
 extern void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id);
 extern void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text);
 
-extern void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *name);
+extern void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *name, uint8 dimensions);
 extern void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id);
 extern void verse_send_c_curve_subscribe(VNodeID node_id, VLayerID curve_id);
 extern void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id);
-extern void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, real64 pre_value, uint32 pre_pos, real64 value, real64 pos, real64 post_value, uint32 post_pos);
+extern void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, real64 *pre_value, uint32 *pre_pos, real64 *value, real64 pos, real64 *post_value, uint32 *post_pos);
 extern void verse_send_c_curve_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 key_id);
 
 extern void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, const char *name);
