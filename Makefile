@@ -13,8 +13,7 @@ CFLAGS = -I$(shell pwd) -Wall -ansi
 TARGETS = libverse.a verse $(TUTORIALS)
 
 LIBVERSE_SRC = $(patsubst v_initialize.c,, \
-             $(patsubst v_test.c,, \
-             $(wildcard v_*.c)))
+             $(wildcard v_*.c))
 LIBVERSE_OBJ = $(LIBVERSE_SRC:%.c=%.o)
 
 VERSE_SRC = $(wildcard vs_*.c)
@@ -32,13 +31,13 @@ libverse.a : $(LIBVERSE_OBJ)
 	$(AR) $(ARFLAGS) $@ $(LIBVERSE_OBJ)
 
 verse: $(VERSE_OBJ) libverse.a
-	gcc -o $@ $^
+	$(CC) -o $@ $^
 
 tut_enough: $(TUT_ENOUGH_OBJ) libverse.a
-	gcc -o $@ $^
+	$(CC) -o $@ $^
 
 tut_connect: $(TUT_CONNECT_OBJ) libverse.a
-	gcc -o $@ $^
+	$(CC) -o $@ $^
 
 # -----------------------------------------------------
 
