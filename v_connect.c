@@ -190,7 +190,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 	
 	buffer_pos = vnp_raw_unpack_uint32(&buf[buffer_pos], &pack_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &cmd_id);
-	printf("paket %u %u", pack_id, cmd_id);
+	printf("connection packet %u, cmd %u", pack_id, cmd_id);
 	if(cmd_id == 0)
 	{
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &stage);
