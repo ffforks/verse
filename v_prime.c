@@ -112,8 +112,9 @@ void v_prime_set_random(VBigDig *x)
 		if(v_bignum_eq_one(x))
 			printf("prime generator overflow, not good\n");
 	}
-	printf("Prime found after %d iterations: ", count);
+/*	printf("Prime found after %d iterations: ", count);
 	v_bignum_print_hex_lf(x);
+*/
 }
 
 /* Big (small?) primes from <http://www.utm.edu/research/primes/lists/small/small3.html#300>. */
