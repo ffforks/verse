@@ -18,6 +18,12 @@ extern VNodeID	vs_node_create(VNodeID owner_id, unsigned int type);
 extern void	callback_send_node_destroy(void *user_data, VNodeID node_id);
 extern void	vs_reset_owner(VNodeID owner_id);
 
+static void callback_send_ping(void *user, const char *address, const char *message)
+{
+	printf("Bouncing ping '%s' back to '%s'\n", message, address);
+	verse_send_ping(address, message);
+}
+
 static void callback_send_connect(void *user, const char *name, const char *pass, const char *address, const uint8 *host_id)
 {
 	VNodeID avatar;
@@ -98,6 +104,7 @@ int main(int argc, char **argv)
 	vs_a_callback_init();
 	vs_h_callback_init();
 	init_callback_node_storage();
+	verse_callback_set(verse_send_ping,	callback_send_ping, NULL);
 	verse_callback_set(verse_send_connect,		callback_send_connect,		NULL);
 	verse_callback_set(verse_send_connect_terminate, callback_send_connect_terminate, NULL);
 
