@@ -12,6 +12,7 @@
 #include "v_cmd_gen.h"
 #include "v_connection.h"
 #include "v_encryption.h"
+#include "v_util.h"
 
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
@@ -84,9 +85,7 @@ void verse_host_id_create(uint8 *id)
 
 void verse_host_id_set(uint8 *id)
 {
-	unsigned int i;
-	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_FULL_SIZE; i++)
-		VConData.host_id[i] = id[i];
+	memcpy(VConData.host_id, id, V_ENCRYPTION_LOGIN_KEY_FULL_SIZE);
 }
 
 extern void *v_fs_create_func_storage(void);
@@ -312,21 +311,16 @@ void verse_callback_update(unsigned int microseconds)
 
 void v_con_set_name_pass(const char *name, const char *pass)
 {
-	unsigned int i;
-	for(i = 0; i < 16 - 1 && name[i] != 0; i++)
-		VConData.con[VConData.current_connection].name[i] = name[i];
-	VConData.con[VConData.current_connection].name[i] = 0;
-	for(i = 0; i < 16 - 1 && pass[i] != 0; i++)
-		VConData.con[VConData.current_connection].pass[i] = pass[i];
-	VConData.con[VConData.current_connection].pass[i] = 0;
+	v_strlcpy(VConData.con[VConData.current_connection].name, name, sizeof VConData.con[VConData.current_connection].name);
+	v_strlcpy(VConData.con[VConData.current_connection].pass, pass, sizeof VConData.con[VConData.current_connection].pass);
 }
 
-char *v_con_get_name(void)
+const char * v_con_get_name(void)
 {
 	return VConData.con[VConData.current_connection].name;
 }
 
-char *v_con_get_pass(void)
+const char * v_con_get_pass(void)
 {
 	return VConData.con[VConData.current_connection].pass;
 }
