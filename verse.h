@@ -13,7 +13,7 @@
 
 /* Release information. */
 #define	V_RELEASE_NUMBER	2
-#define	V_RELEASE_PATCH		0
+#define	V_RELEASE_PATCH		4
 #define	V_RELEASE_LABEL		"(none)"
 
 typedef unsigned char boolean;
@@ -372,7 +372,7 @@ extern void *verse_audio_uncompress(uint32 length, VNALayerType type, const void
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECEIVE_COMMANDS
 */
-
+ 
 #endif		/* VERSE_TYPES */
 
 /* Command sending functions begin. ----------------------------------------- */
