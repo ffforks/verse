@@ -19,12 +19,12 @@ VERSE_OBJ = $(VERSE_SRC:%.c=%.o)
 
 # -----------------------------------------------------
 
-all: $(TARGETS)
+all:		$(TARGETS)
 
 libverse.a:	libverse.a($(LIBVERSE_OBJ))
 
-verse: $(VERSE_OBJ) libverse.a
-	$(CC) -o $@ $^
+verse:		$(VERSE_OBJ) libverse.a
+		$(CC) -o $@ $^
 
 # -----------------------------------------------------
 
