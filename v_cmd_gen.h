@@ -3,7 +3,7 @@
 */
 
 /* Define this to at least build the code that regenerates the variable parts of the code. */
-#define V_GENERATE_FUNC_MODE
+/*#define V_GENERATE_FUNC_MODE*/
 
 typedef enum {
 	VCGP_UINT8,
