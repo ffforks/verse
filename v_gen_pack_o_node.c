@@ -795,7 +795,7 @@ unsigned int v_unpack_o_link_set(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_o_method_group_create(VNodeID node_id, uint8 group_id, const char *name)
+void verse_send_o_method_group_create(VNodeID node_id, uint16 group_id, const char *name)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -808,17 +808,17 @@ void verse_send_o_method_group_create(VNodeID node_id, uint8 group_id, const cha
 	printf("send: verse_send_o_method_group_create(node_id = %u group_id = %u name = %s );\n", node_id, group_id, name);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], group_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], group_id);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
-	if(node_id == (uint32)(-1))
-		v_cmd_buf_set_unique_address_size(head, 6);
+	if(node_id == (uint32)(-1) || group_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
 	else
-		v_cmd_buf_set_address_size(head, 6);
+		v_cmd_buf_set_address_size(head, 7);
 	v_cmd_buf_set_size(head, buffer_pos);
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-void verse_send_o_method_group_destroy(VNodeID node_id, uint8 group_id)
+void verse_send_o_method_group_destroy(VNodeID node_id, uint16 group_id)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -831,12 +831,12 @@ void verse_send_o_method_group_destroy(VNodeID node_id, uint8 group_id)
 	printf("send: verse_send_o_method_group_destroy(node_id = %u group_id = %u );\n", node_id, group_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], group_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], group_id);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
-	if(node_id == (uint32)(-1))
-		v_cmd_buf_set_unique_address_size(head, 6);
+	if(node_id == (uint32)(-1) || group_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
 	else
-		v_cmd_buf_set_address_size(head, 6);
+		v_cmd_buf_set_address_size(head, 7);
 	v_cmd_buf_set_size(head, buffer_pos);
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
@@ -844,16 +844,16 @@ void verse_send_o_method_group_destroy(VNodeID node_id, uint8 group_id)
 unsigned int v_unpack_o_method_group_create(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_method_group_create)(void *user_data, VNodeID node_id, uint8 group_id, const char *name);
+	void (* func_o_method_group_create)(void *user_data, VNodeID node_id, uint16 group_id, const char *name);
 	VNodeID node_id;
-	uint8 group_id;
+	uint16 group_id;
 	char name[16];
 	
 	func_o_method_group_create = v_fs_get_user_func(41);
-	if(buffer_length < 5)
+	if(buffer_length < 6)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &group_id);
+	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &group_id);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(name[0] == 0)
@@ -863,7 +863,7 @@ unsigned int v_unpack_o_method_group_create(const char *buf, size_t buffer_lengt
 #endif
 	if(name[0] == 0)
 	{
-		void (* alias_o_method_group_destroy)(void *user_data, VNodeID node_id, uint8 group_id);
+		void (* alias_o_method_group_destroy)(void *user_data, VNodeID node_id, uint16 group_id);
 		alias_o_method_group_destroy = v_fs_get_alias_user_func(41);
 		if(alias_o_method_group_destroy != NULL)
 			alias_o_method_group_destroy(v_fs_get_alias_user_data(41), node_id, group_id);

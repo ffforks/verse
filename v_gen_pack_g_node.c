@@ -194,7 +194,7 @@ unsigned int v_unpack_g_layer_subscribe(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_g_vertex_set_real32_xyz(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real32 x, real32 y, real32 z)
+void verse_send_g_vertex_set_xyz_real32(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real32 x, real32 y, real32 z)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -204,7 +204,7 @@ void verse_send_g_vertex_set_real32_xyz(VNodeID node_id, VLayerID layer_id, uint
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 50);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_g_vertex_set_real32_xyz(node_id = %u layer_id = %u vertex_id = %u x = %f y = %f z = %f );\n", node_id, layer_id, vertex_id, x, y, z);
+	printf("send: verse_send_g_vertex_set_xyz_real32(node_id = %u layer_id = %u vertex_id = %u x = %f y = %f z = %f );\n", node_id, layer_id, vertex_id, x, y, z);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -246,10 +246,10 @@ void verse_send_g_vertex_delete_real32(VNodeID node_id, uint32 vertex_id)
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_vertex_set_real32_xyz(const char *buf, size_t buffer_length)
+unsigned int v_unpack_g_vertex_set_xyz_real32(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_g_vertex_set_real32_xyz)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real32 x, real32 y, real32 z);
+	void (* func_g_vertex_set_xyz_real32)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real32 x, real32 y, real32 z);
 	VNodeID node_id;
 	VLayerID layer_id;
 	uint32 vertex_id;
@@ -257,7 +257,7 @@ unsigned int v_unpack_g_vertex_set_real32_xyz(const char *buf, size_t buffer_len
 	real32 y;
 	real32 z;
 	
-	func_g_vertex_set_real32_xyz = v_fs_get_user_func(50);
+	func_g_vertex_set_xyz_real32 = v_fs_get_user_func(50);
 	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -270,7 +270,7 @@ unsigned int v_unpack_g_vertex_set_real32_xyz(const char *buf, size_t buffer_len
 	if(x == V_REAL32_MAX || y == V_REAL32_MAX || z == V_REAL32_MAX)
 		printf("receive: verse_send_g_vertex_delete_real32(node_id = %u vertex_id = %u ); callback = %p\n", node_id, vertex_id, v_fs_get_alias_user_func(50));
 	else
-		printf("receive: verse_send_g_vertex_set_real32_xyz(node_id = %u layer_id = %u vertex_id = %u x = %f y = %f z = %f ); callback = %p\n", node_id, layer_id, vertex_id, x, y, z, v_fs_get_user_func(50));
+		printf("receive: verse_send_g_vertex_set_xyz_real32(node_id = %u layer_id = %u vertex_id = %u x = %f y = %f z = %f ); callback = %p\n", node_id, layer_id, vertex_id, x, y, z, v_fs_get_user_func(50));
 #endif
 	if(x == V_REAL32_MAX || y == V_REAL32_MAX || z == V_REAL32_MAX)
 	{
@@ -280,13 +280,13 @@ unsigned int v_unpack_g_vertex_set_real32_xyz(const char *buf, size_t buffer_len
 			alias_g_vertex_delete_real32(v_fs_get_alias_user_data(50), node_id, vertex_id);
 		return buffer_pos;
 	}
-	if(func_g_vertex_set_real32_xyz != NULL)
-		func_g_vertex_set_real32_xyz(v_fs_get_user_data(50), node_id, layer_id, vertex_id, x, y, z);
+	if(func_g_vertex_set_xyz_real32 != NULL)
+		func_g_vertex_set_xyz_real32(v_fs_get_user_data(50), node_id, layer_id, vertex_id, x, y, z);
 
 	return buffer_pos;
 }
 
-void verse_send_g_vertex_set_real64_xyz(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 x, real64 y, real64 z)
+void verse_send_g_vertex_set_xyz_real64(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 x, real64 y, real64 z)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -296,7 +296,7 @@ void verse_send_g_vertex_set_real64_xyz(VNodeID node_id, VLayerID layer_id, uint
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 51);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_g_vertex_set_real64_xyz(node_id = %u layer_id = %u vertex_id = %u x = %f y = %f z = %f );\n", node_id, layer_id, vertex_id, x, y, z);
+	printf("send: verse_send_g_vertex_set_xyz_real64(node_id = %u layer_id = %u vertex_id = %u x = %f y = %f z = %f );\n", node_id, layer_id, vertex_id, x, y, z);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -338,10 +338,10 @@ void verse_send_g_vertex_delete_real64(VNodeID node_id, uint32 vertex_id)
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_vertex_set_real64_xyz(const char *buf, size_t buffer_length)
+unsigned int v_unpack_g_vertex_set_xyz_real64(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_g_vertex_set_real64_xyz)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 x, real64 y, real64 z);
+	void (* func_g_vertex_set_xyz_real64)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 x, real64 y, real64 z);
 	VNodeID node_id;
 	VLayerID layer_id;
 	uint32 vertex_id;
@@ -349,7 +349,7 @@ unsigned int v_unpack_g_vertex_set_real64_xyz(const char *buf, size_t buffer_len
 	real64 y;
 	real64 z;
 	
-	func_g_vertex_set_real64_xyz = v_fs_get_user_func(51);
+	func_g_vertex_set_xyz_real64 = v_fs_get_user_func(51);
 	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -362,7 +362,7 @@ unsigned int v_unpack_g_vertex_set_real64_xyz(const char *buf, size_t buffer_len
 	if(x == V_REAL64_MAX || y == V_REAL64_MAX || z == V_REAL64_MAX)
 		printf("receive: verse_send_g_vertex_delete_real64(node_id = %u vertex_id = %u ); callback = %p\n", node_id, vertex_id, v_fs_get_alias_user_func(51));
 	else
-		printf("receive: verse_send_g_vertex_set_real64_xyz(node_id = %u layer_id = %u vertex_id = %u x = %f y = %f z = %f ); callback = %p\n", node_id, layer_id, vertex_id, x, y, z, v_fs_get_user_func(51));
+		printf("receive: verse_send_g_vertex_set_xyz_real64(node_id = %u layer_id = %u vertex_id = %u x = %f y = %f z = %f ); callback = %p\n", node_id, layer_id, vertex_id, x, y, z, v_fs_get_user_func(51));
 #endif
 	if(x == V_REAL64_MAX || y == V_REAL64_MAX || z == V_REAL64_MAX)
 	{
@@ -372,8 +372,8 @@ unsigned int v_unpack_g_vertex_set_real64_xyz(const char *buf, size_t buffer_len
 			alias_g_vertex_delete_real64(v_fs_get_alias_user_data(51), node_id, vertex_id);
 		return buffer_pos;
 	}
-	if(func_g_vertex_set_real64_xyz != NULL)
-		func_g_vertex_set_real64_xyz(v_fs_get_user_data(51), node_id, layer_id, vertex_id, x, y, z);
+	if(func_g_vertex_set_xyz_real64 != NULL)
+		func_g_vertex_set_xyz_real64(v_fs_get_user_data(51), node_id, layer_id, vertex_id, x, y, z);
 
 	return buffer_pos;
 }
