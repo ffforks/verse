@@ -112,6 +112,8 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 		case V_NT_CURVE :
 			node = vs_c_create_node(owner_id);
 		break;
+		default:
+			fprintf(stderr, "**Can't create node of type %d--code missing\n");
 	}
 	node_id = node->id;
 
