@@ -497,16 +497,16 @@ void v_cg_gen_pack(boolean alias)
 				fprintf(f, "\tv_cmd_buf_set_address_size(head, buffer_pos, buffer_pos);\n");
 			break;
 		case VCGCT_UNIQUE :
-			fprintf(f, "\tv_cmd_buf_set_uniqe_size(head, buffer_pos);\n");
+			fprintf(f, "\tv_cmd_buf_set_unique_size(head, buffer_pos);\n");
 		break;
 		case VCGCT_ONCE :
-			fprintf(f, "\tv_cmd_buf_set_uniqe_size(head, buffer_pos);\n");
+			fprintf(f, "\tv_cmd_buf_set_unique_size(head, buffer_pos);\n");
 		break;
 		case VCGCT_INVISIBLE_SYSTEM :
-			fprintf(f, "\tv_cmd_buf_set_uniqe_size(head, buffer_pos);\n");
+			fprintf(f, "\tv_cmd_buf_set_unique_size(head, buffer_pos);\n");
 		break;
 		case VCGCT_ORDERED :
-			fprintf(f, "\tv_cmd_buf_set_uniqe_size(head, buffer_pos);\n");
+			fprintf(f, "\tv_cmd_buf_set_unique_size(head, buffer_pos);\n");
 		break;
 	}
 	

@@ -90,14 +90,14 @@ void v_gen_system_cmd_def(void)
 
 	v_cg_new_cmd(V_NT_SYSTEM,		"packet_ack", 7, VCGCT_INVISIBLE_SYSTEM);
 	v_cg_add_param(VCGP_UINT32,		"packet_id");
-	v_cg_add_param(VCGP_PACK_INLINE, "\tv_cmd_buf_set_uniqe_size(head, buffer_pos);\n"
+	v_cg_add_param(VCGP_PACK_INLINE, "\tv_cmd_buf_set_unique_size(head, buffer_pos);\n"
 	"\tv_nq_send_ack_nak_buf(v_con_get_network_queue(), head);\n"
 	"\treturn;\n");
 	v_cg_end_cmd();
 
 	v_cg_new_cmd(V_NT_SYSTEM,		"packet_nak", 8, VCGCT_INVISIBLE_SYSTEM);
 	v_cg_add_param(VCGP_UINT32,		"packet_id");
-	v_cg_add_param(VCGP_PACK_INLINE, "\tv_cmd_buf_set_uniqe_size(head, buffer_pos);\n"
+	v_cg_add_param(VCGP_PACK_INLINE, "\tv_cmd_buf_set_unique_size(head, buffer_pos);\n"
 	"\tv_nq_send_ack_nak_buf(v_con_get_network_queue(), head);\n"
 	"\treturn;\n");
 	v_cg_end_cmd();
