@@ -1,17 +1,23 @@
 /*
- * 
+ * Verse encryption routines. Implements RSA encryption/decryption plus fast XORx.
 */
 
 #if !defined(V_GENERATE_FUNC_MODE)
 
+#include <ctype.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/time.h>
 
 #include "verse.h"
 #include "v_pack.h"
 #include "v_bignum.h"
 #include "v_encryption.h"
 
-extern VBigNum	v_prime_new_random(void);
+#define	BITS	(512)/*CHAR_BIT * V_ENCRYPTION_LOGIN_KEY_SIZE)*/
+
+extern void	v_prime_set_random(VBigDig *x);
+extern void	v_prime_set_table(VBigDig *x, int i);
 
 void v_e_encrypt_data_key_generate(uint8 *to) /* possibly the worst key gen ever */
 {
@@ -53,38 +59,45 @@ void v_e_encrypt_login(uint8 *data, unsigned int data_length, uint8 *key)
 
 #endif
 
-/* From Knuth. */
-VBigNum v_e_math_inv(VBigNum u, VBigNum v)
+/* From Knuth. Computes multiplicative inverse of u, modulo v. */
+void v_e_math_inv(VBigDig *inv, const VBigDig *u, const VBigDig *v)
 {
-	VBigNum	u1, u3, v1, v3, t1, t3, q, w, inv;
+	VBigDig	VBIGNUM(u1, 2*BITS), VBIGNUM(u3, 2*BITS), VBIGNUM(v1, 2*BITS), VBIGNUM(v3, 2 *BITS),
+		VBIGNUM(t1, 2*BITS), VBIGNUM(t3, 2*BITS), VBIGNUM(q, 2*BITS),  VBIGNUM(w, 2*BITS);
 	int	iter = 1;
 
-	u1 = v_bignum_new_one();
-	u3 = u;
-	v1 = v_bignum_new_zero();
-	v3 = v;
+	v_bignum_set_one(u1);
+	v_bignum_set_bignum(u3, u);
+	v_bignum_set_zero(v1);
+	v_bignum_set_bignum(v3, v);
 
 	while(!v_bignum_eq_zero(v3))
 	{
-		q = v_bignum_div(u3, v3, &t3);
-		w = v_bignum_mul(q, v1);
-		t1 = v_bignum_add(u1, w);
-	
-		u1 = v1;
-		v1 = t1;
-		u3 = v3;
-		v3 = t3;
+		v_bignum_set_bignum(q, u3);
+		v_bignum_div(q, v3, t3);
+		v_bignum_set_bignum(w, q);
+		v_bignum_mul(w, v1);
+		v_bignum_set_bignum(t1, u1);
+		v_bignum_add(t1, w);
+
+		v_bignum_set_bignum(u1, v1);
+		v_bignum_set_bignum(v1, t1);
+		v_bignum_set_bignum(u3, v3);
+		v_bignum_set_bignum(v3, t3);
 		iter = -iter;
 	}
 	if(iter < 0)
-		inv = v_bignum_sub(v, u1);
+	{
+		v_bignum_set_bignum(inv, v);
+		v_bignum_sub(inv, u1);
+	}
 	else
-		inv = u1;
-	return inv;
+		v_bignum_set_bignum(inv, u1);
 }
 
-
-VBigNum v_e_math_compute_gcd(VBigNum u, VBigNum v)
+#if 0
+/* Compute GCD of u and v, using binary algorithm. */
+void v_e_math_compute_gcd(VBigDig *gcd, const VBigDig *u, const VBigDig *v)
 {
 	VBigNum	g = v_bignum_new_one();
 
@@ -117,74 +130,116 @@ VBigNum v_e_math_compute_gcd(VBigNum u, VBigNum v)
 	}
 	return v_bignum_mul(g, v);
 }
+#endif
 
-extern VBigNum v_get_prime();
-
-void v_e_create_key_real(VBigNum *public_key, VBigNum *private_key, VBigNum *n)
+void v_e_create_key(uint8 *public_key, uint8 *private_key, uint8 *n)
 {
-	VBigNum p, q, phi, e, d;
+	VBigDig	VBIGNUM(p, BITS / 2), VBIGNUM(q, BITS / 2), VBIGNUM(qmo, BITS / 2), VBIGNUM(phi, BITS),
+		VBIGNUM(pub, BITS), VBIGNUM(priv, BITS), VBIGNUM(mod, BITS);
 
 	printf("find prime p\n");
-	p = v_prime_new_random();
+	v_prime_set_random(p);
+/*	v_prime_set_table(p, 0);*/
+/*	v_bignum_set_string(p, "12253097");*/
+/*	v_bignum_set_string(p, "15");*/
 	printf("find prime q\n");
-	q = v_prime_new_random();
+	v_prime_set_random(q);
+/*	v_prime_set_table(q, 1);*/
+/*	v_bignum_set_string(q, "12264347");*/
+/*	v_bignum_set_string(q, "27");*/
 	printf("done, computing key\n");
-	phi = v_bignum_mul(v_bignum_sub_ushort(p, 1), v_bignum_sub_ushort(q, 1));
-	printf("phi: ");
-	v_bignum_print_hex(phi);
-	e = v_bignum_new_string("0x10001");
-	*public_key  = e;
-	printf("      e: ");
-	v_bignum_print_hex(e);
-	*private_key = v_e_math_inv(e, phi);
-	printf("e's inv: ");
-	v_bignum_print_hex(*private_key);
-	printf("msb of inv: %u\n", v_bignum_bit_msb(*private_key));
-	printf("test of inverse: ");
-	v_bignum_print_hex(v_bignum_mod(v_bignum_mul(e, *private_key), phi));
-	printf("gcd: ");
-	v_bignum_print_hex(v_e_math_compute_gcd(e, phi));
-	*n = v_bignum_mul(p, q);
-	printf("key-creation finished\n");
+/*	printf("p=");
+	v_bignum_print_hex_lf(p);
+	printf("q=");
+	v_bignum_print_hex_lf(q);
+*/	v_bignum_set_bignum(phi, p);
+	v_bignum_sub_digit(phi, 1);
+	v_bignum_set_bignum(qmo, q);
+	v_bignum_sub_digit(qmo, 1);
+	v_bignum_mul(phi, qmo);
+/*	printf("phi=");
+	v_bignum_print_hex_lf(phi);
+*/	v_bignum_set_string_hex(pub, "0x10001");
+	printf("e=");
+	v_bignum_print_hex_lf(pub);
+	v_e_math_inv(priv, pub, phi);
+	printf("d=");
+	v_bignum_print_hex_lf(priv);
+
+	v_bignum_set_bignum(mod, p);
+	v_bignum_mul(mod, q);
+/*	printf("n=");
+	v_bignum_print_hex_lf(n);
+*/	printf("key-creation finished\n");
+	/* Write out the keys. */
+	v_bignum_raw_export(pub, public_key);
+	v_bignum_raw_export(priv, private_key);
+	v_bignum_raw_export(mod, n);
 }
 
-VBigNum v_e_encrypt_real(VBigNum *data, VBigNum *key, VBigNum *n)
+void v_e_encrypt(uint8 *output, const uint8 *data, const uint8 *key, const uint8 *key_n)
 {
-	VBigNum z;
-	unsigned int i;
-/*	typedef struct
-	unsigned short	data[V_BIGNUM_BITS / (CHAR_BIT * sizeof (unsigned short))];
+	VBigDig	VBIGNUM(packet, BITS), VBIGNUM(expo, BITS), VBIGNUM(mod, BITS);
+
+	v_bignum_raw_import(packet, data);
+	v_bignum_raw_import(expo, key);
+	v_bignum_raw_import(mod, key_n);
+/*	printf("RSA key: ");
+	v_bignum_print_hex_lf(expo);
+	printf("RSA in:  ");
+	v_bignum_print_hex_lf(packet);
+	printf("bits in packet: %d\n", v_bignum_bit_msb(packet) + 1);
+	printf("bits in modulo: %d\n", v_bignum_bit_msb(mod) + 1);
+*/	v_bignum_pow_mod(packet, expo, mod);	/* Blam. */
+/*	printf("RSA out: ");
+	v_bignum_print_hex_lf(packet);
+*/	v_bignum_raw_export(packet, output);
+}
+
+void v_encrypt_test(void)
+{
+	uint8	k_priv[BITS / 8], k_pub[BITS / 8], k_n[BITS / 8], cipher[BITS / 8], plain[BITS / 8], decode[BITS / 8];
+
+	printf("testing RSA-crypto\n");
+	v_e_create_key(k_pub, k_priv, k_n);
+	printf("key pair generated, encrypting something\n");
+	memset(plain, 0, sizeof plain);
+	strcpy(plain, "This is some text to encrypt, to give it something to chew on.");
+	printf("plain: %02X (%u)\n", plain[0], strlen(plain));
+	v_e_encrypt(cipher, plain, k_pub, k_n);
+	printf("plain: %02X, cipher: %02X\n", plain[0], cipher[0]);
+	v_e_encrypt(decode, cipher, k_priv, k_n);
+	printf("decoded: %02X\n", decode[0]);
+	exit(0);
+/*	printf("\npublic key: ");
+	v_bignum_print_hex_lf(k_public);
+	printf("private key: ");
+	v_bignum_print_hex_lf(k_private);
+	v_bignum_set_string(msg, "123");
+	gettimeofday(&t1, NULL);
+	v_bignum_pow_mod(msg, k_private, k_n);
+	gettimeofday(&t2, NULL);
+	printf("encrypted: ");
+	v_bignum_print_hex_lf(msg);
+	printf("encrypted %u bits in %g s\n", BITS, t2.tv_sec - t1.tv_sec + 1.0E-6 * (t2.tv_usec - t1.tv_usec));
+
+	gettimeofday(&t1, NULL);
+	v_bignum_pow_mod(msg, k_public, k_n);
+	gettimeofday(&t2, NULL);
+	printf("decrypted: ");
+	v_bignum_print_hex_lf(msg);
+	printf("decrypted %u bits in %g s\n", BITS, t2.tv_sec - t1.tv_sec + 1.0E-6 * (t2.tv_usec - t1.tv_usec));
+	exit(0);
+*//*	v_e_encrypt(cipher, plain, &k_private, &k_n);
+	printf("encrypted data: ");
+	for(i = 0; i < sizeof cipher; i++)
+		printf("%c", isalnum(cipher[i]) ? cipher[i] : '?');
+	printf("\n\n");
+	printf("decrypting\n");
+	v_e_encrypt(decode, cipher, &k_public, &k_n);
+	printf("decrypted data: ");
+	for(i = 0; i < sizeof cipher; i++)
+		printf("%c", isalnum(decode[i]) ? decode[i] : '?');
+	printf("\n\n");
 */
-	z = v_bignum_new_one();
-	for(i = V_BIGNUM_BITS; i > 1; i--)
-	{
-		z = v_bignum_mod(v_bignum_mul(z, z), *n);
-		if(v_bignum_bit_test(*key, i))
-			z = v_bignum_mul(z, v_bignum_mod(*data, *n));
-	}
-/*	for(i = 0; i < V_BIGNUM_BITS / (CHAR_BIT * sizeof (unsigned short)); i++)*/
-	return z;
-}
-
-void v_e_create_key(uint8 *private_key, uint8 *public_key, uint8 *n)
-{
-	printf("generating key\n");
-	v_e_create_key_real(private_key, public_key, n);
-	printf(" done!\n");
-}
-
-void v_e_encrypt(uint8 *output, uint8 *data, uint8 *key, uint8 *n)
-{
-	unsigned int i;
-	for(i = 0; i < V_BIGNUM_BITS / 8; i++)
-		output[i] = data[i] + key[i];
-}
-
-void v_encrypt_test()
-{
-	uint8 key[768];
-
-	printf("e\n");
-	v_e_create_key_real(&key[0], &key[256], &key[512]);
-/*VBigNum v_e_encrypt_real(VBigNum *data, VBigNum *key, VBigNum *n)*/
 }
