@@ -59,6 +59,7 @@ VSocket v_n_socket_create(void)
 {
 	static boolean initialized = FALSE;
 	struct sockaddr_in address;
+        int buffer_size = 1 << 20;
 
 	if(my_socket != -1)
 		return my_socket;
@@ -99,6 +100,10 @@ VSocket v_n_socket_create(void)
 		fprintf(stderr, "v_network: Failed to bind(), code %d (%s)\n", errno, strerror(errno));
 		exit(0); /* FIX ME */
 	}
+	if(setsockopt(my_socket, SOL_SOCKET, SO_SNDBUF, &buffer_size, sizeof buffer_size) != 0)
+		fprintf(stderr, "v_network: Couldn't set send buffer size of socket to %d\n", buffer_size);
+	if(setsockopt(my_socket, SOL_SOCKET, SO_RCVBUF, &buffer_size, sizeof buffer_size) != 0)
+		fprintf(stderr, "v_network: Couldn't set received buffer size of socket to %d\n", buffer_size);
 	return my_socket;
 }
 
