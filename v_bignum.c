@@ -32,6 +32,7 @@
 #include "v_bignum.h"
 
 #define	V_BIGNUM_STANDALONE		/* Define to include main(), for testing. */
+#undef	V_BIGNUM_STANDALONE
 
 /* ----------------------------------------------------------------------------------------- */
 
