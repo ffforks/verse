@@ -47,8 +47,8 @@ typedef struct{
 
 #define VERSE_STD_CONNECT_TO_PORT 4950
 
-VSocket	my_socket = -1;
-uint16	my_port = 0;
+static VSocket	my_socket = -1;
+static uint16	my_port = 0;
 
 /*
 struct VNetworkAddress {
