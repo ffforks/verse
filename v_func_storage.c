@@ -150,6 +150,7 @@ void v_fs_unpack(uint8 *data, unsigned int length)
 		verse_send_packet_ack(pack_id);*/
 }
 
+#if 0
 void v_fs_unpack_old(uint8 *data, unsigned int length, uint32 *expected)
 {
 	uint32 i = 0, output, pack_id;
@@ -184,6 +185,7 @@ void v_fs_unpack_old(uint8 *data, unsigned int length, uint32 *expected)
 	if(expected != NULL)
 		verse_send_packet_ack(pack_id);
 }
+#endif
 
 extern unsigned int v_unpack_connection(const char *data, size_t length);
 /*
