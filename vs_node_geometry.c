@@ -241,8 +241,8 @@ static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID l
 				node->layer[layer_id].def.real = def_real;
 			break;
 		}
-		vs_destroy_subscription_list(node->layer[i].subscribers);
-		node->layer[i].subscribers = vs_create_subscription_list();
+		vs_destroy_subscription_list(node->layer[layer_id].subscribers);
+		node->layer[layer_id].subscribers = vs_create_subscription_list();
 	}
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
