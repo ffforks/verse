@@ -67,8 +67,8 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 
 	node->bones = malloc((sizeof *node->bones) * 16);
 	node->bone_count = 16;
-	for(i = 0; i < 16; i++)
-		node->bones[i].weight[0] = 0;
+	for(i = 0; i < node->bone_count; i++)
+		node->bones[i].weight[0] = '\0';
 
 	node->layer = malloc((sizeof *node->layer) * 16);
 	node->layer_count = 16;
@@ -932,7 +932,7 @@ void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, co
 	if(bone_id >= node->bone_count || node->bones[bone_id].weight[0] == '\0')
 	{
 		/* Find free bone to re-use, if any. */
-		for(bone_id = 0; bone_id < node->bone_count && node->bones[bone_id].weight[0] == '\0'; bone_id++)
+		for(bone_id = 0; bone_id < node->bone_count && node->bones[bone_id].weight[0] != '\0'; bone_id++)
 			;
 		if(bone_id == node->bone_count)
 		{
