@@ -209,7 +209,8 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 		;
 	else
 	{
-		for(tag_id = 0; tag_id < ((VSTagGroup *)node->tag_groups)[group_id].tag_count && ((VSTagGroup *)node->tag_groups)[group_id].tags[tag_id].tag_name[0] != 0; tag_id++);
+		for(tag_id = 0; tag_id < ((VSTagGroup *)node->tag_groups)[group_id].tag_count && ((VSTagGroup *)node->tag_groups)[group_id].tags[tag_id].tag_name[0] != 0; tag_id++)
+			;
 		if(tag_id == ((VSTagGroup *)node->tag_groups)[group_id].tag_count)
 		{
 			((VSTagGroup *)node->tag_groups)[group_id].tags = realloc(((VSTagGroup *)node->tag_groups)[group_id].tags, sizeof(VSTag) * (((VSTagGroup *)node->tag_groups)[group_id].tag_count + 16));
@@ -262,10 +263,10 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 		break;
 	}
 
-	count =	vs_get_subscript_count(node->subscribers);
+	count =	vs_get_subscript_count(((VSTagGroup *) node->tag_groups)[group_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->subscribers, i);
+		vs_set_subscript_session(((VSTagGroup *) node->tag_groups)[group_id].subscribers, i);
 		verse_send_tag_create(node_id, group_id, tag_id, name, type, tag);
 	}
 	vs_reset_subscript_session();
@@ -278,10 +279,10 @@ static void callback_send_tag_destroy(void *user, VNodeID node_id, uint16 group_
 	if((node = vs_get_node_head(node_id)) == 0)
 		return;
 
-	count =	vs_get_subscript_count(node->subscribers);
+	count =	vs_get_subscript_count(((VSTagGroup *) node->tag_groups)[group_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->subscribers, i);
+		vs_set_subscript_session(((VSTagGroup *) node->tag_groups)[group_id].subscribers, i);
 		verse_send_tag_destroy(node_id, group_id, tag_id);
 	}
 	vs_reset_subscript_session();
