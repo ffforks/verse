@@ -145,8 +145,8 @@ int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 		char string[32];
 		v_n_get_address_string(address, string);
 		printf("send to %s\n", string);
-	}*/
-	return sendto(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr));
+	}
+*/	return sendto(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr_in));
 }
 
 #if !defined V_GENERATE_FUNC_MODE
@@ -173,9 +173,10 @@ void v_n_wait_for_incoming(unsigned int microseconds)
 
 int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
 {
-	size_t	from_length = sizeof(struct sockaddr);
 	int		output_length;
 	struct	sockaddr_in address_in;
+	socklen_t	from_length = sizeof address_in;
+
 	if(v_n_socket_create() == -1)
 		return 0;
 	memset(&address_in, 0, sizeof address_in);
