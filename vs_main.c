@@ -33,9 +33,10 @@ static void callback_send_connect(void *user, char *name, char *pass, void *addr
 }
 static void callback_send_connect_terminate(void *user, char *address, char *bye)
 {
+	printf("callback_send_connect_terminate\n");
 	callback_send_node_destroy(NULL, vs_get_avatar());
-	vs_remove_connection();
 	verse_session_destroy(vs_get_session());
+	vs_remove_connection();
 }
 
 static void callback_send_ping(void *user, char *address, char *text)
