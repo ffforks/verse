@@ -80,6 +80,7 @@ void v_bignum_raw_import(VBigDig *x, const void *bits)
 	memcpy(x + 1, bits, *x * sizeof *x);
 }
 
+/* Set bits to value of x. */
 void v_bignum_raw_export(const VBigDig *x, void *bits)
 {
 	memcpy(bits, x + 1, *x * sizeof *x);
