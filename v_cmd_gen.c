@@ -626,6 +626,12 @@ static void v_cg_gen_unpack(void)
 			break;
 		}
 	}
+	if(VCGData.alias_name != NULL && VCGData.alias_bool_switch)
+	{
+		fprintf(f, "\tif(buffer_length < buffer_pos + 1)\n");
+		fprintf(f, "\t\treturn -1;\n");
+		fprintf(f, "\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);\n");
+	}
 	if(!printed)
 	{
 		fprintf(f, "#if defined V_PRINT_RECEIVE_COMMANDS\n");
@@ -646,12 +652,8 @@ static void v_cg_gen_unpack(void)
 	if(VCGData.alias_name != NULL)
 	{
 		if(VCGData.alias_bool_switch)
-		{
-			fprintf(f, "\tif(buffer_length < buffer_pos + 1)\n");
-			fprintf(f, "\t\treturn -1;\n");
-			fprintf(f, "\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);\n");
 			fprintf(f, "\tif(!alias_bool)\n");
-		}else
+		else
 			fprintf(f, "\t%s\n", VCGData.alias_qualifier);
 		fprintf(f, "\t{\n");
 		fprintf(f, "\t\tvoid (* alias_%s)(void *user_data, ", VCGData.alias_name);

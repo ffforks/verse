@@ -38,21 +38,21 @@ void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time, real32 *pos
 		buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], pos[0]);
 		buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], pos[1]);
 		buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], pos[2]);
-		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001)
+		if(speed != NULL && (speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001))
 		{
 			mask |= 1;
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], speed[0]);
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], speed[1]);
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], speed[2]);
 		}
-		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001)
+		if(accelerate != NULL && (accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001))
 		{
 			mask |= 2;
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], accelerate[0]);
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], accelerate[1]);
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], accelerate[2]);
 		}
-		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001)
+		if(drag_normal != NULL && (drag > 0.0000001 || drag < -0.0000001) && (drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001))
 		{
 			mask |= 4;
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], drag_normal[0]);
@@ -144,7 +144,7 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time, real32 *rot
 		buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[1]);
 		buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[2]);
 		buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[3]);
-		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[3] < -0.0000001 || speed[3] < -0.0000001)
+		if(drag_normal != NULL && (speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[3] < -0.0000001 || speed[3] < -0.0000001))
 		{
 			mask |= 1;
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], speed[0]);
@@ -152,7 +152,7 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time, real32 *rot
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], speed[2]);
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], speed[3]);
 		}
-		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001 || accelerate[3] > 0.0000001 || accelerate[3] < -0.0000001)
+		if(drag_normal != NULL && (accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001 || accelerate[3] > 0.0000001 || accelerate[3] < -0.0000001))
 		{
 			mask |= 2;
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], accelerate[0]);
@@ -160,7 +160,7 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time, real32 *rot
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], accelerate[2]);
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], accelerate[3]);
 		}
-		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001 || drag_normal[3] > 0.0000001 || drag_normal[3] < -0.0000001)
+		if(drag_normal != NULL && (drag > 0.0000001 || drag < -0.0000001) && (drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001 || drag_normal[3] > 0.0000001 || drag_normal[3] < -0.0000001))
 		{
 			mask |= 4;
 			buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], drag_normal[0]);
@@ -298,21 +298,21 @@ void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time, real64 *pos
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos[0]);
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos[1]);
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos[2]);
-		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001)
+		if(speed != NULL && (speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001))
 		{
 			mask |= 1;
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], speed[0]);
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], speed[1]);
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], speed[2]);
 		}
-		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001)
+		if(accelerate != NULL && (accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001))
 		{
 			mask |= 2;
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], accelerate[0]);
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], accelerate[1]);
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], accelerate[2]);
 		}
-		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001)
+		if(drag_normal != NULL && (drag > 0.0000001 || drag < -0.0000001) && (drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001))
 		{
 			mask |= 4;
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], drag_normal[0]);
@@ -404,7 +404,7 @@ void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time, real64 *rot
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[1]);
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[2]);
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[3]);
-		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001 || speed[3] > 0.0000001 || speed[3] < -0.0000001)
+		if(drag_normal != NULL && (speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001 || speed[3] > 0.0000001 || speed[3] < -0.0000001))
 		{
 			bitfeald += 1;
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], speed[0]);
@@ -412,7 +412,7 @@ void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time, real64 *rot
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], speed[2]);
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], speed[3]);
 		}
-		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001 || accelerate[3] > 0.0000001 || accelerate[3] < -0.0000001)
+		if(drag_normal != NULL && (accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001 || accelerate[3] > 0.0000001 || accelerate[3] < -0.0000001))
 		{
 			bitfeald += 2;
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], accelerate[0]);
@@ -420,7 +420,7 @@ void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time, real64 *rot
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], accelerate[2]);
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], accelerate[3]);
 		}
-		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001 || drag_normal[3] > 0.0000001 || drag_normal[3] < -0.0000001)
+		if(drag_normal != NULL && (drag > 0.0000001 || drag < -0.0000001) && (drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001 || drag_normal[3] > 0.0000001 || drag_normal[3] < -0.0000001))
 		{
 			bitfeald += 4;
 			buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], drag_normal[0]);
@@ -589,15 +589,15 @@ unsigned int v_unpack_o_transform_subscribe(const char *buf, size_t buffer_lengt
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &type);
+	if(buffer_length < buffer_pos + 1)
+		return -1;
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(alias_bool)
 		printf("receive: verse_send_o_transform_unsubscribe(node_id = %u type = %u ); callback = %p\n", node_id, type, v_fs_get_alias_user_func(38));
 	else
 		printf("receive: verse_send_o_transform_subscribe(node_id = %u type = %u ); callback = %p\n", node_id, type, v_fs_get_user_func(38));
 #endif
-	if(buffer_length < buffer_pos + 1)
-		return -1;
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 	if(!alias_bool)
 	{
 		void (* alias_o_transform_unsubscribe)(void *user_data, VNodeID node_id, VNORealFormat type);
@@ -725,15 +725,15 @@ unsigned int v_unpack_o_link_set(const char *buf, size_t buffer_length)
 	if(buffer_length < 4 + buffer_pos)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &target_id);
+	if(buffer_length < buffer_pos + 1)
+		return -1;
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(alias_bool)
 		printf("receive: verse_send_o_link_destroy(node_id = %u link_id = %u ); callback = %p\n", node_id, link_id, v_fs_get_alias_user_func(40));
 	else
 		printf("receive: verse_send_o_link_set(node_id = %u link_id = %u link = %u name = %s target_id = %u ); callback = %p\n", node_id, link_id, link, name, target_id, v_fs_get_user_func(40));
 #endif
-	if(buffer_length < buffer_pos + 1)
-		return -1;
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 	if(!alias_bool)
 	{
 		void (* alias_o_link_destroy)(void *user_data, VNodeID node_id, uint16 link_id);
@@ -875,15 +875,15 @@ unsigned int v_unpack_o_method_group_subscribe(const char *buf, size_t buffer_le
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &group_id);
+	if(buffer_length < buffer_pos + 1)
+		return -1;
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(alias_bool)
 		printf("receive: verse_send_o_method_group_unsubscribe(node_id = %u group_id = %u ); callback = %p\n", node_id, group_id, v_fs_get_alias_user_func(42));
 	else
 		printf("receive: verse_send_o_method_group_subscribe(node_id = %u group_id = %u ); callback = %p\n", node_id, group_id, v_fs_get_user_func(42));
 #endif
-	if(buffer_length < buffer_pos + 1)
-		return -1;
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 	if(!alias_bool)
 	{
 		void (* alias_o_method_group_unsubscribe)(void *user_data, VNodeID node_id, uint16 group_id);

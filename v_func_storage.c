@@ -73,7 +73,7 @@ void *v_fs_get_user_func(unsigned int cmd_id)
 
 void *v_fs_get_user_data(unsigned int cmd_id)
 {
-	return VCmdData.user_func[cmd_id];
+	return VCmdData.user_data[cmd_id];
 }
 
 void *v_fs_get_alias_user_func(unsigned int cmd_id)
