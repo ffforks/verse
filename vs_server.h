@@ -20,8 +20,8 @@ extern void			vs_set_subscript_session(VSSubscriptionList *list, unsigned int se
 extern void			vs_reset_subscript_session(void);
 extern uint32		vs_get_avatar(void);
 extern VSession		vs_get_session(void);
-extern char			*vs_get_user_name(void);
-extern char			*vs_get_user_pass(void);
+extern const char *		vs_get_user_name(void);
+extern const char *		vs_get_user_pass(void);
 
 
 typedef struct {

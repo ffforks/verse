@@ -64,12 +64,12 @@ VSession vs_get_session(void)
 	return VSConnectionStorage.connection[VSConnectionStorage.current_session].session;
 }
 
-void vs_get_user_name(void)
+const char * vs_get_user_name(void)
 {
 	return VSConnectionStorage.connection[VSConnectionStorage.current_session].name;
 }
 
-void vs_get_user_pass(void)
+const char * vs_get_user_pass(void)
 {
 	return VSConnectionStorage.connection[VSConnectionStorage.current_session].pass;
 }
