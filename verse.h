@@ -470,7 +470,7 @@ extern void verse_send_b_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, const VNBTile *tile);
 
 extern void verse_send_t_set_language(VNodeID node_id, const char *language);
-extern void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, uint16 index, const char *name);
+extern void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, const char *name);
 extern void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id);
 extern void verse_send_t_buffer_subscribe(VNodeID node_id, VNMBufferID buffer_id);
 extern void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id);
@@ -483,7 +483,7 @@ extern void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id);
 extern void verse_send_c_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, const real64 *pre_value, const uint32 *pre_pos, const real64 *value, real64 pos, const real64 *post_value, const uint32 *post_pos);
 extern void verse_send_c_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 key_id);
 
-extern void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, VNALayerType type, real64 frequency, const char *name);
+extern void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNALayerType type, real64 frequency);
 extern void verse_send_a_layer_destroy(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_a_layer_subscribe(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);

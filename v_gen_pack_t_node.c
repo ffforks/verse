@@ -59,7 +59,7 @@ unsigned int v_unpack_t_set_language(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, uint16 index, const char *name)
+void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, const char *name)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -69,11 +69,10 @@ void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, uint16 i
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 97);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_t_buffer_create(node_id = %u buffer_id = %u index = %u name = %s );\n", node_id, buffer_id, index, name);
+	printf("send: verse_send_t_buffer_create(node_id = %u buffer_id = %u name = %s );\n", node_id, buffer_id, name);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
-	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], index);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
 	if(node_id == (uint32)(-1) || buffer_id == (uint16)(-1))
 		v_cmd_buf_set_unique_address_size(head, 7);
@@ -97,7 +96,6 @@ void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
-	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	if(node_id == (uint32)(-1) || buffer_id == (uint16)(-1))
 		v_cmd_buf_set_unique_address_size(head, 7);
@@ -110,10 +108,9 @@ void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id)
 unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_t_buffer_create)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint16 index, const char *name);
+	void (* func_t_buffer_create)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, const char *name);
 	VNodeID node_id;
 	VNMBufferID buffer_id;
-	uint16 index;
 	char name[16];
 	
 	func_t_buffer_create = v_fs_get_user_func(97);
@@ -121,13 +118,12 @@ unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &buffer_id);
-	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &index);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(name[0] == 0)
 		printf("receive: verse_send_t_buffer_destroy(node_id = %u buffer_id = %u ); callback = %p\n", node_id, buffer_id, v_fs_get_alias_user_func(97));
 	else
-		printf("receive: verse_send_t_buffer_create(node_id = %u buffer_id = %u index = %u name = %s ); callback = %p\n", node_id, buffer_id, index, name, v_fs_get_user_func(97));
+		printf("receive: verse_send_t_buffer_create(node_id = %u buffer_id = %u name = %s ); callback = %p\n", node_id, buffer_id, name, v_fs_get_user_func(97));
 #endif
 	if(name[0] == 0)
 	{
@@ -138,7 +134,7 @@ unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_t_buffer_create != NULL)
-		func_t_buffer_create(v_fs_get_user_data(97), node_id, buffer_id, index, name);
+		func_t_buffer_create(v_fs_get_user_data(97), node_id, buffer_id, name);
 
 	return buffer_pos;
 }
