@@ -62,7 +62,7 @@ void destroy_node_head(VSNodeHead *node)
 				if(((VSTagGroup *)node->tag_groups)[i].tags[j].type == VN_TAG_BLOB)
 					free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag.vblob.blob);
 			}
-			if(((VSTagGroup *)node->tag_groups)[i].tags == NULL)
+			if(((VSTagGroup *)node->tag_groups)[i].tags != NULL)
 				free(((VSTagGroup *)node->tag_groups)[i].tags);
 		}
 		if(node->tag_groups != NULL)
