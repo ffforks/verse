@@ -317,6 +317,7 @@ extern void vs_m_subscribe(VSNodeHead *node);
 extern void vs_b_subscribe(VSNodeHead *node);
 extern void vs_t_subscribe(VSNodeHead *node);
 extern void vs_c_subscribe(VSNodeHead *node);
+extern void vs_a_subscribe(VSNodeHead *node);
 
 static void callback_send_node_subscribe(void *user, VNodeID node_id)
 {
@@ -348,6 +349,8 @@ static void callback_send_node_subscribe(void *user, VNodeID node_id)
 		case V_NT_AUDIO:
 			vs_a_subscribe(node);
 			break;
+		default:
+			fprintf(stderr, "Not subscribing to node type %d\n", node->type);
 	}
 	verse_send_node_name_set(node->id, node->name);
 	for(i = 0; i < node->group_count; i++)
@@ -362,6 +365,7 @@ extern void vs_m_unsubscribe(VSNodeHead *node);
 extern void vs_b_unsubscribe(VSNodeHead *node);
 extern void vs_t_unsubscribe(VSNodeHead *node);
 extern void vs_c_unsubscribe(VSNodeHead *node);
+extern void vs_a_unsubscribe(VSNodeHead *node);
 
 static void callback_send_node_unsubscribe(VNodeID node_id)
 {
@@ -393,6 +397,8 @@ static void callback_send_node_unsubscribe(VNodeID node_id)
 		case V_NT_AUDIO:
 			vs_a_unsubscribe(node);
 			break;
+		default:
+			fprintf(stderr, "Not unsubscribing from node type %d\n", node->type);
 	}
 }
 
