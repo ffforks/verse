@@ -67,7 +67,8 @@ void vs_b_subscribe(VSNodeBitmap *node)
 			verse_send_b_layer_create(node->head.id, (uint16)i, node->layers[i].name, (uint8)node->layers[i].type);
 }
 
-void callback_send_b_unsubscribe(void *user, VNodeID node_id)
+/* FIXME: This is dead code. Is it not needed? See text node, too.
+static void callback_send_b_unsubscribe(void *user, VNodeID node_id)
 {
 	VSNodeBitmap *node;
 	node = (VSNodeBitmap *)vs_get_node(node_id, V_NT_BITMAP);
@@ -75,6 +76,7 @@ void callback_send_b_unsubscribe(void *user, VNodeID node_id)
 		return;
 	vs_remove_subscriptor(node->head.subscribers);
 }
+*/
 
 static void callback_send_b_init_dimensions(void *user, VNodeID node_id, uint16 width, uint16 height, uint16 depth)
 {
