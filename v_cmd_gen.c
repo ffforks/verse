@@ -607,7 +607,7 @@ static void v_cg_gen_unpack(void)
 	fprintf(f, ");\n\t");
 	v_cg_gen_func_params(f, TRUE, FALSE);
 	if(VCGData.alias_name != NULL && VCGData.alias_bool_switch)
-		fprintf(f, "char alias_bool;\n");
+		fprintf(f, "uint8\talias_bool;\n");
 	fprintf(f, "\n\tfunc_%s = v_fs_get_user_func(%u);\n", VCGData.func_name, VCGData.cmd_id);
 	fprintf(f, "\tif(buffer_length < %u)\n\t\treturn -1;\n", v_cg_compute_command_size(0, TRUE));
 	for(i = 0; i < VCGData.param_count; i++)
