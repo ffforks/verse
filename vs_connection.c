@@ -7,7 +7,7 @@
 #include "verse.h"
 #include "v_util.h"
 
-#define VS_CONNECTION_CHUNK_SIZE	256
+#define VS_CONNECTION_CHUNK_SIZE	64
 
 typedef struct{
 	VSession	*session;
