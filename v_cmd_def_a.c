@@ -29,7 +29,7 @@ void v_gen_audio_cmd_def(void)
 	v_cg_alias(FALSE, "a_layer_unsubscribe", "if(transfer > VN_A_COMPRESSED_UNSUSTAINED)", 2, NULL);
 	v_cg_end_cmd();
 
-	v_cg_new_cmd(V_NT_AUDIO,		"a_block", 162, VCGCT_NORMAL); 
+	v_cg_new_cmd(V_NT_AUDIO,		"a_block_set", 162, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
 	v_cg_add_param(VCGP_UINT32,		"id");
@@ -81,8 +81,8 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\tuint8 data[1500];\n"
 	"\t\t\t\tfor(i = 0; i < length && length < 1500; i++)\n"
 	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &data[i]);\n"
-	"\t\t\t\tif(func_a_block != NULL)\n"
-	"\t\t\t\t\tfunc_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
+	"\t\t\t\tif(func_a_block_set != NULL)\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t\tcase VN_A_LAYER_INT16 :\n"
@@ -90,8 +90,8 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\tuint16 data[750];\n"
 	"\t\t\t\tfor(i = 0; i < length && length < 750; i++)\n"
 	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &data[i]);\n"
-	"\t\t\t\tif(func_a_block != NULL)\n"
-	"\t\t\t\t\tfunc_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
+	"\t\t\t\tif(func_a_block_set != NULL)\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t\tcase VN_A_LAYER_INT24 :\n"
@@ -99,8 +99,8 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\tuint32 data[325];\n"
 	"\t\t\t\tfor(i = 0; i < length && length < 325; i++)\n"
 	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_uint24(&buf[buffer_pos], &data[i]);\n"
-	"\t\t\t\tif(func_a_block != NULL)\n"
-	"\t\t\t\t\tfunc_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
+	"\t\t\t\tif(func_a_block_set != NULL)\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t\tcase VN_A_LAYER_INT32 :\n"
@@ -108,8 +108,8 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\tuint32 data[325];\n"
 	"\t\t\t\tfor(i = 0; i < length && length < 325; i++)\n"
 	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &data[i]);\n"
-	"\t\t\t\tif(func_a_block != NULL)\n"
-	"\t\t\t\t\tfunc_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
+	"\t\t\t\tif(func_a_block_set != NULL)\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t\tcase VN_A_LAYER_REAL32 :\n"
@@ -117,8 +117,8 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\treal32 data[1500];\n"
 	"\t\t\t\tfor(i = 0; i < length && length < 325; i++)\n"
 	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &data[i]);\n"
-	"\t\t\t\tif(func_a_block != NULL)\n"
-	"\t\t\t\t\tfunc_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
+	"\t\t\t\tif(func_a_block_set != NULL)\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t\tcase VN_A_LAYER_REAL64 :\n"
@@ -126,8 +126,8 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\treal64 data[162];\n"
 	"\t\t\t\tfor(i = 0; i < length && length < 162; i++)\n"
 	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &data[i]);\n"
-	"\t\t\t\tif(func_a_block != NULL)\n"
-	"\t\t\t\t\tfunc_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
+	"\t\t\t\tif(func_a_block_set != NULL)\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t}\n"
