@@ -339,8 +339,13 @@ typedef enum {
 	VN_T_MAX_TEXT_CMD_SIZE = 1450
 } VNTConstants;
 
-#define VN_AUDIO_MAX_SAMPLE_SIZE_UNCOMPRESSED 1400
-#define VN_AUDIO_MAX_SAMPLE_SIZE_COMPRESSED 5000
+#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8 1024
+#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16 512
+#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24 384
+#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32 256
+#define VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32 256
+#define VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64 128
+
 
 typedef enum {
 	VN_A_LAYER_INT8,
@@ -351,12 +356,6 @@ typedef enum {
 	VN_A_LAYER_REAL64,
 } VNALayerType;
 
-typedef enum {
-	VN_A_UNCOMPRESSED_SUSTAINED,
-	VN_A_COMPRESSED_SUSTAINED,
-	VN_A_UNCOMPRESSED_UNSUSTAINED,
-	VN_A_COMPRESSED_UNSUSTAINED
-} VNATransferType;
 /*
 typedef enum {
 	VN_P_FORCE_RADIAL = 0,
@@ -370,7 +369,7 @@ typedef enum {
 } VNPSpace;
 */
 extern void		verse_set_port(uint16 port);
-extern void	verse_host_id_create(uint8 *id);
+extern void		verse_host_id_create(uint8 *id);
 extern void		verse_host_id_set(uint8 *id);
 extern void		verse_callback_set(void *send_func, void *callback, void *user_data);
 extern void		verse_callback_update(uint32 microseconds);
