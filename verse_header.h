@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 /* Release information. */
-#define	V_RELEASE_NUMBER	3
+#define	V_RELEASE_NUMBER	4
 #define	V_RELEASE_PATCH		0
 #define	V_RELEASE_LABEL		"(none)"
 
@@ -30,7 +30,7 @@ typedef enum {
 	V_NT_MATERIAL, 
 	V_NT_BITMAP, 
 	V_NT_TEXT, 
-	V_NT_PARTICLE,
+/*	V_NT_PARTICLE,*/
 	V_NT_CURVE, 
 	V_NT_AUDIO, 
 	V_NT_NUM_TYPES, 
@@ -45,6 +45,15 @@ typedef uint16		VNMBufferID;
 typedef uint16		VNPEffectID;
 
 typedef void *		VSession;
+
+#define V_MAX_NAME_LENGTH_SHORT 16
+#define V_MAX_NAME_LENGTH_LONG 48
+#define V_MAX_NAME_PASS_LENGTH 128
+
+typedef enum {
+	VN_OWNER_OTHER = 0,
+	VN_OWNER_MINE
+} VNodeOwner;
 
 typedef enum {
 	VN_O_METHOD_PTYPE_INT8 = 0,
@@ -207,6 +216,7 @@ typedef enum {
 	VN_M_BLEND_DOT
 } VNMBlendType;
 
+
 typedef enum {
 	VN_M_FT_COLOR = 0,
 	VN_M_FT_LIGHT,
@@ -214,11 +224,11 @@ typedef enum {
 	VN_M_FT_TRANSPARENCY,
 	VN_M_FT_GEOMETRY,
 	VN_M_FT_TEXTURE,
-	VN_M_FT_TAG,
 	VN_M_FT_NOISE,
 	VN_M_FT_BLENDER,
 	VN_M_FT_MATRIX,
 	VN_M_FT_RAMP,
+	VN_M_FT_ANIMATION,
 	VN_M_FT_ALTERNATIVE,
 	VN_M_FT_OUTPUT
 } VNMFragmentType;
@@ -257,10 +267,6 @@ typedef union {
 		VNMFragmentID mapping;
 	} texture;
 	struct {
-		char name[16];
-		char group[16];
-	} tag;
-	struct {
 		uint8 type;
 		VNMFragmentID mapping;
 	} noise;
@@ -282,15 +288,21 @@ typedef union {
 		VNMRampPoint ramp[48];
 	} ramp;
 	struct {
+		char label_r[16];
+		char label_g[16];
+		char label_b[16];
+	} animation;
+	struct {
 		VNMFragmentID alt_a;
 		VNMFragmentID alt_b;
 	} alternative;
 	struct {
-		char type[16];
+		char label[16];
 		VNMFragmentID front;
 		VNMFragmentID back;
 	} output;
 } VMatFrag;
+
 
 typedef enum {
 	VN_B_LAYER_UINT1 = 0,
@@ -335,7 +347,7 @@ typedef enum {
 	VN_A_UNCOMPRESSED_UNSUSTAINED,
 	VN_A_COMPRESSED_UNSUSTAINED
 } VNATransferType;
-
+/*
 typedef enum {
 	VN_P_FORCE_RADIAL = 0,
 	VN_P_FORCE_DIRECTIONAL
@@ -346,23 +358,27 @@ typedef enum {
 	VN_P_SPACE_GLOBAL,
 	VN_P_SPACE_PARTICLE
 } VNPSpace;
+*/
+extern void		verse_set_port(uint16 port);
+extern uint8	*verse_host_id_create(uint8 *id);
+extern void		verse_host_id_set(uint8 *id);
+extern void		verse_callback_set(void *send_func, void *callback, void *user_data);
+extern void		verse_callback_update(uint32 microseconds);
+extern void		verse_session_set(VSession session);
+extern void		verse_session_destroy(VSession session);
+extern size_t	verse_session_get_size(void);
+extern VNodeID	verse_session_get_avatar(void);
+extern void		verse_session_get_time(uint32 *seconds, uint32 *fractions);
 
-extern void verse_set_connect_port(uint16 port);
-extern void verse_callback_set(void *send_func, void *callback, void *user_data);
-extern void verse_callback_update(uint32 milliseconds);
-extern void verse_session_set(VSession session);
-extern void verse_session_destroy(VSession session);
-extern size_t verse_session_get_size(void);
+extern void		*verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
+extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
 
-extern void *verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
-extern boolean verse_method_call_unpack(const void *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
-
-extern void *verse_audio_compress(uint32 length, VNALayerType type, const void *data);
-extern void *verse_audio_uncompress(uint32 length, VNALayerType type, const void *data);
+extern void		*verse_audio_compress(uint32 length, VNALayerType type, const void *data);
+extern void		*verse_audio_uncompress(uint32 length, VNALayerType type, const void *data);
 
 /*
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECEIVE_COMMANDS
 */
- 
+
 #endif		/* VERSE_TYPES */
