@@ -113,7 +113,8 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 			node = vs_c_create_node(owner_id);
 		break;
 		default:
-			fprintf(stderr, "**Can't create node of type %d--code missing\n");
+			fprintf(stderr, "**Can't create node of type %u--code missing\n", type);
+			return 0;
 	}
 	node_id = node->id;
 
