@@ -25,7 +25,7 @@ void v_gen_curve_cmd_def(void)
 	v_cg_alias(TRUE, "c_curve_unsubscribe", "if(!alias_bool)", 2, NULL);
 	v_cg_end_cmd();
 
-	v_cg_new_manual_cmd(130, "c_curve_key_set", "void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, real64 *pre_value, uint32 *pre_pos, real64 *value, real64 pos, real64 *post_value, uint32 *post_pos)", "c_curve_key_destroy", "void verse_send_c_curve_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 key_id)");
+	v_cg_new_manual_cmd(130, "c_key_set", "void verse_send_c_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, real64 *pre_value, uint32 *pre_pos, real64 *value, real64 pos, real64 *post_value, uint32 *post_pos)", "c_key_destroy", "void verse_send_c_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 key_id)");
 }
 
 #endif
