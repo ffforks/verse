@@ -127,11 +127,11 @@ typedef struct{
 	VTempLine	*text_temp;
 	uint16		text_send_id;
 	uint16		text_receive_id;
-}VOrderdStorage;
+}VOrderedStorage;
 
-VOrderdStorage *v_create_ordered_storage(void)
+VOrderedStorage *v_create_ordered_storage(void)
 {
-	VOrderdStorage *s;
+	VOrderedStorage *s;
 	s = malloc(sizeof *s);
 	s->text_temp = NULL;
 	s->text_send_id = 0;
@@ -139,7 +139,7 @@ VOrderdStorage *v_create_ordered_storage(void)
 	return s;
 }
 
-void v_destroy_ordered_storage(VOrderdStorage *s)
+void v_destroy_ordered_storage(VOrderedStorage *s)
 {
 	VTempLine *line, *next;
 	line = s->text_temp;
@@ -158,7 +158,7 @@ void v_destroy_ordered_storage(VOrderdStorage *s)
 void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text)
 {
 	uint8 *buf;
-	VOrderdStorage *s;
+	VOrderedStorage *s;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
@@ -201,7 +201,7 @@ void v_call_line(VTempLine *line)
 unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 {
 	unsigned int i, buffer_pos = 0;
-	VOrderdStorage *s;
+	VOrderedStorage *s;
 	VTempLine l, *line, *past = NULL;
 	char text[512];
 

@@ -306,7 +306,7 @@ static void callback_send_g_layer_subscribe(void *user, VNodeID node_id, VLayerI
 					verse_send_g_vertex_set_uint32(node_id, layer_id, i, ((uint32 *)layer->layer)[i]);
 		break;
 		case VN_G_LAYER_VERTEX_REAL :
-			if(VN_FORMAT_REAL64)
+			if(type == VN_FORMAT_REAL64)
 			{
 				for(i = 0; i < node->vertex_size; i++)
 					if(((double *)node->layer[0].layer)[i * 3] != V_REAL64_MAX && ((double *)layer->layer)[i] != layer->def.real)
@@ -324,7 +324,7 @@ static void callback_send_g_layer_subscribe(void *user, VNodeID node_id, VLayerI
 					verse_send_g_polygon_set_corner_uint32(node_id, layer_id, i, ((uint32 *)layer->layer)[i * 4], ((uint32 *)layer->layer)[i * 4 + 1], ((uint32 *)layer->layer)[i * 4 + 2], ((uint32 *)layer->layer)[i * 4 + 3]);
 		break;
 		case VN_G_LAYER_POLYGON_CORNER_REAL :
-			if(VN_FORMAT_REAL64)
+			if(type == VN_FORMAT_REAL64)
 			{
 				for(i = 0; i < node->poly_size; i++)
 					if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) -1 && !(((double *)layer->layer)[i * 4] == layer->def.real && ((double *)layer->layer)[i * 4 + 1] == layer->def.real && ((double *)layer->layer)[i * 4 + 2] == layer->def.real && ((double *)layer->layer)[i * 4 + 3] == layer->def.real))
@@ -347,7 +347,7 @@ static void callback_send_g_layer_subscribe(void *user, VNodeID node_id, VLayerI
 					verse_send_g_polygon_set_face_uint32(node_id, layer_id, i, ((uint32 *)layer->layer)[i]);
 		break;
 		case VN_G_LAYER_POLYGON_FACE_REAL :
-			if(VN_FORMAT_REAL64)
+			if(type == VN_FORMAT_REAL64)
 			{
 				for(i = 0; i < node->poly_size; i++)
 					if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) -1 && ((double *)layer->layer)[i] != layer->def.real)
