@@ -14,6 +14,8 @@
 # This SConstruct creates a configuration file which can be
 # used for tweaking a build.
 #
+# For more about SConstruct, see <http://www.scons.org/>.
+#
 
 import os
 import sys
