@@ -27,7 +27,7 @@ typedef enum{
 
 extern void				v_con_network_listen(void);
 
-extern void				v_con_set_name_pass(char *name, char *pass);
+extern void				v_con_set_name_pass(const char *name, const char *pass);
 extern char *			v_con_get_name(void);
 extern char	*			v_con_get_pass(void);
 

@@ -358,7 +358,7 @@ void destroy_connection(unsigned int milliseconds)
 	}
 }*/
 
-void v_con_set_name_pass(char *name, char *pass)
+void v_con_set_name_pass(const char *name, const char *pass)
 {
 	unsigned int i;
 	for(i = 0; i < 16 - 1 && name[i] != 0; i++)
