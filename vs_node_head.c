@@ -65,8 +65,8 @@ void destroy_node_head(VSNodeHead *node)
 			if(((VSTagGroup *)node->tag_groups)[i].tags == NULL)
 				free(((VSTagGroup *)node->tag_groups)[i].tags);
 		}
-		if(node->tag_groups == NULL)
-		free(node->tag_groups);
+		if(node->tag_groups != NULL)
+			free(node->tag_groups);
 	}
 }
 
