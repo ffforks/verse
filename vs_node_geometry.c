@@ -61,8 +61,8 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 	node->layer[0].layer = malloc(sizeof(double) * VS_G_LAYER_CHUNK * 3);
 	for(i = 0; i < VS_G_LAYER_CHUNK * 3; i++)
 		((double *)node->layer[0].layer)[i] = V_REAL64_MAX;
-	node->layer[0].subscribers = vs_create_subscription_list();
-	node->layer[0].subscribersd = vs_create_subscription_list();
+	node->layer[0].subscribers  = NULL;/*vs_create_subscription_list();*/
+	node->layer[0].subscribersd = NULL;/*vs_create_subscription_list();*/
 	node->layer[0].def.real = 0.0;
 
 	for(i = 0; polygon[i] != 0; i++)
@@ -72,7 +72,7 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 	node->layer[1].layer = malloc(sizeof(uint32) * VS_G_LAYER_CHUNK * 4);
 	for(i = 0; i < VS_G_LAYER_CHUNK * 4; i++)
 		((uint32 *)node->layer[1].layer)[i] = -1;
-	node->layer[1].subscribers = vs_create_subscription_list();
+	node->layer[1].subscribers = NULL;/*vs_create_subscription_list();*/
 	node->layer[1].subscribersd = NULL;
 	node->layer[1].def.integer = 0;
 
@@ -174,7 +174,6 @@ static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID l
 				node->layer[layer_id].layer = malloc(sizeof(double) * node->vertex_size * 3);
 				for(i = 0; i < node->vertex_size * 3; i++)
 					((double *)node->layer[layer_id].layer)[i] = ((double *)node->layer[0].layer)[i];
-				node->layer[layer_id].subscribersd = vs_create_subscription_list();
 			break;
 			case VN_G_LAYER_VERTEX_UINT32 :
 				node->layer[layer_id].layer = malloc(sizeof(uint32) * node->vertex_size);
@@ -258,21 +257,33 @@ static void callback_send_g_layer_destroy(void *user, VNodeID node_id, VLayerID 
 
 static void callback_send_g_layer_subscribe(void *user, VNodeID node_id, VLayerID layer_id, uint8 type)
 {
-	VSNodeGeometry *node;
-	VSNGLayer	*layer;
+	VSNodeGeometry		*node;
+	VSNGLayer		*layer;
+	VSSubscriptionList	**list = NULL;
 	unsigned int i;
+	
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
 	if(node == NULL)
 		return;
 
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL)
 		return;
+	/* Pick subscription list to add subscriber to. */
 	layer = &node->layer[layer_id];
-	if(type == VN_FORMAT_REAL64 && (layer->type == VN_G_LAYER_VERTEX_XYZ || layer->type == VN_G_LAYER_VERTEX_REAL || layer->type == VN_G_LAYER_POLYGON_CORNER_REAL || layer->type == VN_G_LAYER_POLYGON_FACE_REAL))
-		vs_add_new_subscriptor(node->layer[layer_id].subscribersd);
+	if(type == VN_FORMAT_REAL64 && (layer->type == VN_G_LAYER_VERTEX_XYZ || layer->type == VN_G_LAYER_VERTEX_REAL ||
+	    layer->type == VN_G_LAYER_POLYGON_CORNER_REAL || layer->type == VN_G_LAYER_POLYGON_FACE_REAL))
+	{
+		list = &node->layer[layer_id].subscribersd;
+	}
 	else
-		vs_add_new_subscriptor(node->layer[layer_id].subscribers);
+		list = &node->layer[layer_id].subscribers;
 
+	/* Add new subscriptor to whichever list was chosen by precision-test above. Create list if necessary. */
+	if(list == NULL)
+		return;
+	if(*list == NULL)
+		*list = vs_create_subscription_list();
+	vs_add_new_subscriptor(*list);
 
 	switch(layer->type)
 	{
