@@ -30,7 +30,8 @@ typedef struct {
 	boolean			connected;
 	unsigned int	avatar;
 /*	unsigned int	packet_id;*/
-	unsigned int	timedelta[2];
+	int32			timedelta_s;
+	uint32			timedelta_f;
 	boolean			destroy_flag;
 	void			*ordered_storage;
 	char			name[V_ENCRYPTION_LOGIN_KEY_SIZE / 2];
@@ -111,8 +112,8 @@ void *v_con_connect(uint32 ip, uint16 port, VConnectStage stage) /* creates a ne
 	VConData.con[VConData.con_count].pass[0] = 0; /* no password set yet */
 	VConData.con[VConData.con_count].connect_stage = stage; /* this is the stage of the connection, it show if the connection is ready, the init state depends if this is a client or host */
 	VConData.con[VConData.con_count].stage_atempts = 0; /* each stage in the connection prosess is atempted multiple times to avoid failiure if packets get lost*/
-	VConData.con[VConData.con_count].timedelta[0] = 0; /* number of seconds since last incomming packet to the connection*/
-	VConData.con[VConData.con_count].timedelta[1] = 0; /* number of fractions of a second since last incomming packet to the connection*/
+	VConData.con[VConData.con_count].timedelta_s = 0; /* number of seconds since last incomming packet to the connection*/
+	VConData.con[VConData.con_count].timedelta_f = 0; /* number of fractions of a second since last incomming packet to the connection*/
 	VConData.con[VConData.con_count].expected_key = NULL; /* expected hist id if this is a client */
 	VConData.current_connection = VConData.con_count; /* set the new connection to the current*/
 	++VConData.con_count; /* add one to the number of connections*/
@@ -403,29 +404,35 @@ uint32 verse_session_get_avatar(void)
 {
 	return VConData.con[VConData.current_connection].avatar;
 }
-
 void verse_session_get_time(uint32 *seconds, uint32 *fractions)
 {
 	uint32 s, f;
 	v_n_get_current_time(&s, &f);
-	if(f + VConData.con[VConData.current_connection].timedelta[1] > f && f + VConData.con[VConData.current_connection].timedelta[1] > VConData.con[VConData.current_connection].timedelta[1])
+	if((uint32)~0 - f > VConData.con[VConData.current_connection].timedelta_f)
 		s++;
-	if(seconds != NULL)
-		*seconds = s + VConData.con[VConData.current_connection].timedelta[0];
+	if(seconds != NULL) 
+	{
+		if(VConData.con[VConData.current_connection].timedelta_s < 0)
+			*seconds = s - (uint32)(-VConData.con[VConData.current_connection].timedelta_s);
+		else
+			*seconds = s + VConData.con[VConData.current_connection].timedelta_s;
+	}
 	if(fractions != NULL)
-		*fractions = f + VConData.con[VConData.current_connection].timedelta[1];
+		*fractions = f + VConData.con[VConData.current_connection].timedelta_f;
 }
 
 void v_con_set_time(uint32 seconds, uint32 fractions)
 {
-	uint32 s, f, tmp;
+	uint32 s, f;
 	v_n_get_current_time(&s, &f);
 
-	tmp = fractions - f;
-	if(tmp > fractions)
+	if(f < fractions)
 		s--;
-	VConData.con[VConData.current_connection].timedelta[0] = seconds - s;
-	VConData.con[VConData.current_connection].timedelta[1] = tmp;
+	if (s < seconds)
+		VConData.con[VConData.current_connection].timedelta_s = -(int)(seconds - s);
+	else
+		VConData.con[VConData.current_connection].timedelta_s = (int)(s - seconds);
+	VConData.con[VConData.current_connection].timedelta_f = f - fractions;
 }
 
 #endif
