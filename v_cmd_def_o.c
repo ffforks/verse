@@ -427,7 +427,7 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
 	"\t\tunsigned int i;\n"
 	"\t\tuint16 size;\n"
-	"\t\tvnp_raw_unpack_uint16(&params, &size);\n"
+	"\t\tvnp_raw_unpack_uint16(params, &size);\n"
 	"\t\tfor(i = 0; i < size; i++)\n"
 	"\t\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)params)[i]);\n"
 	"\t\tfree(params);\n"
