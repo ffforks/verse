@@ -34,7 +34,7 @@ static struct {
 	const char	*param_name[MAX_PARAMS_PER_CMD];
 	unsigned int	cmd_id;
 	const char	*alias_name;
-	const char	*alias_qualifyer;
+	const char	*alias_qualifier;
 	unsigned int	alias_param;
 	unsigned int	*alias_param_array;
 	char		alias_bool_switch;
@@ -141,10 +141,10 @@ void v_cg_new_cmd(unsigned int type, const char *name, unsigned int cmd_id, VCGC
 	VCGData.command = command;
 }
 
-void v_cg_alias(char bool_switch, const char *name, const char *qualifyer, unsigned int param, unsigned int *param_array)
+void v_cg_alias(char bool_switch, const char *name, const char *qualifier, unsigned int param, unsigned int *param_array)
 {
 	VCGData.alias_name = name;
-	VCGData.alias_qualifyer = qualifyer;
+	VCGData.alias_qualifier = qualifier;
 	VCGData.alias_param = param;
 	VCGData.alias_param_array = param_array;
 	VCGData.alias_bool_switch = bool_switch;
@@ -635,7 +635,7 @@ void v_cg_gen_unpack()
 			fprintf(f, "\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);\n");
 			fprintf(f, "\tif(!alias_bool)\n");
 		}else
-			fprintf(f, "\t%s\n", VCGData.alias_qualifyer);
+			fprintf(f, "\t%s\n", VCGData.alias_qualifier);
 		fprintf(f, "\t{\n");
 		fprintf(f, "\t\tvoid (* alias_%s)(void *user_data, ", VCGData.alias_name);
 		v_cg_gen_func_params(f, FALSE, TRUE);
