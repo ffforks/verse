@@ -1001,7 +1001,7 @@ void verse_send_o_method_send(VNodeID node_id, uint16 group_id, uint16 method_id
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)params)[i]);
 		free(params);
 	}
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 

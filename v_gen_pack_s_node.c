@@ -30,7 +30,7 @@ void verse_send_connect_deny(void *address)
 		v_cmd_buf_free(head);
 		return;
 	}
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
@@ -64,7 +64,7 @@ void verse_send_connect_terminate(const char *bye)
 	printf("send: verse_send_connect_terminate(bye = %s );\n", bye);
 	#endif
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], bye, 512);
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
@@ -99,7 +99,7 @@ void verse_send_get_time(uint32 time)
 	printf("send: verse_send_get_time(time = %u );\n", time);
 	#endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time);
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
@@ -146,7 +146,7 @@ void verse_send_ping(const char *address, const char *text)
 		v_cmd_buf_free(head);
 		return;
 	}
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
@@ -184,10 +184,10 @@ void verse_send_packet_ack(uint32 packet_id)
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 7);/* Packing the command */
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], packet_id);
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_ack_nak_buf(v_con_get_network_queue(), head);
 	return;
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
@@ -216,10 +216,10 @@ void verse_send_packet_nak(uint32 packet_id)
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 8);/* Packing the command */
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], packet_id);
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_ack_nak_buf(v_con_get_network_queue(), head);
 	return;
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
