@@ -33,7 +33,7 @@ extern uint32		vs_add_new_node(VSNodeHead *node, VNodeType type);
 extern VSNodeHead *	vs_get_node(unsigned int node_id, VNodeType type);
 extern VSNodeHead *	vs_get_node_head(unsigned int node_id);
 
-extern void create_node_head(VSNodeHead *node, char *name, unsigned int owner);
+extern void create_node_head(VSNodeHead *node, const char *name, unsigned int owner);
 extern void destroy_node_head(VSNodeHead *node);
 extern void vs_send_node_head(VSNodeHead *node);
 
