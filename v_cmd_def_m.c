@@ -9,7 +9,7 @@
 
 void v_gen_material_cmd_def(void)
 {	
-	v_cg_new_cmd(V_NT_MATERIAL,			"m_fragment_create", 64, VCGCT_NORMAL);
+	v_cg_new_cmd(V_NT_MATERIAL,			"m_fragment_create", 68, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,		"node_id");
 	v_cg_add_param(VCGP_FRAGMENT_ID,	"frag_id");
 	v_cg_add_param(VCGP_END_ADDRESS,	NULL);
@@ -64,7 +64,7 @@ void v_gen_material_cmd_def(void)
 	"\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->blender.type);\n"
 	"\t\tbuffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.data_a);\n"
 	"\t\tbuffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.data_b);\n"
-	"\t\tbuffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.mapping);\n"
+	"\t\tbuffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.control);\n"
 	"\t\tbreak;\n"
 	"\tcase VN_M_FT_MATRIX :\n"
 	"\t\t{\n"
@@ -169,7 +169,7 @@ void v_gen_material_cmd_def(void)
 	"\t\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.blender.type);\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.data_a);\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.data_b);\n"
-	"\t\t\tbuffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.mapping);\n"
+	"\t\t\tbuffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.control);\n"
 	"\t\t\tbreak;\n"
 	"\t\tcase VN_M_FT_MATRIX :\n"
 	"\t\t\tif(buffer_pos + 8 * 16 + 2 > buffer_length)\n"
