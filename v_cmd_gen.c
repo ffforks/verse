@@ -74,8 +74,11 @@ static void v_cg_init(void)
 	}
 	VCGData.cmd_id = 0;
 	fprintf(f, "#include \"v_gen_unpack_func.h\"\n\n");
-	fprintf(f, "#include \"v_internal_verse.h\"\n\n");
-	fprintf(f, "#include \"verse.h\"\n\n\n");
+/*	fprintf(f, "#include \"v_internal_verse.h\"\n\n");*/
+	fprintf(f,
+		"#include \"verse.h\"\n\n\n"
+		"extern void verse_send_packet_ack(uint32 packet_id);\n"
+		"extern void verse_send_packet_nak(uint32 packet_id);\n\n");
 
 	fprintf(VCGData.init, "void init_pack_and_unpack(void)\n{\n");
 	fprintf(VCGData.verse_h,
