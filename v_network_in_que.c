@@ -68,6 +68,7 @@ void v_niq_release(VNetInQueue *queue, VNetInPacked *p)
 char *v_niq_store(VNetInQueue *queue, size_t length, unsigned int packet_id)
 {
 	VNetInPacked	*p;
+
 	v_n_get_current_time(&queue->seconds, NULL);
 
 	if(packet_id < queue->packet_id)
@@ -78,7 +79,6 @@ char *v_niq_store(VNetInQueue *queue, size_t length, unsigned int packet_id)
 		verse_send_packet_nak(queue->packet_id++);
 		if(queue->packet_id == 0)
 			queue->packet_id++;
-
 	}
 	queue->packet_id++;
 	if(queue->packet_id == 0)
