@@ -318,14 +318,14 @@ typedef enum {
 	VN_B_LAYER_REAL64
 } VNBLayerType;
 
-#define VN_B_TILE_SIZE 4
+#define VN_B_TILE_SIZE 8
 
 typedef union{
-	uint16 vuint1;
-	uint8  vuint8[16];
-	uint16 vuint16[16];
-	real32 vreal32[16];
-	real64 vreal64[16];
+	uint8 vuint1[8];
+	uint8 vuint8[64];
+	uint16 vuint16[64];
+	real32 vreal32[64];
+	real64 vreal64[64];
 } VNBTile;
 
 typedef enum {

@@ -79,7 +79,7 @@ void vs_b_unsubscribe(VSNodeBitmap *node)
 static void callback_send_b_dimensions_set(void *user, VNodeID node_id, uint16 width, uint16 height, uint16 depth)
 {
 	VSNodeBitmap *node;
-	unsigned int i, j, k, count, tiles[2], read, write, end = 0;
+	unsigned int i, j, k, count, tiles[2], read, write, end;
 	if((node = (VSNodeBitmap *)vs_get_node(node_id, V_NT_BITMAP)) == NULL)
 		return;
 	tiles[0] = (width + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE;
@@ -301,28 +301,23 @@ static void callback_send_b_layer_create(void *user, VNodeID node_id, VLayerID l
 			{
 				case VN_B_LAYER_UINT1 :
 					node->layers[layer_id].layer = malloc(sizeof(uint8) * count / 8);
-					for(i = 0; i < count / 8; i++)
-						((uint8 *)node->layers[layer_id].layer)[i] = 0;
+					memset(node->layers[layer_id].layer, 0, count / 8 * sizeof(uint8));
 				break;
 				case VN_B_LAYER_UINT8 :
 					node->layers[layer_id].layer = malloc(sizeof(uint8) * count);
-					for(i = 0; i < count; i++)
-						((uint8 *)node->layers[layer_id].layer)[i] = 0;
+					memset(node->layers[layer_id].layer, 0, count * sizeof(uint8));
 				break;
 				case VN_B_LAYER_UINT16 :
 					node->layers[layer_id].layer = malloc(sizeof(uint16) * count);
-					for(i = 0; i < count; i++)
-						((uint16 *)node->layers[layer_id].layer)[i] = 0;
+					memset(node->layers[layer_id].layer, 0, count * sizeof(uint16));
 				break;
 				case VN_B_LAYER_REAL32 :
-					node->layers[layer_id].layer = malloc(sizeof(uint32) * count);
-					for(i = 0; i < count; i++)
-						((uint32 *)node->layers[layer_id].layer)[i] = 0;
+					node->layers[layer_id].layer = malloc(sizeof(real32) * count);
+					memset(node->layers[layer_id].layer, 0, count * sizeof(real32));
 				break;
 				case VN_B_LAYER_REAL64 :
-					node->layers[layer_id].layer = malloc(sizeof(double) * count);
-					for(i = 0; i < count; i++)
-						((double *)node->layers[layer_id].layer)[i] = 0.0;
+					node->layers[layer_id].layer = malloc(sizeof(real64) * count);
+					memset(node->layers[layer_id].layer, 0, count * sizeof(real64));
 				break;
 			}
 		}else
@@ -446,40 +441,35 @@ static void callback_send_b_tile_set(void *user, VNodeID node_id, VLayerID layer
 		{
 			uint8 *p;
 			p = &((uint8 *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE/8];
-			p[0] = data->vuint1 >> 8;
-			p[1] = data->vuint1 & 255;
+			memcpy(p, data->vuint1, VN_B_TILE_SIZE * sizeof(uint8));
 		}
 		break;
 		case VN_B_LAYER_UINT8 :
 		{
 			uint8 *p;
 			p = &((uint8 *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE];
-			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-				p[i] = data->vuint8[i];
+			memcpy(p, data->vuint8, VN_B_TILE_SIZE * VN_B_TILE_SIZE * sizeof(uint8));
 		}
 		break;
 		case VN_B_LAYER_UINT16 :
 		{
 			uint16 *p;
 			p = &((uint16 *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE * 2];
-			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-				p[i] = data->vuint16[i];
+			memcpy(p, data->vuint16, VN_B_TILE_SIZE * VN_B_TILE_SIZE * sizeof(uint16));
 		}
 		break;
 		case VN_B_LAYER_REAL32 :
 		{
 			real32 *p;
 			p = &((float *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE * 4];
-			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-				p[i] = data->vreal32[i];
+			memcpy(p, data->vreal32, VN_B_TILE_SIZE * VN_B_TILE_SIZE * sizeof(real32));
 		}
 		break;
 		case VN_B_LAYER_REAL64 :
 		{
 			real64 *p;
 			p = &((double *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE * 8];
-			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-				p[i] = data->vreal64[i];
+			memcpy(p, data->vreal64, VN_B_TILE_SIZE * VN_B_TILE_SIZE * sizeof(real64));
 		}
 		break;
 	}
