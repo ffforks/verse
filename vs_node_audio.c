@@ -132,8 +132,6 @@ static void callback_send_a_stream_create(void *user, VNodeID node_id, VLayerID 
 				node->streams[i].name[0] = 0;		
 		}
 		node->streams[stream_id].subscribers = vs_create_subscription_list();
-
-
 	}
 	for(i = 0; name[i] != 0 && i < 15; i++)
 		node->streams[stream_id].name[i] = name[i];
@@ -376,7 +374,7 @@ static void callback_send_a_stream_unsubscribe(void *user, VNodeID node_id, VLay
 	vs_remove_subscriptor(node->streams[stream_id].subscribers);
 }
 
-static void callback_send_a_stream(void *user, VNodeID node_id, VLayerID stream_id, uint16 id, uint32 time_s, uint32 time_f,
+static void callback_send_a_stream(void *user, VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f,
 				   VNALayerType type, real64 frequency, void *data)
 {
 	VSNodeAudio *node;
@@ -395,7 +393,7 @@ static void callback_send_a_stream(void *user, VNodeID node_id, VLayerID stream_
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->streams[stream_id].subscribers, i);
-		verse_send_a_stream(node_id, stream_id, id, time_s, time_f, type, frequency, data);
+		verse_send_a_stream(node_id, stream_id, time_s, time_f, type, frequency, data);
 	}
 	vs_reset_subscript_session();
 }
