@@ -955,7 +955,7 @@ void callback_send_g_bone_destroy(void *user, VNodeID node_id, uint32 bone_id)
 		return;
 	if(bone_id >= node->bone_count || node->bones[bone_id].weight[0] == 0)
 		return;
-	node->bones[bone_id].weight[i] == 0;
+	node->bones[bone_id].weight[0] = 0;
 
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
