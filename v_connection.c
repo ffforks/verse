@@ -7,7 +7,6 @@
 
 #include "v_cmd_buf.h"
 #include "v_network_que.h"
-#include "v_network.h"
 #include "v_cmd_gen.h"
 #include "v_connection.h"
 
@@ -61,9 +60,10 @@ void verse_set_connect_port(uint16 port)
 
 extern void *v_fs_create_func_storage(void);
 
-void *v_con_connect(char *address)
+VNetworkAddress * v_con_connect(const char *address)
 {
-	void *net;
+	VNetworkAddress *net;
+
 	v_con_init();
 	net = v_n_create_network_address(0, address);
 	if(net == NULL)
@@ -79,6 +79,7 @@ void *v_con_connect(char *address)
 	VConData.con[VConData.con_count].connect_timeout = 0;
 	VConData.current_connection = VConData.con_count;
 	++VConData.con_count;
+
 	return net;
 }
 
