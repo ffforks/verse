@@ -375,6 +375,7 @@ static void callback_send_o_link_set(void *user, VNodeID node_id, uint16 link_id
 	VSNodeObject *node;
 	unsigned int i, count;
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
+
 	if(node == NULL)
 		return;
 
@@ -393,7 +394,7 @@ static void callback_send_o_link_set(void *user, VNodeID node_id, uint16 link_id
 			node->link_count += 16;
 			node->links = realloc(node->links, (sizeof *node->links) * node->link_count);
 			for(; i < node->link_count; i++)
-				node->links[i].name[i] = 0;
+				node->links[i].name[0] = 0;
 		}
 	}
 
