@@ -106,7 +106,7 @@ void verse_send_b_layer_destroy(VNodeID node_id, VLayerID layer_id)
 
 unsigned int v_unpack_b_layer_create(const char *buf, size_t buffer_length)
 {
-	char enum_temp;
+	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
 	void (* func_b_layer_create)(void *user_data, VNodeID node_id, VLayerID layer_id, const char *name, VNBLayerType type);
 	VNodeID node_id;
@@ -268,7 +268,7 @@ void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile
 
 unsigned int v_unpack_b_layer_set_tile(const char *buf, size_t buffer_length)
 {
-	char enum_temp;
+	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
 	void (* func_b_layer_set_tile)(void *user_data, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile);
 	VNodeID node_id;

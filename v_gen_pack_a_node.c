@@ -132,7 +132,7 @@ void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
 
 unsigned int v_unpack_a_layer_subscribe(const char *buf, size_t buffer_length)
 {
-	char enum_temp;
+	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
 	void (* func_a_layer_subscribe)(void *user_data, VNodeID node_id, VLayerID layer_id, VNATransferType transfer);
 	VNodeID node_id;
@@ -222,7 +222,7 @@ void verse_send_a_audio(VNodeID node_id, VLayerID layer_id, uint16 id, uint32 ti
 
 unsigned int v_unpack_a_audio(const char *buf, size_t buffer_length)
 {
-	char enum_temp;
+	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
 	void (* func_a_audio)(void *user_data, VNodeID node_id, VLayerID layer_id, uint16 id, uint32 time, uint16 length, VNATransferType transfer, VNALayerType type, void *data);
 	VNodeID node_id;
