@@ -369,7 +369,7 @@ void v_cg_gen_pack(boolean alias)
 	boolean printed = FALSE;
 	boolean address = FALSE;
 	boolean no_param;
-	char *param;
+
 	FILE *f;
 	f = VCGData.nodes[VCGData.type];
 	printf("generating function: verse_send_%s\n", VCGData.func_name);
@@ -396,7 +396,7 @@ void v_cg_gen_pack(boolean alias)
 
 	for(i = 0; i < VCGData.param_count; i++)
 	{
-		param = VCGData.param_name[i];
+		const char *param = VCGData.param_name[i];
 		no_param = FALSE;
 		if(alias)
 		{
