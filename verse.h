@@ -35,6 +35,7 @@ typedef enum {
 	V_NT_TEXT, 
 	V_NT_PARTICLE,
 	V_NT_CURVE, 
+	V_NT_AUDIO, 
 	V_NT_NUM_TYPES, 
 	V_NT_SYSTEM = V_NT_NUM_TYPES, 
 	V_NT_NUM_TYPES_NETPACK
@@ -191,10 +192,10 @@ typedef enum {
 } VNMRampChannel;
 
 typedef struct {
-	double			pos;
-	double			red;
-	double			green;
-	double			blue;
+	double	pos;
+	double	red;
+	double	green;
+	double	blue;
 } VNMRampPoint;
 
 typedef enum {
@@ -308,6 +309,25 @@ typedef enum {
 	VN_C_TEXT_SIZE = 256
 } VNCConstants;
 
+#define VN_AUDIO_MAX_SAMPLE_SIZE_UNCOMPRESSED 1400
+#define VN_AUDIO_MAX_SAMPLE_SIZE_COMPRESSED 5000
+
+typedef enum {
+    VN_A_LAYER_INTEGER8,
+    VN_A_LAYER_INTEGER16,
+    VN_A_LAYER_INTEGER24,
+    VN_A_LAYER_INTEGER32,
+    VN_A_LAYER_REAL32,
+    VN_A_LAYER_REAL64,
+} VNALayerType;
+
+typedef enum {
+    VN_A_UNCOMPRESSED_SUSTAINED,
+    VN_A_COMPRESSED_SUSTAINED,
+    VN_A_UNCOMPRESSED_UNSUSTAINED,
+    VN_A_COMPRESSED_UNSUSTAINED
+} VNATransferType;
+
 typedef enum {
 	VN_P_FORCE_RADIAL = 0,
 	VN_P_FORCE_DIRECTIONAL
@@ -328,6 +348,9 @@ extern size_t verse_session_get_size(void);
 
 extern void *verse_pack_method_call(uint32 param_count, const VNOParam *params, const VNOParamType *param_type);
 extern boolean verse_unpack_method_call(void *data, uint32 param_count, VNOParam *params, const VNOParamType *param_type);
+
+extern void *verse_audio_compress(uint32 length, VNALayerType type, void *data);
+extern void *verse_audio_uncompress(uint32 length, VNALayerType type, void *data);
 /*
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECEIVE_COMMANDS
@@ -393,7 +416,7 @@ extern void verse_send_g_polygon_set_face_uinteger32(VNodeID node_id, VLayerID l
 extern void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real64 value);
 extern void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 def_crease);
 extern void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def_crease);
-extern void verse_send_g_bone_create(VNodeID node_id, uint32 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z);
+extern void verse_send_g_bone_create(VNodeID node_id, uint32 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w);
 extern void verse_send_g_bone_destroy(VNodeID node_id, uint32 bone_id);
 
 extern void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment);
@@ -418,8 +441,14 @@ extern void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const 
 extern void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id);
 extern void verse_send_c_curve_subscribe(VNodeID node_id, VLayerID curve_id);
 extern void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id);
-extern void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, real64 pre_value, uint32 pre_pos, real64 value, real64 post_value, uint32 post_pos);
+extern void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, real64 pre_value, uint32 pre_pos, real64 value, real64 pos, real64 post_value, uint32 post_pos);
 extern void verse_send_c_curve_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 key_id);
+
+extern void verse_send_a_layer_create(VNodeID node_id, VLayerID curve_id, const char *name);
+extern void verse_send_a_layer_destroy(VNodeID node_id, VLayerID curve_id);
+extern void verse_send_a_layer_subscribe(VNodeID node_id, VLayerID curve_id, VNATransferType transfer);
+extern void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID curve_id);
+extern void verse_send_a_audio(VNodeID node_id, VLayerID layer_id, uint16 id, uint32 time, uint16 length, VNATransferType transfer, VNALayerType type, void *data);
 
 
 #endif		/* VERSE_H */
