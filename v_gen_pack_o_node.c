@@ -1103,7 +1103,7 @@ void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id
 	{
 		unsigned int i;
 		uint16 size;
-		vnp_raw_unpack_uint16(&params, &size);
+		vnp_raw_unpack_uint16(params, &size);
 		for(i = 0; i < size; i++)
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)params)[i]);
 		free(params);
