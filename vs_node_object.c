@@ -102,7 +102,7 @@ void vs_o_subscribe(VSNodeObject *node)
 {
 	unsigned int i;
 	for(i = 0; i < node->link_count; i++)
-		if(node->links[i].name[0] == 0)
+		if(node->links[i].name[0] != 0)
 			verse_send_o_link_set(node->head.id, i, node->links[i].link, node->links[i].name, node->links[i].target_id);
 	if(node->light[0] > -0.000001 && node->light[0] < 0.000001 && node->light[1] > -0.000001 && node->light[1] < 0.000001 && node->light[2] > -0.000001 && node->light[2] < 0.000001)
 		verse_send_o_set_light(node->head.id, node->light[0], node->light[1], node->light[2]);
