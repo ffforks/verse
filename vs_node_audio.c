@@ -278,7 +278,8 @@ static void callback_send_a_layer_unsubscribe(void *user, VNodeID node_id, VLaye
 	vs_remove_subscriptor(node->layers[layer_id].subscribers);
 }
 
-static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID layer_id, uint32 id, VNALayerType type, void *data)
+static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID layer_id, uint32 block_index,
+				      VNALayerType type, const VNASample *data)
 {
 	static const size_t	blocksize[] = {
 		VN_A_BLOCK_SIZE_INT8   * sizeof (int8),
@@ -299,24 +300,25 @@ static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID laye
 		return;
 	if(node->layers[layer_id].name[0] == 0)
 		return;
-	if(id > node->layers[layer_id].length)
+	if(block_index > node->layers[layer_id].length)
 	{
-		node->layers[layer_id].data = realloc(node->layers[layer_id].data, (sizeof *node->layers[layer_id].data) * (id + 64));
-		for(i = node->layers[layer_id].length; i < id + 64; i++)
+		node->layers[layer_id].data = realloc(node->layers[layer_id].data,
+						      (sizeof *node->layers[layer_id].data) * (block_index + 64));
+		for(i = node->layers[layer_id].length; i < block_index + 64; i++)
 			node->layers[layer_id].data[i] = NULL;
-		node->layers[layer_id].length = id + 64;
+		node->layers[layer_id].length = block_index + 64;
 	}
 
-	if(node->layers[layer_id].data[id] == NULL)
-		node->layers[layer_id].data[id] = malloc(blocksize[type]);
-	if(node->layers[layer_id].data[id] != NULL)
+	if(node->layers[layer_id].data[block_index] == NULL)
+		node->layers[layer_id].data[block_index] = malloc(blocksize[type]);
+	if(node->layers[layer_id].data[block_index] != NULL)
 	{
-		memcpy(node->layers[layer_id].data[id], data, blocksize[type]);
+		memcpy(node->layers[layer_id].data[block_index], data, blocksize[type]);
 		count =	vs_get_subscript_count(node->layers[layer_id].subscribers);
 		for(i = 0; i < count; i++)
 		{
 			vs_set_subscript_session(node->layers[layer_id].subscribers, i);
-			verse_send_a_block_set(node_id, layer_id, id, type, data);
+			verse_send_a_block_set(node_id, layer_id, block_index, type, data);
 		}
 		vs_reset_subscript_session();
 	}
@@ -375,7 +377,7 @@ static void callback_send_a_stream_unsubscribe(void *user, VNodeID node_id, VLay
 }
 
 static void callback_send_a_stream(void *user, VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f,
-				   VNALayerType type, real64 frequency, void *data)
+				   VNALayerType type, real64 frequency, const VNASample *data)
 {
 	VSNodeAudio *node;
 	unsigned int i, count;
