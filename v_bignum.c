@@ -540,7 +540,7 @@ void v_bignum_sub(VBigDig *x, const VBigDig *y)
 void v_bignum_mul(VBigDig *x, const VBigDig *y)
 {
 	int		n = *x, t = *y, i, j;
-	unsigned long	uv = 0, c, w[512];
+	unsigned long	uv = 0, c, w[2048];
 
 	memset(w, 0, (n + t + 1) * sizeof *w);
 	for(i = 0; i < t; i++)
@@ -549,10 +549,10 @@ void v_bignum_mul(VBigDig *x, const VBigDig *y)
 		for(j = 0; j < n; j++)
 		{
 			uv = w[i + j] + x[1 + j] * y[1 + i] + c;
-			w[i + j] = uv & 0xffff;
-			c = uv >> 16;
+			w[i + j] = uv & ((1 << V_BIGBITS) - 1);
+			c = uv >> V_BIGBITS;
 		}
-		w[i + n + 1] = uv >> 16;
+		w[i + n + 1] = uv >> V_BIGBITS;
 	}
 	/* Write low words of w back into x. */
 	for(i = 0; i < *x; i++)
