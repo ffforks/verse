@@ -107,29 +107,27 @@ library_env.Replace (PATH = user_options_dict['PATH'])
 library_env.Replace (AR = user_options_dict['TARGET_AR'])
 
 cmd_gen_files = (['v_cmd_gen.c',
-
 				  'v_cmd_def_a.c',
-                  'v_cmd_def_b.c',
-                  'v_cmd_def_c.c',
-                  'v_cmd_def_g.c',
-                  'v_cmd_def_m.c',
-                  'v_cmd_def_o.c',
-                  'v_cmd_def_s.c',
-                  'v_cmd_def_t.c'
-                  ])
+				  'v_cmd_def_b.c',
+				  'v_cmd_def_c.c',
+				  'v_cmd_def_g.c',
+				  'v_cmd_def_m.c',
+				  'v_cmd_def_o.c',
+				  'v_cmd_def_s.c',
+				  'v_cmd_def_t.c'
+				  ])
 
 cmd_gen_deps = (['v_gen_pack_init.c',
-
 				 'v_gen_pack_a_node.c',
-                 'v_gen_pack_b_node.c',
-                 'v_gen_pack_c_node.c',
-                 'v_gen_pack_g_node.c',
-                 'v_gen_pack_m_node.c',
-                 'v_gen_pack_o_node.c',
-                 'v_gen_pack_p_node.c',
-                 'v_gen_pack_s_node.c',
-                 'v_gen_pack_t_node.c',
-                ])
+				 'v_gen_pack_b_node.c',
+				 'v_gen_pack_c_node.c',
+				 'v_gen_pack_g_node.c',
+				 'v_gen_pack_m_node.c',
+				 'v_gen_pack_o_node.c',
+				 'v_gen_pack_p_node.c',
+				 'v_gen_pack_s_node.c',
+				 'v_gen_pack_t_node.c',
+				])
 
 if user_options_dict['REGEN_PROTO']=='yes':
     cmd_gen_env = library_env.Copy()
@@ -138,14 +136,18 @@ if user_options_dict['REGEN_PROTO']=='yes':
     cmd_gen_env.Command('mkprot', '' , 'mkprot')
 
 lib_source_files = (['v_cmd_buf.c',
-                     'v_connection.c',
-                     'v_func_storage.c',
-                     'v_man_pack_node.c',
-                     'v_network.c',
-                     'v_network_que.c',
-                     'v_pack.c',
-                     'v_pack_method.c'
-                    ])
+					 'v_connect.c',
+					 'v_connection.c',
+					 'v_encryption.c',
+					 'v_func_storage.c',
+					 'v_man_pack_node.c',
+					 'v_network.c',
+					 #'v_network_que.c',
+					 'v_network_in_que.c',
+					 'v_network_out_que.c',
+					 'v_pack.c',
+					 'v_pack_method.c'
+					 ])
 lib_source_files += cmd_gen_deps
 
 server_source_files = (['vs_connection.c',
