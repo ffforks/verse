@@ -8,33 +8,33 @@
 #include "v_cmd_gen.h"
 #include "v_cmd_buf.h"
 
-#if defined(V_GENERATE_FUNC_MODE)
+#if defined V_GENERATE_FUNC_MODE
 
-#define MAX_PARAMS_PER_CMD 16
+#define MAX_PARAMS_PER_CMD	16
 /**/
 FILE *spec;
 extern void v_cg_gen_spec_init(void);
 extern void v_cg_gen_spec(void);
 /**/
-struct{
-	FILE			*nodes[V_NT_NUM_TYPES_NETPACK];
-	FILE			*init;
-	FILE			*unpack;
-	FILE			*verse_h;
-	FILE			*internal_verse_h;
-	char			*func_name;
-	VNodeType		type;
+static struct {
+	FILE		*nodes[V_NT_NUM_TYPES_NETPACK];
+	FILE		*init;
+	FILE		*unpack;
+	FILE		*verse_h;
+	FILE		*internal_verse_h;
+	char		*func_name;
+	VNodeType	type;
 	VCGCommandType command;
 	unsigned int	param_count;
-	VCGParam		param_type[MAX_PARAMS_PER_CMD];
-	char			*param_name[MAX_PARAMS_PER_CMD];
+	VCGParam	param_type[MAX_PARAMS_PER_CMD];
+	char		*param_name[MAX_PARAMS_PER_CMD];
 	unsigned int	cmd_id;
-	char			*alias_name;
-	char			*alias_qualifyer;
+	char		*alias_name;
+	char		*alias_qualifyer;
 	unsigned int	alias_param;
 	unsigned int	*alias_param_array;
-	char			alias_bool_switch;
-}VCGData;
+	char		alias_bool_switch;
+} VCGData;
 
 extern void v_cg_init(void);
 extern void v_cg_close(void);
@@ -115,10 +115,7 @@ void v_cg_init()
 	f = fopen("verse_header.h", "r");
 	while((c = getc(f)) != EOF)
 		putc(c, VCGData.verse_h);
-
-
 }
-
 
 void v_cg_close()
 {
