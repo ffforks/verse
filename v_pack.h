@@ -15,6 +15,9 @@ extern size_t vnp_raw_unpack_uint8(const void *buffer, uint8 *data);
 extern size_t vnp_raw_pack_uint16(void *buffer, uint16 data);
 extern size_t vnp_raw_unpack_uint16(const void *buffer, uint16 *data);
 
+extern size_t vnp_raw_pack_uint24(void *buffer, uint32 data);
+extern size_t vnp_raw_unpack_uint24(const void *buffer, uint32 *data);
+
 extern size_t vnp_raw_pack_uint32(void *buffer, uint32 data);
 extern size_t vnp_raw_unpack_uint32(const void *buffer, uint32 *data);
 
