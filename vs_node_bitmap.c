@@ -61,7 +61,7 @@ void vs_b_destroy_node(VSNodeBitmap *node)
 void vs_b_subscribe(VSNodeBitmap *node)
 {
 	unsigned int i;
-	verse_send_b_init_dimensions(node->head.id, node->size[0], node->size[1], node->size[2]);
+	verse_send_b_dimensions_set(node->head.id, node->size[0], node->size[1], node->size[2]);
 	for(i = 0; i < node->layer_count; i++)
 		if(node->layers[i].name[0] != 0)
 			verse_send_b_layer_create(node->head.id, (uint16)i, node->layers[i].name, (uint8)node->layers[i].type);
@@ -76,7 +76,7 @@ void vs_b_unsubscribe(VSNodeBitmap *node)
 			vs_remove_subscriptor(node->layers[i].subscribers);
 }
 
-static void callback_send_b_init_dimensions(void *user, VNodeID node_id, uint16 width, uint16 height, uint16 depth)
+static void callback_send_b_dimensions_set(void *user, VNodeID node_id, uint16 width, uint16 height, uint16 depth)
 {
 	VSNodeBitmap *node;
 	unsigned int i, j, k, count, tiles[2], read, write, end;
@@ -258,7 +258,7 @@ static void callback_send_b_init_dimensions(void *user, VNodeID node_id, uint16 
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->head.subscribers, i);
-		verse_send_b_init_dimensions(node_id, width, height, depth);
+		verse_send_b_dimensions_set(node_id, width, height, depth);
 	}
 	vs_reset_subscript_session();
 }
@@ -387,31 +387,31 @@ static void callback_send_b_layer_subscribe(void *user, VNodeID node_id, VLayerI
 		for(i = 0; i < tile[0]; i++)
 			for(j = 0; j < tile[1]; j++)
 				for(k = 0; k < tile[2]; k++)
-					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT1, (VNBTile *) &((uint8*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8]);
+					verse_send_b_tile_set(node_id, layer_id, i, j, k, VN_B_LAYER_UINT1, (VNBTile *) &((uint8*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8]);
 	break;
 	case VN_B_LAYER_UINT8 :
 		for(i = 0; i < tile[0]; i++)
 			for(j = 0; j < tile[1]; j++)
 				for(k = 0; k < tile[2]; k++)
-					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT8, (VNBTile *) &((uint8*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+					verse_send_b_tile_set(node_id, layer_id, i, j, k, VN_B_LAYER_UINT8, (VNBTile *) &((uint8*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
 	break;
 	case VN_B_LAYER_UINT16 :
 		for(i = 0; i < tile[0]; i++)
 			for(j = 0; j < tile[1]; j++)
 				for(k = 0; k < tile[2]; k++)
-					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT16, (VNBTile *) &((uint16*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+					verse_send_b_tile_set(node_id, layer_id, i, j, k, VN_B_LAYER_UINT16, (VNBTile *) &((uint16*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
 	break;
 	case VN_B_LAYER_REAL32 :
 		for(i = 0; i < tile[0]; i++)
 			for(j = 0; j < tile[1]; j++)
 				for(k = 0; k < tile[2]; k++)
-					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_REAL32, (VNBTile *) &((real32*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+					verse_send_b_tile_set(node_id, layer_id, i, j, k, VN_B_LAYER_REAL32, (VNBTile *) &((real32*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
 	break;
 	case VN_B_LAYER_REAL64 :
 		for(i = 0; i < tile[0]; i++)
 			for(j = 0; j < tile[1]; j++)
 				for(k = 0; k < tile[2]; k++)
-					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_REAL64, (VNBTile *) &((real64*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+					verse_send_b_tile_set(node_id, layer_id, i, j, k, VN_B_LAYER_REAL64, (VNBTile *) &((real64*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
 	break;
 	}
 }
@@ -426,7 +426,7 @@ static void callback_send_b_layer_unsubscribe(void *user, VNodeID node_id, VLaye
 	vs_remove_subscriptor(node->layers[layer_id].subscribers);
 }
 
-static void callback_send_b_layer_set_tile(void *user, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 tile_z, uint8 type, VNBTile *data)
+static void callback_send_b_tile_set(void *user, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 tile_z, uint8 type, VNBTile *data)
 {
 	VSNodeBitmap *node;
 	unsigned int i, count, tile[3];
@@ -487,19 +487,19 @@ static void callback_send_b_layer_set_tile(void *user, VNodeID node_id, VLayerID
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->head.subscribers, i);
-		verse_send_b_layer_set_tile(node_id, layer_id, tile_x, tile_y, tile_z, type, data);
+		verse_send_b_tile_set(node_id, layer_id, tile_x, tile_y, tile_z, type, data);
 	}
 	vs_reset_subscript_session();
 }
 
 void vs_b_callback_init(void)
 {
-	verse_callback_set(verse_send_b_init_dimensions, callback_send_b_init_dimensions, NULL);
+	verse_callback_set(verse_send_b_dimensions_set, callback_send_b_dimensions_set, NULL);
 	verse_callback_set(verse_send_b_layer_create, callback_send_b_layer_create, NULL);
 	verse_callback_set(verse_send_b_layer_destroy, callback_send_b_layer_destroy, NULL);
 	verse_callback_set(verse_send_b_layer_subscribe, callback_send_b_layer_subscribe, NULL);
 	verse_callback_set(verse_send_b_layer_unsubscribe, callback_send_b_layer_unsubscribe, NULL);
-	verse_callback_set(verse_send_b_layer_set_tile, callback_send_b_layer_set_tile, NULL);
+	verse_callback_set(verse_send_b_tile_set, callback_send_b_tile_set, NULL);
 }
 
 #endif
