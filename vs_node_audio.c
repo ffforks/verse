@@ -38,18 +38,20 @@ VSNodeAudio * vs_a_create_node(unsigned int owner)
 	VSNodeAudio *node;
 	char name[48];
 	unsigned int i;
+
 	node = malloc(sizeof *node);
 	vs_add_new_node(&node->head, V_NT_AUDIO);
 	sprintf(name, "Audio_Node_%u", node->head.id);
 	create_node_head(&node->head, name, owner);
-	node->layers = malloc((sizeof *node->layers) * 16);
 	node->layer_count = 16;
-	for(i = 0; i < 16; i++)
+	node->layers = malloc((sizeof *node->layers) * node->layer_count);
+	for(i = 0; i < node->layer_count; i++)
 		node->layers[i].name[0] = 0;
-	node->streams = malloc((sizeof *node->streams) * 16);
 	node->stream_count = 16;
-	for(i = 0; i < 16; i++)
+	node->streams = malloc((sizeof *node->streams) * node->stream_count);
+	for(i = 0; i < node->stream_count; i++)
 		node->streams[i].name[0] = 0;
+
 	return node;
 }
 
@@ -102,7 +104,8 @@ static void callback_send_a_stream_create(void *user, VNodeID node_id, VLayerID 
 {
 	VSNodeAudio *node;
 	unsigned int i, j, count;
-	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
+
+	node = (VSNodeAudio *) vs_get_node(node_id, V_NT_AUDIO);
 	if(node == NULL)
 		return;
 
@@ -441,7 +444,7 @@ void vs_a_callback_init(void)
 	verse_callback_set(verse_send_a_layer_destroy,		callback_send_a_layer_destroy,		NULL);
 	verse_callback_set(verse_send_a_layer_subscribe,	callback_send_a_layer_subscribe,	NULL);
 	verse_callback_set(verse_send_a_layer_unsubscribe,	callback_send_a_layer_unsubscribe,	NULL);
-	verse_callback_set(verse_send_a_block_set,			callback_send_a_block_set,			NULL);
+	verse_callback_set(verse_send_a_block_set,		callback_send_a_block_set,		NULL);
 	verse_callback_set(verse_send_a_block_clear,		callback_send_a_block_clear,		NULL);
 	verse_callback_set(verse_send_a_stream_create,		callback_send_a_stream_create,		NULL);
 	verse_callback_set(verse_send_a_stream_destroy,		callback_send_a_stream_destroy,		NULL);
@@ -449,6 +452,5 @@ void vs_a_callback_init(void)
 	verse_callback_set(verse_send_a_stream_unsubscribe,	callback_send_a_stream_unsubscribe,	NULL);
 	verse_callback_set(verse_send_a_stream,			callback_send_a_stream,			NULL);
 }
-
 
 #endif
