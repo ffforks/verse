@@ -55,12 +55,10 @@ unsigned int vs_add_new_node(VSNodeHead *node, VNodeType type)
 
 VSNodeHead *vs_get_node(unsigned int node_id, VNodeType type)
 {
-	printf("lookup: get=%u len=%u\n", node_id, VSNodeStorage.node_length);
 	if(VSNodeStorage.node_length > node_id)
 	{
 		VSNodeHead	*node = VSNodeStorage.nodes[node_id];
 
-		printf(" got %p, type %d (need %u)\n", node, node != NULL ? node->type : -1, type);
 		if(node != NULL && node->type == type)
 			return node;
 	}
