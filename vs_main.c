@@ -14,8 +14,7 @@
 
 extern VNodeID	vs_node_create(VNodeID owner_id, unsigned int type);
 extern void	callback_send_node_destroy(void *user_data, VNodeID node_id);
-
-
+void vs_reset_owner(VNodeID owner_id);
 
 static void callback_send_connect(void *user, char *name, char *pass, void *address, uint8 *host_id)
 {
@@ -32,9 +31,11 @@ static void callback_send_connect(void *user, char *name, char *pass, void *addr
 		verse_send_connect_terminate(address, "Im sorry but you are not wellcome here.");
 	}
 }
+
 static void callback_send_connect_terminate(void *user, char *address, char *bye)
 {
 	printf("callback_send_connect_terminate\n");
+	vs_reset_owner(vs_get_avatar());
 	callback_send_node_destroy(NULL, vs_get_avatar());
 	verse_session_destroy(vs_get_session());
 	vs_remove_connection();
