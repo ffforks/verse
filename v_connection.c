@@ -65,8 +65,8 @@ void v_con_init(void) /* since verse doesnt have an init function this function 
 		return;
 	cmd_buf_init();
 	v_con_initialized = TRUE;
-	VConData.con = malloc((sizeof *VConData.con) * CONNECTION_CHUNK_SIZE);
-	memset(VConData.con, 0, (sizeof *VConData.con) * CONNECTION_CHUNK_SIZE);	/* Clear the memory. */
+	VConData.con = malloc(CONNECTION_CHUNK_SIZE * sizeof *VConData.con);
+	memset(VConData.con, 0, CONNECTION_CHUNK_SIZE * sizeof *VConData.con);	/* Clear the memory. */
 	VConData.con_count = 0;
 	VConData.pending_packets = 0;
 /*	v_e_connect_create_key(&VConData.host_id[V_ENCRYPTION_LOGIN_PRIVATE_START],
@@ -148,9 +148,20 @@ VSession verse_session_get(void)
 uint32 v_co_find_connection(uint32 ip, uint16 port) /* if a packet comes form a ip address what connection does it belong to? */
 {
 	unsigned int i;
+
+/*	printf("looking for connection to %u:%u, count=%d ", ip, port, VConData.con_count);*/
 	for(i = 0; i < VConData.con_count; i++)
-		if(ip == VConData.con[i].network_address.ip && port == VConData.con[i].network_address.port && VConData.con[i].destroy_flag != TRUE)
-			return i;
+	{
+		if(ip == VConData.con[i].network_address.ip &&
+		   port == VConData.con[i].network_address.port &&
+		   VConData.con[i].destroy_flag == 0)
+		{
+/*			printf("found %d, destroy=%d\n", i, VConData.con[i].destroy_flag);
+			printf("found %d\n", i);
+*/			return i;
+		}
+	}
+/*	printf("not found!\n");*/
 	return -1;
 }
 
@@ -166,6 +177,14 @@ boolean v_co_switch_connection(uint32 ip, uint16 port) /* switches to the curren
 		}
 	}
 	return FALSE;
+}
+
+void v_con_inqueue_timer_update(void)
+{
+	if(VConData.current_connection < VConData.con_count)
+	{
+		v_niq_timer_update(&VConData.con[VConData.current_connection].in_queue);
+	}
 }
 
 /*
@@ -197,7 +216,7 @@ void v_con_network_listen(void)
 	{
 		VConData.current_connection = v_co_find_connection(address.ip, address.port); /* Is there a connection matching the IP and port? */
 		vnp_raw_unpack_uint32(buf, &packet_id); /* Unpack the ID of the packet. */
-/*		printf("got packet ID %u\n", packet_id);*/
+/*		printf("got packet ID %u, %d bytes, connection %u\n", packet_id, size, VConData.current_connection);*/
 		if(VConData.current_connection < VConData.con_count &&
 		   !(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED && packet_id == 0)) /* If this isn't a packet from an existing connection, disregard it. */
 		{
@@ -212,13 +231,17 @@ void v_con_network_listen(void)
 				}
 			}
 			else
+			{
 				v_unpack_connection(buf, size); /* This is an ongoing connecton-attempt. */
+				v_niq_timer_update(&VConData.con[VConData.current_connection].in_queue);
+			}
 		}
 		else if(v_connect_unpack_ping(buf, size, address.ip, address.port))	/* Ping handled. */
 			;
 		else if(v_fs_func_accept_connections()) /* Do we accept connection-attempts? */
 		{
-			if(VConData.current_connection >= VConData.con_count || V_RE_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue)) /* Is it a new client, or an old client that we haven't heard form in some time? */
+			if(VConData.current_connection >= VConData.con_count ||
+			   V_RE_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue)) /* Is it a new client, or an old client that we haven't heard form in some time? */
 			{
 				if(VConData.current_connection < VConData.con_count)
 				{
@@ -229,7 +252,14 @@ void v_con_network_listen(void)
 			}
 		}
 		else
+		{
 			fprintf(stderr, __FILE__ ": Unhandled packet--dropping\n");
+			fprintf(stderr, __FILE__ ": State: current=%u count=%u stage=%d id=%u\n",
+			       VConData.current_connection,
+			       VConData.con_count,
+			       VConData.con[VConData.current_connection].connect_stage,
+			       packet_id);
+		}
 		size = v_n_receive_data(&address, buf, sizeof buf); /* See if there are more incoming packets. */
 	}
 	VConData.current_connection = connection; /* Reset the current connection. */
@@ -294,10 +324,14 @@ void verse_callback_update(unsigned int microseconds)
 
 	if(VConData.con_count > 0)
 	{
-		if(V_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue))
+/*		printf("checking timeout of stage %d connection %u\n",
+		       VConData.con[VConData.current_connection].connect_stage, VConData.current_connection);
+*/		if(V_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue))
 		{
 			if(VConData.con[VConData.current_connection].connect_stage != V_CS_CONNECTED)
+			{
 				VConData.con[VConData.current_connection].destroy_flag = TRUE;
+			}
 			else
 				v_callback_connect_terminate("connection timed out");
 		}
