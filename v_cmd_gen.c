@@ -26,15 +26,15 @@ static struct {
 	FILE		*unpack;
 	FILE		*verse_h;
 	FILE		*internal_verse_h;
-	char		*func_name;
+	const char	*func_name;
 	VNodeType	type;
 	VCGCommandType command;
 	unsigned int	param_count;
 	VCGParam	param_type[MAX_PARAMS_PER_CMD];
-	char		*param_name[MAX_PARAMS_PER_CMD];
+	const char	*param_name[MAX_PARAMS_PER_CMD];
 	unsigned int	cmd_id;
-	char		*alias_name;
-	char		*alias_qualifyer;
+	const char	*alias_name;
+	const char	*alias_qualifyer;
 	unsigned int	alias_param;
 	unsigned int	*alias_param_array;
 	char		alias_bool_switch;
@@ -132,7 +132,7 @@ void v_cg_close()
 	fprintf(VCGData.verse_h, "\n#endif\n\n");
 }
 
-void v_cg_new_cmd(unsigned int type, char *name, unsigned int cmd_id, VCGCommandType command)
+void v_cg_new_cmd(unsigned int type, const char *name, unsigned int cmd_id, VCGCommandType command)
 {
 	VCGData.param_count = 0;
 	VCGData.func_name = name;
@@ -141,7 +141,7 @@ void v_cg_new_cmd(unsigned int type, char *name, unsigned int cmd_id, VCGCommand
 	VCGData.command = command;
 }
 
-void v_cg_alias(char bool_switch, char *name, char *qualifyer, unsigned int param, unsigned int *param_array)
+void v_cg_alias(char bool_switch, const char *name, const char *qualifyer, unsigned int param, unsigned int *param_array)
 {
 	VCGData.alias_name = name;
 	VCGData.alias_qualifyer = qualifyer;
@@ -150,7 +150,7 @@ void v_cg_alias(char bool_switch, char *name, char *qualifyer, unsigned int para
 	VCGData.alias_bool_switch = bool_switch;
 }
 
-void v_cg_add_param(VCGParam type, char *name)
+void v_cg_add_param(VCGParam type, const char *name)
 {
 	if(VCGData.param_count == MAX_PARAMS_PER_CMD)
 		exit(1);
@@ -250,7 +250,7 @@ void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 void v_cg_create_print(FILE *f, boolean send, boolean alias)
 {
 	unsigned int i, length, active;
-	char *name;
+	const char *name;
 	if(VCGData.command == VCGCT_INVISIBLE_SYSTEM)
 		return;
 	name = VCGData.func_name;
@@ -741,7 +741,7 @@ void v_cg_end_cmd(void)
 	VCGData.alias_name = NULL;
 }
 
-void v_cg_new_manual_cmd(unsigned int cmd_id, char *name, char *def, char *alias_name, char *alias_def)
+void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def, const char *alias_name, const char *alias_def)
 {
 	fprintf(VCGData.verse_h, "extern %s;\n", def);
 	if(alias_def != NULL)
