@@ -10,6 +10,8 @@
 
 #include "v_cmd_gen.h"
 
+#if defined V_GENERATE_FUNC_MODE
+
 #define MAX_PARAMS_PER_CMD	16
 
 static struct {
@@ -44,6 +46,7 @@ static void v_cg_init(void)
 	VCGData.nodes[V_NT_TEXT] = fopen("v_gen_pack_t_node.c", "wt");  
 	VCGData.nodes[V_NT_PARTICLE] = fopen("v_gen_pack_p_node.c", "wt"); 
 	VCGData.nodes[V_NT_CURVE] = fopen("v_gen_pack_c_node.c", "wt");  
+	VCGData.nodes[V_NT_AUDIO] = fopen("v_gen_pack_a_node.c", "wt");  
 	VCGData.nodes[V_NT_SYSTEM] = fopen("v_gen_pack_s_node.c", "wt"); 
 	VCGData.init = fopen("v_gen_pack_init.c", "wt");
 	VCGData.unpack = fopen("v_gen_unpack_func.h", "wt"); 
@@ -744,8 +747,12 @@ int main(int argc, char *argv[])
 	fprintf(VCGData.verse_h, "\n");
 	v_gen_curve_cmd_def();
 	fprintf(VCGData.verse_h, "\n");
+	v_gen_audio_cmd_def();
+	fprintf(VCGData.verse_h, "\n");
 	v_cg_close();
 	printf("end\n");
 
 	return EXIT_SUCCESS;
 }
+
+#endif
