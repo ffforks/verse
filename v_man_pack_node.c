@@ -162,6 +162,7 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 				if(line->text != NULL)
 					free(line->text);
 				past = NULL;
+				free(line);
 				line = s->text_temp;
 				s->text_receive_id++;
 			}else
