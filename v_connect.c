@@ -79,7 +79,8 @@ void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypted name 
 	printf("n = %u ", (int)my_key[V_ENCRYPTION_LOGIN_N_START]);
 
 	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
-		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], encrypted_key[i]);
+
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], encrypted_key[i]);
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
 }
 
@@ -200,7 +201,8 @@ void v_update_connection_pending(void)
 			func_connect_termanate(v_fs_get_user_data(2), address_string, "no message");
 		break;
 	default:
-		;
+
+	;
 	}	
 }
 
@@ -232,6 +234,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START + i]);/* Packing the command */
 			for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &other_key[V_ENCRYPTION_LOGIN_N_START + i]);/* Packing the command */
+
 			v_con_set_connect_stage(V_CS_CONTACTED);
 			v_send_hidden_connect_send_key();
 			return; 
@@ -390,9 +393,103 @@ void verse_send_connect_terminate(const char *address, const char *bye)
 		verse_session_destroy(v_con_get_network_queue());
 }
 
-boolean v_ping_store(VNetworkAddress *address, char *buf, unsigned int length)
+void verse_send_ping(const char *address, const char *message)
 {
+	VNetworkAddress a;
+	if(v_n_set_network_address(&a, address));
+	{
+		unsigned int buffer_pos = 0;
+		uint8 buf[1500];
+		buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 0);/* Packing the Packet id */
+		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 5);/* Packing the command */
+	#if defined V_PRINT_SEND_COMMANDS
+		printf("send: verse_send_ping(address = %s text = %s);\n", address, message);
+	#endif
+		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], message, 1400);
+		v_n_send_data(&a, buf, buffer_pos);
+	}
+	#if defined V_PRINT_SEND_COMMANDS
+	else
+		printf("send: verse_send_ping(address = %s (FAULTY) message = %s);\n", address, message);
+	#endif
+}
+
+unsigned int v_unpack_ping(const char *buf, size_t buffer_length)
+{
+	unsigned int buffer_pos = 0;
+	void (* func_ping)(void *user_data, const char *address, const char *text);
+	char address[64];
+	char message[1400];
+	func_ping = v_fs_get_user_func(5);
+	v_n_get_address_string(v_con_get_network_address(), address);
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], message, 1400, buffer_length - buffer_pos);
+#if defined V_PRINT_RECEIVE_COMMANDS
+	printf("receive: verse_send_ping(address = %s message = %s ); callback = %p\n", address, message, v_fs_get_user_func(5));
+#endif
+	if(func_ping != NULL)
+		func_ping(v_fs_get_user_data(5), address, message);
+	return buffer_pos;
+}
+
+typedef struct {
+	uint32	ip;
+	uint16	port;
+	char	message[1400];
+	void	*next;
+} VPingCommand;
+
+static VPingCommand *v_ping_commands = NULL;
+
+boolean v_connect_unpack_ping(const char *buf, size_t buffer_length, uint32 ip, uint16 port)
+{
+	if(buffer_length > 5)
+	{
+		unsigned int buffer_pos = 0;
+		uint8 cmd_id;
+		uint32 pack_id;
+
+		buffer_pos = vnp_raw_unpack_uint32(&buf[buffer_pos], &pack_id);
+		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &cmd_id);
+		if(cmd_id == 5)
+		{
+			if(NULL != v_fs_get_user_func(5))
+			{
+				VPingCommand *pc;
+				pc = malloc(sizeof *pc);
+				pc->ip = ip;
+				pc->port = port;
+				vnp_raw_unpack_string(&buf[buffer_pos], pc->message, 1400, buffer_length - buffer_pos);
+				pc->next = v_ping_commands;
+				v_ping_commands = pc;
+			}
+			return TRUE;
+		}
+	}
 	return FALSE;
+}
+
+void v_ping_update(void)
+{
+	VPingCommand *cp;
+	void (* func_ping)(void *user_data, const char *address, const char *text);
+	VNetworkAddress a;
+	char address[64];
+	func_ping = v_fs_get_user_func(5);
+
+	while(v_ping_commands != NULL)
+	{
+		cp = v_ping_commands->next;
+		a.ip = v_ping_commands->ip;
+		a.port = v_ping_commands->port;
+		v_n_get_address_string(&a, address);	
+	#if defined V_PRINT_RECEIVE_COMMANDS
+		printf("receive: verse_send_ping(address = %s message = %s ); callback = %p\n", address, v_ping_commands->message, v_fs_get_user_func(5));
+	#endif
+		if(func_ping != NULL)
+			func_ping(v_fs_get_user_data(5), address, v_ping_commands->message);
+		free(v_ping_commands);
+		v_ping_commands = cp;
+	}
 }
 
 #endif
