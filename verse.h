@@ -14,7 +14,7 @@
 /* Release information. */
 #define	V_RELEASE_NUMBER	4
 #define	V_RELEASE_PATCH		0
-#define	V_RELEASE_LABEL		"pre3"
+#define	V_RELEASE_LABEL		"pre5"
 
 typedef unsigned char boolean;
 typedef unsigned int uint32;
@@ -230,6 +230,7 @@ typedef enum {
 	VN_M_FT_LIGHT,
 	VN_M_FT_REFLECTION,
 	VN_M_FT_TRANSPARENCY,
+	VN_M_FT_VOLUME,
 	VN_M_FT_GEOMETRY,
 	VN_M_FT_TEXTURE,
 	VN_M_FT_NOISE,
@@ -262,6 +263,13 @@ typedef union {
 		real64 normal_falloff;
 		real64 refraction_index;
 	} transparency;
+	struct {
+		real64 diffusion;
+		real64 col_r;
+		real64 col_g;
+		real64 col_b;
+		VNMFragmentID color;
+	} volume;
 	struct {
 		char layer_r[16];
 		char layer_g[16];
@@ -296,9 +304,7 @@ typedef union {
 		VNMRampPoint ramp[48];
 	} ramp;
 	struct {
-		char label_r[16];
-		char label_g[16];
-		char label_b[16];
+		char label[16];
 	} animation;
 	struct {
 		VNMFragmentID alt_a;
@@ -459,12 +465,12 @@ extern void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id);
 extern void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment);
 extern void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id);
 
-extern void verse_send_b_init_dimensions(VNodeID node_id, uint16 width, uint16 height, uint16 depth);
+extern void verse_send_b_dimensions_set(VNodeID node_id, uint16 width, uint16 height, uint16 depth);
 extern void verse_send_b_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNBLayerType type);
 extern void verse_send_b_layer_destroy(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_b_layer_subscribe(VNodeID node_id, VLayerID layer_id, uint8 level);
 extern void verse_send_b_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);
-extern void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile);
+extern void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile);
 
 extern void verse_send_t_set_language(VNodeID node_id, const char *language);
 extern void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, uint16 index, const char *name);
@@ -477,14 +483,14 @@ extern void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const 
 extern void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id);
 extern void verse_send_c_curve_subscribe(VNodeID node_id, VLayerID curve_id);
 extern void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id);
-extern void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, real64 *pre_value, uint32 *pre_pos, real64 *value, real64 pos, real64 *post_value, uint32 *post_pos);
-extern void verse_send_c_curve_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 key_id);
+extern void verse_send_c_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, real64 *pre_value, uint32 *pre_pos, real64 *value, real64 pos, real64 *post_value, uint32 *post_pos);
+extern void verse_send_c_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 key_id);
 
 extern void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, const char *name);
 extern void verse_send_a_layer_destroy(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_a_layer_subscribe(VNodeID node_id, VLayerID layer_id, VNATransferType transfer);
 extern void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);
-extern void verse_send_a_block(VNodeID node_id, VLayerID layer_id, uint32 id, uint16 length, VNATransferType transfer, VNALayerType type, void *data);
+extern void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 id, uint16 length, VNATransferType transfer, VNALayerType type, void *data);
 extern void verse_send_a_stream_create(VNodeID node_id, VLayerID layer_id, const char *name);
 extern void verse_send_a_stream_destroy(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_a_stream_subscribe(VNodeID node_id, VLayerID layer_id, VNATransferType transfer);

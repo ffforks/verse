@@ -58,6 +58,13 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->geometry.layer_g, 16);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->geometry.layer_b, 16);
 		break;
+	case VN_M_FT_VOLUME :
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.diffusion);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.col_r);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.col_g);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.col_b);
+		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->volume.color);
+		break;
 	case VN_M_FT_TEXTURE :
 		buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], fragment->texture.bitmap);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->texture.layer_r, 16);
@@ -105,9 +112,7 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		}
 		break;
 	case VN_M_FT_ANIMATION :
-		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->animation.label_r, 16);
-		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->animation.label_g, 16);
-		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->animation.label_b, 16);
+		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->animation.label, 16);
 		break;
 	case VN_M_FT_ALTERNATIVE :
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->alternative.alt_a);
@@ -208,6 +213,15 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.transparency.normal_falloff);
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.transparency.refraction_index);
 			break;
+	case VN_M_FT_VOLUME :
+			if(buffer_pos + 34 > buffer_length)
+				return -1;
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.diffusion);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.col_r);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.col_g);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.col_b);
+			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.volume.color);
+			break;
 		case VN_M_FT_GEOMETRY :
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.geometry.layer_r, 16, buffer_length - buffer_pos);
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.geometry.layer_g, 16, buffer_length - buffer_pos);
@@ -273,9 +287,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			}
 			break;
 		case VN_M_FT_ANIMATION :
-			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.animation.label_r, 16, buffer_length - buffer_pos);
-			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.animation.label_g, 16, buffer_length - buffer_pos);
-			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.animation.label_b, 16, buffer_length - buffer_pos);
+			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.animation.label, 16, buffer_length - buffer_pos);
 			break;
 		case VN_M_FT_ALTERNATIVE :
 			if(buffer_pos + 4 > buffer_length)

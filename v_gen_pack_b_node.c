@@ -16,7 +16,7 @@
 #include "v_network.h"
 #include "v_connection.h"
 
-void verse_send_b_init_dimensions(VNodeID node_id, uint16 width, uint16 height, uint16 depth)
+void verse_send_b_dimensions_set(VNodeID node_id, uint16 width, uint16 height, uint16 depth)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -26,7 +26,7 @@ void verse_send_b_init_dimensions(VNodeID node_id, uint16 width, uint16 height, 
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 80);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_b_init_dimensions(node_id = %u width = %u height = %u depth = %u );\n", node_id, width, height, depth);
+	printf("send: verse_send_b_dimensions_set(node_id = %u width = %u height = %u depth = %u );\n", node_id, width, height, depth);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], width);
@@ -40,16 +40,16 @@ void verse_send_b_init_dimensions(VNodeID node_id, uint16 width, uint16 height, 
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_b_init_dimensions(const char *buf, size_t buffer_length)
+unsigned int v_unpack_b_dimensions_set(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_b_init_dimensions)(void *user_data, VNodeID node_id, uint16 width, uint16 height, uint16 depth);
+	void (* func_b_dimensions_set)(void *user_data, VNodeID node_id, uint16 width, uint16 height, uint16 depth);
 	VNodeID node_id;
 	uint16 width;
 	uint16 height;
 	uint16 depth;
 	
-	func_b_init_dimensions = v_fs_get_user_func(80);
+	func_b_dimensions_set = v_fs_get_user_func(80);
 	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -57,10 +57,10 @@ unsigned int v_unpack_b_init_dimensions(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &height);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &depth);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_b_init_dimensions(node_id = %u width = %u height = %u depth = %u ); callback = %p\n", node_id, width, height, depth, v_fs_get_user_func(80));
+	printf("receive: verse_send_b_dimensions_set(node_id = %u width = %u height = %u depth = %u ); callback = %p\n", node_id, width, height, depth, v_fs_get_user_func(80));
 #endif
-	if(func_b_init_dimensions != NULL)
-		func_b_init_dimensions(v_fs_get_user_data(80), node_id, width, height, depth);
+	if(func_b_dimensions_set != NULL)
+		func_b_dimensions_set(v_fs_get_user_data(80), node_id, width, height, depth);
 
 	return buffer_pos;
 }
@@ -233,7 +233,7 @@ unsigned int v_unpack_b_layer_subscribe(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile)
+void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -243,7 +243,7 @@ void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 83);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_b_layer_set_tile(node_id = %u layer_id = %u tile_x = %u tile_y = %u z = %u type = %u tile = %p );\n", node_id, layer_id, tile_x, tile_y, z, type, tile);
+	printf("send: verse_send_b_tile_set(node_id = %u layer_id = %u tile_x = %u tile_y = %u z = %u type = %u tile = %p );\n", node_id, layer_id, tile_x, tile_y, z, type, tile);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -284,11 +284,11 @@ void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_b_layer_set_tile(const char *buf, size_t buffer_length)
+unsigned int v_unpack_b_tile_set(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_b_layer_set_tile)(void *user_data, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile);
+	void (* func_b_tile_set)(void *user_data, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile);
 	VNodeID node_id;
 	VLayerID layer_id;
 	uint16 tile_x;
@@ -297,7 +297,7 @@ unsigned int v_unpack_b_layer_set_tile(const char *buf, size_t buffer_length)
 	VNBLayerType type;
 	VNBTile *tile;
 	
-	func_b_layer_set_tile = v_fs_get_user_func(83);
+	func_b_tile_set = v_fs_get_user_func(83);
 	if(buffer_length < 12)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -308,7 +308,7 @@ unsigned int v_unpack_b_layer_set_tile(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
 	type = (VNBLayerType)enum_temp;
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_b_layer_set_tile(node_id = %u layer_id = %u tile_x = %u tile_y = %u z = %u type = %u ); callback = %p\n", node_id, layer_id, tile_x, tile_y, z, type, v_fs_get_user_func(83));
+	printf("receive: verse_send_b_tile_set(node_id = %u layer_id = %u tile_x = %u tile_y = %u z = %u type = %u ); callback = %p\n", node_id, layer_id, tile_x, tile_y, z, type, v_fs_get_user_func(83));
 #endif
 	{
 	unsigned int i;
@@ -335,13 +335,13 @@ unsigned int v_unpack_b_layer_set_tile(const char *buf, size_t buffer_length)
 					buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tile.vreal64[i]);
 			break;
 		}
-		if(func_b_layer_set_tile != NULL && type <= VN_B_LAYER_REAL64)
-			func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, &tile);
+		if(func_b_tile_set != NULL && type <= VN_B_LAYER_REAL64)
+			func_b_tile_set(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, &tile);
 		return buffer_pos;
 	}
 
-	if(func_b_layer_set_tile != NULL)
-		func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, (VNBLayerType)type, tile);
+	if(func_b_tile_set != NULL)
+		func_b_tile_set(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, (VNBLayerType)type, tile);
 
 	return buffer_pos;
 }

@@ -178,7 +178,7 @@ unsigned int v_unpack_a_layer_subscribe(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_a_block(VNodeID node_id, VLayerID layer_id, uint32 id, uint16 length, VNATransferType transfer, VNALayerType type, void *data)
+void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 id, uint16 length, VNATransferType transfer, VNALayerType type, void *data)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -188,7 +188,7 @@ void verse_send_a_block(VNodeID node_id, VLayerID layer_id, uint32 id, uint16 le
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 162);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_a_block(node_id = %u layer_id = %u id = %u length = %u transfer = %u type = %u data = %p );\n", node_id, layer_id, id, length, transfer, type, data);
+	printf("send: verse_send_a_block_set(node_id = %u layer_id = %u id = %u length = %u transfer = %u type = %u data = %p );\n", node_id, layer_id, id, length, transfer, type, data);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -234,11 +234,11 @@ void verse_send_a_block(VNodeID node_id, VLayerID layer_id, uint32 id, uint16 le
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_a_block(const char *buf, size_t buffer_length)
+unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_a_block)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 id, uint16 length, VNATransferType transfer, VNALayerType type, void *data);
+	void (* func_a_block_set)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 id, uint16 length, VNATransferType transfer, VNALayerType type, void *data);
 	VNodeID node_id;
 	VLayerID layer_id;
 	uint32 id;
@@ -247,7 +247,7 @@ unsigned int v_unpack_a_block(const char *buf, size_t buffer_length)
 	VNALayerType type;
 	void *data;
 	
-	func_a_block = v_fs_get_user_func(162);
+	func_a_block_set = v_fs_get_user_func(162);
 	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -259,7 +259,7 @@ unsigned int v_unpack_a_block(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
 	type = (VNALayerType)enum_temp;
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_a_block(node_id = %u layer_id = %u id = %u length = %u transfer = %u type = %u ); callback = %p\n", node_id, layer_id, id, length, transfer, type, v_fs_get_user_func(162));
+	printf("receive: verse_send_a_block_set(node_id = %u layer_id = %u id = %u length = %u transfer = %u type = %u ); callback = %p\n", node_id, layer_id, id, length, transfer, type, v_fs_get_user_func(162));
 #endif
 	{
 		unsigned int i;
@@ -270,8 +270,8 @@ unsigned int v_unpack_a_block(const char *buf, size_t buffer_length)
 				uint8 data[1500];
 				for(i = 0; i < length && length < 1500; i++)
 					buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &data[i]);
-				if(func_a_block != NULL)
-					func_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
+				if(func_a_block_set != NULL)
+					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
 				return buffer_pos;
 			}
 			case VN_A_LAYER_INT16 :
@@ -279,8 +279,8 @@ unsigned int v_unpack_a_block(const char *buf, size_t buffer_length)
 				uint16 data[750];
 				for(i = 0; i < length && length < 750; i++)
 					buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &data[i]);
-				if(func_a_block != NULL)
-					func_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
+				if(func_a_block_set != NULL)
+					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
 				return buffer_pos;
 			}
 			case VN_A_LAYER_INT24 :
@@ -288,8 +288,8 @@ unsigned int v_unpack_a_block(const char *buf, size_t buffer_length)
 				uint32 data[325];
 				for(i = 0; i < length && length < 325; i++)
 					buffer_pos += vnp_raw_unpack_uint24(&buf[buffer_pos], &data[i]);
-				if(func_a_block != NULL)
-					func_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
+				if(func_a_block_set != NULL)
+					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
 				return buffer_pos;
 			}
 			case VN_A_LAYER_INT32 :
@@ -297,8 +297,8 @@ unsigned int v_unpack_a_block(const char *buf, size_t buffer_length)
 				uint32 data[325];
 				for(i = 0; i < length && length < 325; i++)
 					buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &data[i]);
-				if(func_a_block != NULL)
-					func_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
+				if(func_a_block_set != NULL)
+					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
 				return buffer_pos;
 			}
 			case VN_A_LAYER_REAL32 :
@@ -306,8 +306,8 @@ unsigned int v_unpack_a_block(const char *buf, size_t buffer_length)
 				real32 data[1500];
 				for(i = 0; i < length && length < 325; i++)
 					buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &data[i]);
-				if(func_a_block != NULL)
-					func_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
+				if(func_a_block_set != NULL)
+					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
 				return buffer_pos;
 			}
 			case VN_A_LAYER_REAL64 :
@@ -315,15 +315,15 @@ unsigned int v_unpack_a_block(const char *buf, size_t buffer_length)
 				real64 data[162];
 				for(i = 0; i < length && length < 162; i++)
 					buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &data[i]);
-				if(func_a_block != NULL)
-					func_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
+				if(func_a_block_set != NULL)
+					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
 				return buffer_pos;
 			}
 		}
 	}
 
-	if(func_a_block != NULL)
-		func_a_block(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
+	if(func_a_block_set != NULL)
+		func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, length, (VNATransferType)transfer, (VNALayerType)type, data);
 
 	return buffer_pos;
 }
