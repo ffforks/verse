@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <string.h>
 
 #include "v_cmd_gen.h"
@@ -82,9 +83,20 @@ static void vs_load_host_id(const char *file_name)
 		fprintf(stderr, "Warning: Couldn't open \"%s\" for host ID writing\n", file_name);
 }
 
+static void cb_sigint_handler(int sig)
+{
+	if(sig == SIGINT)
+	{
+		printf("Verse server terminating\n");
+		exit(EXIT_SUCCESS);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	uint32	seconds, fractions;
+
+	signal(SIGINT, cb_sigint_handler);
 
 	printf("Verse Server r%up%u%s by Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
 	verse_set_port(4950);	/* The Verse standard port. */
