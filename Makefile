@@ -8,7 +8,8 @@
 #
 
 CC	?= gcc
-CFLAGS	?= -I$(shell pwd) -Wall -ansi
+CFLAGS	?= -I$(shell pwd) -Wall -ansi -g #-pg -O2 -finline-functions
+LDFLAGS	?= -pg
 
 AR	?= ar
 ARFLAGS	?= rus
@@ -28,7 +29,7 @@ LIBVERSE_SRC =  $(PROT_OUT) v_bignum.c v_cmd_buf.c v_connect.c v_connection.c v_
 		v_encryption.c \
 		v_func_storage.c v_internal_verse.h v_man_pack_node.c \
 		v_network.c v_network.h v_network_in_que.c v_network_out_que.c \
-		v_pack.c v_pack.h v_pack_method.c
+		v_pack.c v_pack.h v_pack_method.c v_prime.c
 
 LIBVERSE_OBJ = $(patsubst %h,, $(LIBVERSE_SRC:%.c=%.o))
 
@@ -41,7 +42,7 @@ VERSE_OBJ = $(VERSE_SRC:%.c=%.o)
 all:		$(TARGETS)
 
 verse:		$(VERSE_OBJ) libverse.a
-		$(CC) -o $@ $^
+		$(CC) $(LDFLAGS) -o $@ $^
 
 libverse.a:	libverse.a($(LIBVERSE_OBJ))
 
