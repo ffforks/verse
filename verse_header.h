@@ -4,8 +4,8 @@
 #include <stdlib.h>
 
 /* Release information. */
-#define	V_RELEASE_NUMBER	2
-#define	V_RELEASE_PATCH		5
+#define	V_RELEASE_NUMBER	3
+#define	V_RELEASE_PATCH		0
 #define	V_RELEASE_LABEL		"(none)"
 
 typedef unsigned char boolean;
