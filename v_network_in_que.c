@@ -44,7 +44,6 @@ VNetInPacked * v_niq_get(VNetInQueue *queue, size_t *length)
 		*length = 0;
 		return NULL;
 	}
-
 	/* pop oldest package */
 	p = queue->oldest;
 	queue->oldest = p->newer;
@@ -52,10 +51,19 @@ VNetInPacked * v_niq_get(VNetInQueue *queue, size_t *length)
 		queue->newest = NULL;
 	else
 		((VNetInPacked *)queue->oldest)->older = NULL;
-
 	*length = p->size;
 
 	return p;
+}
+
+unsigned int v_niq_free(VNetInQueue *queue)
+{
+	unsigned int i;
+	size_t length;
+
+	for(i = 0; v_niq_get(queue, &length) != NULL; i++)
+		;
+	return i;
 }
 
 void v_niq_release(VNetInQueue *queue, VNetInPacked *p)
