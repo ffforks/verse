@@ -190,19 +190,19 @@ void verse_send_a_audio(VNodeID node_id, VLayerID layer_id, uint16 id, uint32 ti
 		unsigned int i;
 		switch(type)
 		{
-			case VN_A_LAYER_INTEGER8 :
+			case VN_A_LAYER_INT8 :
 				for(i = 0; i < length; i++)
 					buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8*)data)[i]);
 			break;
-			case VN_A_LAYER_INTEGER16 :
+			case VN_A_LAYER_INT16 :
 				for(i = 0; i < length; i++)
 					buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], ((uint16*)data)[i]);
 			break;
-			case VN_A_LAYER_INTEGER24 :
+			case VN_A_LAYER_INT24 :
 				for(i = 0; i < length; i++)
 					buffer_pos += vnp_raw_pack_uint24(&buf[buffer_pos], ((uint32*)data)[i]);
 			break;
-			case VN_A_LAYER_INTEGER32 :
+			case VN_A_LAYER_INT32 :
 				for(i = 0; i < length; i++)
 					buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((uint32*)data)[i]);
 			break;
@@ -253,7 +253,7 @@ unsigned int v_unpack_a_audio(const char *buf, size_t buffer_length)
 		unsigned int i;
 		switch(type)
 		{
-			case VN_A_LAYER_INTEGER8 :
+			case VN_A_LAYER_INT8 :
 			{
 				uint8 data[1500];
 				for(i = 0; i < length && length < 1500; i++)
@@ -262,7 +262,7 @@ unsigned int v_unpack_a_audio(const char *buf, size_t buffer_length)
 					func_a_audio(v_fs_get_user_data(162), node_id, layer_id, id, time, length, (VNATransferType)transfer, (VNALayerType)type, data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_INTEGER16 :
+			case VN_A_LAYER_INT16 :
 			{
 				uint16 data[750];
 				for(i = 0; i < length && length < 750; i++)
@@ -271,7 +271,7 @@ unsigned int v_unpack_a_audio(const char *buf, size_t buffer_length)
 					func_a_audio(v_fs_get_user_data(162), node_id, layer_id, id, time, length, (VNATransferType)transfer, (VNALayerType)type, data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_INTEGER24 :
+			case VN_A_LAYER_INT24 :
 			{
 				uint32 data[325];
 				for(i = 0; i < length && length < 325; i++)
@@ -280,7 +280,7 @@ unsigned int v_unpack_a_audio(const char *buf, size_t buffer_length)
 					func_a_audio(v_fs_get_user_data(162), node_id, layer_id, id, time, length, (VNATransferType)transfer, (VNALayerType)type, data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_INTEGER32 :
+			case VN_A_LAYER_INT32 :
 			{
 				uint32 data[325];
 				for(i = 0; i < length && length < 325; i++)
