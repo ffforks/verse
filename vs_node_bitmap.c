@@ -63,7 +63,7 @@ void vs_b_subscribe(VSNodeBitmap *node)
 	unsigned int i;
 	verse_send_b_init_dimensions(node->head.id, node->size[0], node->size[1], node->size[2]);
 	for(i = 0; i < node->layer_count; i++)
-		if(node->layers[i].layer != NULL)
+		if(node->layers[i].name[0] != 0)
 			verse_send_b_layer_create(node->head.id, (uint16)i, node->layers[i].name, (uint8)node->layers[i].type);
 }
 
