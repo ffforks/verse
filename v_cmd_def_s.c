@@ -143,6 +143,8 @@ void v_gen_system_cmd_def(void)
 	"\t\t\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)((VNTag *)tag)->vblob.blob)[i]);\n"
 	"\t\t}\n"
 	"\t\tbreak;\n"
+	"\t\tdefault :\n"
+	"\t\t\t;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_UNPACK_INLINE, "\tif(type < VN_TAG_TYPE_COUNT)\n"
 	"\t{\n"
@@ -195,6 +197,8 @@ void v_gen_system_cmd_def(void)
 	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &string[i]);\n"
 	"\t\t\t}\n"
 	"\t\t\tbreak;\n"
+	"\t\tdefault :\n"
+	"\t\t\t;\n"
 	"\t\t}\n"
 	"\t\tif(func_tag_create != NULL)\n"
 	"\t\tfunc_tag_create(v_fs_get_user_data(18), node_id, group_id, tag_id, name, type, &tag);\n"
