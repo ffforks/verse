@@ -318,6 +318,11 @@ void v_bignum_bit_shift_right(VBigDig *x, unsigned int count)
 	{
 		unsigned int	places = count / (CHAR_BIT * sizeof *x);
 
+		if(places > s)
+		{
+			memset(x, 0, s * sizeof *x);
+			return;
+		}
 		for(i = 0; i < s - places; i++)
 			x[i] = x[i + places];
 		for(; i < s; i++)
@@ -488,12 +493,6 @@ void v_bignum_add(VBigDig *x, const VBigDig *y)
 {
 	unsigned int	i, xs = *x++, ys = *y++, s, carry, t;
 
-	if(x == y)		/* Quick version for pointer-aliased x += x. */
-	{
-		v_bignum_bit_shift_left_1(x);
-		return;
-	}
-	
 	s = xs < ys ? xs : ys;
 	for(i = carry = 0; i < s; i++)
 	{
@@ -587,7 +586,7 @@ void v_bignum_div(VBigDig *x, const VBigDig *y, VBigDig *remainder)
 		v_bignum_set_zero(x);
 		return;
 	}
-	q = bignum_alloc(*y);
+	q = bignum_alloc(*x);
 	v_bignum_set_zero(q);
 	work = bignum_alloc(*x);
 	v_bignum_set_bignum_part(work, x, msbx, msby + 1);
@@ -639,11 +638,121 @@ void v_bignum_mod(VBigDig *x, const VBigDig *y)
 */
 }
 
+const VBigDig * v_bignum_reduce_begin(const VBigDig *m)
+{
+	VBigDig	*mu;
+	int	k;
+
+	for(k = *m; m[k] == 0; k--)
+		;
+/*	printf("k=%d\n", k);
+	printf("computing mu=floor(65536^%d/", 2 * k);
+	v_bignum_print_hex(m);
+	printf(")\n");
+*/	mu = bignum_alloc(2 * k + 1);
+	/* b ^ x is just 65536 << x, i.e. set bit 16 * x. */
+	v_bignum_set_zero(mu);
+	v_bignum_bit_set(mu, 16 * 2 * k);
+	v_bignum_div(mu, m, NULL);
+
+	return mu;
+}
+
+void v_bignum_reduce_end(const VBigDig *mu)
+{
+	bignum_free(mu);
+}
+
+void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
+{
+	VBigDig	*q1, *q2, *q3, *r1, *r2, *r;
+	int	i, k;
+
+/*	printf("x=");
+	v_bignum_print_hex_lf(x);
+	printf("m=");
+	v_bignum_print_hex_lf(m);
+*/	for(k = *m; m[k] == 0; k--)
+		;
+	/* Step 1, compute the q helpers. */
+	q1 = bignum_alloc(*x);
+	v_bignum_set_bignum(q1, x);
+	v_bignum_bit_shift_right(q1, 16 * (k - 1));
+/*	printf("q1=");
+	v_bignum_print_hex_lf(q1);
+*/
+	q2 = bignum_alloc(2 * *x);
+	v_bignum_set_bignum(q2, q1);
+	v_bignum_mul(q2, mu);
+/*	printf("q2=");
+	v_bignum_print_hex_lf(q2);
+*/
+	q3 = bignum_alloc(*q2);
+	v_bignum_set_bignum(q3, q2);
+	v_bignum_bit_shift_right(q3, 16 * (k + 1));
+/*	printf("q3=");
+	v_bignum_print_hex_lf(q3);
+*/
+	/* Step 2, initialize. */
+	r1 = bignum_alloc(*x);
+	r2 = bignum_alloc(*x);
+	r = x;
+	v_bignum_set_bignum(r1, x);
+	for(i = k + 1; i < *r1; i++)
+		r1[i + 1] = 0;
+	v_bignum_set_bignum(r2, q3);
+	v_bignum_mul(r2, m);
+	for(i = k + 1; i < *r2; i++)
+		r2[i + 1] = 0;
+/*	printf("r1=");
+	v_bignum_print_hex_lf(r1);
+	printf("r2=");
+	v_bignum_print_hex_lf(r2);
+*/	v_bignum_set_bignum(r, r1);
+	v_bignum_sub(r, r2);
+/*	printf("r=");
+	v_bignum_print_hex_lf(r);
+	printf("m=");
+	v_bignum_print_hex_lf(m);
+*/	/* Step 3, make sure r is positive. Shaky. */
+	if(v_bignum_bit_test(r, V_BIGBITS * *r - 1))
+	{
+		VBigDig	*term;
+		
+		term = bignum_alloc(k + 1 * V_BIGBITS);
+
+		v_bignum_set_zero(term);
+		v_bignum_bit_set(term, V_BIGBITS * (k + 1));
+/*		printf("danger\n");
+		v_bignum_print_hex_lf(r);
+*/		v_bignum_add(r, term);
+/*		v_bignum_print_hex_lf(r);*/
+/*		v_bignum_not(r);
+		v_bignum_add_digit(r, 1);
+*/		bignum_free(term);
+	}
+	/* Step 4, loop. */
+/*	printf("candidate: r=");
+	v_bignum_print_hex_lf(r);
+*/	while(v_bignum_gte(r, m))
+		v_bignum_sub(r, m);
+/*	v_bignum_set_bignum(x, r);*/
+
+	bignum_free(r2);
+	bignum_free(r1);
+
+	bignum_free(q3);
+	bignum_free(q2);
+	bignum_free(q1);
+/*	bignum_free(mu);*/
+}
+
 /* Computes x = (x^y) % n, where ^ denotes exponentiation. */
 void v_bignum_pow_mod(VBigDig *x, const VBigDig *y, const VBigDig *n)
 {
-	int	i, k;
-	VBigDig	*tmp;
+	VBigDig		*tmp;
+	const VBigDig	*mu;
+	int		i, k;
 
 /*	printf("computing pow(");
 	v_bignum_print_hex(x);
@@ -656,17 +765,19 @@ void v_bignum_pow_mod(VBigDig *x, const VBigDig *y, const VBigDig *n)
 	tmp = bignum_alloc(2 * *x);	/* Squaring needs twice the bits, or lossage occurs. */
 	v_bignum_set_bignum(tmp, x);
 	k = v_bignum_bit_msb(y);
+	mu = v_bignum_reduce_begin(n);
 	for(i = k - 1; i >= 0; i--)
 	{
 		v_bignum_mul(tmp, tmp);
-		v_bignum_mod(tmp, n);
+		v_bignum_reduce(tmp, n, mu);
 		if(v_bignum_bit_test(y, i))
 		{
 			v_bignum_mul(tmp, x);
-			v_bignum_mod(tmp, n);
+			v_bignum_reduce(tmp, n, mu);
 		}
 	}
 	v_bignum_set_bignum(x, tmp);
+	v_bignum_reduce_end(mu);
 	bignum_free(tmp);
 }
 

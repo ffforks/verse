@@ -75,3 +75,8 @@ extern void	v_bignum_div(VBigDig *x, const VBigDig *y, VBigDig *remainder);
 extern void	v_bignum_mod(VBigDig *x, const VBigDig *y);	/* x %= y. */
 extern void	v_bignum_pow_mod(VBigDig *x, const VBigDig *y,
 				 const VBigDig *n);	/* x = pow(x, y) % n. */
+
+/* Barrett reducer. */
+extern const VBigDig *	v_bignum_reduce_begin(const VBigDig *m);
+extern void		v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu);
+extern void		v_bignum_reduce_end(const VBigDig *mu);
