@@ -43,7 +43,7 @@ struct VNetQueue {
 	unsigned int	slot;
 };
 
-unsigned int verse_session_get_size(void)
+size_t verse_session_get_size(void)
 {
 	const VNetQueue *queue;
 
