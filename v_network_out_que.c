@@ -102,7 +102,7 @@ static unsigned int out_balance = 1;
 boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 {
 	VCMDBufHead *buf;
-	unsigned int i, size;
+	unsigned int size;
 	char data[1500];
 	uint32 seconds, fractions;
 	double delta;
