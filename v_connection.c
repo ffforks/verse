@@ -62,6 +62,7 @@ void v_con_init(void)
 	if(v_con_initialized == TRUE)
 		return;
 	VConData.con = malloc((sizeof *VConData.con) * CONNECTION_CHUNK_SIZE);
+	memset(VConData.con, 0, (sizeof *VConData.con) * CONNECTION_CHUNK_SIZE);	/* Clear the memory. */
 	VConData.con_count = 0;
 	v_con_initialized = TRUE;
 	VConData.pending_packets = 0;
