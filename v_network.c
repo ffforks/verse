@@ -193,21 +193,21 @@ int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
 
 void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 {
-    static LARGE_INTEGER freqency;
-    static boolean init = FALSE;
-    LARGE_INTEGER conter;
+	static LARGE_INTEGER freqency;
+	static boolean init = FALSE;
+	LARGE_INTEGER counter;
 
-    if(!init)
-    {
-        init = TRUE;
-        QueryPerformanceFrequency(&freqency);
-    }
+	if(!init)
+	{
+		init = TRUE;
+		QueryPerformanceFrequency(&freqency);
+	}
 
-    QueryPerformanceCounter(&conter);
+	QueryPerformanceCounter(&counter);
 	if(seconds != NULL)
-		*seconds = conter.QuadPart / freqency.QuadPart;
+		*seconds = counter.QuadPart / freqency.QuadPart;
 	if(fractions != NULL)
-		*fractions = (uint32)((conter.QuadPart % freqency.QuadPart) * (0xffffffff / freqency.QuadPart));
+		*fractions = (uint32)((counter.QuadPart % freqency.QuadPart) * (0xffffffff / freqency.QuadPart));
 }
 
 #else
