@@ -47,7 +47,7 @@
  * just have a bunch of digits that it's possible to allocate from in a
  * stack-like manner.
 */
-static VBigDig		heap[1024 + 32];
+static VBigDig		heap[2048 + 32];
 static unsigned int	heap_pos;
 
 /* Allocate a number of <n> digits, returning it un-initialized. */
@@ -533,38 +533,30 @@ void v_bignum_sub(VBigDig *x, const VBigDig *y)
 	}
 }
 
-/* Computes x <<= count * (CHAR_BIT * sizeof *x). */
-static void bignum_digit_shift_left(VBigDig *x, unsigned short count)
-{
-	int	i, s = *x++;
-
-	if(count == 0)
-		return;
-	for(i = s - 1; i >= count; i--)
-		x[i] = x[i - count];
-	for(; i >= 0; i--)
-		x[i] = 0;
-}
-
-/* Computes x *= y, at the precision of x. */
+/* Compute x *= y, using as many digits as is necessary, then truncating the
+ * result down. This is Algorithm 14.9 from "Handbook of Applied Cryptography".
+ * It beats my earlier naive pen-and-paper approach by about 
+*/
 void v_bignum_mul(VBigDig *x, const VBigDig *y)
 {
-	unsigned int	i, ys = *y++;
-	VBigDig		*temp, *product;
+	int		n = *x, t = *y, i, j;
+	unsigned long	uv = 0, c, w[512];
 
-	temp    = bignum_alloc(*x);
-	product = bignum_alloc(*x);
-	v_bignum_set_zero(product);
-	for(i = 0; i < ys; i++)
+	memset(w, 0, (n + t + 1) * sizeof *w);
+	for(i = 0; i < t; i++)
 	{
-		v_bignum_set_bignum(temp, x);
-		v_bignum_mul_digit(temp, y[i]);
-		bignum_digit_shift_left(temp, i);
-		v_bignum_add(product, temp);
+		c = 0;
+		for(j = 0; j < n; j++)
+		{
+			uv = w[i + j] + x[1 + j] * y[1 + i] + c;
+			w[i + j] = uv & 0xffff;
+			c = uv >> 16;
+		}
+		w[i + n + 1] = uv >> 16;
 	}
-	v_bignum_set_bignum(x, product);	/* Overwrite source with result. */
-	bignum_free(product);
-	bignum_free(temp);
+	/* Write low words of w back into x. */
+	for(i = 0; i < *x; i++)
+		x[1 + i] = w[i];
 }
 
 /* Computes x /= y and remainder = x % y. */
