@@ -11,11 +11,12 @@
 #if !defined V_GENERATE_FUNC_MODE
 
 #include "verse.h"
+#include "v_network.h"
 #include "vs_server.h"
 
 extern VNodeID	vs_node_create(VNodeID owner_id, unsigned int type);
 extern void	callback_send_node_destroy(void *user_data, VNodeID node_id);
-void vs_reset_owner(VNodeID owner_id);
+extern void	vs_reset_owner(VNodeID owner_id);
 
 static void callback_send_connect(void *user, char *name, char *pass, void *address, uint8 *host_id)
 {
@@ -41,11 +42,6 @@ static void callback_send_connect_terminate(void *user, char *address, char *bye
 	callback_send_node_destroy(NULL, vs_get_avatar());
 	verse_session_destroy(vs_get_session());
 	vs_remove_connection();
-}
-
-static void callback_send_ping(void *user, char *address, char *text)
-{
-	verse_send_ping(address, "You have reached a Verse server, I'm not home at the moment, but please leave a message.");
 }
 
 static void vs_load_host_id(const char *file_name)
@@ -77,9 +73,21 @@ static void vs_load_host_id(const char *file_name)
 
 int main(int argc, char **argv)
 {
+	uint32	seconds, fraction;
+
 	printf("Verse Server r%up%u%s By Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
 	verse_set_port(4950);	/* The Verse standard port. */
-	vs_load_host_id("host_id.rsa");
+
+	/* Seed the random number generator. Still rather too weak for crypto, I guess. */
+	v_n_get_current_time(&seconds, &fraction);
+	srand(seconds ^ fraction);
+	srand(0);
+
+/*	{
+		v_encrypt_test();
+		exit(1);
+	}
+*/	vs_load_host_id("host_id.rsa");
 	vs_init_node_storage();
 	vs_o_callback_init();
 	vs_g_callback_init();
@@ -91,7 +99,6 @@ int main(int argc, char **argv)
 	vs_h_callback_init();
 	init_callback_node_storage();
 	verse_callback_set(verse_send_connect,		callback_send_connect,		NULL);
-	verse_callback_set(verse_send_ping,		callback_send_ping,		NULL);
 	verse_callback_set(verse_send_connect_terminate, callback_send_connect_terminate, NULL);
 
 	while(TRUE)
