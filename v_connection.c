@@ -109,7 +109,7 @@ void verse_session_destroy(VSession session)
 	unsigned int i;
 	for(i = 0; i < VConData.con_count && VConData.con[i].out_queue != session; i++);
 	if(i < VConData.con_count)
-		VConData.con[VConData.con_count].destroy_flag = TRUE;
+		VConData.con[i].destroy_flag = TRUE;
 }
 
 void verse_session_set(void *session)
