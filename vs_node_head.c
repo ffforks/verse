@@ -344,8 +344,6 @@ static void callback_send_node_subscribe(void *user, VNodeID node_id)
 		case V_NT_CURVE:
 			vs_c_subscribe(node);
 			break;
-		default:
-			fprintf(stderr, "Not subscribing to type %d\n", node->type);
 	}
 	verse_send_node_name_set(node->id, node->name);
 	for(i = 0; i < node->group_count; i++)
@@ -388,8 +386,6 @@ static void callback_send_node_unsubscribe(VNodeID node_id)
 		case V_NT_CURVE:
 			vs_c_unsubscribe(node);
 			break;
-		default:
-			fprintf(stderr, "Not unsubscribing to type %d\n", node->type);
 	}
 }
 
