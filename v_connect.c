@@ -137,6 +137,7 @@ VSession * verse_send_connect(const char *name, const char *pass, const char *ad
 		my_key = v_con_get_my_key();
 		v_e_connect_create_key(&my_key[V_ENCRYPTION_LOGIN_PRIVATE_START], &my_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &my_key[V_ENCRYPTION_LOGIN_N_START]);
 		v_send_hidden_connect_contact();
+		v_con_inqueue_timer_update();	/* Reset timer in connection's in queue, above takes a while. */
 		return session;
 	}
 	else
