@@ -115,14 +115,16 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 	if(save == NULL)
 		save = malloc((sizeof *save) * 10000);
 
-	size = vnp_raw_pack_uint32(data, queue->packet_id);
-	buf = queue->ack_nak;
 	v_n_get_current_time(&seconds, &fractions);
-	delta = (double)(seconds - queue->seconds) + ((double)fractions - (double)queue->fractions) / (double)(0xffffffff);
+	delta = (double)(seconds - queue->seconds) + ((double)fractions - (double)queue->fractions) / (double) 0xffffffff;
 /*	printf("delta %f %f\n", delta, delta * queue->send_rate);*/
 	if(queue->unsent_size == 0 && delta < 1 && (queue->ack_nak == NULL || queue->ack_nak->next == NULL))
 		return TRUE;
 
+/*	printf("building packet %u\n", queue->packet_id);*/
+
+	size = vnp_raw_pack_uint32(data, queue->packet_id);
+	buf = queue->ack_nak;
 	while(buf != NULL && size + buf->size < V_NOQ_MAX_PACKET_SIZE)
 	{
 		queue->ack_nak = buf->next;
@@ -130,6 +132,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 		queue->history[queue->slot] = buf;
 		buf->packet = queue->packet_id;
 		v_e_data_encrypt_command(data, size, ((VCMDBuffer1500 *)buf)->buf, buf->size, v_con_get_data_key());
+/*		printf("packed packet %u, first command %u\n", queue->packet_id, ((VCMDBuffer1500 *)buf)->buf[0]);*/
 		size += buf->size;
 		queue->sent_size += buf->size;
 		buf = queue->ack_nak;
