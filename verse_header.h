@@ -370,7 +370,7 @@ typedef enum {
 } VNPSpace;
 */
 extern void		verse_set_port(uint16 port);
-extern uint8	*verse_host_id_create(uint8 *id);
+extern void	verse_host_id_create(uint8 *id);
 extern void		verse_host_id_set(uint8 *id);
 extern void		verse_callback_set(void *send_func, void *callback, void *user_data);
 extern void		verse_callback_update(uint32 microseconds);
