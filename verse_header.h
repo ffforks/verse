@@ -378,9 +378,6 @@ extern void		verse_session_get_time(uint32 *seconds, uint32 *fractions);
 extern void *		verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
 extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
 
-extern void *		verse_audio_compress(uint32 length, VNALayerType type, const void *data);
-extern void *		verse_audio_uncompress(uint32 length, VNALayerType type, const void *data);
-
 /*
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECEIVE_COMMANDS
