@@ -465,13 +465,13 @@ static void v_cg_gen_pack(boolean alias)
 		{
 			if(no_param)
 				param = "V_REAL32_MAX";
-			fprintf(f, "\tbuffer_pos += vnp_raw_pack_double(&buf[buffer_pos], %s);\n", param);
+			fprintf(f, "\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], %s);\n", param);
 		}
 		if(VCGData.param_type[i] == VCGP_REAL64)
 		{
 			if(no_param)
 				param = "V_REAL64_MAX";
-			fprintf(f, "\tbuffer_pos += vnp_raw_pack_double(&buf[buffer_pos], %s);\n", param);
+			fprintf(f, "\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], %s);\n", param);
 		}
 		if(no_param)
 			param = "NULL";
@@ -574,10 +574,10 @@ static void v_cg_gen_unpack(void)
 				fprintf(f, "\tbuffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &%s);\n", VCGData.param_name[i]);
 			break;
 			case VCGP_REAL32 :
-				fprintf(f, "\tbuffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &%s);\n", VCGData.param_name[i]);
+			fprintf(f, "\tbuffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &%s);\n", VCGData.param_name[i]);
 			break;
 			case VCGP_REAL64 :
-				fprintf(f, "\tbuffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &%s);\n", VCGData.param_name[i]);
+				fprintf(f, "\tbuffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &%s);\n", VCGData.param_name[i]);
 			break;
 			case VCGP_POINTER_TYPE :
 			break;
