@@ -24,7 +24,7 @@ PROT_OUT  = v_gen_pack_init.c v_gen_unpack_func.h verse.h \
 		$(patsubst v_cmd_def_%.c,v_gen_pack_%_node.c, $(PROT_DEF))
 
 # The API implementation is the protocol code plus a few bits.
-LIBVERSE_SRC =  $(PROT_OUT) v_cmd_buf.c v_connect.c v_connection.c v_connection.h \
+LIBVERSE_SRC =  $(PROT_OUT) v_bignum.c v_cmd_buf.c v_connect.c v_connection.c v_connection.h \
 		v_encryption.c \
 		v_func_storage.c v_internal_verse.h v_man_pack_node.c \
 		v_network.c v_network.h v_network_in_que.c v_network_out_que.c \
