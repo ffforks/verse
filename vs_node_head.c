@@ -39,12 +39,7 @@ void create_node_head(VSNodeHead *node, const char *name, unsigned int owner)
 	node->group_count = 0;
 	node->subscribers = vs_create_subscription_list();
 }
-/*
-	VN_TAG_INTEGER = 0,
-	VN_TAG_REAL,
-	VN_TAG_STRING,
-	VN_TAG_BLOB
-*/
+
 void destroy_node_head(VSNodeHead *node)
 {
 	unsigned int i, j;
