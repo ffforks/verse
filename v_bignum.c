@@ -644,7 +644,7 @@ const VBigDig * v_bignum_reduce_begin(const VBigDig *m)
 */	mu = bignum_alloc(2 * k + 1);
 	/* b ^ x is just 65536 << x, i.e. set bit 16 * x. */
 	v_bignum_set_zero(mu);
-	v_bignum_bit_set(mu, 16 * 2 * k);
+	v_bignum_bit_set(mu, V_BIGBITS * 2 * k);
 	v_bignum_div(mu, m, NULL);
 
 	return mu;
@@ -665,9 +665,9 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	/* Step 1, compute the q helper. */
 	q = bignum_alloc(*x + *mu - (k - 1));	/* Tighter bound number length (was 2 * *x). */
 	v_bignum_set_bignum(q, x);
-	v_bignum_bit_shift_right(q, 16 * (k - 1));
+	v_bignum_bit_shift_right(q, V_BIGBITS * (k - 1));
 	v_bignum_mul(q, mu);
-	v_bignum_bit_shift_right(q, 16 * (k + 1));
+	v_bignum_bit_shift_right(q, V_BIGBITS * (k + 1));
 
 	/* Step 2, initialize. */
 	r1 = bignum_alloc(*x);
@@ -727,7 +727,7 @@ void v_bignum_square_half(VBigDig *x)
 		uv = w[2 * i] + x[1 + i] * x[1 + i];
 /*		printf("setting w[%d]=%X [before]\n", 2 * i, uv & 0xffff);*/
 		w[2 * i] = uv & 0xffff;
-		c = uv >> 16;
+		c = uv >> V_BIGBITS;
 /*		printf("uv before=%X, c=%X\n", uv, c);*/
 		high = 0;
 		for(j = i + 1; j < t; j++)
@@ -742,10 +742,10 @@ void v_bignum_square_half(VBigDig *x)
 			high |= uv < ouv;
 /*			printf("setting w[%d]=%lX [inner] uv=%lX high=%d c=%X\n", i + j, uv & 0xffff, uv, high, c);*/
 			w[i + j] = uv & 0xffff;
-			c = (uv >> 16) | (high << 16);
+			c = (uv >> V_BIGBITS) | (high << V_BIGBITS);
 		}
 /*		printf("setting w[%d] to %X [after]\n", i + t, (uv >> 16) | (high << 16));*/
-		w[i + t] = (uv >> 16) | (high << 16);
+		w[i + t] = (uv >> V_BIGBITS) | (high << V_BIGBITS);
 	}
 /*	printf("w=0x");
 	for(i = *x - 1; i >= 0; i--)
