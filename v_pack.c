@@ -80,7 +80,7 @@ size_t vnp_raw_unpack_uint16_vector(const void *buffer, uint16 *data, unsigned i
 		*data  = ((uint16) *b++) << 8;
 		*data |= (uint16) *b++;
 	}
-	return length;
+	return length * 2;
 }
 
 size_t vnp_raw_pack_uint24(void *buffer, uint32 data)
