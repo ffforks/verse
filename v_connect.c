@@ -258,7 +258,6 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], pass, V_ENCRYPTION_LOGIN_KEY_SIZE / 2, buffer_length - buffer_pos);
 			v_con_set_name_pass(name, pass);
 			v_con_set_connect_stage(V_CS_PENDING_HOST_CALLBACK);
-			printf("got here right\n");
 			return; 
 		}
 	}
@@ -309,7 +308,7 @@ void v_callback_connect_terminate(const char *bye)
 	void (* func_connect_terminate)(void *user_data, char *address, const char *bye);
 	char address_string[32];
 
-	printf("terminate\n");
+	printf("terminate (%s)\n", bye);
 	func_connect_terminate = v_fs_get_user_func(2);
 	v_n_get_address_string(v_con_get_network_address(), address_string);
 	#if defined(V_PRINT_RECIVE_COMMANDS)
