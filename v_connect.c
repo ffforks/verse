@@ -84,14 +84,14 @@ static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypte
 
 static void v_send_hidden_connect_accept(void) /* Host accepts Clients connectionatempt and sends over data encryption key */
 {
-	uint8 buf[1500], *data_key, *host_id, encrypted[V_ENCRYPTION_DATA_KEY_SIZE];
+	uint8 buf[1500], *host_id, encrypted[V_ENCRYPTION_DATA_KEY_SIZE];
 	unsigned int i, buffer_pos = 0;
+
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 1);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 1);/* Packing the command */
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], verse_session_get_avatar());
-	data_key = v_con_get_data_key();
 	host_id = v_con_get_host_id();
-	v_e_connect_encrypt(encrypted, data_key, &host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
+	v_e_connect_encrypt(encrypted, v_con_get_data_key(), &host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
 	for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], encrypted[i]);
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
@@ -116,14 +116,14 @@ VSession * verse_send_connect(const char *name, const char *pass, const char *ad
 	VSession *session;
 	if(v_n_set_network_address(&a, address))
 	{
-		#if defined(V_PRINT_SEND_COMMANDS)
+#if defined(V_PRINT_SEND_COMMANDS)
 		char ip_string[32];
-		#endif
+#endif
 		session = v_con_connect(a.ip, a.port, V_CS_CONTACT);
-		#if defined(V_PRINT_SEND_COMMANDS)
+#if defined(V_PRINT_SEND_COMMANDS)
 		v_n_get_address_string(&a, ip_string);
-		printf("send: %p = verse_send_connect(name = %s, pass = %s, address = %s (%s), expected_key = %p); callback = %p\n", session, name, pass, address, ip_string, expected_key);
-		#endif
+		printf("send: %p = verse_send_connect(name = %s, pass = %s, address = %s (%s), expected_key = %p)\n", session, name, pass, address, ip_string, expected_key);
+#endif
 		v_con_set_name_pass(name, pass);
 		if(expected_key != NULL)
 		{
@@ -139,9 +139,9 @@ VSession * verse_send_connect(const char *name, const char *pass, const char *ad
 	}
 	else
 	{
-		#if defined(V_PRINT_SEND_COMMANDS)
-		printf("send: NULL = verse_send_connect(name = %s, pass = %s, address = %s (Unressolved DNS), key = %p); callback = %p\n", name, pass, address, key);
-		#endif
+#if defined(V_PRINT_SEND_COMMANDS)
+		printf("send: NULL = verse_send_connect(name = %s, pass = %s, address = %s (Unressolved DNS), key = %p);\n", name, pass, address, key);
+#endif
 		return NULL;
 	}
 }
@@ -223,7 +223,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			uint8 *other_key, *my_key;
 			verse_send_packet_ack(pack_id);
 			my_key = v_con_get_my_key();
-			v_e_data_create_key(v_con_get_data_key());
+			v_con_set_data_key(v_e_data_create_key());
 			other_key = v_con_get_other_key();
 			for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START + i]);/* Packing the command */
@@ -390,22 +390,22 @@ void verse_send_connect_terminate(const char *address, const char *bye)
 void verse_send_ping(const char *address, const char *message)
 {
 	VNetworkAddress a;
-	if(v_n_set_network_address(&a, address));
+	if(v_n_set_network_address(&a, address))
 	{
 		unsigned int buffer_pos = 0;
 		uint8 buf[1500];
 		buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 0);/* Packing the Packet id */
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 5);/* Packing the command */
-	#if defined V_PRINT_SEND_COMMANDS
+#if defined V_PRINT_SEND_COMMANDS
 		printf("send: verse_send_ping(address = %s text = %s);\n", address, message);
-	#endif
+#endif
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], message, 1400);
 		v_n_send_data(&a, buf, buffer_pos);
 	}
-	#if defined V_PRINT_SEND_COMMANDS
+#if defined V_PRINT_SEND_COMMANDS
 	else
 		printf("send: verse_send_ping(address = %s (FAULTY) message = %s);\n", address, message);
-	#endif
+#endif
 }
 
 unsigned int v_unpack_ping(const char *buf, size_t buffer_length)
