@@ -350,8 +350,8 @@ static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 gr
 	{
 		group->methods[method_id].param_types[i] = param_types[i];
 		for(j = 0; j < 15 && param_names[j] != 0; j++)
-			group->methods[method_id].param_names[i * 16 + j] = param_names[j];
-		group->methods[method_id].param_names[i * 16 + j] = param_names[j];
+			group->methods[method_id].param_names[i * 16 + j] = param_names[i][j];
+		group->methods[method_id].param_names[i * 16 + j] = param_names[i][j];
 	}
 	count =	vs_get_subscript_count(node->groups[group_id].subscribers);
 	for(i = 0; i < count; i++)
