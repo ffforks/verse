@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "v_cmd_gen.h"
 
@@ -15,10 +16,10 @@
 #define VS_TEXT_CHUNK_SIZE 4096
 
 typedef struct {
-	char				name[16];
-	char				*text;
-	unsigned int		length;
-	unsigned int		allocated;
+	char			name[16];
+	char			*text;
+	size_t			length;
+	size_t			allocated;
 	VSSubscriptionList	*subscribers;
 } VSTextBuffer;
 
@@ -128,7 +129,7 @@ static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBuffer
 	if(node->buffer[buffer_id].name[0] == 0)
 	{
 		node->buffer[buffer_id].allocated = VS_TEXT_CHUNK_SIZE;
-		node->buffer[buffer_id].text = malloc((sizeof *node->buffer[buffer_id].text) * node->buffer[buffer_id].allocated);
+		node->buffer[buffer_id].text = malloc(node->buffer[buffer_id].allocated);
 		node->buffer[buffer_id].length = 0;
 		node->buffer[buffer_id].subscribers = vs_create_subscription_list();
 	}
@@ -181,7 +182,7 @@ static void callback_send_t_buffer_subscribe(void *user, VNodeID node_id, VNMBuf
 	vs_add_new_subscriptor(node->buffer[buffer_id].subscribers);
 	for(i = 0; i < node->buffer[buffer_id].length; i += VN_T_MAX_TEXT_CMD_SIZE)
 	{	
-		if(i + VN_T_MAX_TEXT_CMD_SIZE < node->buffer[buffer_id].length)
+		if(i + VN_T_MAX_TEXT_CMD_SIZE > node->buffer[buffer_id].length)
 			verse_send_t_text_set(node_id, buffer_id, i, node->buffer[buffer_id].length - i, &node->buffer[buffer_id].text[i]);
 		else
 			verse_send_t_text_set(node_id, buffer_id, i, VN_T_MAX_TEXT_CMD_SIZE, &node->buffer[buffer_id].text[i]);
@@ -202,64 +203,60 @@ static void callback_send_t_buffer_unsubscribe(void *user, VNodeID node_id, VNMB
 static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text)
 {
 	VSNodeText *node;
+	VSTextBuffer *tb;
 	unsigned int i, count, text_length;
 	char *buf;
-	node = (VSNodeText *)vs_get_node(node_id, V_NT_TEXT);
+
+	node = (VSNodeText *) vs_get_node(node_id, V_NT_TEXT);
 	if(node == NULL)
 		return;
 	if(buffer_id >= node->buffer_count || node->buffer[buffer_id].name[0] == 0)
 		return;
+	tb = &node->buffer[buffer_id];
 
-	for(text_length = 0; text[text_length] != 0; text_length++);
+	text_length = strlen(text);
 
+	/* Clamp position and length of deleted region. */
+	if(pos > tb->length)
+		pos = tb->length;
+	if(pos + length > tb->length)
+		length = tb->length - pos;
 
-	if(pos > node->buffer[buffer_id].length)
-		pos = node->buffer[buffer_id].length;
+	buf = tb->text;
 
-	if(pos + length > node->buffer[buffer_id].length)
-		length = node->buffer[buffer_id].length - pos;
-
-	buf = node->buffer[buffer_id].text;
-
-	if(node->buffer[buffer_id].length + text_length - length > node->buffer[buffer_id].allocated)
+	if(tb->length + text_length - length > tb->allocated)
 	{
-		buf = realloc(buf, node->buffer[buffer_id].length + text_length - length + VS_TEXT_CHUNK_SIZE);
-		node->buffer[buffer_id].allocated = node->buffer[buffer_id].length + text_length - length + VS_TEXT_CHUNK_SIZE;
+		buf = realloc(buf, tb->length + text_length - length + VS_TEXT_CHUNK_SIZE);
+		tb->allocated = tb->length + text_length - length + VS_TEXT_CHUNK_SIZE;
 	}
 
-
-	if(text_length < length)
+	if(text_length < length)		/* Insert smaller than delete? */
 	{
-		for(i = 0; text[i] != 0; i++)
-			buf[pos + text_length + i] = buf[pos + length + i];
-
-		for(i = 0; text[i] != 0; i++)
-			buf[pos + i] = text[i];
-	}else
+		memmove(buf + pos + text_length, buf + pos + length, tb->length - (pos + length));
+		memcpy(buf + pos, text, text_length);
+	}
+	else					/* Insert is larger than delete. */
 	{
-		for(i = node->buffer[buffer_id].length; i != pos + text_length; i--)
-			buf[i + text_length - length] = buf[i];
-		buf[i + text_length - length] = buf[i];
-
-		for(i = 0; text[i] != 0; i++)
-			buf[pos + i] = text[i];
+		memmove(buf + pos + text_length, buf + pos + length, tb->length - pos);
+		memcpy(buf + pos, text, text_length);
 	}
 
-	node->buffer[buffer_id].length += text_length - length;
+	tb->length += (int) text_length - length;
+	buf[tb->length] = '\0';
 
-	if(node->buffer[buffer_id].allocated > VS_TEXT_CHUNK_SIZE * 8 && node->buffer[buffer_id].allocated * 2 > node->buffer[buffer_id].length)
+	/* Buffer very much larger than content? Then shrink it. */
+	if(tb->allocated > VS_TEXT_CHUNK_SIZE * 8 && tb->allocated * 2 > tb->length)
 	{
-		buf = realloc(buf, node->buffer[buffer_id].length + VS_TEXT_CHUNK_SIZE);
-		node->buffer[buffer_id].allocated = node->buffer[buffer_id].length + VS_TEXT_CHUNK_SIZE;
+		buf = realloc(buf, tb->length + VS_TEXT_CHUNK_SIZE);
+		tb->allocated = tb->length + VS_TEXT_CHUNK_SIZE;
 	}
 
-	node->buffer[buffer_id].length += text_length - length;
-	node->buffer[buffer_id].text = buf;
+	tb->text = buf;
 
-	count =	vs_get_subscript_count(node->buffer[buffer_id].subscribers);
+	count =	vs_get_subscript_count(tb->subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->buffer[buffer_id].subscribers, i);
+		vs_set_subscript_session(tb->subscribers, i);
 		verse_send_t_text_set(node_id, buffer_id, pos, length, text);
 	}
 	vs_reset_subscript_session();
@@ -273,7 +270,7 @@ void vs_t_callback_init(void)
 	verse_callback_set(verse_send_t_buffer_destroy,		callback_send_t_buffer_destroy, NULL);
 	verse_callback_set(verse_send_t_buffer_subscribe,	callback_send_t_buffer_subscribe, NULL);
 	verse_callback_set(verse_send_t_buffer_unsubscribe,	callback_send_t_buffer_unsubscribe, NULL);
-	verse_callback_set(verse_send_t_text_set,			callback_send_t_text_set, NULL);
+	verse_callback_set(verse_send_t_text_set,		callback_send_t_text_set, NULL);
 }
 
 #endif
