@@ -178,6 +178,7 @@ void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, u
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);
 	else
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, VN_T_MAX_TEXT_CMD_SIZE);
+	
 	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -203,7 +204,7 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 	unsigned int i, buffer_pos = 0;
 	VOrderedStorage *s;
 	VTempLine l, *line, *past = NULL;
-	char text[512];
+	char text[VN_T_MAX_TEXT_CMD_SIZE];
 
 	if(buffer_length < 12)
 		return -1;
@@ -212,7 +213,7 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &l.pos);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &l.length);	
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &l.index);
-	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], text, 512, buffer_length - buffer_pos);
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], text, sizeof text, buffer_length - buffer_pos);
 	if(text[0] == 0)
 		l.text = NULL;
 	else
