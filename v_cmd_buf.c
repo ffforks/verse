@@ -89,7 +89,7 @@ void v_cmd_buf_set_address_size(VCMDBufHead *head, unsigned int address_size, un
 		head->address_sum += i * i * (uint32)(((VCMDBuffer1500 *)head)->buf[i]);
 }
 
-void v_cmd_buf_set_uniqe_size(VCMDBufHead *head, unsigned int size)
+void v_cmd_buf_set_unique_size(VCMDBufHead *head, unsigned int size)
 {
 	static unsigned int i = 0;
 
