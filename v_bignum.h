@@ -32,6 +32,7 @@ extern void	v_bignum_raw_export(const VBigDig *x, void *bits);
 extern void	v_bignum_set_zero(VBigDig *x);
 extern void	v_bignum_set_one(VBigDig *x);
 extern void	v_bignum_set_digit(VBigDig *x, VBigDig y);
+extern void	v_bignum_set_string(VBigDig *x, const char *string);	/* Decimal. */
 extern void	v_bignum_set_string_hex(VBigDig *x, const char *string);
 extern void	v_bignum_set_bignum(VBigDig *x, const VBigDig *y);
 /* x = <bits> most significant <bits> bits of <y>, starting at <msb>. Right-
