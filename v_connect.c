@@ -42,6 +42,7 @@ static void v_send_hidden_connect_send_key(void) /*  Stage 1: Hosts reply to any
 {
 	uint8 buf[V_ENCRYPTION_LOGIN_KEY_SIZE * 3 + 4 + 1 + 1 + 1 + 4 + 4], *host_id;
 	unsigned int i, buffer_pos = 0, s, f;
+
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 0);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);/* Packing the command */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 1);/* Stage 1 */
@@ -54,7 +55,7 @@ static void v_send_hidden_connect_send_key(void) /*  Stage 1: Hosts reply to any
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], host_id[V_ENCRYPTION_LOGIN_PUBLIC_START + i]);
 	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], host_id[V_ENCRYPTION_LOGIN_N_START + i]);
-	
+
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
 }
 
@@ -96,6 +97,7 @@ static void v_send_hidden_connect_accept(void) /* Host accepts Clients connectio
 	v_e_connect_encrypt(encrypted, v_con_get_data_key(), &client_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &client_key[V_ENCRYPTION_LOGIN_N_START]);
 	for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], encrypted[i]);
+	printf("sending connect_accept\n");
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
 }
 
@@ -293,6 +295,8 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 		{
 			char *host_id, unpack[V_ENCRYPTION_LOGIN_KEY_SIZE], data[V_ENCRYPTION_LOGIN_KEY_SIZE];
 			VNetworkAddress *address;
+
+			printf(" in stage %d handler\n", stage);
 			verse_send_packet_ack(pack_id);
 			address = v_con_get_network_address();
 			for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
