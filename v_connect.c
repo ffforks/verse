@@ -33,13 +33,14 @@ void v_send_hidden_connect_send_key() /*  Stage 1: Hosts reply to any atempt to 
 {
 	uint8 buf[V_ENCRYPTION_LOGIN_KEY_SIZE * 3 + 4 + 1 + 1 + 1], *public_key, *encrypted_key;
 	unsigned int i, buffer_pos = 0, s, f;
+
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 0);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);/* Packing the command */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 1);/* Stage 1 */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], V_RELEASE_NUMBER);/* version */
 	v_n_get_current_time(&s, &f);
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], s);/* version */
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], f);/* version */
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], s);/* time, seconds */
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], f);/* time, fraction */
 	public_key = v_con_get_my_public_key();
 	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], public_key[i]);/* id key */
