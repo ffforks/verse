@@ -154,7 +154,7 @@ void vs_remove_subscriptor(VSSubscriptionList *list)
 		list->session[i] = list->session[--list->session_count];
 }
 
-size_t vs_get_subscript_count(VSSubscriptionList *list)
+size_t vs_get_subscript_count(const VSSubscriptionList *list)
 {
 	return list != NULL ? list->session_count : 0;
 }
