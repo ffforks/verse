@@ -687,7 +687,8 @@ void v_cg_gen_verse_h(void)
 
 void v_cg_gen_unpack_h(void)
 {
-	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length, void *user_func, void *user_data);\n", VCGData.func_name);
+	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length, void *user_func, void *user_data);\n",
+		VCGData.func_name);
 }
 
 void v_cg_end_cmd(void)
@@ -713,7 +714,7 @@ void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def,
 		fprintf(VCGData.init, "verse_send_%s);\n", alias_name);
 	else
 		fprintf(VCGData.init, "NULL);\n");
-	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(char *data, unsigned int length, void *user_func, void *user_data);\n", name);
+	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length, void *user_func, void *user_data);\n", name);
 }
 /*
 FILE *spec;
