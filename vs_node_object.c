@@ -628,14 +628,14 @@ static void callback_send_o_method_call(void *user, VNodeID node_id, uint16 grou
 
 	if(group_id >= node->group_count || node->groups[group_id].name[0] == 0 || method_id >= node->groups[group_id].method_count || node->groups[group_id].methods[method_id].name[0] == 0)
 		return;
-	if(!verse_method_call_unpack(params, node->groups[group_id].methods[method_id].param_count, unpacked_params, node->groups[group_id].methods[method_id].param_types))
+	if(!verse_method_call_unpack(params, node->groups[group_id].methods[method_id].param_count, node->groups[group_id].methods[method_id].param_types, unpacked_params))
 		return;
 	sender = vs_get_avatar();
 	count =	vs_get_subscript_count(node->groups[group_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->groups[group_id].subscribers, i);
-		data = verse_method_call_pack(node->groups[group_id].methods[method_id].param_count, unpacked_params, node->groups[group_id].methods[method_id].param_types);
+		data = verse_method_call_pack(node->groups[group_id].methods[method_id].param_count, node->groups[group_id].methods[method_id].param_types, unpacked_params);
 		if(data != NULL)
 			verse_send_o_method_call(node_id, group_id, method_id, sender, data);
 	}
