@@ -95,8 +95,6 @@ void v_cmd_buf_set_uniqe_size(VCMDBufHead *head, unsigned int size)
 	head->address_sum = i++;
 }
 
-unsigned int count_a = 0, count_b = 0;
-
 boolean	v_cmd_buf_compare(VCMDBufHead *a, VCMDBufHead *b)
 {
 	unsigned int i;
