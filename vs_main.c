@@ -20,7 +20,7 @@ static void callback_send_connect(void *user, char *name, char *pass, void *addr
 {
 	VNodeID avatar;
 	VSession *session;
-
+	printf("connecting %s %s\n", name, pass);
 	if(TRUE)
 	{
 		avatar = vs_node_create(0, V_NT_OBJECT);
@@ -58,6 +58,7 @@ int main(int argc, char **argv)
 	vs_b_callback_init();
 	vs_t_callback_init();
 	vs_c_callback_init();
+	vs_a_callback_init();
 	vs_h_callback_init();
 	init_callback_node_storage();
 	verse_callback_set(verse_send_connect,		callback_send_connect,		NULL);
