@@ -2,6 +2,8 @@
 **
 */
 
+#include <stdlib.h>
+
 extern void	vs_init_connection_storage(void);
 extern void	vs_add_new_connection(VSession session, unsigned int node_id);
 extern void	vs_remove_connection(void);
