@@ -110,7 +110,7 @@ static void callback_send_c_curve_create(void *user, VNodeID node_id, VLayerID c
 		for(i = 0; i < 64; i++)
 			node->curves[curve_id].keys[i].pos = V_REAL64_MAX;			
 
-	}else if(node->curves[curve_id].dimensions < dimensions)
+	}else if(node->curves[curve_id].dimensions != dimensions)
 	{
 		for(i = 0; i < node->curves[curve_id].length; i++)
 		{
