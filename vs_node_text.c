@@ -269,7 +269,7 @@ void vs_t_callback_init(void)
 	verse_callback_set(verse_send_t_buffer_destroy,		callback_send_t_buffer_destroy, NULL);
 	verse_callback_set(verse_send_t_buffer_subscribe,	callback_send_t_buffer_subscribe, NULL);
 	verse_callback_set(verse_send_t_buffer_unsubscribe,	callback_send_t_buffer_unsubscribe, NULL);
-	verse_callback_set(verse_send_t_text_set,			callback_send_t_text_set, NULL);
+	verse_callback_set(verse_send_t_text_set,		callback_send_t_text_set, NULL);
 }
 
 #endif
