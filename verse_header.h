@@ -5,6 +5,7 @@
 #if !defined VERSE_HEADER_H
 #define	VERSE_HEADER_H
 
+/*
 #if defined _MSC_VER
 typedef __int64 int64;
 typedef unsigned __int64 uint64;
@@ -12,6 +13,7 @@ typedef unsigned __int64 uint64;
 typedef long long int64;
 typedef unsigned long long uint64;
 #endif
+*/
 
 typedef unsigned char boolean;
 typedef unsigned int uint32;
