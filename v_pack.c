@@ -50,10 +50,10 @@ size_t vnp_raw_pack_uint32(void *buffer, uint32 data)
 {
 	register uint8 *p = buffer;
 
-	*(p++) = (data & 0xFF000000) >> 24;
-	*(p++) = (data & 0x00FF0000) >> 16;
-	*(p++) = (data & 0x0000FF00) >> 8;
-	*(p++) = (data & 0x000000FF);
+	*(p++) = (data >> 24) & 0xFF;
+	*(p++) = (data >> 16) & 0xFF;
+	*(p++) = (data >> 8)  & 0xFF;
+	*(p++) = data & 0xFF;
 
 	return sizeof data;
 }
