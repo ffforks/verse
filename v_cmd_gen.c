@@ -48,19 +48,19 @@ static void v_cg_init(void)
 	int	i;
 	FILE	*f;
 
-	VCGData.nodes[V_NT_OBJECT] = fopen("v_gen_pack_o_node.c", "wt");
-	VCGData.nodes[V_NT_GEOMETRY] = fopen("v_gen_pack_g_node.c", "wt");  
-	VCGData.nodes[V_NT_MATERIAL] = fopen("v_gen_pack_m_node.c", "wt");  
-	VCGData.nodes[V_NT_BITMAP] = fopen("v_gen_pack_b_node.c", "wt");  
-	VCGData.nodes[V_NT_TEXT] = fopen("v_gen_pack_t_node.c", "wt");  
-/*	VCGData.nodes[V_NT_PARTICLE] = fopen("v_gen_pack_p_node.c", "wt"); */
-	VCGData.nodes[V_NT_CURVE] = fopen("v_gen_pack_c_node.c", "wt");  
-	VCGData.nodes[V_NT_AUDIO] = fopen("v_gen_pack_a_node.c", "wt");  
-	VCGData.nodes[V_NT_SYSTEM] = fopen("v_gen_pack_s_node.c", "wt"); 
-	VCGData.init = fopen("v_gen_pack_init.c", "wt");
-	VCGData.unpack = fopen("v_gen_unpack_func.h", "wt"); 
-	VCGData.verse_h = fopen("verse.h", "wt");
-	VCGData.internal_verse_h = fopen("v_internal_verse.h", "wt");
+	VCGData.nodes[V_NT_OBJECT] = fopen("v_gen_pack_o_node.c", "w");
+	VCGData.nodes[V_NT_GEOMETRY] = fopen("v_gen_pack_g_node.c", "w");  
+	VCGData.nodes[V_NT_MATERIAL] = fopen("v_gen_pack_m_node.c", "w");  
+	VCGData.nodes[V_NT_BITMAP] = fopen("v_gen_pack_b_node.c", "w");  
+	VCGData.nodes[V_NT_TEXT] = fopen("v_gen_pack_t_node.c", "w");  
+/*	VCGData.nodes[V_NT_PARTICLE] = fopen("v_gen_pack_p_node.c", "w"); */
+	VCGData.nodes[V_NT_CURVE] = fopen("v_gen_pack_c_node.c", "w");  
+	VCGData.nodes[V_NT_AUDIO] = fopen("v_gen_pack_a_node.c", "w");  
+	VCGData.nodes[V_NT_SYSTEM] = fopen("v_gen_pack_s_node.c", "w"); 
+	VCGData.init = fopen("v_gen_pack_init.c", "w");
+	VCGData.unpack = fopen("v_gen_unpack_func.h", "w");
+	VCGData.verse_h = fopen("verse.h", "w");
+	VCGData.internal_verse_h = fopen("v_internal_verse.h", "w");
 	for(i = 0; i < V_NT_NUM_TYPES_NETPACK + 1; i++)
 	{
 		if(i == V_NT_NUM_TYPES_NETPACK)
@@ -100,7 +100,7 @@ static void v_cg_init(void)
 		"#if !defined VERSE_H\n"
 		"#define\tVERSE_H\n\n");
 	/* Copy contents of "verse_header.h" into output "verse.h". */
-	f = fopen("verse_header.h", "rt");
+	f = fopen("verse_header.h", "r");
 	while((i = fgetc(f)) != EOF)
 		fputc(i, VCGData.verse_h);
 	fclose(f);
