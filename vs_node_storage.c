@@ -6,19 +6,19 @@
 #include <stdlib.h>
 #include "v_cmd_gen.h"
 
-#if !defined(V_GENERATE_FUNC_MODE)
+#if !defined V_GENERATE_FUNC_MODE
 
 #include "verse.h"
 #include "vs_server.h"
 
 #define VS_NODE_STORAGE_CHUNK_SIZE 16
 
-struct{
+static struct {
 	VSNodeHead **nodes;
 	unsigned int node_length;
 	unsigned int node_allocated;
 	VSSubscriptionList *list[V_NT_NUM_TYPES];
-}VSNodeStorage;
+} VSNodeStorage;
 
 void vs_init_node_storage()
 {
@@ -65,8 +65,6 @@ VSNodeHead *vs_get_node_head(unsigned int node_id)
 		return VSNodeStorage.nodes[node_id];
 	return NULL;
 }
-
-
 
 extern VSNodeHead *vs_o_create_node(unsigned int owner);
 extern VSNodeHead *vs_g_create_node(unsigned int owner);
@@ -128,7 +126,7 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 	return node_id;
 }
 
-void callback_send_node_create(void *user_data, VNodeID node_id, uint8 type, VNodeID owner_id)
+static void callback_send_node_create(void *user_data, VNodeID node_id, uint8 type, VNodeID owner_id)
 {
 	vs_node_create(vs_get_avatar(), type);
 }
@@ -179,7 +177,7 @@ void callback_send_node_destroy(void *user_data, VNodeID node_id)
 	vs_reset_subscript_session();
 }
 
-void callback_send_node_list(void *user_data, uint32 mask)
+static void callback_send_node_list(void *user_data, uint32 mask)
 {
 	unsigned int i, j, pow = 1;
 	for(i = 0; i < V_NT_NUM_TYPES; i++)

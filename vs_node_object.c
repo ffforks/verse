@@ -7,7 +7,7 @@
 
 #include "v_cmd_gen.h"
 
-#if !defined(V_GENERATE_FUNC_MODE)
+#if !defined V_GENERATE_FUNC_MODE
 
 #include "verse.h"
 #include "vs_server.h"
@@ -15,36 +15,36 @@
 extern void verse_send_o_link_set(VNodeID node_id, uint16 link_id, VNodeID link, const char *name, uint32 target_id);
 extern void verse_send_o_link_destroy(VNodeID node_id, uint16 link_id);
 
-typedef struct{
+typedef struct {
 	VNodeID link;
 	char	name[16];
 	uint32	target_id;
-}VSLink;
+} VSLink;
 
-typedef struct{
+typedef struct {
 	char		name[16];
 	uint8		param_count;
 	VNOParamType *param_types;
 	char		*param_names;
-}VSMethod;
+} VSMethod;
 
-typedef struct{
+typedef struct {
 	char		name[16];
 	VSMethod	*methods;
 	unsigned int	method_count;
 	VSSubscriptionList *subscribers;
-}VSMethodGroup;
+} VSMethodGroup;
 
-typedef struct{
+typedef struct {
 	VSNodeHead	head;
 	double		light[3];
 	VSMethodGroup	*groups;
 	uint16		group_count;
 	VSLink		*links;
 	uint16		link_count;
-}VSNodeObject;
+} VSNodeObject;
 
-VSNodeObject *vs_o_create_node(unsigned int owner)
+VSNodeObject * vs_o_create_node(unsigned int owner)
 {
 	VSNodeObject *node;
 	unsigned int i;
@@ -111,7 +111,7 @@ void vs_o_subscribe(VSNodeObject *node)
 			verse_send_o_method_group_create(node->head.id, i, node->groups[i].name);
 }
 
-void callback_send_o_set_light(void *user, VNodeID node_id, real64 light_r, real64 light_g, real64 light_b)
+static void callback_send_o_set_light(void *user, VNodeID node_id, real64 light_r, real64 light_g, real64 light_b)
 {
 	VSNodeObject *node;
 	unsigned int i, count;
@@ -130,7 +130,7 @@ void callback_send_o_set_light(void *user, VNodeID node_id, real64 light_r, real
 	vs_reset_subscript_session();
 }
 
-void callback_send_o_link_set(void *user, VNodeID node_id, uint16 link_id, VNodeID link, const char *name, uint32 target_id)
+static void callback_send_o_link_set(void *user, VNodeID node_id, uint16 link_id, VNodeID link, const char *name, uint32 target_id)
 {
 	VSNodeObject *node;
 	unsigned int i, count;
@@ -170,7 +170,7 @@ void callback_send_o_link_set(void *user, VNodeID node_id, uint16 link_id, VNode
 	vs_reset_subscript_session();
 }
 
-void callback_send_o_link_destroy(void *user, VNodeID node_id, uint16 link_id)
+static void callback_send_o_link_destroy(void *user, VNodeID node_id, uint16 link_id)
 {
 	VSNodeObject *node;
 	unsigned int i, count;
@@ -192,7 +192,7 @@ void callback_send_o_link_destroy(void *user, VNodeID node_id, uint16 link_id)
 	vs_reset_subscript_session();
 }
 
-void callback_send_o_method_group_create(void *user, VNodeID node_id, uint16 group_id, char *name)
+static void callback_send_o_method_group_create(void *user, VNodeID node_id, uint16 group_id, char *name)
 {
 	VSNodeObject *node;
 	unsigned int i, j, count;
@@ -235,7 +235,7 @@ void callback_send_o_method_group_create(void *user, VNodeID node_id, uint16 gro
 	vs_reset_subscript_session();
 }
 
-void callback_send_o_method_group_destroy(void *user, VNodeID node_id, uint16 group_id)
+static void callback_send_o_method_group_destroy(void *user, VNodeID node_id, uint16 group_id)
 {
 	VSNodeObject *node;
 	unsigned int i, count;
@@ -267,7 +267,7 @@ void callback_send_o_method_group_destroy(void *user, VNodeID node_id, uint16 gr
 	vs_reset_subscript_session();
 }
 
-void callback_send_o_method_group_subscribe(void *user, VNodeID node_id, uint16 group_id)
+static void callback_send_o_method_group_subscribe(void *user, VNodeID node_id, uint16 group_id)
 {
 	VSNodeObject *node;
 	unsigned int i, j;
@@ -288,7 +288,7 @@ void callback_send_o_method_group_subscribe(void *user, VNodeID node_id, uint16 
 	}
 }
 
-void callback_send_o_method_group_unsubscribe(void *user, VNodeID node_id, uint16 group_id)
+static void callback_send_o_method_group_unsubscribe(void *user, VNodeID node_id, uint16 group_id)
 {
 	VSNodeObject *node;
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
@@ -298,7 +298,7 @@ void callback_send_o_method_group_unsubscribe(void *user, VNodeID node_id, uint1
 		vs_remove_subscriptor(node->groups[group_id].subscribers);
 }
 
-void callback_send_o_method_create(void *user, VNodeID node_id, uint16 group_id, uint16 method_id, char *name, uint8 param_count, VNOParamType *param_types, char * *param_names)
+static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 group_id, uint16 method_id, char *name, uint8 param_count, VNOParamType *param_types, char * *param_names)
 {
 	VSNodeObject *node;
 	unsigned int i, j, count;
@@ -361,7 +361,7 @@ void callback_send_o_method_create(void *user, VNodeID node_id, uint16 group_id,
 	vs_reset_subscript_session();
 }
 
-void callback_send_o_method_destroy(void *user, VNodeID node_id, uint16 group_id, uint16 method_id)
+static void callback_send_o_method_destroy(void *user, VNodeID node_id, uint16 group_id, uint16 method_id)
 {
 	VSNodeObject *node;
 	unsigned int i, count;
@@ -386,7 +386,7 @@ void callback_send_o_method_destroy(void *user, VNodeID node_id, uint16 group_id
 	vs_reset_subscript_session();
 }
 
-void callback_send_o_method_send(void *user, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params)
+static void callback_send_o_method_send(void *user, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params)
 {
 	VNOParam unpacked_params[255];
 	void *data;
