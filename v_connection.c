@@ -263,8 +263,9 @@ boolean v_con_callback_update(void)
 void verse_callback_update(unsigned int microseconds)
 {
 	unsigned int connection, passed;
+
 	v_ping_update();	/* Deliver any pending pings. */
-	printf("%u\n", VConData.pending_packets);
+/*	printf("%u\n", VConData.pending_packets);*/
 	connection = VConData.current_connection;
 	for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
 	{
