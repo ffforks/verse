@@ -191,7 +191,7 @@ unsigned int v_unpack_t_buffer_subscribe(const char *buf, size_t buffer_length)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	if(alias_bool)
+	if(!alias_bool)
 		printf("receive: verse_send_t_buffer_unsubscribe(node_id = %u buffer_id = %u ); callback = %p\n", node_id, buffer_id, v_fs_get_alias_user_func(98));
 	else
 		printf("receive: verse_send_t_buffer_subscribe(node_id = %u buffer_id = %u ); callback = %p\n", node_id, buffer_id, v_fs_get_user_func(98));

@@ -145,7 +145,7 @@ void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id)
 
 unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 {
-	char enum_temp;
+	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
 	void (* func_m_fragment_create)(void *user_data, VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment);
 	VNodeID node_id;
