@@ -76,7 +76,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tif((mask & pow) != 0)\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &drag);\n"
 	"\t\tif(func_o_transform_pos_real32 != NULL)\n"
-	"\t\t\tfunc_o_transform_pos_real32(user_data, node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
+	"\t\t\tfunc_o_transform_pos_real32(v_fs_get_user_data(32), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_REAL32,		"drag");	
@@ -153,7 +153,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tif((mask & pow) != 0)\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &drag);\n"
 	"\t\tif(func_o_transform_rot_real32 != NULL)\n"
-	"\t\t\tfunc_o_transform_rot_real32(user_data, node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
+	"\t\t\tfunc_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_REAL32,		"drag");	
@@ -234,7 +234,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tif((mask & pow) != 0)\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &drag);\n"
 	"\t\tif(func_o_transform_pos_real64 != NULL)\n"
-	"\t\t\tfunc_o_transform_pos_real64(user_data, node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
+	"\t\t\tfunc_o_transform_pos_real64(v_fs_get_user_data(35), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_REAL64,		"drag");	
@@ -311,7 +311,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tif((mask & pow) != 0)\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &drag);\n"
 	"\t\tif(func_o_transform_rot_real64 != NULL)\n"
-	"\t\t\tfunc_o_transform_rot_real64(user_data, node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
+	"\t\t\tfunc_o_transform_rot_real64(v_fs_get_user_data(36), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_REAL64,		"drag");	
@@ -409,7 +409,7 @@ void v_gen_object_cmd_def(void)
 	"\t\t\ttext += size;\n"
 	"\t\t}\n"
 	"\t\tif(func_o_method_create != NULL)\n"
-	"\t\t\tfunc_o_method_create(user_data, node_id, group_id, method_id, name, param_count, types, names);\n"
+	"\t\t\tfunc_o_method_create(v_fs_get_user_data(43), node_id, group_id, method_id, name, param_count, types, names);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_alias(FALSE, "o_method_destroy", "if(name[0] == 0)", 3, NULL);
@@ -437,7 +437,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tfor(i = 0; i < size; i++)\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &par[i]);\n"
 	"\t\tif(func_o_method_call != NULL)\n"
-	"\t\t\tfunc_o_method_call(user_data, node_id, group_id, method_id, sender, par);\n"
+	"\t\t\tfunc_o_method_call(v_fs_get_user_data(44), node_id, group_id, method_id, sender, par);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 
