@@ -34,7 +34,7 @@ VSession * verse_send_connect(const char *name, const char *pass, const char *ad
 	con = v_con_connect(address);
 	if(con != NULL)
 	{
-		v_cmd_buf_set_uniqe_size(head, buffer_pos);
+		v_cmd_buf_set_unique_size(head, buffer_pos);
 		v_nq_send_buf(v_con_get_network_queue(), head);
 	}else
 		v_cmd_buf_free(head);
@@ -82,7 +82,7 @@ VSession * verse_send_connect_accept(VNodeID avatar, const char *address)
 	con = v_con_connect(address);
 	if(con != NULL)
 	{
-		v_cmd_buf_set_uniqe_size(head, buffer_pos);
+		v_cmd_buf_set_unique_size(head, buffer_pos);
 		v_nq_send_buf(v_con_get_network_queue(), head);
 	}else
 		v_cmd_buf_free(head);

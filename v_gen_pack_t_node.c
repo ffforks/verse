@@ -210,7 +210,7 @@ void verse_send_t_insert_line(VNodeID node_id, VNMBufferID buffer_id, uint32 lin
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], line);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], index);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, 512);
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
@@ -231,7 +231,7 @@ void verse_send_t_delete_line(VNodeID node_id, VNMBufferID buffer_id, uint32 lin
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], line);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 512);
-	v_cmd_buf_set_uniqe_size(head, buffer_pos);
+	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
