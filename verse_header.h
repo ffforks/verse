@@ -10,17 +10,17 @@ extern "C" {
 /* Release information. */
 #define	V_RELEASE_NUMBER	5
 #define	V_RELEASE_PATCH		0
-#define	V_RELEASE_LABEL		"pre1"
+#define	V_RELEASE_LABEL		"pre2"
 
-typedef unsigned char boolean;
-typedef unsigned int uint32;
-typedef int int32;
-typedef unsigned short uint16;
-typedef short int16;
-typedef unsigned char uint8;
-typedef char int8;
-typedef float real32;
-typedef double real64;
+typedef unsigned char	boolean;
+typedef signed char	int8;
+typedef unsigned char	uint8;
+typedef short		int16;
+typedef unsigned short	uint16;
+typedef int		int32;
+typedef unsigned int	uint32;
+typedef float		real32;
+typedef double		real64;
 
 #define V_REAL64_MAX         1.7976931348623158e+308 /* max value */
 #define V_REAL32_MAX         3.40282347e+38F
