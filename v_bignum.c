@@ -74,16 +74,30 @@ static void bignum_free(const VBigDig *x)
 
 /* ----------------------------------------------------------------------------------------- */
 
-/* Set x from bits. */
+/* Set x from bits. External representation is big-endian byte array. */
 void v_bignum_raw_import(VBigDig *x, const void *bits)
 {
-	memcpy(x + 1, bits, *x * sizeof *x);
+	const unsigned char	*bytes = bits;
+	int			i;
+
+	for(i = *x++ - 1; i >= 0; i--)
+	{
+		x[i] =  ((VBigDig) *bytes++) << 8;
+		x[i] |= *bytes++;
+	}
 }
 
-/* Set bits to value of x. */
+/* Set bits to value of x. External representation is big-endian byte array. */
 void v_bignum_raw_export(const VBigDig *x, void *bits)
 {
-	memcpy(bits, x + 1, *x * sizeof *x);
+	unsigned char	*bytes = bits;
+	int		i;
+
+	for(i = *x++ - 1; i >= 0; i--)
+	{
+		*bytes++ = x[i] >> 8;
+		*bytes++ = x[i];
+	}
 }
 
 /* ----------------------------------------------------------------------------------------- */
