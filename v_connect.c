@@ -16,6 +16,8 @@
 #include "v_connection.h"
 #include "v_encryption.h"
 
+extern void verse_send_packet_ack(uint32 packet_id);
+
 void v_send_hidden_connect_contact() /*  Stage 0: Clinets inital call to connect to host */
 {
 	uint8 buf[V_ENCRYPTION_LOGIN_KEY_HALF_SIZE + 4 + 1 + 1], *public_key;
@@ -110,7 +112,7 @@ void v_send_hidden_connect_terminate(VNetworkAddress *address, unsigned int pack
 
 VSession * verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_key)
 {
-	uint8 *other_key, *my_key, *key;
+	uint8 *my_key, *key;
 	unsigned int i;
 	VNetworkAddress a; 
 	VSession *session;
@@ -206,7 +208,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 {
 	unsigned int buffer_pos = 0, i, pack_id;
 	uint32 seconds, fractions, pre;
-	uint8 key[V_ENCRYPTION_LOGIN_KEY_SIZE], stage, cmd_id, version;
+	uint8 /*key[V_ENCRYPTION_LOGIN_KEY_SIZE], */stage, cmd_id, version;
 
 	if(buffer_length < 5)
 		return;
@@ -222,6 +224,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 		if(stage == 0 && V_CS_IDLE == v_con_get_connect_stage()) /* reseved by host */
 		{
 			uint8 *other_key, *my_key;
+			verse_send_packet_ack(pack_id);
 			my_key = v_con_get_my_key();
 			v_e_encrypt_data_key_generate(v_con_get_data_key());
 			other_key = v_con_get_other_key();
@@ -235,7 +238,8 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 		}
 		if(stage == 1 && V_CS_CONTACT == v_con_get_connect_stage())
 		{
-			uint8 *host_id, *my_key, *other_key, a[V_ENCRYPTION_LOGIN_KEY_SIZE], b[V_ENCRYPTION_LOGIN_KEY_SIZE];
+			uint8 *other_key; /* *host_id, *my_key, a[V_ENCRYPTION_LOGIN_KEY_SIZE], b[V_ENCRYPTION_LOGIN_KEY_SIZE];*/
+			verse_send_packet_ack(pack_id);
 			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &version);
 			if(version != V_RELEASE_NUMBER)
 			{
@@ -270,13 +274,14 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			return; 
 		}
 
-	/*	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_HALF_SIZE && encrypted_key[i] == 0; i++);
+#if 0
+		for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_HALF_SIZE && encrypted_key[i] == 0; i++);
 			if(i < 0)
 			{
 				other_key = v_con_get_my_key();
 				v_e_encrypt(decrypted_key, encrypted_key, &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START + i], &other_key[V_ENCRYPTION_LOGIN_N_START + i]);
 				for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_HALF_SIZE && my_key[V_ENCRYPTION_LOGIN_PUBLIC_START + i] == decrypted_key[i]; i++);
-				if(i < 0) /* Host is not who it appers top be *//*
+				if(i < 0) /* Host is not who it appers top be */
 				{
 					func_connect_deny = v_fs_get_user_func(2);
 					#if defined(V_PRINT_RECIVE_COMMANDS)
@@ -286,11 +291,13 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 						func_connect_deny(v_fs_get_user_data(2), "Host failed identity check");
 					return;
 				}
-			}*/
+			}
+#endif
 		if(stage == 2 && V_CS_CONTACTED == v_con_get_connect_stage()) /* reseved by host */
 		{
 			char *host_id, unpack[V_ENCRYPTION_LOGIN_KEY_SIZE], data[V_ENCRYPTION_LOGIN_KEY_SIZE];
 			VNetworkAddress *address;
+			verse_send_packet_ack(pack_id);
 			address = v_con_get_network_address();
 			for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &data[i]);
@@ -307,6 +314,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 	{
 		uint8 *other_key, key[V_ENCRYPTION_DATA_KEY_SIZE], decrypted[V_ENCRYPTION_DATA_KEY_SIZE];
 		uint32 avatar;
+		verse_send_packet_ack(pack_id);
 		buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &avatar);
 		v_con_set_avatar(avatar);
 		for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
@@ -320,6 +328,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 	}
 	if(/*pack_id == 0 &&*/ cmd_id == 2 && V_CS_PENDING_ACCEPT == v_con_get_connect_stage()) /* reseved by client */
 	{
+		verse_send_packet_ack(pack_id);	
 	/*	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 512, buffer_length - buffer_pos);
 	*/	v_con_set_connect_stage(V_CS_PENDING_CLIENT_CALLBACK_TERMINATE);
 		return; 
