@@ -198,7 +198,6 @@ void callback_send_node_destroy(void *user_data, VNodeID node_id)
 		vs_set_subscript_session(VSNodeStorage.list[type], i);
 		verse_send_node_destroy(node_id);
 	}
-
 	vs_reset_subscript_session();
 }
 
@@ -214,10 +213,10 @@ static void callback_send_node_list(void *user_data, uint32 mask)
 			{
 				if(VSNodeStorage.nodes[j] != NULL && VSNodeStorage.nodes[j]->type == (VNodeType)i)
 				{
-/*					if(VSNodeStorage.nodes[j]->owner == verse_session_get_avatar())
+					if(VSNodeStorage.nodes[j]->owner == verse_session_get_avatar())
 						verse_send_node_create(VSNodeStorage.nodes[j]->id, i, VN_OWNER_MINE);
 					else
-*/						verse_send_node_create(VSNodeStorage.nodes[j]->id, i, VN_OWNER_OTHER);
+						verse_send_node_create(VSNodeStorage.nodes[j]->id, i, VN_OWNER_OTHER);
 				}
 			}
 			vs_add_new_subscriptor(VSNodeStorage.list[i]);
