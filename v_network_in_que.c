@@ -25,7 +25,7 @@ typedef struct{
 	size_t	size;
 }NetPacked;
 
-NetPacked *v_niq_temp = NULL;
+static NetPacked *v_niq_temp = NULL;
 
 void v_niq_clear(VNetInQueue *queue)
 {
