@@ -183,10 +183,10 @@ typedef enum {
 } VNMRampChannel;
 
 typedef struct {
-	double			pos;
-	double			red;
-	double			green;
-	double			blue;
+	double	pos;
+	double	red;
+	double	green;
+	double	blue;
 } VNMRampPoint;
 
 typedef enum {
