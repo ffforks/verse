@@ -13,6 +13,7 @@ LDFLAGS	?= -pg
 
 AR	?= ar
 ARFLAGS	?= rus
+RANLIB	?= ranlib
 
 TARGETS = libverse.a verse
 
@@ -45,6 +46,9 @@ verse:		$(VERSE_OBJ) libverse.a
 		$(CC) $(LDFLAGS) -o $@ $^
 
 libverse.a:	libverse.a($(LIBVERSE_OBJ))
+		rm -f $@
+		$(AR) $(ARFLAGS) $@ $(LIBVERSE_OBJ)
+		$(RANLIB) $@
 
 # -----------------------------------------------------
 
