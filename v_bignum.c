@@ -711,11 +711,15 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	bignum_free(q);
 }
 
+/* Compute x * x using the algorithm 14.16 from "Handbook of Applied Cryptography".
+ * Note that since 'w' needs to be double-precision (i.e., 32-bit), we cannot allocate
+ * it using bignum_alloc() cleanly. Thus the static limit, which should be enough here.
+ * NOTE: This very much assumes V_BIGBITS == 16.
+*/
 void v_bignum_square_half(VBigDig *x)
 {
-	unsigned long	w[1024], uv, c, ouv;
-	int		t = *x, i, j, high;
-	static unsigned long	count = 0U;
+	unsigned long	w[256], uv, c, ouv;
+	int		t = *x / 2, i, j, high;
 
 	if(t == 0)
 		return;
@@ -741,7 +745,7 @@ void v_bignum_square_half(VBigDig *x)
 			uv = x[1 + j] * x[1 + i];
 			high = (uv & 0x80000000) != 0;
 			uv *= 2;
-			ouv = uv;
+			ouv = uv;	/* Addition below might wrap and generate high bit. */
 			uv += w[i + j] + c;
 /*			printf("ouv=0x%lX uv=0x%lX\n", ouv, uv);*/
 			high |= uv < ouv;
