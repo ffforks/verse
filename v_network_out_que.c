@@ -32,6 +32,8 @@ typedef struct{
 } NetPacked;
 
 struct VNetOutQueue{
+	uint8			packet_buffer[V_NOQ_MAX_PACKET_SIZE];
+	size_t			packet_buffer_use;
 	NetPacked		*packed;
 	NetPacked		*last;
 	VCMDBufHead		*unsent[V_NOQ_OPTIMIZATION_SLOTS];
@@ -172,6 +174,7 @@ void v_noq_send_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 	static int count = 0;
 /*	if(queue->unsent_comands > V_NOQ_MAX_SORTED_COMMANDS)
 	{
+
 */		if(queue->unsorted == NULL)
 		{
 			queue->unsorted_end = buf;
@@ -217,10 +220,12 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 	static unsigned int my_counter = 0;
 	VCMDBufHead *buf;
 	unsigned int size;
-	char data[1500];
+	uint8 *data;
 	uint32 seconds, fractions;
 	double delta;
-
+	
+	
+	data = queue->packet_buffer;
 	v_n_get_current_time(&seconds, &fractions);
 	delta = (double)(seconds - queue->seconds) + ((double)fractions - (double)queue->fractions) / (double) 0xffffffff;
 	
@@ -230,6 +235,14 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 
 	if(queue->unsent_size == 0 && delta < 1 && (queue->ack_nak == NULL || queue->ack_nak->next == NULL))
 		return TRUE;
+
+	if(queue->unsent_size == 0 && queue->ack_nak == NULL)
+	{
+		v_n_send_data(address, data, queue->packet_buffer_use);
+		queue->seconds = seconds;
+		queue->fractions = fractions;
+		return TRUE;
+	}
 
 	size = vnp_raw_pack_uint32(data, queue->packet_id);
 	buf = queue->ack_nak;
@@ -249,6 +262,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 		if(size > 5)
 		{
 			v_n_send_data(address, data, size);
+			queue->packet_buffer_use = size;
 			queue->seconds = seconds;
 			queue->fractions = fractions;
 			queue->packet_id++;
@@ -280,6 +294,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 			}
 		}
 		v_n_send_data(address, data, size);
+		queue->packet_buffer_use = size;
 		queue->packet_id++;
 		size = vnp_raw_pack_uint32(data, queue->packet_id);
 		queue->seconds = seconds;
