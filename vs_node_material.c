@@ -7,23 +7,23 @@
 
 #include "v_cmd_gen.h"
 
-#if !defined(V_GENERATE_FUNC_MODE)
+#if !defined V_GENERATE_FUNC_MODE
 
 #include "verse.h"
 #include "vs_server.h"
 
-typedef struct{
+typedef struct {
 	VNMFragmentType	type;
-	VMatFrag		frag;
-}VSMatFrag;
+	VMatFrag	frag;
+} VSMatFrag;
 
 typedef struct{
-	VSNodeHead		head;
-	VSMatFrag		*frag;
+	VSNodeHead	head;
+	VSMatFrag	*frag;
 	unsigned int	frag_count;
-}VSNodeMaterial;
+} VSNodeMaterial;
 
-VSNodeMaterial *vs_m_create_node(unsigned int owner)
+VSNodeMaterial * vs_m_create_node(unsigned int owner)
 {
 	VSNodeMaterial *node;
 	char name[48];
@@ -51,7 +51,7 @@ void vs_m_subscribe(VSNodeMaterial *node)
 			verse_send_m_fragment_create(node->head.id, (uint16)i, (uint8)node->frag[i].type, &node->frag[i].frag);
 }
 
-void callback_send_m_unsubscribe(void *user, VNodeID node_id)
+static void callback_send_m_unsubscribe(void *user, VNodeID node_id)
 {
 	VSNodeMaterial *node;
 	node = (VSNodeMaterial *)vs_get_node(node_id, V_NT_MATERIAL);
@@ -60,7 +60,7 @@ void callback_send_m_unsubscribe(void *user, VNodeID node_id)
 	vs_remove_subscriptor(node->head.subscribers);
 }
 
-void callback_send_m_fragment_create(void *user, VNodeID node_id, VNMFragmentID frag_id, uint8 type, VMatFrag *fragment)
+static void callback_send_m_fragment_create(void *user, VNodeID node_id, VNMFragmentID frag_id, uint8 type, VMatFrag *fragment)
 {
 	unsigned int count;
 	uint16 i;
@@ -95,7 +95,7 @@ void callback_send_m_fragment_create(void *user, VNodeID node_id, VNMFragmentID 
 	vs_reset_subscript_session();
 }
 
-void callback_send_m_fragment_destroy(void *user, VNodeID node_id, VNMFragmentID frag_id)
+static void callback_send_m_fragment_destroy(void *user, VNodeID node_id, VNMFragmentID frag_id)
 {
 	unsigned int count, i;
 	VSNodeMaterial *node;
@@ -122,6 +122,5 @@ void vs_m_callback_init()
 	verse_callback_set(verse_send_m_fragment_create, callback_send_m_fragment_create, NULL);
 	verse_callback_set(verse_send_m_fragment_destroy, callback_send_m_fragment_destroy, NULL);
 }
-
 
 #endif
