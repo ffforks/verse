@@ -8,7 +8,7 @@
 #include "v_cmd_buf.h"
 #include "v_network_out_que.h"
 
-#define V_FS_MAX_CMDS 256
+#define V_FS_MAX_CMDS	256
 
 extern void init_pack_and_unpack(void);
 
@@ -119,8 +119,9 @@ boolean v_fs_func_accept_connections(void)
 
 void v_fs_unpack(uint8 *data, unsigned int length)
 {
-	uint32 i = 0, output, pack_id;
+	uint32 i, output, pack_id;
 	uint8 cmd_id;
+
 	i = vnp_raw_unpack_uint32(data, &pack_id); /* each pack starts with a 32 bit id */
 /*	printf("unpak %u %u %u\n", length, i, *expected);
 	if(expected != NULL)
@@ -140,7 +141,7 @@ void v_fs_unpack(uint8 *data, unsigned int length)
 			output = VCmdData.unpack_func[cmd_id](&data[i], length - i);
 			if(output == (unsigned int) -1)	/* Can this happen? Should be size_t or int, depending. */
 			{
-		/*		verse_send_packet_nak(pack_id);*/
+/*				verse_send_packet_nak(pack_id);*/
 				return;
 			}
 			i += output;
