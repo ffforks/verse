@@ -106,13 +106,12 @@ void verse_callback_set(void *command, void *callback, void *user)
 	}
 }
 
-boolean v_fs_func_acsept_connections()
+boolean v_fs_func_accept_connections()
 {
 /*	if(VCmdData.user_func[1] == NULL)
 		return FALSE;
 */	return TRUE;
 }
-
 
 void v_fs_buf_unpack(uint8 *data, unsigned int length)
 {

@@ -132,7 +132,7 @@ void *v_con_get_network_address_id(unsigned int id)
 
 unsigned int v_con_get_network_address_count(void)
 {
-	if(v_fs_func_acsept_connections())
+	if(v_fs_func_accept_connections())
 		return VConData.con_count + 1;
 	else
 		return VConData.con_count;
@@ -168,7 +168,7 @@ void verse_callback_update(unsigned int milliseconds)
 	char buf[V_MAX_CONNCECT_PACKET_SIZE];
 	unsigned int size;
 	v_con_init();
-	if(v_fs_func_acsept_connections())
+	if(v_fs_func_accept_connections())
 	{
 		if(VConData.connect_address == NULL)
 			VConData.connect_address = v_n_create_network_address(VERSE_STD_CONNECT_PORT/*v_connect_port*/, "localhost");
@@ -187,7 +187,7 @@ void verse_callback_update(unsigned int milliseconds)
 		address = v_con_get_network_address();
 		if(address != NULL)
 		{
-			if(!v_fs_buf_unpack_stored() || !v_fs_func_acsept_connections())
+			if(!v_fs_buf_unpack_stored() || !v_fs_func_accept_connections())
 				v_n_wait_for_inncoming(milliseconds);
 			size = v_n_receive_data(address, buf, V_MAX_CONNCECT_PACKET_SIZE, TRUE);
 			if(size != -1 || size != 0)
