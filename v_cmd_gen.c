@@ -567,7 +567,7 @@ static void v_cg_gen_pack(boolean alias)
 			break;
 		}
 		if(no_param)
-			param = "0";
+			param = "-1";
 		switch(VCGData.param_type[i])
 		{	
 			case VCGP_NODE_ID :
