@@ -206,22 +206,21 @@ void v_update_connection_pending(void)
 
 void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un packing all stages of connect command */
 {
-	unsigned int buffer_pos = 0, i, pack_id;
+	unsigned int buffer_pos, i, pack_id;
 	uint32 seconds, fractions, pre;
 	uint8 /*key[V_ENCRYPTION_LOGIN_KEY_SIZE], */stage, cmd_id, version;
 
 	if(buffer_length < 5)
 		return;
 	
-	buffer_pos = vnp_raw_unpack_uint32(&buf[buffer_pos], &pack_id);
+	buffer_pos = vnp_raw_unpack_uint32(buf, &pack_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &cmd_id);
-	printf("connection packet %u, cmd %u\n", pack_id, cmd_id);
 	pre = v_con_get_connect_stage();
 	if(cmd_id == 0)
 	{
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &stage);
-		printf(" stage %u\n", stage);
-		if(stage == 0 && V_CS_IDLE == v_con_get_connect_stage()) /* reseved by host */
+		printf(" Handling connection, stage %u\n", stage);
+		if(stage == V_CS_IDLE && V_CS_IDLE == v_con_get_connect_stage()) /* reseved by host */
 		{
 			uint8 *other_key, *my_key;
 
@@ -237,7 +236,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			v_send_hidden_connect_send_key();
 			return; 
 		}
-		if(stage == 1 && V_CS_CONTACT == v_con_get_connect_stage())
+		if(stage == V_CS_CONTACT && V_CS_CONTACT == v_con_get_connect_stage())
 		{
 			uint8 *other_key; /* *host_id, *my_key, a[V_ENCRYPTION_LOGIN_KEY_SIZE], b[V_ENCRYPTION_LOGIN_KEY_SIZE];*/
 			verse_send_packet_ack(pack_id);
@@ -271,7 +270,6 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			v_send_hidden_connect_login();
 			return; 
 		}
-
 #if 0
 		for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_HALF_SIZE && encrypted_key[i] == 0; i++);
 			if(i < 0)
@@ -291,7 +289,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 				}
 			}
 #endif
-		if(stage == 2 && V_CS_CONTACTED == v_con_get_connect_stage()) /* reseved by host */
+		if(stage == V_CS_CONTACTED && V_CS_CONTACTED == v_con_get_connect_stage()) /* reseved by host */
 		{
 			char *host_id, unpack[V_ENCRYPTION_LOGIN_KEY_SIZE], data[V_ENCRYPTION_LOGIN_KEY_SIZE];
 			VNetworkAddress *address;
@@ -306,7 +304,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			return; 
 		}
 	}
-	if(/*pack_id == 0 &&*/ cmd_id == 1 && V_CS_PENDING_ACCEPT == v_con_get_connect_stage()) /* reseved by client */
+	if(cmd_id == 1 && V_CS_PENDING_ACCEPT == v_con_get_connect_stage()) /* reseved by client */
 	{
 		uint8 *my_key, key[V_ENCRYPTION_DATA_KEY_SIZE], decrypted[V_ENCRYPTION_DATA_KEY_SIZE];
 		uint32 avatar;
@@ -322,7 +320,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 		v_send_hidden_connect_send_key();
 		return; 
 	}
-	if(/*pack_id == 0 &&*/ cmd_id == 2 && V_CS_PENDING_ACCEPT == v_con_get_connect_stage()) /* reseved by client */
+	if(cmd_id == 2 && V_CS_PENDING_ACCEPT == v_con_get_connect_stage()) /* reseved by client */
 	{
 		verse_send_packet_ack(pack_id);	
 	/*	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 512, buffer_length - buffer_pos);
