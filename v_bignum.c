@@ -252,7 +252,7 @@ int v_bignum_gte(VBigNum a, VBigNum b)
 		else if(a.x[k] > b.x[k])
 			return 1;
 	}
-	return 0;
+	return a.x[k] >= b.x[k];
 }
 
 /* ----------------------------------------------------------------------------------------- */
