@@ -48,7 +48,6 @@ static int miller_rabin(const VBigDig *n)
 
 	mu = v_bignum_reduce_begin(n);
 
-
 	/* Pick a "witness", a number in the [1, n) range. */
 	v_bignum_set_random(a);
 	v_bignum_reduce(a, n, mu);
