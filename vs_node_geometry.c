@@ -902,16 +902,22 @@ static void callback_send_g_crease_set_edge(void *user, VNodeID node_id, char *l
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint16 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w)
+void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, const char *weight,
+				 const char *reference, uint16 parent,
+				 real64 pos_x, real64 pos_y, real64 pos_z,
+				 real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
+
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
 	if(node == NULL)
 		return;
-	if(bone_id >= node->bone_count || node->bones[bone_id].weight[0] == 0)
+	if(bone_id >= node->bone_count || node->bones[bone_id].weight[0] == 0.0)
 	{
-		for(bone_id = 0; bone_id < node->bone_count && node->bones[bone_id].weight[0] == 0; bone_id++);
+		/* Find free bone to re-use, if any. */
+		for(bone_id = 0; bone_id < node->bone_count && node->bones[bone_id].weight[0] == 0; bone_id++)
+			;
 		if(bone_id == node->bone_count)
 		{
 			bone_id = node->bone_count;
