@@ -18,7 +18,7 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_add_param(VCGP_NAME,		"name");
 	v_cg_add_param(VCGP_ENUM_NAME,	"VNGLayerType");
 	v_cg_add_param(VCGP_ENUM,		"type");
-	v_cg_add_param(VCGP_UINT32,		"def_integer");
+	v_cg_add_param(VCGP_UINT32,		"def_uint");
 	v_cg_add_param(VCGP_REAL64,		"def_real");
 	v_cg_alias(FALSE, "g_layer_destroy", "if(name[0] == 0)", 2, NULL);
 	v_cg_end_cmd();
@@ -54,7 +54,7 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_alias(FALSE, "g_vertex_delete_real64", "if(x == V_REAL64_MAX || y == V_REAL64_MAX || z == V_REAL64_MAX)", 2, order);
 	v_cg_end_cmd();
 	
-	v_cg_new_cmd(V_NT_GEOMETRY,		"g_vertex_set_uinteger32", 52, VCGCT_NORMAL); 
+	v_cg_new_cmd(V_NT_GEOMETRY,		"g_vertex_set_uint32", 52, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
 	v_cg_add_param(VCGP_UINT32,		"vertex_id");
@@ -74,7 +74,7 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_add_param(VCGP_UINT32,		"vertex_id");
 	v_cg_end_cmd();
 */
-	v_cg_new_cmd(V_NT_GEOMETRY,		"g_polygon_set_corner_uinteger32", 54, VCGCT_NORMAL); 
+	v_cg_new_cmd(V_NT_GEOMETRY,		"g_polygon_set_corner_uint32", 54, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
 	v_cg_add_param(VCGP_UINT32,		"polygon_id");
@@ -97,7 +97,7 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_add_param(VCGP_REAL64,		"v3");
 	v_cg_end_cmd();
 
-	v_cg_new_cmd(V_NT_GEOMETRY,		"g_polygon_set_face_uinteger8", 56, VCGCT_NORMAL); 
+	v_cg_new_cmd(V_NT_GEOMETRY,		"g_polygon_set_face_uint8", 56, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
 	v_cg_add_param(VCGP_UINT32,		"polygon_id");
@@ -105,7 +105,7 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_add_param(VCGP_UINT8,		"value");
 	v_cg_end_cmd();
 
-	v_cg_new_cmd(V_NT_GEOMETRY,		"g_polygon_set_face_uinteger32", 57, VCGCT_NORMAL); 
+	v_cg_new_cmd(V_NT_GEOMETRY,		"g_polygon_set_face_uint32", 57, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
 	v_cg_add_param(VCGP_UINT32,		"polygon_id");

@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "v_cmd_gen.h"
 
@@ -57,9 +58,9 @@ void destroy_node_head(VSNodeHead *node)
 			{
 				free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag_name);
 				if(((VSTagGroup *)node->tag_groups)[i].tags[j].type == VN_TAG_STRING)
-					free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag.string);
+					free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag.vstring);
 				if(((VSTagGroup *)node->tag_groups)[i].tags[j].type == VN_TAG_BLOB)
-					free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag.blob.blob);
+					free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag.vblob.blob);
 			}
 			if(((VSTagGroup *)node->tag_groups)[i].tags == NULL)
 				free(((VSTagGroup *)node->tag_groups)[i].tags);
@@ -136,9 +137,9 @@ static void callback_send_tag_group_destroy(void *user, VNodeID node_id, uint16 
 	for(i = 0; i < ((VSTagGroup *)node->tag_groups)[group_id].tag_count; i++)
 	{
 		if(((VSTagGroup *)node->tag_groups)[group_id].tags[i].type == VN_TAG_STRING)
-			free(((VSTagGroup *)node->tag_groups)[group_id].tags[i].tag.string);
+			free(((VSTagGroup *)node->tag_groups)[group_id].tags[i].tag.vstring);
 		if(((VSTagGroup *)node->tag_groups)[group_id].tags[i].type == VN_TAG_BLOB)
-			free(((VSTagGroup *)node->tag_groups)[group_id].tags[i].tag.blob.blob);
+			free(((VSTagGroup *)node->tag_groups)[group_id].tags[i].tag.vblob.blob);
 	}
 	if(((VSTagGroup *)node->tag_groups)[group_id].tags != NULL)
 		free(((VSTagGroup *)node->tag_groups)[group_id].tags);
@@ -226,39 +227,38 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 	switch(type)
 	{
 		case VN_TAG_BOOLEAN :
-			t->tag.active = ((VNTag *)tag)->active;
+			t->tag.vboolean = ((VNTag *)tag)->vboolean;
 		break;
-		case VN_TAG_INTEGER :
-			t->tag.integer = ((VNTag *)tag)->integer;
+		case VN_TAG_UINT32 :
+			t->tag.vuint32 = ((VNTag *)tag)->vuint32;
 		break;
-		case VN_TAG_REAL :
-			t->tag.real = ((VNTag *)tag)->real;
+		case VN_TAG_REAL64 :
+			t->tag.vreal64 = ((VNTag *)tag)->vreal64;
 		break;
 		case VN_TAG_STRING :
-			for(i = 0; ((VNTag *)tag)->string[i] != 0; i++);
-			t->tag.string = malloc((sizeof *t->tag.string) * i);
-			for(i = 0; ((VNTag *)tag)->string[i] != 0; i++)
-				t->tag.string[i] = ((VNTag *)tag)->string[i];
-			t->tag.string[i] = 0;
+			for(i = 0; ((VNTag *)tag)->vstring[i] != 0; i++);
+			t->tag.vstring = malloc((sizeof *t->tag.vstring) * i);
+			for(i = 0; ((VNTag *)tag)->vstring[i] != 0; i++)
+				t->tag.vstring[i] = ((VNTag *)tag)->vstring[i];
+			t->tag.vstring[i] = 0;
 		break;
-		case VN_TAG_VECTOR :
-			t->tag.vector[0] = ((VNTag *)tag)->vector[0];
-			t->tag.vector[1] = ((VNTag *)tag)->vector[1];
-			t->tag.vector[2] = ((VNTag *)tag)->vector[2];
+		case VN_TAG_REAL64_VEC3 :
+			t->tag.vreal64_vec3[0] = ((VNTag *)tag)->vreal64_vec3[0];
+			t->tag.vreal64_vec3[1] = ((VNTag *)tag)->vreal64_vec3[1];
+			t->tag.vreal64_vec3[2] = ((VNTag *)tag)->vreal64_vec3[2];
 		break;
 		case VN_TAG_LINK :
-			t->tag.link = ((VNTag *)tag)->link;
+			t->tag.vlink = ((VNTag *)tag)->vlink;
 		break;
 		case VN_TAG_ANIMATION :
-			t->tag.animation.curve = ((VNTag *)tag)->animation.curve;
-			t->tag.animation.start = ((VNTag *)tag)->animation.start;
-			t->tag.animation.end = ((VNTag *)tag)->animation.end;
+			t->tag.vanimation.curve = ((VNTag *)tag)->vanimation.curve;
+			t->tag.vanimation.start = ((VNTag *)tag)->vanimation.start;
+			t->tag.vanimation.end = ((VNTag *)tag)->vanimation.end;
 		break;
 		case VN_TAG_BLOB :
-			t->tag.blob.blob = malloc(((VNTag *)tag)->blob.blob_size);
-			t->tag.blob.blob_size = ((VNTag *)tag)->blob.blob_size;
-			for(i = 0; i < t->tag.blob.blob_size; i++)
-				((char *)t->tag.blob.blob)[i] = ((char *)((VNTag *)tag)->blob.blob)[i];
+			t->tag.vblob.blob = malloc(((VNTag *)tag)->vblob.size);
+			t->tag.vblob.size = ((VNTag *)tag)->vblob.size;
+			memcpy(t->tag.vblob.blob, ((VNTag *)tag)->vblob.blob, ((VNTag *)tag)->vblob.size);
 		break;
 	}
 

@@ -21,86 +21,86 @@ void * verse_method_call_pack(unsigned int param_count, const VNOParam *params, 
 	{
 		switch(param_type[i])
 		{
-			case VN_O_METHOD_PTYPE_INTEGER8 :
-				buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], params[i].integer8);
+			case VN_O_METHOD_PTYPE_INT8 :
+				buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], params[i].vint8);
 			break;
-			case VN_O_METHOD_PTYPE_INTEGER16 :
-				buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], params[i].integer16);
+			case VN_O_METHOD_PTYPE_INT16 :
+				buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], params[i].vint16);
 			break;
-			case VN_O_METHOD_PTYPE_INTEGER32 :
-				buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], params[i].integer32);
+			case VN_O_METHOD_PTYPE_INT32 :
+				buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], params[i].vint32);
 			break;
-			case VN_O_METHOD_PTYPE_UINTEGER8 :
-				buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], params[i].uinteger8);
+			case VN_O_METHOD_PTYPE_UINT8 :
+				buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], params[i].vuint8);
 			break;
-			case VN_O_METHOD_PTYPE_UINTEGER16 :
-				buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], params[i].uinteger16);
+			case VN_O_METHOD_PTYPE_UINT16 :
+				buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], params[i].vuint16);
 			break;
-			case VN_O_METHOD_PTYPE_UINTEGER32 :
-				buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], params[i].uinteger32);
+			case VN_O_METHOD_PTYPE_UINT32 :
+				buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], params[i].vuint32);
 			break;
 			case VN_O_METHOD_PTYPE_REAL32 :
-				buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].real32);
+				buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].vreal32);
 			break;
 			case VN_O_METHOD_PTYPE_REAL64 :
-				buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].real64);
+				buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].vreal64);
 			break;
 			case VN_O_METHOD_PTYPE_STRING :
-				buffer_pos = vnp_raw_pack_string(&buf[buffer_pos], params[i].string, (1500 + 8 * 16) - buffer_pos);
+				buffer_pos = vnp_raw_pack_string(&buf[buffer_pos], params[i].vstring, (1500 + 8 * 16) - buffer_pos);
 			break;
-			case VN_O_METHOD_PTYPE_VNODE :
+			case VN_O_METHOD_PTYPE_NODE :
 				buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], params[i].vnode);
 			break;
-			case VN_O_METHOD_PTYPE_VLAYER :
+			case VN_O_METHOD_PTYPE_LAYER :
 				buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], params[i].vlayer);
 			break;
-			case VN_O_METHOD_PTYPE_2_VECTOR32 :
+			case VN_O_METHOD_PTYPE_REAL32_VEC2 :
 				for(j = 0; j < 2; j++)
-					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].vector32[j]);
+					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].vreal32_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_3_VECTOR32 :
+			case VN_O_METHOD_PTYPE_REAL32_VEC3 :
 				for(j = 0; j < 3; j++)
-					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].vector32[j]);
+					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].vreal32_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_4_VECTOR32 :
+			case VN_O_METHOD_PTYPE_REAL32_VEC4 :
 				for(j = 0; j < 4; j++)
-					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].vector32[j]);
+					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].vreal32_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_2_VECTOR64 :
+			case VN_O_METHOD_PTYPE_REAL64_VEC2 :
 				for(j = 0; j < 2; j++)
-					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].vector64[j]);
+					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].vreal64_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_3_VECTOR64 :
+			case VN_O_METHOD_PTYPE_REAL64_VEC3 :
 				for(j = 0; j < 3; j++)
-					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].vector64[j]);
+					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].vreal64_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_4_VECTOR64 :
+			case VN_O_METHOD_PTYPE_REAL64_VEC4 :
 				for(j = 0; j < 4; j++)
-					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].vector64[j]);
+					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].vreal64_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_4_MATRIX32 :
+			case VN_O_METHOD_PTYPE_REAL32_MAT4 :
 				for(j = 0; j < 4; j++)
-					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].matrix32[j]);
+					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].vreal32_mat[j]);
 			break;
-			case VN_O_METHOD_PTYPE_9_MATRIX32 :
+			case VN_O_METHOD_PTYPE_REAL32_MAT9 :
 				for(j = 0; j < 9; j++)
-					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].matrix32[j]);
+					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].vreal32_mat[j]);
 			break;
-			case VN_O_METHOD_PTYPE_16_MATRIX32 :
+			case VN_O_METHOD_PTYPE_REAL32_MAT16 :
 				for(j = 0; j < 16; j++)
-					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].matrix32[j]);
+					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], params[i].vreal32_mat[j]);
 			break;
-			case VN_O_METHOD_PTYPE_4_MATRIX64 :
+			case VN_O_METHOD_PTYPE_REAL64_MAT4 :
 				for(j = 0; j < 4; j++)
-					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].matrix64[j]);
+					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].vreal64_mat[j]);
 			break;
-			case VN_O_METHOD_PTYPE_9_MATRIX64 :
+			case VN_O_METHOD_PTYPE_REAL64_MAT9 :
 				for(j = 0; j < 9; j++)
-					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].matrix64[j]);
+					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].vreal64_mat[j]);
 			break;
-			case VN_O_METHOD_PTYPE_16_MATRIX64 :
+			case VN_O_METHOD_PTYPE_REAL64_MAT16 :
 				for(j = 0; j < 16; j++)
-					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].matrix64[j]);
+					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], params[i].vreal64_mat[j]);
 			break;
 		}
 		if(buffer_pos > 1500)
@@ -116,93 +116,93 @@ void * verse_method_call_pack(unsigned int param_count, const VNOParam *params, 
 boolean verse_method_call_unpack(const void *data, unsigned int param_count, VNOParam *params, const VNOParamType *param_type)
 {
 	unsigned int i, j, buffer_pos, size;
-	uint8 *buf;
+	const uint8 *buf;
 	buf = data;
 	size = vnp_raw_unpack_uint16(buf, 0);
 	for(i = 0; i < param_count; i++)
 	{
 		switch(param_type[i])
 		{
-			case VN_O_METHOD_PTYPE_INTEGER8 :
-				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &params[i].integer8);
+			case VN_O_METHOD_PTYPE_INT8 :
+				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &params[i].vint8);
 			break;
-			case VN_O_METHOD_PTYPE_INTEGER16 :
-				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &params[i].integer16);
+			case VN_O_METHOD_PTYPE_INT16 :
+				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &params[i].vint16);
 			break;
-			case VN_O_METHOD_PTYPE_INTEGER32 :
-				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &params[i].integer32);
+			case VN_O_METHOD_PTYPE_INT32 :
+				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &params[i].vint32);
 			break;
-			case VN_O_METHOD_PTYPE_UINTEGER8 :
-				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &params[i].uinteger8);
+			case VN_O_METHOD_PTYPE_UINT8 :
+				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &params[i].vuint8);
 			break;
-			case VN_O_METHOD_PTYPE_UINTEGER16 :
-				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &params[i].uinteger16);
+			case VN_O_METHOD_PTYPE_UINT16 :
+				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &params[i].vuint16);
 			break;
-			case VN_O_METHOD_PTYPE_UINTEGER32 :
-				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &params[i].uinteger32);
+			case VN_O_METHOD_PTYPE_UINT32 :
+				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &params[i].vuint32);
 			break;
 			case VN_O_METHOD_PTYPE_REAL32 :
-				buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].real32);
+				buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].vreal32);
 			break;
 			case VN_O_METHOD_PTYPE_REAL64 :
-				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].real64);
+				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].vreal64);
 			break;
 			case VN_O_METHOD_PTYPE_STRING :
-				buffer_pos = vnp_raw_unpack_string(&buf[buffer_pos], params[i].string, (1500 + 8 * 16) - buffer_pos, -1);
+				buffer_pos = vnp_raw_unpack_string(&buf[buffer_pos], params[i].vstring, (1500 + 8 * 16) - buffer_pos, -1);
 			break;
-			case VN_O_METHOD_PTYPE_VNODE :
+			case VN_O_METHOD_PTYPE_NODE :
 				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &params[i].vnode);
 			break;
-			case VN_O_METHOD_PTYPE_VLAYER :
+			case VN_O_METHOD_PTYPE_LAYER :
 				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &params[i].vlayer);
 			break;
-			case VN_O_METHOD_PTYPE_2_VECTOR32 :
+			case VN_O_METHOD_PTYPE_REAL32_VEC2 :
 				for(j = 0; j < 2; j++)
-					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].vector32[j]);
+					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].vreal32_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_3_VECTOR32 :
+			case VN_O_METHOD_PTYPE_REAL32_VEC3 :
 				for(j = 0; j < 3; j++)
-					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].vector32[j]);
+					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].vreal32_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_4_VECTOR32 :
+			case VN_O_METHOD_PTYPE_REAL32_VEC4 :
 				for(j = 0; j < 4; j++)
-					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].vector32[j]);
+					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].vreal32_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_2_VECTOR64 :
+			case VN_O_METHOD_PTYPE_REAL64_VEC2 :
 				for(j = 0; j < 2; j++)
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].vector64[j]);
+					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].vreal64_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_3_VECTOR64 :
+			case VN_O_METHOD_PTYPE_REAL64_VEC3 :
 				for(j = 0; j < 3; j++)
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].vector64[j]);
+					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].vreal64_vec[j]);
 			break;
-			case VN_O_METHOD_PTYPE_4_VECTOR64 :
+			case VN_O_METHOD_PTYPE_REAL64_VEC4 :
 				for(j = 0; j < 4; j++)
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].vector64[j]);
+					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].vreal64_vec[j]);
 			break;			
-			case VN_O_METHOD_PTYPE_4_MATRIX32 :
+			case VN_O_METHOD_PTYPE_REAL32_MAT4 :
 				for(j = 0; j < 4; j++)
-					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].matrix32[j]);
+					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].vreal32_mat[j]);
 			break;
-			case VN_O_METHOD_PTYPE_9_MATRIX32 :
+			case VN_O_METHOD_PTYPE_REAL32_MAT9 :
 				for(j = 0; j < 9; j++)
-					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].matrix32[j]);
+					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].vreal32_mat[j]);
 			break;
-			case VN_O_METHOD_PTYPE_16_MATRIX32 :
+			case VN_O_METHOD_PTYPE_REAL32_MAT16 :
 				for(j = 0; j < 16; j++)
-					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].matrix32[j]);
+					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &params[i].vreal32_mat[j]);
 			break;
-			case VN_O_METHOD_PTYPE_4_MATRIX64 :
+			case VN_O_METHOD_PTYPE_REAL64_MAT4 :
 				for(j = 0; j < 4; j++)
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].matrix64[j]);
+					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].vreal64_mat[j]);
 			break;
-			case VN_O_METHOD_PTYPE_9_MATRIX64 :
+			case VN_O_METHOD_PTYPE_REAL64_MAT9 :
 				for(j = 0; j < 9; j++)
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].matrix64[j]);
+					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].vreal64_mat[j]);
 			break;
-			case VN_O_METHOD_PTYPE_16_MATRIX64 :
+			case VN_O_METHOD_PTYPE_REAL64_MAT16 :
 				for(j = 0; j < 16; j++)
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].matrix64[j]);
+					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &params[i].vreal64_mat[j]);
 			break;
 		}
 	}
