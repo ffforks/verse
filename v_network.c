@@ -59,6 +59,7 @@ VSocket v_n_socket_create(void)
 {
 	static boolean initialized = FALSE;
 	struct sockaddr_in address;
+
 	if(my_socket != -1)
 		return my_socket;
 #if defined _WIN32
@@ -188,7 +189,6 @@ int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
 	address->port = ntohs(address_in.sin_port);
 	return output_length;
 }
-
 
 #if defined _WIN32
 
