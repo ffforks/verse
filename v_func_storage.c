@@ -1,8 +1,15 @@
+/*
+ * 
+*/
+
+#include <stdio.h>
 #include <stdlib.h>
+
 #include "verse_header.h"
 #include "v_pack.h"
 #include "v_cmd_gen.h"
 #include "v_connection.h"
+
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
 #include "v_cmd_buf.h"
