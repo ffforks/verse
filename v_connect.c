@@ -172,9 +172,9 @@ void v_update_connection_pending(void)
 		v_con_set_connect_stage(V_CS_PENDING_DECISION);
 		func_connect = v_fs_get_user_func(0);
 		v_n_get_address_string(v_con_get_network_address(), address_string);
-		#if defined(V_PRINT_RECEIVE_COMMANDS)
+#if defined(V_PRINT_RECEIVE_COMMANDS)
 		printf("receive: verse_send_connect(address = %s, name = %s, pass = %s, key = NULL); callback = %p\n", address_string, v_con_get_name(), v_con_get_pass(), func_connect);
-		#endif
+#endif
 		if(func_connect != 0)
 			func_connect(v_fs_get_user_data(0), v_con_get_name(), v_con_get_pass(), address_string, NULL);
 		break;
@@ -182,9 +182,9 @@ void v_update_connection_pending(void)
 		v_con_set_connect_stage(V_CS_CONNECTED);
 		func_connect_accept = v_fs_get_user_func(1);
 		v_n_get_address_string(v_con_get_network_address(), address_string);
-		#if defined(V_PRINT_RECEIVE_COMMANDS)
+#if defined(V_PRINT_RECEIVE_COMMANDS)
 		printf("receive: func_connect_accept(avatar = %u, address = %s, name = %s, pass = %s, key = NULL); callback = %p\n", verse_session_get_avatar(), address_string, name, pass, func_connect);
-		#endif
+#endif
 		if(func_connect_accept != 0)
 			func_connect_accept(v_fs_get_user_data(1), verse_session_get_avatar(), address_string, NULL);
 		break;
@@ -192,9 +192,9 @@ void v_update_connection_pending(void)
 		v_con_set_connect_stage(V_CS_CONNECTED);
 		func_connect_termanate = v_fs_get_user_func(2);
 		v_n_get_address_string(v_con_get_network_address(), address_string);
-		#if defined(V_PRINT_RECEIVE_COMMANDS)
+#if defined(V_PRINT_RECEIVE_COMMANDS)
 		printf("receive: func_connect_termanate(address = %s, bye = %s); callback = %p\n", address_string, "no message", func_connect);
-		#endif
+#endif
 		if(func_connect_termanate != 0)
 			func_connect_termanate(v_fs_get_user_data(2), address_string, "no message");
 		break;
@@ -281,9 +281,9 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 				if(i < 0) /* Host is not who it appers top be */
 				{
 					func_connect_deny = v_fs_get_user_func(2);
-					#if defined(V_PRINT_RECEIVE_COMMANDS)
+#if defined(V_PRINT_RECEIVE_COMMANDS)
 					printf("receive: verse_send_connect_deny(Host failed identity check); callback = %p\n", func_connect_deny);
-					#endif
+#endif
 					if(func_connect_deny != NULL)
 						func_connect_deny(v_fs_get_user_data(2), "Host failed identity check");
 					return;
