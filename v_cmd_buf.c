@@ -9,24 +9,34 @@
 #include "v_pack.h"
 #include "v_cmd_buf.h"
 
-#define VCMDBUF_CHUNK_SIZE	256	/* If you think memory is cheap, set this to a high value. */
+
+unsigned int vcmdbuf_chunk_size[] = {10000, 10000, 10000, 10000, 8000, 5000, 500};	/* If you think memory is cheap, set this to a high value. */
+#define VCMDBUF_INIT_CHUNK_FACTOR 0.5
 
 static struct {
-	VCMDBufHead	*buffers[VCMDBS_COUNT][VCMDBUF_CHUNK_SIZE];
+	VCMDBufHead	*buffers[VCMDBS_COUNT];
 	unsigned int available[VCMDBS_COUNT];
 } VCMDBufData;
 
 static boolean v_cmd_buf_initialized = FALSE;
 
-static void cmd_buf_init(void)
+void cmd_buf_init(void)
 {
 	unsigned int i, j;
+	VCMDBufHead *buf = NULL, *b;
 
 	for(i = 0; i < VCMDBS_COUNT; i++)
 	{
-		for(j = 0; j < VCMDBUF_CHUNK_SIZE; j++)
-			VCMDBufData.buffers[i][j] = NULL;
-		VCMDBufData.available[i] = 0;
+		VCMDBufData.buffers[i] = NULL;
+		VCMDBufData.available[i] = (unsigned int)((float)vcmdbuf_chunk_size[i] * VCMDBUF_INIT_CHUNK_FACTOR);
+		buf = NULL;
+		for(j = 0; j < (unsigned int)((float)vcmdbuf_chunk_size[i] * VCMDBUF_INIT_CHUNK_FACTOR); j++)
+		{
+			b = v_cmd_buf_allocate(i);
+			b->next = buf;
+			buf = b;
+		}
+		VCMDBufData.buffers[i] = buf;
 	}
 	v_cmd_buf_initialized = TRUE;
 }
@@ -34,26 +44,32 @@ static void cmd_buf_init(void)
 VCMDBufHead * v_cmd_buf_allocate(VCMDBufSize buf_size)
 {
 	VCMDBufHead	*output;
-
-	if(!v_cmd_buf_initialized)
-		cmd_buf_init();
-	if(VCMDBufData.available[buf_size] > 0)
-		output = VCMDBufData.buffers[buf_size][--VCMDBufData.available[buf_size]];
-	else
+	if(VCMDBufData.buffers[buf_size] != NULL)
+	{
+		output = VCMDBufData.buffers[buf_size];
+		VCMDBufData.buffers[buf_size] = output->next;
+		VCMDBufData.available[buf_size]--;
+	}else
 	{
 		switch(buf_size)
 		{
 			case VCMDBS_1500 :
 				output = malloc(sizeof(VCMDBuffer1500));
 			break;
-			case VCMDBS_500 :
-				output = malloc(sizeof(VCMDBuffer500));
+			case VCMDBS_320 :
+				output = malloc(sizeof(VCMDBuffer320));
 			break;
-			case VCMDBS_100 :
-				output = malloc(sizeof(VCMDBuffer100));
+			case VCMDBS_160 :
+				output = malloc(sizeof(VCMDBuffer160));
 			break;
-			case VCMDBS_50 :
-				output = malloc(sizeof(VCMDBuffer50));
+			case VCMDBS_80 :
+				output = malloc(sizeof(VCMDBuffer80));
+			break;
+			case VCMDBS_30 :
+				output = malloc(sizeof(VCMDBuffer30));
+			break;
+			case VCMDBS_20 :
+				output = malloc(sizeof(VCMDBuffer20));
 			break;
 			case VCMDBS_10 :
 				output = malloc(sizeof(VCMDBuffer10));
@@ -73,9 +89,12 @@ VCMDBufHead * v_cmd_buf_allocate(VCMDBufSize buf_size)
 
 void v_cmd_buf_free(VCMDBufHead *head)
 {
-	if(VCMDBufData.available[head->buf_size] < VCMDBUF_CHUNK_SIZE)
-		VCMDBufData.buffers[head->buf_size][VCMDBufData.available[head->buf_size]++] = head;
-	else
+	if(VCMDBufData.available[head->buf_size] < vcmdbuf_chunk_size[head->buf_size])
+	{
+		head->next = VCMDBufData.buffers[head->buf_size];
+		VCMDBufData.buffers[head->buf_size] = head;
+		VCMDBufData.available[head->buf_size]++;
+	}else
 		free(head);
 }
 
