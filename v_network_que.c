@@ -47,9 +47,10 @@ struct VNetQueue {
 
 unsigned int verse_session_get_size(void)
 {
-	VNetQueue *queue;
+	const VNetQueue *queue;
+
 	queue = v_con_get_network_queue();
-	return queue->unsent_size +	queue->sent_size;
+	return queue->unsent_size + queue->sent_size;
 }
 
 VNetQueue * v_nq_create_network_queue(void)

@@ -5,6 +5,7 @@
 #if !defined(VERSE_HEADER_H)
 #define	VERSE_HEADER_H
 
+/*
 #ifdef _MSC_VER
 typedef __int64 int64;
 typedef unsigned __int64 uint64;
@@ -12,6 +13,7 @@ typedef unsigned __int64 uint64;
 typedef long long int64;
 typedef unsigned long long uint64;
 #endif
+*/
 
 typedef unsigned char boolean;
 typedef unsigned int uint32;
@@ -337,8 +339,8 @@ extern boolean verse_unpack_method_call(void *data, uint32 param_count, VNOParam
 */
 #endif		/* V_VLL_H */
 
-extern VSession *verse_send_connect(char *name, char *pass, char *address);
-extern VSession *verse_send_connect_accept(VNodeID avatar, char *address);
+extern VSession *verse_send_connect(const char *name, const char *pass, const char *address);
+extern VSession *verse_send_connect_accept(VNodeID avatar, const char *address);
 extern void verse_send_connect_deny(void *address);
 extern void verse_send_connect_terminate(const char *bye);
 extern void verse_send_get_time(uint32 time);
