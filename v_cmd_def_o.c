@@ -448,16 +448,15 @@ void v_gen_object_cmd_def(void)
 
 	v_cg_new_cmd(V_NT_OBJECT,		"o_anim_run", 45, VCGCT_UNIQUE);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
-	v_cg_add_param(VCGP_UINT16,		"anim_id");
-	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_UINT16,		"link_id");
+	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_UINT32,		"time_s");
 	v_cg_add_param(VCGP_UINT32,		"time_f");
-	v_cg_add_param(VCGP_REAL64,		"start");
+	v_cg_add_param(VCGP_REAL64,		"pos");
 	v_cg_add_param(VCGP_REAL64,		"speed");
-	v_cg_add_param(VCGP_REAL64,		"speed_ramp");
-	v_cg_add_param(VCGP_REAL64,		"factor");
-	v_cg_add_param(VCGP_REAL64,		"factor_ramp");
+	v_cg_add_param(VCGP_REAL64,		"accel");
+	v_cg_add_param(VCGP_REAL64,		"scale");
+	v_cg_add_param(VCGP_REAL64,		"scale_speed");
 	v_cg_alias(TRUE, "o_anim_stop", NULL, 2, NULL);
 	v_cg_end_cmd();
 }
