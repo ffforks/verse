@@ -68,3 +68,17 @@ cleanprot:	clean
 
 clean:
 	rm -f *.o $(TARGETS)
+
+# -----------------------------------------------------
+
+# Utter ugliness to create release archives. Needs to improve, but should work for a while.
+dist:
+	if [ $$RELEASE ]; then ( \
+	 rm -rf  /tmp/verse; \
+	 mkdir -p /tmp/verse; \
+	 cp -a * /tmp/verse; \
+	 cd /tmp && zip verse-$$RELEASE.zip -r verse -x 'verse/*CVS*' -x 'verse/.*' ; \
+	 ); mv /tmp/verse-$$RELEASE.zip . \
+	;else \
+	  echo "Please set RELEASE to the desired release name, e.g. 'RELEASE=r1p1 make dist'" \
+	;fi
