@@ -398,7 +398,7 @@ VBigNum v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder)
 			q.x[0] |= 1;
 			work = v_bignum_sub(work, b);
 		}
-		if(next >= 0)	/* This is kind of a trick to use the etra iteration when next==-1. */
+		if(next >= 0)	/* This is kind of a trick to use the extra iteration when next==-1. */
 		{
 			work = v_bignum_bit_shift_left(work, 1);
 			if(v_bignum_bit_test(a, next))
