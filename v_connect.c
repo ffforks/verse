@@ -17,6 +17,7 @@
 #include "v_network.h"
 #include "v_connection.h"
 #include "v_encryption.h"
+#include "v_util.h"
 
 extern void verse_send_packet_ack(uint32 packet_id);
 
@@ -59,8 +60,9 @@ static void v_send_hidden_connect_send_key(void) /*  Stage 1: Hosts reply to any
 
 static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypted name and password */
 {
-	uint8 buf[1500], *name, *pass, *key, name_pass[V_ENCRYPTION_LOGIN_KEY_SIZE], encrypted_key[V_ENCRYPTION_LOGIN_KEY_SIZE];
-	unsigned int buffer_pos = 0, i, j;
+	uint8		buf[1500], *key, name_pass[V_ENCRYPTION_LOGIN_KEY_SIZE], encrypted_key[V_ENCRYPTION_LOGIN_KEY_SIZE];
+	const char	*name, *pass;
+	unsigned int	buffer_pos = 0, i;
 
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 1);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);/* Packing the command */
@@ -69,16 +71,11 @@ static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypte
 	/* Pad data area with randomness. */
 	for(i = 0; i < sizeof name_pass; i++)
 		name_pass[i] = rand() >> 13;
+	v_strlcpy(name_pass, name, V_ENCRYPTION_LOGIN_KEY_SIZE / 2);
+	pass = v_con_get_pass();
+	v_strlcpy(name_pass + V_ENCRYPTION_LOGIN_KEY_SIZE / 2, pass, V_ENCRYPTION_LOGIN_KEY_SIZE / 2);
 	/* Make sure last (MSB) byte is clear, to guarantee that data < key for RSA math. */
 	name_pass[sizeof name_pass - 1] = 0;
-	for(i = 0; name[i] != 0 && i < V_ENCRYPTION_LOGIN_KEY_SIZE / 2 - 1; i++)
-		name_pass[i] = name[i];
-	name_pass[i] = 0;
-	j = i;
-	pass = v_con_get_pass();
-	for(i = 0; pass[i] != 0 && i < V_ENCRYPTION_LOGIN_KEY_SIZE / 2 - 1; i++)
-		name_pass[i + V_ENCRYPTION_LOGIN_KEY_SIZE / 2] = pass[i];
-	name_pass[i + V_ENCRYPTION_LOGIN_KEY_SIZE / 2] = 0;
 	key = v_con_get_other_key();
 	v_e_connect_encrypt(encrypted_key, name_pass, &key[V_ENCRYPTION_LOGIN_PUBLIC_START], &key[V_ENCRYPTION_LOGIN_N_START]);
 
@@ -153,7 +150,7 @@ VSession * verse_send_connect(const char *name, const char *pass, const char *ad
 
 void v_update_connection_pending(void)
 {
-	VSession (* func_connect)(void *user_data, char *address, const char *name, const char *pass, const char *key);
+	VSession (* func_connect)(void *user_data, const char *name, const char *pass, const char *address, const uint8 *key);
 	VSession (* func_connect_accept)(void *user_data, VNodeID avatar, char *address, uint8 *host_id);
 	void (* func_connect_termanate)(void *user_data, char *address, const char *bye);
 	char address_string[32];
@@ -264,7 +261,6 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			v_con_set_time(seconds, fractions);
 
 			other_key = v_con_get_other_key();
-			printf("initializing other key at %p from network [1]\n", other_key);
 			for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START + i]);
 			for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
