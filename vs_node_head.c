@@ -23,7 +23,7 @@ typedef struct {
 	unsigned int		tag_count;
 	char			group_name[16];
 	VSSubscriptionList	*subscribers;
-}VSTagGroup;
+} VSTagGroup;
 
 void create_node_head(VSNodeHead *node, const char *name, unsigned int owner)
 {
@@ -73,6 +73,7 @@ static void callback_send_tag_group_create(void *user, VNodeID node_id, uint16 g
 {
 	VSNodeHead *node;
 	unsigned int count, i, j, element;
+
 	if((node = vs_get_node_head(node_id)) == 0)
 		return;
 	if(name[0] == 0)
@@ -96,7 +97,7 @@ static void callback_send_tag_group_create(void *user, VNodeID node_id, uint16 g
 		if(element == node->group_count)
 		{
 			node->tag_groups = realloc(node->tag_groups, sizeof(VSTagGroup) * (node->group_count + 16));
-			for(i = node->group_count; i < node->group_count + 16; i++)
+			for(i = node->group_count; i < node->group_count + 16U; i++)
 			{
 				((VSTagGroup *)node->tag_groups)[i].group_name[0] = 0;
 				((VSTagGroup *)node->tag_groups)[i].tags = NULL;
