@@ -489,7 +489,7 @@ static void v_cg_gen_pack(boolean alias)
 	fprintf(f, "\thead = v_cmd_buf_allocate(%s);/* Allocating the buffer */\n", v_cg_compute_buffer_size());
 	fprintf(f, "\tbuf = ((VCMDBuffer10 *)head)->buf;\n\n");
 
-	fprintf(f, "\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], %u);/* Packing the command */\n", VCGData.cmd_id);
+	fprintf(f, "\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], %u);\t/* Pack the command. */\n", VCGData.cmd_id);
 
 	fprintf(f, "#if defined V_PRINT_SEND_COMMANDS\n");
 	v_cg_create_print(f, TRUE, alias);
