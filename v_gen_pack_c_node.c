@@ -21,7 +21,7 @@ void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *n
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 128);	/* Pack the command. */
@@ -45,7 +45,7 @@ void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id)
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 128);	/* Pack the command. */

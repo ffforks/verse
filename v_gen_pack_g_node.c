@@ -21,7 +21,7 @@ void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *n
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_80);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 48);	/* Pack the command. */
@@ -47,7 +47,7 @@ void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id)
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_80);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 48);	/* Pack the command. */
@@ -199,7 +199,7 @@ void verse_send_g_vertex_set_xyz_real32(VNodeID node_id, VLayerID layer_id, uint
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 50);	/* Pack the command. */
@@ -225,7 +225,7 @@ void verse_send_g_vertex_delete_real32(VNodeID node_id, uint32 vertex_id)
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 50);	/* Pack the command. */
@@ -291,7 +291,7 @@ void verse_send_g_vertex_set_xyz_real64(VNodeID node_id, VLayerID layer_id, uint
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_80);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 51);	/* Pack the command. */
@@ -317,7 +317,7 @@ void verse_send_g_vertex_delete_real64(VNodeID node_id, uint32 vertex_id)
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_80);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 51);	/* Pack the command. */
@@ -383,7 +383,7 @@ void verse_send_g_vertex_set_uint32(VNodeID node_id, VLayerID layer_id, uint32 v
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_20);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 52);	/* Pack the command. */
@@ -432,7 +432,7 @@ void verse_send_g_vertex_set_real64(VNodeID node_id, VLayerID layer_id, uint32 v
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_20);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 53);	/* Pack the command. */
@@ -481,7 +481,7 @@ void verse_send_g_vertex_set_real32(VNodeID node_id, VLayerID layer_id, uint32 v
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_20);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 54);	/* Pack the command. */
@@ -530,7 +530,7 @@ void verse_send_g_polygon_set_corner_uint32(VNodeID node_id, VLayerID layer_id, 
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 55);	/* Pack the command. */
@@ -557,7 +557,7 @@ void verse_send_g_polygon_delete(VNodeID node_id, uint32 polygon_id)
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 55);	/* Pack the command. */
@@ -626,7 +626,7 @@ void verse_send_g_polygon_set_corner_real64(VNodeID node_id, VLayerID layer_id, 
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_80);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 56);	/* Pack the command. */
@@ -684,7 +684,7 @@ void verse_send_g_polygon_set_corner_real32(VNodeID node_id, VLayerID layer_id, 
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 57);	/* Pack the command. */
@@ -742,7 +742,7 @@ void verse_send_g_polygon_set_face_uint8(VNodeID node_id, VLayerID layer_id, uin
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_20);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 58);	/* Pack the command. */
@@ -791,7 +791,7 @@ void verse_send_g_polygon_set_face_uint32(VNodeID node_id, VLayerID layer_id, ui
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_20);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 59);	/* Pack the command. */
@@ -840,7 +840,7 @@ void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer_id, ui
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_20);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 60);	/* Pack the command. */
@@ -889,7 +889,7 @@ void verse_send_g_polygon_set_face_real32(VNodeID node_id, VLayerID layer_id, ui
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_20);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 61);	/* Pack the command. */
@@ -938,7 +938,7 @@ void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 d
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 62);	/* Pack the command. */
@@ -986,7 +986,7 @@ void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 63);	/* Pack the command. */
@@ -1034,7 +1034,7 @@ void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weigh
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_160);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);	/* Pack the command. */
@@ -1066,7 +1066,7 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id)
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_160);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);	/* Pack the command. */
