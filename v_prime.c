@@ -48,15 +48,11 @@ static int miller_rabin(const VBigDig *n)
 
 	mu = v_bignum_reduce_begin(n);
 
-/*	printf("Miller-Rabin testing: ");
-	v_bignum_print_hex_lf(n);
-*/
+
 	/* Pick a "witness", a number in the [1, n) range. */
 	v_bignum_set_random(a);
 	v_bignum_reduce(a, n, mu);
-/*	printf("witness: ");
-	v_bignum_print_hex_lf(a);
-*/
+
 	v_bignum_set_one(d);
 	v_bignum_set_bignum(nmo, n);
 	v_bignum_sub_digit(nmo, 1);	/* nmo = n - 1 (say it). */
@@ -64,7 +60,7 @@ static int miller_rabin(const VBigDig *n)
 	for(i = k; i >= 0; i--)
 	{
 		v_bignum_set_bignum(x, d);
-		v_bignum_mul(d, d);
+		v_bignum_square_half(d);
 		v_bignum_reduce(d, n, mu);
 		if(v_bignum_eq_one(d) && !v_bignum_eq_one(x) && !v_bignum_eq(x, nmo))
 		{
