@@ -129,7 +129,7 @@ unsigned int * v_con_get_network_expected_packet(void)
 
 void * v_con_get_ordered_storage(void)
 {
-	return VConData.con[VConData.con_count].ordered_storage;
+	return VConData.con[VConData.current_connection].ordered_storage;
 }
 
 uint32 verse_session_get_avatar(void)

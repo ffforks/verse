@@ -314,6 +314,7 @@ extern void vs_o_subscribe(VSNodeHead *node);
 extern void vs_g_subscribe(VSNodeHead *node);
 extern void vs_m_subscribe(VSNodeHead *node);
 extern void vs_b_subscribe(VSNodeHead *node);
+extern void vs_t_subscribe(VSNodeHead *node);
 
 static void callback_send_node_subscribe(void *user, VNodeID node_id)
 {
@@ -336,8 +337,11 @@ static void callback_send_node_subscribe(void *user, VNodeID node_id)
 		case V_NT_BITMAP :
 			vs_b_subscribe(node);
 			break;
-	default:
-		fprintf(stderr, "Can't subscribe to node type %d, not implemented\n", node->type);
+		case V_NT_TEXT:
+			vs_t_subscribe(node);
+			break;
+		default:
+			fprintf(stderr, "Can't subscribe to node type %d, not implemented\n", node->type);
 	}
 	verse_send_node_name_set(node->id, node->name);
 	for(i = 0; i < node->group_count; i++)

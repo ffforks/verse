@@ -368,8 +368,10 @@ static void callback_send_b_layer_destroy(void *user, VNodeID node_id, VLayerID 
 
 static void callback_send_b_layer_subscribe(void *user, VNodeID node_id, VLayerID layer_id, uint8 level)
 {
-	VSNodeBitmap *node;
+	VSNodeBitmap	*node;
+	const void *data;
 	unsigned int i, j, k, tile[3];
+
 	if((node = (VSNodeBitmap *)vs_get_node(node_id, V_NT_BITMAP)) == NULL)
 		return;
 	if(layer_id >= node->layer_count || node->layers[layer_id].layer == NULL)
@@ -377,38 +379,39 @@ static void callback_send_b_layer_subscribe(void *user, VNodeID node_id, VLayerI
 	tile[0] = ((node->size[0] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[1] = ((node->size[1] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[2] = node->size[2];
+	data = node->layers[layer_id].layer;
 	switch(node->layers[layer_id].type)
 	{
-		case VN_B_LAYER_UINT1 :	
-			for(i = 0; i < tile[0]; i++)
-				for(j = 0; j < tile[1]; j++)
-					for(k = 0; k < tile[2]; k++)
-						verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_UINT1, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8]);
-		break;
-		case VN_B_LAYER_UINT8 :
-			for(i = 0; i < tile[0]; i++)
-				for(j = 0; j < tile[1]; j++)
-					for(k = 0; k < tile[2]; k++)
-						verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_UINT8, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
-		break;
-		case VN_B_LAYER_UINT16 :
-			for(i = 0; i < tile[0]; i++)
-				for(j = 0; j < tile[1]; j++)
-					for(k = 0; k < tile[2]; k++)
-						verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_UINT16, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
-		break;
-		case VN_B_LAYER_REAL32 :
-			for(i = 0; i < tile[0]; i++)
-				for(j = 0; j < tile[1]; j++)
-					for(k = 0; k < tile[2]; k++)
-						verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_REAL32, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
-		break;
-		case VN_B_LAYER_REAL64 :
-			for(i = 0; i < tile[0]; i++)
-				for(j = 0; j < tile[1]; j++)
-					for(k = 0; k < tile[2]; k++)
-						verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_REAL64, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
-		break;
+	case VN_B_LAYER_UINT1:
+		for(i = 0; i < tile[0]; i++)
+			for(j = 0; j < tile[1]; j++)
+				for(k = 0; k < tile[2]; k++)
+					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT1, (VNBTile *) &((uint8*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8]);
+	break;
+	case VN_B_LAYER_UINT8 :
+		for(i = 0; i < tile[0]; i++)
+			for(j = 0; j < tile[1]; j++)
+				for(k = 0; k < tile[2]; k++)
+					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT8, (VNBTile *) &((uint8*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+	break;
+	case VN_B_LAYER_UINT16 :
+		for(i = 0; i < tile[0]; i++)
+			for(j = 0; j < tile[1]; j++)
+				for(k = 0; k < tile[2]; k++)
+					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT16, (VNBTile *) &((uint16*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+	break;
+	case VN_B_LAYER_REAL32 :
+		for(i = 0; i < tile[0]; i++)
+			for(j = 0; j < tile[1]; j++)
+				for(k = 0; k < tile[2]; k++)
+					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_REAL32, (VNBTile *) &((real32*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+	break;
+	case VN_B_LAYER_REAL64 :
+		for(i = 0; i < tile[0]; i++)
+			for(j = 0; j < tile[1]; j++)
+				for(k = 0; k < tile[2]; k++)
+					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_REAL64, (VNBTile *) &((real64*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+	break;
 	}
 }
 
