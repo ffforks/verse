@@ -161,15 +161,15 @@ unsigned int v_unpack_g_layer_subscribe(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &type);
+	if(buffer_length < buffer_pos + 1)
+		return -1;
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(alias_bool)
 		printf("receive: verse_send_g_layer_unsubscribe(node_id = %u layer_id = %u ); callback = %p\n", node_id, layer_id, v_fs_get_alias_user_func(49));
 	else
 		printf("receive: verse_send_g_layer_subscribe(node_id = %u layer_id = %u type = %u ); callback = %p\n", node_id, layer_id, type, v_fs_get_user_func(49));
 #endif
-	if(buffer_length < buffer_pos + 1)
-		return -1;
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 	if(!alias_bool)
 	{
 		void (* alias_g_layer_unsubscribe)(void *user_data, VNodeID node_id, VLayerID layer_id);
