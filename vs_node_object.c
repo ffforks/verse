@@ -644,6 +644,7 @@ static void callback_send_o_method_call(void *user, VNodeID node_id, uint16 grou
 	if(!verse_method_call_unpack(params, node->groups[group_id].methods[method_id].param_count, node->groups[group_id].methods[method_id].param_types, unpacked_params))
 		return;
 	sender = vs_get_avatar();
+	count =	vs_get_subscript_count(node->groups[group_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->groups[group_id].subscribers, i);
