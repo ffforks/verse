@@ -253,8 +253,10 @@ void v_nq_send_buf(VNetQueue *queue, VCMDBufHead *buf)
 	}
 	if(queue->unsent_size > V_NQ_MAX_PACKET_SIZE - 4)
 		v_nq_send_queue(queue, v_con_get_network_address());
-	else
+/* r1p2: fixes problem with recursion
+ 	else
 		v_con_network_listen();
+*/
 }
 
 void callback_send_packet_ack(void *user, uint32 packet_id)
