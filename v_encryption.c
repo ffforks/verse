@@ -14,41 +14,44 @@
 #include "v_bignum.h"
 #include "v_encryption.h"
 
-#define	BITS	(512)/*CHAR_BIT * V_ENCRYPTION_LOGIN_KEY_SIZE)*/
+#define	BITS	V_ENCRYPTION_LOGIN_KEY_BITS	/* Save some typing. */
 
 extern void	v_prime_set_random(VBigDig *x);
 extern void	v_prime_set_table(VBigDig *x, int i);
 
-void v_e_encrypt_data_key_generate(uint8 *to) /* possibly the worst key gen ever */
+void v_e_data_create_key(uint8 *to) /* possibly the worst key gen ever */
 {
 	static unsigned int counter = 0;
 	unsigned int i, temp;
+
 	for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++) 
 	{
 		counter++;
 		temp = (counter << 13) ^ counter;
 		temp = (temp * (temp * temp * 15731 + 789221) + 1376312589) & 0x7fffffff;
-		to[i] = temp % 256;
+		to[i] = temp;
 	}
 }
 
-void v_e_encrypt_command(uint8 *packet, unsigned int packet_length, const uint8 *command, unsigned int command_length, uint8 *key)
+void v_e_data_encrypt_command(uint8 *packet, size_t packet_size, const uint8 *command, size_t command_size, uint8 *key)
 {
-	unsigned int i, pos;
+	uint32	i, pos;
+
 	vnp_raw_unpack_uint32(packet, &pos);
-	pos = key[pos % V_ENCRYPTION_DATA_KEY_SIZE] + packet_length - 4;
-	for(i = 0; i < command_length; i++)
-		packet[packet_length + i] = command[i] ^ key[(i + pos) % V_ENCRYPTION_DATA_KEY_SIZE];
+	pos = key[pos % V_ENCRYPTION_DATA_KEY_SIZE] + packet_size - 4;
+	for(i = 0; i < command_size; i++)
+		packet[packet_size + i] = command[i] ^ key[(i + pos) % V_ENCRYPTION_DATA_KEY_SIZE];
 }
 
-void v_e_dencrypt_data_packet(const uint8 *from, uint8 *to, unsigned int data_length, uint8 *key)
+void v_e_data_decrypt_packet(uint8 *to, const uint8 *from, size_t size, const uint8 *key)
 {
-	unsigned int i, pos;
+	uint32	pos, i;
+
 	vnp_raw_unpack_uint32(from, &pos);
 	pos = key[pos % V_ENCRYPTION_DATA_KEY_SIZE] - 4;
 	for(i = 0; i < 4; i++)
 		to[i] = from[i];
-	for(i = 4; i < data_length; i++)
+	for(i = 4; i < size; i++)
 		to[i] = from[i] ^ key[(i + pos) % V_ENCRYPTION_DATA_KEY_SIZE];
 }
 
@@ -132,21 +135,17 @@ void v_e_math_compute_gcd(VBigDig *gcd, const VBigDig *u, const VBigDig *v)
 }
 #endif
 
-void v_e_create_key(uint8 *public_key, uint8 *private_key, uint8 *n)
+void v_e_connect_create_key(uint8 *public_key, uint8 *private_key, uint8 *n)
 {
 	VBigDig	VBIGNUM(p, BITS / 2), VBIGNUM(q, BITS / 2), VBIGNUM(qmo, BITS / 2), VBIGNUM(phi, BITS),
 		VBIGNUM(pub, BITS), VBIGNUM(priv, BITS), VBIGNUM(mod, BITS);
 
 	printf("find prime p\n");
 	v_prime_set_random(p);
-/*	v_prime_set_table(p, 0);*/
-/*	v_bignum_set_string(p, "12253097");*/
-/*	v_bignum_set_string(p, "15");*/
+/*	v_bignum_set_string_hex(p, "0xD5E1F71B7B7AFFEA270C2BF0203B6D88510CE648C93D34ED07C1A7A10719DB7B4551C7083AB587503B4675621912D8C277B2E26107C85B7437AF36A0C8BAD5F6D00F4F89DFAFB984DAE439F2A44A1C1EDE87219B2DD32C46624F4010A0C5BE008BC2C5536E3D6283FDAF36B1D0F91C3EAAB1D12892B961B866907930F6471A3F");*/
 	printf("find prime q\n");
 	v_prime_set_random(q);
-/*	v_prime_set_table(q, 1);*/
-/*	v_bignum_set_string(q, "12264347");*/
-/*	v_bignum_set_string(q, "27");*/
+/*	v_bignum_set_string_hex(q, "0xFF5E957FB852A85FB86965A8908314B84FDF9F3F515935C085190B567186CDE1404D2F46649F7864BBC600AFA44A9B494010420C3521DA192C78DBE4ED1116FFDD1552A917DBA3B115C8F144C35F1A1E1A264602C43AB737CB0942406941C7E8738063F0D41A207DC09F623E662765F61593593DED071579FECE9A67FF233AEB");*/
 	printf("done, computing key\n");
 /*	printf("p=");
 	v_bignum_print_hex_lf(p);
@@ -177,7 +176,7 @@ void v_e_create_key(uint8 *public_key, uint8 *private_key, uint8 *n)
 	v_bignum_raw_export(mod, n);
 }
 
-void v_e_encrypt(uint8 *output, const uint8 *data, const uint8 *key, const uint8 *key_n)
+void v_e_connect_encrypt(uint8 *output, const uint8 *data, const uint8 *key, const uint8 *key_n)
 {
 	VBigDig	VBIGNUM(packet, BITS), VBIGNUM(expo, BITS), VBIGNUM(mod, BITS);
 
@@ -198,18 +197,22 @@ void v_e_encrypt(uint8 *output, const uint8 *data, const uint8 *key, const uint8
 
 void v_encrypt_test(void)
 {
-	uint8	k_priv[BITS / 8], k_pub[BITS / 8], k_n[BITS / 8], cipher[BITS / 8], plain[BITS / 8], decode[BITS / 8];
+	uint8	k_priv[BITS / 8], k_pub[BITS / 8], k_n[BITS / 8], cipher[BITS / 8], plain[BITS / 8], decode[BITS / 8], i;
 
 	printf("testing RSA-crypto\n");
-	v_e_create_key(k_pub, k_priv, k_n);
+	v_e_connect_create_key(k_pub, k_priv, k_n);
+/*	exit(0);*/
 	printf("key pair generated, encrypting something\n");
 	memset(plain, 0, sizeof plain);
 	strcpy(plain, "This is some text to encrypt, to give it something to chew on.");
 	printf("plain: %02X (%u)\n", plain[0], strlen(plain));
-	v_e_encrypt(cipher, plain, k_pub, k_n);
+	v_e_connect_encrypt(cipher, plain, k_pub, k_n);
 	printf("plain: %02X, cipher: %02X\n", plain[0], cipher[0]);
-	v_e_encrypt(decode, cipher, k_priv, k_n);
-	printf("decoded: %02X\n", decode[0]);
+	v_e_connect_encrypt(decode, cipher, k_priv, k_n);
+	printf("decoded: %02X: '", decode[0]);
+	for(i = 0; decode[i] != 0; i++)
+		putchar(decode[i]);
+	printf("'\n");
 	exit(0);
 /*	printf("\npublic key: ");
 	v_bignum_print_hex_lf(k_public);
