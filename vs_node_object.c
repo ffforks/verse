@@ -124,8 +124,10 @@ void vs_o_subscribe(VSNodeObject *node)
 	if(node->light[0] != V_REAL64_MAX || node->light[1] != V_REAL64_MAX || node->light[2] != V_REAL64_MAX)
 		verse_send_o_light_set(node->head.id, node->light[0], node->light[1], node->light[2]);
 	for(i = 0; i < node->group_count; i++)
+	{
 		if(node->groups[i].name[0] != 0)
 			verse_send_o_method_group_create(node->head.id, i, node->groups[i].name);
+	}
 }
 
 void vs_o_unsubscribe(VSNodeObject *node)
@@ -252,30 +254,29 @@ static void callback_send_o_transform_rot_real64(void *user, VNodeID node_id, ui
 {
 	VSNodeObject *node;
 	unsigned int i, count;
-	float frot[4];
+	real32 rot32[4];
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL)
 		return;
-	node->transform.position[0] = rot[0];
-	node->transform.position[1] = rot[1];
-	node->transform.position[2] = rot[2];
-	node->transform.position[3] = rot[3];
-	frot[0] = (real32)rot[0];
-	frot[1] = (real32)rot[1];
-	frot[2] = (real32)rot[2];
-	frot[3] = (real32)rot[3];
+	node->transform.rotation[0] = rot[0];
+	node->transform.rotation[1] = rot[1];
+	node->transform.rotation[2] = rot[2];
+	node->transform.rotation[3] = rot[3];
+	rot32[0] = rot[0];
+	rot32[1] = rot[1];
+	rot32[2] = rot[2];
+	rot32[3] = rot[3];
 	count =	vs_get_subscript_count(node->trans_sub64);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub64, i);
 		verse_send_o_transform_rot_real64(node_id, time_s, time_f, node->transform.rotation, NULL, NULL, NULL, 0);
-
 	}
 	count =	vs_get_subscript_count(node->trans_sub32);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub32, i);
-		verse_send_o_transform_rot_real32(node_id, time_s, time_f, frot, NULL, NULL, NULL, 0);
+		verse_send_o_transform_rot_real32(node_id, time_s, time_f, rot32, NULL, NULL, NULL, 0);
 	}
 	vs_reset_subscript_session();
 }
@@ -437,6 +438,7 @@ static void callback_send_o_method_group_create(void *user, VNodeID node_id, uin
 {
 	VSNodeObject *node;
 	unsigned int i, j, count;
+
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL || vs_get_node(node_id, V_NT_OBJECT) == NULL)
 		return;
@@ -543,6 +545,7 @@ static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 gr
 	VSNodeObject *node;
 	unsigned int i, j, count;
 	VSMethodGroup *group;
+	
 	node = (VSNodeObject *) vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL || vs_get_node(node_id, V_NT_OBJECT) == NULL)
 		return;
