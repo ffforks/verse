@@ -18,24 +18,24 @@
 #define PING_TIMEOUT		200000		/* 200000 microseconds. */
 #define CONNECTION_TIMEOUT	50		/* 200 * 50 miliseconds. */
 
-typedef struct{
-	void			*network_queue;
-	void			*network_address;
-	boolean			connected;
+typedef struct {
+	VNetQueue	*network_queue;
+	VNetworkAddress	*network_address;
+	boolean		connected;
 	unsigned int	avatar;
 	unsigned int	packet_id;
 	unsigned int	ping_timeout;
 	unsigned int	connect_timeout;
-}VConection;
+} VConnection;
 
-struct{
-	VConection		*con;
+struct {
+	VConnection	*con;
 	unsigned int	con_count;
 	unsigned int	current_connection;
-	void			*connect_address;
-	void			*unified_func_storage;
-	uint16			connect_port;
-}VConData;
+	void		*connect_address;
+	void		*unified_func_storage;
+	uint16		connect_port;
+} VConData;
 
 static boolean v_con_initialized = FALSE;
 
