@@ -1,19 +1,5 @@
-/*
-**
-*/
-
-#if !defined VERSE_HEADER_H
-#define	VERSE_HEADER_H
-
-/*
-#if defined _MSC_VER
-typedef __int64 int64;
-typedef unsigned __int64 uint64;
-#elif defined __GNUC__
-typedef long long int64;
-typedef unsigned long long uint64;
-#endif
-*/
+#if !defined VERSE_TYPES
+#define	VERSE_TYPES
 
 typedef unsigned char boolean;
 typedef unsigned int uint32;
@@ -334,6 +320,7 @@ extern void *verse_pack_method_call(uint32 param_count, const VNOParam *params, 
 extern boolean verse_unpack_method_call(void *data, uint32 param_count, VNOParam *params, const VNOParamType *param_type);
 /*
 #define V_PRINT_SEND_COMMANDS
-#define V_PRINT_RECIVE_COMMANDS
+#define V_PRINT_RECEIVE_COMMANDS
 */
-#endif		/* VERSE_HEADER_H */
+
+#endif		/* VERSE_TYPES */
