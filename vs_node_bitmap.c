@@ -386,31 +386,31 @@ static void callback_send_b_layer_subscribe(void *user, VNodeID node_id, VLayerI
 		for(i = 0; i < tile[0]; i++)
 			for(j = 0; j < tile[1]; j++)
 				for(k = 0; k < tile[2]; k++)
-					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT1, &((VNBTile *)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8]);
+					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT1, (VNBTile *) &((uint8*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8]);
 	break;
 	case VN_B_LAYER_UINT8 :
 		for(i = 0; i < tile[0]; i++)
 			for(j = 0; j < tile[1]; j++)
 				for(k = 0; k < tile[2]; k++)
-					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT8, &((VNBTile *)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT8, (VNBTile *) &((uint8*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
 	break;
 	case VN_B_LAYER_UINT16 :
 		for(i = 0; i < tile[0]; i++)
 			for(j = 0; j < tile[1]; j++)
 				for(k = 0; k < tile[2]; k++)
-					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT16, &((VNBTile *)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_UINT16, (VNBTile *) &((uint16*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
 	break;
 	case VN_B_LAYER_REAL32 :
 		for(i = 0; i < tile[0]; i++)
 			for(j = 0; j < tile[1]; j++)
 				for(k = 0; k < tile[2]; k++)
-					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_REAL32, &((VNBTile *)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_REAL32, (VNBTile *) &((real32*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
 	break;
 	case VN_B_LAYER_REAL64 :
 		for(i = 0; i < tile[0]; i++)
 			for(j = 0; j < tile[1]; j++)
 				for(k = 0; k < tile[2]; k++)
-					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_REAL64, &((VNBTile *)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+					verse_send_b_layer_set_tile(node_id, layer_id, i, j, k, VN_B_LAYER_REAL64, (VNBTile *) &((real64*)data)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
 	break;
 	}
 }
