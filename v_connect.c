@@ -59,7 +59,7 @@ static void v_send_hidden_connect_send_key(void) /*  Stage 1: Hosts reply to any
 
 static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypted name and password */
 {
-	uint8 buf[1500], *name, *pass, *my_key, name_pass[V_ENCRYPTION_LOGIN_KEY_SIZE], encrypted_key[V_ENCRYPTION_LOGIN_KEY_SIZE];
+	uint8 buf[1500], *name, *pass, *key, name_pass[V_ENCRYPTION_LOGIN_KEY_SIZE], encrypted_key[V_ENCRYPTION_LOGIN_KEY_SIZE];
 	unsigned int buffer_pos = 0, i, j;
 
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 1);/* Packing the packet id */
@@ -68,7 +68,7 @@ static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypte
 	name = v_con_get_name();
 	/* Pad data area with randomness. */
 	for(i = 0; i < sizeof name_pass; i++)
-		name_pass[i] = rand();
+		name_pass[i] = rand() >> 13;
 	/* Make sure last (MSB) byte is clear, to guarantee that data < key for RSA math. */
 	name_pass[sizeof name_pass - 1] = 0;
 	for(i = 0; name[i] != 0 && i < V_ENCRYPTION_LOGIN_KEY_SIZE / 2 - 1; i++)
@@ -79,8 +79,8 @@ static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypte
 	for(i = 0; pass[i] != 0 && i < V_ENCRYPTION_LOGIN_KEY_SIZE / 2 - 1; i++)
 		name_pass[i + V_ENCRYPTION_LOGIN_KEY_SIZE / 2] = pass[i];
 	name_pass[i + V_ENCRYPTION_LOGIN_KEY_SIZE / 2] = 0;
-	my_key = v_con_get_my_key();
-	v_e_connect_encrypt(encrypted_key, name_pass, &my_key[V_ENCRYPTION_LOGIN_PRIVATE_START], &my_key[V_ENCRYPTION_LOGIN_N_START]);
+	key = v_con_get_other_key();
+	v_e_connect_encrypt(encrypted_key, name_pass, &key[V_ENCRYPTION_LOGIN_PUBLIC_START], &key[V_ENCRYPTION_LOGIN_N_START]);
 
 	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], encrypted_key[i]);
@@ -89,14 +89,14 @@ static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypte
 
 static void v_send_hidden_connect_accept(void) /* Host accepts Clients connectionatempt and sends over data encryption key */
 {
-	uint8 buf[1500], *host_id, encrypted[V_ENCRYPTION_DATA_KEY_SIZE];
+	uint8 buf[1500], *client_key, encrypted[V_ENCRYPTION_DATA_KEY_SIZE];
 	unsigned int i, buffer_pos = 0;
 
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 1);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 1);/* Packing the command */
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], verse_session_get_avatar());
-	host_id = v_con_get_host_id();
-	v_e_connect_encrypt(encrypted, v_con_get_data_key(), &host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
+	client_key = v_con_get_other_key();
+	v_e_connect_encrypt(encrypted, v_con_get_data_key(), &client_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &client_key[V_ENCRYPTION_LOGIN_N_START]);
 	for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], encrypted[i]);
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
@@ -264,7 +264,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			v_con_set_time(seconds, fractions);
 
 			other_key = v_con_get_other_key();
-
+			printf("initializing other key at %p from network [1]\n", other_key);
 			for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START + i]);
 			for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
@@ -302,8 +302,8 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			address = v_con_get_network_address();
 			for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &data[i]);
-			host_id = v_con_get_other_key();
-			v_e_connect_encrypt(unpack, data, &host_id[V_ENCRYPTION_LOGIN_PUBLIC_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
+			host_id = v_con_get_host_id();
+			v_e_connect_encrypt(unpack, data, &host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
 			v_con_set_name_pass(unpack, &unpack[V_ENCRYPTION_LOGIN_KEY_SIZE / 2]);
 			v_con_set_connect_stage(V_CS_PENDING_HOST_CALLBACK);
 			return; 
@@ -311,15 +311,15 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 	}
 	if(/*pack_id == 0 &&*/ cmd_id == 1 && V_CS_PENDING_ACCEPT == v_con_get_connect_stage()) /* reseved by client */
 	{
-		uint8 *other_key, key[V_ENCRYPTION_DATA_KEY_SIZE], decrypted[V_ENCRYPTION_DATA_KEY_SIZE];
+		uint8 *my_key, key[V_ENCRYPTION_DATA_KEY_SIZE], decrypted[V_ENCRYPTION_DATA_KEY_SIZE];
 		uint32 avatar;
 		verse_send_packet_ack(pack_id);
 		buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &avatar);
 		v_con_set_avatar(avatar);
 		for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
 			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &key[i]);
-		other_key = v_con_get_other_key();
-		v_e_connect_encrypt(decrypted, key, &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &other_key[V_ENCRYPTION_LOGIN_N_START]);
+		my_key = v_con_get_my_key();
+		v_e_connect_encrypt(decrypted, key, &my_key[V_ENCRYPTION_LOGIN_PRIVATE_START], &my_key[V_ENCRYPTION_LOGIN_N_START]);
 		v_con_set_data_key(decrypted);
 		v_con_set_connect_stage(V_CS_PENDING_CLIENT_CALLBACK_ACCEPT);
 		v_send_hidden_connect_send_key();
