@@ -15,10 +15,10 @@
 #define VS_TEXT_CHUNK_SIZE 4096
 
 typedef struct {
-	char				name[16];
-	char				*text;
-	unsigned int		length;
-	unsigned int		allocated;
+	char			name[16];
+	char			*text;
+	size_t			length;
+	size_t			allocated;
 	VSSubscriptionList	*subscribers;
 } VSTextBuffer;
 
@@ -128,7 +128,7 @@ static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBuffer
 	if(node->buffer[buffer_id].name[0] == 0)
 	{
 		node->buffer[buffer_id].allocated = VS_TEXT_CHUNK_SIZE;
-		node->buffer[buffer_id].text = malloc((sizeof *node->buffer[buffer_id].text) * node->buffer[buffer_id].allocated);
+		node->buffer[buffer_id].text = malloc(node->buffer[buffer_id].allocated);
 		node->buffer[buffer_id].length = 0;
 		node->buffer[buffer_id].subscribers = vs_create_subscription_list();
 	}
@@ -237,6 +237,7 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 			buf[pos + i] = text[i];
 	}else
 	{
+		printf("current buf len: %u\n", node->buffer[buffer_id].length);
 		for(i = node->buffer[buffer_id].length; i != pos + text_length; i--)
 			buf[i + text_length - length] = buf[i];
 		buf[i + text_length - length] = buf[i];
