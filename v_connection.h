@@ -20,7 +20,7 @@ extern void	v_fs_buf_store_pack(uint8 *data, unsigned int length);
 extern boolean	v_fs_buf_unpack_stored();
 
 
-extern boolean	v_fs_func_acsept_connections();
+extern boolean	v_fs_func_accept_connections();
 extern void	v_fs_add_func(unsigned int cmd_id,
 			      unsigned int (*unpack_func)(char *buf, unsigned int buffer_length, void *user_func,
 							  void *user_data),
