@@ -176,7 +176,7 @@ int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
 {
 	int		output_length;
 	struct	sockaddr_in address_in;
-	socklen_t	from_length = sizeof address_in;
+	int	from_length = sizeof address_in;
 
 	if(v_n_socket_create() == -1)
 		return 0;
