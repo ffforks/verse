@@ -415,9 +415,7 @@ static void callback_send_o_method_call(void *user, VNodeID node_id, uint16 grou
 			verse_send_o_method_call(node_id, group_id, method_id, sender, data);
 	}
 	vs_reset_subscript_session();
-
 }
-
 
 void vs_o_callback_init(void)
 {
