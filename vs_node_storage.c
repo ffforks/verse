@@ -204,7 +204,8 @@ void callback_send_node_destroy(void *user_data, VNodeID node_id)
 static void callback_send_node_list(void *user_data, uint32 mask)
 {
 	unsigned int i, j, pow = 1;
-	for(i = 0; i < V_NT_NUM_TYPES; i++)
+
+	for(i = 0; i < V_NT_NUM_TYPES; i++, pow <<= 1)
 	{
 		if((mask & pow) != 0)
 		{
@@ -219,9 +220,9 @@ static void callback_send_node_list(void *user_data, uint32 mask)
 				}
 			}
 			vs_add_new_subscriptor(VSNodeStorage.list[i]);
-		}else
+		}
+		else
 			vs_remove_subscriptor(VSNodeStorage.list[i]);
-		pow *= 2;
 	}
 }
 
