@@ -7,7 +7,7 @@
 #include "verse_header.h"
 #include "v_pack.h"
 
-#define	V_NQ_MAX_PACKET_SIZE	1500
+#define	V_NOQ_MAX_PACKET_SIZE	1500
 
 typedef enum {
 	VCMDBS_10 = 0,
@@ -55,6 +55,7 @@ typedef struct {
 extern VCMDBufHead	*v_cmd_buf_allocate(VCMDBufSize buf_size);
 extern void		v_cmd_buf_free(VCMDBufHead *head);
 
-extern void		v_cmd_buf_set_address_size(VCMDBufHead *head, unsigned int address_size, unsigned int size);
-extern void		v_cmd_buf_set_unique_size(VCMDBufHead *head, unsigned int size);
+extern void		v_cmd_buf_set_size(VCMDBufHead *head, unsigned int size);
+extern void		v_cmd_buf_set_address_size(VCMDBufHead *head, unsigned int size);
+extern void		v_cmd_buf_set_unique_address_size(VCMDBufHead *head, unsigned int size);
 extern boolean		v_cmd_buf_compare(VCMDBufHead *a, VCMDBufHead *b);

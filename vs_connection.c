@@ -16,6 +16,8 @@ typedef struct{
 typedef struct{
 	VSession	session;
 	uint32		node_id;
+	char		name[128];
+	char		pass[128];
 } VSConnection;
 
 static struct {
@@ -35,19 +37,43 @@ void vs_init_connection_storage(void)
 	VSConnectionStorage.current_session = 0;
 }
 
-void vs_add_new_connection(VSession session, unsigned int node_id)
+void vs_add_new_connection(VSession session, char *name, char *pass, unsigned int node_id)
 {
+	unsigned int i;
 	if(VSConnectionStorage.connection_length % VS_CONNECTION_CHUNK_SIZE == 0)
 		VSConnectionStorage.connection = realloc(VSConnectionStorage.connection, (sizeof *VSConnectionStorage.connection) * (VSConnectionStorage.connection_length + VS_CONNECTION_CHUNK_SIZE));
 	VSConnectionStorage.connection[VSConnectionStorage.connection_length].session = session;
 	VSConnectionStorage.connection[VSConnectionStorage.connection_length].node_id = node_id;
 	VSConnectionStorage.connection_length++;
+	for(i = 0; i < 127 && name[i] != 0; i++)
+		VSConnectionStorage.connection[VSConnectionStorage.connection_length].name[i] = name[i];
+	VSConnectionStorage.connection[VSConnectionStorage.connection_length].name[i] = 0;
+	for(i = 0; i < 127 && pass[i] != 0; i++)
+		VSConnectionStorage.connection[VSConnectionStorage.connection_length].pass[i] = pass[i];
+	VSConnectionStorage.connection[VSConnectionStorage.connection_length].pass[i] = 0;
+
 }
 
 uint32 vs_get_avatar(void)
 {
 	return VSConnectionStorage.connection[VSConnectionStorage.current_session].node_id;
 }
+
+VSession vs_get_session(void)
+{
+	return VSConnectionStorage.connection[VSConnectionStorage.current_session].session;
+}
+
+const char * vs_get_user_name(void)
+{
+	return VSConnectionStorage.connection[VSConnectionStorage.current_session].name;
+}
+
+const char * vs_get_user_pass(void)
+{
+	return VSConnectionStorage.connection[VSConnectionStorage.current_session].pass;
+}
+
 
 void vs_remove_connection(void)
 {
@@ -69,7 +95,8 @@ void vs_remove_connection(void)
 	{
 		VSConnectionStorage.connection[VSConnectionStorage.current_session].session = VSConnectionStorage.connection[j].session;
 		VSConnectionStorage.connection[VSConnectionStorage.current_session].node_id = VSConnectionStorage.connection[j].node_id;
-	}else
+	}
+	else
 		VSConnectionStorage.current_session = 0;
 }
 
@@ -97,9 +124,13 @@ VSSubscriptionList *vs_create_subscription_list(void)
 void vs_destroy_subscription_list(VSSubscriptionList *list)
 {
 	unsigned int i;
+
+	if(list == NULL)
+		return;
 	if(list->session != NULL)
 		free(list->session);
-	for(i = 0; i < VSConnectionStorage.list_length && VSConnectionStorage.list[i] != list; i++);
+	for(i = 0; i < VSConnectionStorage.list_length && VSConnectionStorage.list[i] != list; i++)
+		;
 	if(i < VSConnectionStorage.list_length)
 		VSConnectionStorage.list[i] = VSConnectionStorage.list[--VSConnectionStorage.list_length];
 	free(list);
@@ -107,8 +138,12 @@ void vs_destroy_subscription_list(VSSubscriptionList *list)
 
 void vs_add_new_subscriptor(VSSubscriptionList *list)
 {
+	unsigned int i;
 	if(list->session_count % VS_CONNECTION_CHUNK_SIZE == 0)
 		list->session = realloc(list->session, (sizeof *list->session) * (list->session_count + VS_CONNECTION_CHUNK_SIZE));
+	for(i = 0; i < list->session_count; i++)
+		if(list->session[i] == VSConnectionStorage.connection[VSConnectionStorage.current_session].session)
+			return;
 	list->session[list->session_count] = VSConnectionStorage.connection[VSConnectionStorage.current_session].session;
 	list->session_count++;
 }
@@ -116,7 +151,7 @@ void vs_add_new_subscriptor(VSSubscriptionList *list)
 
 void vs_remove_subscriptor(VSSubscriptionList *list)
 {
-	unsigned int i;
+	unsigned int i; 
 	VSession *session;
 	session = VSConnectionStorage.connection[VSConnectionStorage.current_session].session;
 	for(i = 0; i < list->session_count && list->session[i] != session; i++);
@@ -124,7 +159,7 @@ void vs_remove_subscriptor(VSSubscriptionList *list)
 		list->session[i] = list->session[--list->session_count];
 }
 
-size_t vs_get_subscript_count(VSSubscriptionList *list)
+size_t vs_get_subscript_count(const VSSubscriptionList *list)
 {
 	return list != NULL ? list->session_count : 0;
 }

@@ -34,7 +34,7 @@ void vs_init_node_storage(void)
 unsigned int vs_add_new_node(VSNodeHead *node, VNodeType type)
 {
 	unsigned int i, j;
-	for(i = 1; i < VSNodeStorage.node_length && VSNodeStorage.nodes[i] != NULL; i++);
+	for(i = 0; i < VSNodeStorage.node_length && VSNodeStorage.nodes[i] != NULL; i++);
 	if(i >= VSNodeStorage.node_allocated)
 	{
 		j = VSNodeStorage.node_allocated;
@@ -87,7 +87,7 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 	unsigned int count, i;
 	VSNodeHead *node;
 	VNodeID node_id;
-
+	printf("vs_node_create(%u, %u)\n", owner_id, type);
 	switch(type)
 	{
 		case V_NT_OBJECT :
@@ -105,28 +105,32 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 		case V_NT_TEXT :
 			node = vs_t_create_node(owner_id);
 		break;
-		case V_NT_PARTICLE :
+/*		case V_NT_PARTICLE :
 			return 0;			
-/*			node = vs_p_create_node(owner_id);*/
-		break;
+			node = vs_p_create_node(owner_id);
+		break;*/
 		case V_NT_CURVE :
-			return 0;
 			node = vs_c_create_node(owner_id);
 		break;
 	}
 	node_id = node->id;
+
+
 	count =	vs_get_subscript_count(VSNodeStorage.list[type]);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(VSNodeStorage.list[type], i);
-		verse_send_node_create(node_id, type, owner_id);
+		if(owner_id != verse_session_get_avatar())
+			verse_send_node_create(node_id, type, VN_OWNER_OTHER);
+		else
+			verse_send_node_create(node_id, type, VN_OWNER_MINE);
 	}
 	if(count != 0)
 		vs_reset_subscript_session();
 	return node_id;
 }
 
-static void callback_send_node_create(void *user_data, VNodeID node_id, uint8 type, VNodeID owner_id)
+static void callback_send_node_create(void *user_data, VNodeID node_id, uint8 type, VNodeOwner owner_id)
 {
 	vs_node_create(vs_get_avatar(), type);
 }
@@ -156,11 +160,11 @@ void callback_send_node_destroy(void *user_data, VNodeID node_id)
 			vs_b_destroy_node(node);
 		break;
 		case V_NT_TEXT :
-/*			vs_t_destroy_node(node);*/
+			vs_t_destroy_node(node);
 		break;
-		case V_NT_PARTICLE :
-/*			vs_p_destroy_node(node);*/
-		break;
+/*		case V_NT_PARTICLE :
+			vs_p_destroy_node(node);
+		break;*/
 		case V_NT_CURVE :
 			vs_c_destroy_node(node);
 		break;
@@ -184,9 +188,16 @@ static void callback_send_node_list(void *user_data, uint32 mask)
 	{
 		if((mask & pow) != 0)
 		{
-			for(j = 1; j < VSNodeStorage.node_length; j++)
+			for(j = 0; j < VSNodeStorage.node_length; j++)
+			{
 				if(VSNodeStorage.nodes[j] != NULL && VSNodeStorage.nodes[j]->type == (VNodeType)i)
-					verse_send_node_create(VSNodeStorage.nodes[j]->id, i, VSNodeStorage.nodes[j]->owner);
+				{
+					if(VSNodeStorage.nodes[j]->owner == verse_session_get_avatar())
+						verse_send_node_create(VSNodeStorage.nodes[j]->id, i, VN_OWNER_MINE);
+					else
+						verse_send_node_create(VSNodeStorage.nodes[j]->id, i, VN_OWNER_OTHER);
+				}
+			}
 			vs_add_new_subscriptor(VSNodeStorage.list[i]);
 		}else
 			vs_remove_subscriptor(VSNodeStorage.list[i]);

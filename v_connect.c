@@ -33,13 +33,14 @@ void v_send_hidden_connect_send_key() /*  Stage 1: Hosts reply to any atempt to 
 {
 	uint8 buf[V_ENCRYPTION_LOGIN_KEY_SIZE * 3 + 4 + 1 + 1 + 1], *public_key, *encrypted_key;
 	unsigned int i, buffer_pos = 0, s, f;
+
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 0);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);/* Packing the command */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 1);/* Stage 1 */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], V_RELEASE_NUMBER);/* version */
 	v_n_get_current_time(&s, &f);
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], s);/* version */
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], f);/* version */
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], s);/* time, seconds */
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], f);/* time, fraction */
 	public_key = v_con_get_my_public_key();
 	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], public_key[i]);/* id key */
@@ -87,7 +88,8 @@ void v_send_hidden_connect_terminate(VNetworkAddress *address, unsigned int pack
 	unsigned int buffer_pos = 0;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], packet_id);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 2);/* Packing the command */
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], bye, 512); /* packing name */
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], bye, 512); /* pack message */
+	v_e_encrypt_command(buf, sizeof(uint32), buf+sizeof(uint32), buffer_pos, v_con_get_data_key());
 	v_n_send_data(address, buf, buffer_pos);
 }
 
@@ -132,15 +134,17 @@ void v_update_connection_pending()
 
 	switch(v_con_get_connect_stage())
 	{
-/*	case V_CS_CONTACT : */ /* client tryes to contact host */
-/*		v_send_hidden_connect_contact();
+#if 0
+	case V_CS_CONTACT :		/* client tries to contact host */
+		v_send_hidden_connect_contact();
 		break;
-	case V_CS_CONTACTED :*/ /* Host replyes whit challange */
-/*		v_send_hidden_connect_send_key();
+	case V_CS_CONTACTED :		/* Host replies with challange */
+		v_send_hidden_connect_send_key();
 		break;
-	case V_CS_PENDING_ACCEPT : */ /* Client sends login */
+	case V_CS_PENDING_ACCEPT :	/* Client sends login */
 		v_send_hidden_connect_login();
 		break;
+#endif
 	case V_CS_PENDING_HOST_CALLBACK : /* Host got login waits for accept connect callback */
 		printf("0\n");
 		v_con_set_connect_stage(V_CS_PENDING_DECISION);
@@ -188,7 +192,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 	
 	buffer_pos = vnp_raw_unpack_uint32(&buf[buffer_pos], &pack_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &cmd_id);
-	printf("paket %u %u", pack_id, cmd_id);
+	printf("connection packet %u, cmd %u", pack_id, cmd_id);
 	if(cmd_id == 0)
 	{
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &stage);
@@ -300,8 +304,9 @@ VSession * verse_send_connect_accept(VNodeID avatar, const char *address, uint8 
 
 void v_callback_connect_terminate(const char *bye)
 {
-	void (* func_connect_terminate)(void *user_data, char *address, char *bye);
+	void (* func_connect_terminate)(void *user_data, char *address, const char *bye);
 	char address_string[32];
+
 	printf("terminate\n");
 	func_connect_terminate = v_fs_get_user_func(2);
 	v_n_get_address_string(v_con_get_network_address(), address_string);

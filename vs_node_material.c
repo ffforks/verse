@@ -51,13 +51,8 @@ void vs_m_subscribe(VSNodeMaterial *node)
 			verse_send_m_fragment_create(node->head.id, (uint16)i, (uint8)node->frag[i].type, &node->frag[i].frag);
 }
 
-static void callback_send_m_unsubscribe(void *user, VNodeID node_id)
+void vs_m_unsubscribe(VSNodeMaterial *node)
 {
-	VSNodeMaterial *node;
-	node = (VSNodeMaterial *)vs_get_node(node_id, V_NT_MATERIAL);
-	if(node == NULL)
-		return;
-	vs_remove_subscriptor(node->head.subscribers);
 }
 
 static void callback_send_m_fragment_create(void *user, VNodeID node_id, VNMFragmentID frag_id, uint8 type, VMatFrag *fragment)
@@ -103,10 +98,8 @@ static void callback_send_m_fragment_destroy(void *user, VNodeID node_id, VNMFra
 	printf("callback_send_m_fragment_destroy %p\n", node);
 	if(node == NULL)
 		return;
-	printf("cp0\n");
 	if(node->frag_count <= frag_id || node->frag[frag_id].type > VN_M_FT_OUTPUT)
 		return;
-	printf("cp1\n");
 	node->frag[frag_id].type = 255;
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)

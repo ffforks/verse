@@ -93,16 +93,16 @@ void v_noq_destroy_network_queue(VNetOutQueue *queue)
 	free(queue);
 }
 
-unsigned int ack_balance = 0;
-unsigned int nak_balance = 0;
-unsigned int in_balance = 1;
-unsigned int out_balance = 1;
+static unsigned int ack_balance = 0;
+static unsigned int nak_balance = 0;
+static unsigned int in_balance = 1;
+static unsigned int out_balance = 1;
 
 
 boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 {
 	VCMDBufHead *buf;
-	unsigned int i, size, limit;
+	unsigned int i, size;
 	char data[1500];
 	uint32 seconds, fractions;
 	double delta;
@@ -141,10 +141,10 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 			queue->packet_id++;
 /*			printf("balance %u %u %f\n", ack_balance, nak_balance, (float)nak_balance / ((float)ack_balance + (float)nak_balance) * 100);
 			printf("in balance %u %u %f\n", in_balance, out_balance, (float)out_balance / ((float)in_balance + (float)out_balance) * 100);
-*/			{
+			{
 				static uint32 send_seconds, send_fractions;
 				FILE *f;
-/*				printf("timer %f\n",(double)(seconds - send_seconds) + ((double)fractions - (double)send_fractions) / (double)(0xffffffff));*/
+				printf("timer %f\n",(double)(seconds - send_seconds) + ((double)fractions - (double)send_fractions) / (double)(0xffffffff));
 				send_seconds = seconds; 
 				send_fractions = fractions;
 				f = fopen("performance.txt", "wt");
@@ -152,7 +152,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 					fprintf(f, "%f %f %f %f\n", save[i * 4], save[i * 4 + 1], save[i * 4 + 2], save[i * 4 + 3]);
 				fclose(f);
 			}
-			return TRUE;
+*/			return TRUE;
 		}
 		return FALSE;
 	}
@@ -178,16 +178,16 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 		return FALSE;
 
 	{
-		static unsigned int s, new_sec, count;
+/*		static unsigned int s, new_sec, count;
 		v_n_get_current_time(&new_sec, NULL);
 		if(s != new_sec)
 		{
 			s = new_sec;
-			printf("this second sendt %u pack_id %u rate %u a %u n %u\n", count, queue->packet_id, (uint32)(queue->send_rate / 1500), ack_balance, nak_balance);
+			printf("this second sent %u pack_id %u rate %u a %u n %u\n", count, queue->packet_id, (uint32)(queue->send_rate / 1500), ack_balance, nak_balance);
 			ack_balance = 0;
 			nak_balance = 0;
 			count = 0;
-		}
+		}*/
 		count++;
 	}
 
@@ -294,7 +294,6 @@ void v_noq_send_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 }
 void v_noq_send_buf_fake(VNetOutQueue *queue, VCMDBufHead *buf)
 {
-	VCMDBufHead *b, *last = NULL;
 	unsigned int slot;
 	slot = buf->address_sum % V_NOQ_OPTIMIZATION_SLOTS;
 	queue->unsent_size += buf->size;
