@@ -151,8 +151,9 @@ static void callback_send_a_stream_destroy(void *user, VNodeID node_id, VLayerID
 {
 	VSNodeAudio *node;
 	unsigned int i, count;
+
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
-	if(node == NULL || node->stream_count >= stream_id || node->streams[stream_id].name[0] == 0)
+	if(node == NULL || stream_id >= node->stream_count || node->streams[stream_id].name[0] == 0)
 		return;
 	vs_remove_subscriptor(node->streams[stream_id].subscribers);
 	node->streams[stream_id].name[0] = 0;
