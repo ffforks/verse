@@ -337,8 +337,8 @@ void callback_send_packet_nak(void *user, uint32 packet_id)
 	VNetOutQueue *queue;
 	VCMDBufHead *buf, *last;
 	unsigned int slot;
+
 	queue = v_con_get_network_queue();
-	printf("nak");
 	for(slot = 0; slot < V_NOQ_OPTIMIZATION_SLOTS; slot++)
 	{
 		last = NULL;
