@@ -1,6 +1,10 @@
 #if !defined VERSE_TYPES
 #define	VERSE_TYPES
 
+#if defined __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 
 /* Release information. */
@@ -384,5 +388,9 @@ extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, co
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECEIVE_COMMANDS
 */
- 
+
+#if defined __cplusplus
+}
+#endif
+
 #endif		/* VERSE_TYPES */
