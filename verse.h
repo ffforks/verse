@@ -51,7 +51,6 @@ typedef uint32		VNodeID;
 typedef uint16		VLayerID;		/* Commonly used to identify layers. */
 typedef uint16		VNMFragmentID;
 typedef uint16		VNMBufferID;
-typedef uint16		VNPEffectID;
 
 typedef void *		VSession;
 
@@ -227,7 +226,6 @@ typedef enum {
 	VN_M_BLEND_DOT
 } VNMBlendType;
 
-
 typedef enum {
 	VN_M_FT_COLOR = 0,
 	VN_M_FT_LIGHT,
@@ -319,7 +317,6 @@ typedef union {
 		VNMFragmentID back;
 	} output;
 } VMatFrag;
-
 
 typedef enum {
 	VN_B_LAYER_UINT1 = 0,
