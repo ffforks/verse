@@ -16,83 +16,6 @@
 #include "v_network.h"
 #include "v_connection.h"
 
-void verse_send_get_time(uint32 time)
-{
-	uint8 *buf;
-	unsigned int buffer_pos = 0;
-	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
-	buf = ((VCMDBuffer10 *)head)->buf;
-
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 4);/* Packing the command */
-#if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_get_time(time = %u );\n", time);
-#endif
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time);
-	v_cmd_buf_set_size(head, buffer_pos);
-	v_noq_send_buf(v_con_get_network_queue(), head);
-}
-
-unsigned int v_unpack_get_time(const char *buf, size_t buffer_length)
-{
-	unsigned int buffer_pos = 0;
-	void (* func_get_time)(void *user_data, uint32 time);
-	uint32 time;
-	
-	func_get_time = v_fs_get_user_func(4);
-	if(buffer_length < 4)
-		return -1;
-	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time);
-#if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_get_time(time = %u ); callback = %p\n", time, v_fs_get_user_func(4));
-#endif
-	if(func_get_time != NULL)
-		func_get_time(v_fs_get_user_data(4), time);
-
-	return buffer_pos;
-}
-
-void verse_send_ping(const char *address, const char *text)
-{
-	uint8 *buf;
-	unsigned int buffer_pos = 0;
-	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
-	buf = ((VCMDBuffer10 *)head)->buf;
-
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 5);/* Packing the command */
-#if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_ping(address = %s text = %s );\n", address, text);
-#endif
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], address, 512);
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, 512);
-	v_cmd_buf_set_size(head, buffer_pos);
-	v_noq_send_buf(v_con_get_network_queue(), head);
-}
-
-unsigned int v_unpack_ping(const char *buf, size_t buffer_length)
-{
-	unsigned int buffer_pos = 0;
-	void (* func_ping)(void *user_data, const char *address, const char *text);
-	char address[512];
-	char text[512];
-	
-	func_ping = v_fs_get_user_func(5);
-	if(buffer_length < 0)
-		return -1;
-	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], address, 512, buffer_length - buffer_pos);
-	if(buffer_length < 0 + buffer_pos)
-		return -1;
-	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], text, 512, buffer_length - buffer_pos);
-#if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_ping(address = %s text = %s ); callback = %p\n", address, text, v_fs_get_user_func(5));
-#endif
-	if(func_ping != NULL)
-		func_ping(v_fs_get_user_data(5), address, text);
-
-	return buffer_pos;
-}
-
 void verse_send_packet_ack(uint32 packet_id)
 {
 	uint8 *buf;
@@ -602,6 +525,8 @@ void verse_send_tag_create(VNodeID node_id, uint16 group_id, uint16 tag_id, cons
 				buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)((VNTag *)tag)->vblob.blob)[i]);
 		}
 		break;
+		default :
+			;
 	}
 	if(node_id == (uint32)(-1) || group_id == (uint16)(-1) || tag_id == (uint16)(-1))
 		v_cmd_buf_set_unique_address_size(head, 9);
@@ -716,6 +641,8 @@ unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length)
 					buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &string[i]);
 			}
 			break;
+		default :
+			;
 		}
 		if(func_tag_create != NULL)
 		func_tag_create(v_fs_get_user_data(18), node_id, group_id, tag_id, name, type, &tag);
