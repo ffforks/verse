@@ -43,8 +43,8 @@ extern uint8			*v_con_get_other_key(void);
 extern uint8			*v_con_get_host_id(void);
 extern uint8			**v_con_get_expected_key(void);
 
-extern void				v_con_set_data_key(uint8 *key);
-extern uint8 *			v_con_get_data_key(void);
+extern void				v_con_set_data_key(const uint8 *key);
+extern const uint8 *			v_con_get_data_key(void);
 
 
 extern void *			v_con_get_network_queue(void);
