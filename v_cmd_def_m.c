@@ -7,8 +7,7 @@
 
 #if defined(V_GENERATE_FUNC_MODE)
 
-
-void v_gen_material_cmd_def()
+void v_gen_material_cmd_def(void)
 {	
 	v_cg_new_cmd(V_NT_MATERIAL,			"m_fragment_create", 64, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,		"node_id");
@@ -224,6 +223,8 @@ void v_gen_material_cmd_def()
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_alias(FALSE, "m_fragment_destroy", "if(type > VN_M_FT_OUTPUT)", 2, NULL);
+
 	v_cg_end_cmd();
 }
+
 #endif

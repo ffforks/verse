@@ -1,14 +1,14 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "verse_header.h"
 #include "v_cmd_gen.h"
 #include "v_cmd_buf.h"
 
-
 #if defined(V_GENERATE_FUNC_MODE)
 
-void v_gen_bitmap_cmd_def()
+void v_gen_bitmap_cmd_def(void)
 {
 	v_cg_new_cmd(V_NT_BITMAP,		"b_init_dimensions", 80, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
@@ -136,7 +136,6 @@ void v_gen_bitmap_cmd_def()
 	"\t}\n");
 
 	v_cg_end_cmd();
-
 }
 
 #endif

@@ -7,7 +7,7 @@
 
 #if defined(V_GENERATE_FUNC_MODE)
 
-void v_gen_system_cmd_def()
+void v_gen_system_cmd_def(void)
 {
 	v_cg_new_manual_cmd(0, "connect", "VSession *verse_send_connect(const char *name, const char *pass, const char *address)", NULL, NULL);
 
@@ -265,8 +265,8 @@ void v_gen_system_cmd_def()
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_LONG_NAME,	"name");
-	v_cg_end_cmd();
 
+	v_cg_end_cmd();
 }
 
 #endif
