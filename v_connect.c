@@ -88,8 +88,7 @@ void v_send_hidden_connect_terminate(VNetworkAddress *address, unsigned int pack
 	unsigned int buffer_pos = 0;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], packet_id);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 2);/* Packing the command */
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], bye, 512); /* packing name */
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], bye, 512);
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], bye, 512); /* pack message */
 	v_e_encrypt_command(buf, sizeof(uint32), buf+sizeof(uint32), buffer_pos, v_con_get_data_key());
 	v_n_send_data(address, buf, buffer_pos);
 }
