@@ -101,8 +101,8 @@ static void v_cg_init(void)
 		"#define\tVERSE_H\n\n");
 	/* Copy contents of "verse_header.h" into output "verse.h". */
 	f = fopen("verse_header.h", "rt");
-	while((i = getc(f)) != EOF)
-		putc(i, VCGData.verse_h);
+	while((i = fgetc(f)) != EOF)
+		fputc(i, VCGData.verse_h);
 	fclose(f);
 	fprintf(VCGData.verse_h, "\n/* Command sending functions begin. ----------------------------------------- */\n\n");
 }
