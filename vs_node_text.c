@@ -174,15 +174,16 @@ void callback_send_t_buffer_destroy(void *user, VNodeID node_id, VNMBufferID buf
 static void callback_send_t_buffer_subscribe(void *user, VNodeID node_id, VNMBufferID buffer_id)
 {
 	VSNodeText *node;
-	unsigned int i;
+/*	unsigned int i;*/
 	node = (VSNodeText *)vs_get_node(node_id, V_NT_TEXT);
 	if(node == NULL)
 		return;
 	if(buffer_id >= node->buffer_count || node->buffer[buffer_id].name[0] == 0)
 		return;
 	vs_add_new_subscriptor(node->buffer[buffer_id].subscribers);
-	for(i = 0; i < node->buffer[buffer_id].allocated && node->buffer[buffer_id].lines[i] == NULL; i++)
+/*	for(i = 0; i < node->buffer[buffer_id].allocated && node->buffer[buffer_id].lines[i] == NULL; i++)
 		verse_send_t_line_insert(node_id, buffer_id, i, 0, node->buffer[buffer_id].lines[i]);
+*/
 }
 
 static void callback_send_t_buffer_unsubscribe(void *user, VNodeID node_id, VNMBufferID buffer_id)
@@ -196,6 +197,7 @@ static void callback_send_t_buffer_unsubscribe(void *user, VNodeID node_id, VNMB
 	vs_remove_subscriptor(node->buffer[buffer_id].subscribers);
 }
 
+/*
 static void callback_send_t_line_insert(void *user, VNodeID node_id, VNMBufferID buffer_id, uint32 line, uint16 index, char *name)
 {
 	VSNodeText *node;
@@ -261,6 +263,7 @@ static void callback_send_t_line_delete(void *user, VNodeID node_id, VNMBufferID
 	}
 	vs_reset_subscript_session();
 }
+*/
 
 void vs_t_callback_init(void)
 {
@@ -269,8 +272,9 @@ void vs_t_callback_init(void)
 	verse_callback_set(verse_send_t_buffer_destroy,		callback_send_t_buffer_destroy, NULL);
 	verse_callback_set(verse_send_t_buffer_subscribe,	callback_send_t_buffer_subscribe, NULL);
 	verse_callback_set(verse_send_t_buffer_unsubscribe,	callback_send_t_buffer_unsubscribe, NULL);
-	verse_callback_set(verse_send_t_line_insert,		callback_send_t_line_insert, NULL);
+/*	verse_callback_set(verse_send_t_line_insert,		callback_send_t_line_insert, NULL);
 	verse_callback_set(verse_send_t_line_delete,		callback_send_t_line_delete, NULL);
+*/
 }
 
 #endif
