@@ -35,7 +35,7 @@ void v_niq_clear(VNetInQueue *queue)
 	v_n_get_current_time(&queue->seconds, NULL);
 }
 
-boolean v_niq_time_out(VNetInQueue *queue)
+boolean v_niq_time_out(const VNetInQueue *queue)
 {
 	uint32 seconds;
 	v_n_get_current_time(&seconds, NULL);
@@ -50,12 +50,12 @@ char *v_niq_get(VNetInQueue *queue, size_t *length)
 		*length = 0;
 		return NULL;
 	}
-	p =	queue->oldest;
+	p = queue->oldest;
 	queue->oldest = p->newer;
 	if(queue->oldest == NULL)
 		queue->newest = NULL;
 	else
-		((NetPacked	*)queue->oldest)->older = NULL;
+		((NetPacked *)queue->oldest)->older = NULL;
 
 	*length = p->size;
 
@@ -89,7 +89,7 @@ char *v_niq_store(VNetInQueue *queue, size_t length, unsigned int packet_id)
 	if(queue->newest == NULL)
 		queue->oldest = p;
 	else
-		((NetPacked	*)queue->newest)->newer = p;
+		((NetPacked *)queue->newest)->newer = p;
 	queue->newest = p;
 	p->size = length;
 	return p->data;
