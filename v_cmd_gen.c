@@ -116,6 +116,7 @@ void v_cg_new_cmd(VCGCommandType type, const char *name, unsigned int cmd_id, VC
 	VCGData.type = type;
 	VCGData.cmd_id = cmd_id;
 	VCGData.command = command;
+/*	printf("def: %u: %s\n", cmd_id, name);*/
 }
 
 void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def, const char *alias_name, const char *alias_def)
@@ -129,6 +130,7 @@ void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def,
 	else
 		fprintf(VCGData.init, "NULL);\n");
 	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length);\n", name);
+/*	printf("def: %u: %s\n", cmd_id, name);*/
 }
 
 void v_cg_alias(char bool_switch, const char *name, const char *qualifier, unsigned int param, unsigned int *param_array)
@@ -465,7 +467,7 @@ static void v_cg_gen_pack(boolean alias)
 		{
 			if(no_param)
 				param = "V_REAL32_MAX";
-			fprintf(f, "\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], %s);\n", param);
+			fprintf(f, "\tbuffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], %s);\n", param);
 		}
 		if(VCGData.param_type[i] == VCGP_REAL64)
 		{
@@ -547,13 +549,14 @@ static void v_cg_gen_unpack(void)
 	FILE *f;
 	unsigned int i;
 	boolean printed = FALSE;
+
 	f = VCGData.nodes[VCGData.type];
 	printf("generating function: v_unpack_%s\n", VCGData.func_name);
 	fprintf(f, "unsigned int v_unpack_%s(const char *buf, size_t buffer_length)\n", VCGData.func_name);
 	fprintf(f, "{\n");
 	for(i = 0; i < VCGData.param_count && VCGData.param_type[i] != VCGP_ENUM; i++);
 	if(i < VCGData.param_count)
-		fprintf(f, "\tchar enum_temp;\n");
+		fprintf(f, "\tuint8 enum_temp;\n");
 	fprintf(f, "\tunsigned int buffer_pos = 0;\n");
 	fprintf(f, "\tvoid (* func_%s)(void *user_data, ", VCGData.func_name);
 	v_cg_gen_func_params(f, FALSE, FALSE);
@@ -644,7 +647,7 @@ static void v_cg_gen_unpack(void)
 			if(VCGData.alias_qualifier != NULL)
 				fprintf(f, "\t%s\n\t", VCGData.alias_qualifier);
 			else
-				fprintf(f, "\tif(alias_bool)\n\t");
+				fprintf(f, "\tif(!alias_bool)\n\t");
 			v_cg_create_print(f, FALSE, TRUE);
 			fprintf(f, "\telse\n\t");
 		}
@@ -655,6 +658,8 @@ static void v_cg_gen_unpack(void)
 
 	if(VCGData.alias_name != NULL)
 	{
+		unsigned int	active;
+
 		if(VCGData.alias_bool_switch)
 			fprintf(f, "\tif(!alias_bool)\n");
 		else
@@ -668,15 +673,23 @@ static void v_cg_gen_unpack(void)
 		fprintf(f, "\t\t\talias_%s(v_fs_get_alias_user_data(%u)", VCGData.alias_name, VCGData.cmd_id);
 		for(i = 0; i < VCGData.param_count && i < VCGData.alias_param; i++)
 		{
-			if(VCGData.param_type[i] != VCGP_PACK_INLINE && VCGData.param_type[i] != VCGP_UNPACK_INLINE && VCGData.param_type[i] != VCGP_END_ADDRESS && VCGData.param_type[i] != VCGP_POINTER_TYPE)
+			if(VCGData.alias_param_array != NULL)
+				active = VCGData.alias_param_array[i];
+			else
+				active = i;
+
+			if(VCGData.param_type[active] != VCGP_PACK_INLINE &&
+			   VCGData.param_type[active] != VCGP_UNPACK_INLINE &&
+			   VCGData.param_type[active] != VCGP_END_ADDRESS &&
+			   VCGData.param_type[active] != VCGP_POINTER_TYPE)
 			{
-				if(VCGData.param_type[i] == VCGP_ENUM_NAME)
+				if(VCGData.param_type[active] == VCGP_ENUM_NAME)
 				{
-					fprintf(f, ", (%s)%s", VCGData.param_name[i], VCGData.param_name[i + 1]);
+					fprintf(f, ", (%s)%s", VCGData.param_name[active], VCGData.param_name[active + 1]);
 					i++;
 				}
 				else
-					fprintf(f, ", %s", VCGData.param_name[i]);
+					fprintf(f, ", %s", VCGData.param_name[active]);
 			}
 		}
 		fprintf(f, ");\n\t\treturn buffer_pos;\n\t}\n");
