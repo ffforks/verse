@@ -525,7 +525,7 @@ static void callback_send_o_method_group_subscribe(void *user, VNodeID node_id, 
 			char *names[255];
 			for(j = 0; j < node->groups[group_id].methods[i].param_count; j++)
 				names[j] = &node->groups[group_id].methods[i].param_names[j * 16];
-			verse_send_o_method_create(node_id, group_id, i, node->groups[group_id].methods[i].name, node->groups[group_id].methods[i].param_count, node->groups[group_id].methods[i].param_types, names);
+			verse_send_o_method_create(node_id, group_id, i, node->groups[group_id].methods[i].name, node->groups[group_id].methods[i].param_count, node->groups[group_id].methods[i].param_types, (const char **) names);
 		}
 	}
 }
@@ -601,7 +601,7 @@ static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 gr
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->groups[group_id].subscribers, i);
-		verse_send_o_method_create(node_id, group_id, method_id, name, param_count, param_types, param_names);
+		verse_send_o_method_create(node_id, group_id, method_id, name, param_count, param_types, (const char **) param_names);
 	}
 	vs_reset_subscript_session();
 }
