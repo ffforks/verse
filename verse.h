@@ -34,6 +34,8 @@ typedef double real64;
 #define FALSE 0
 #endif
 
+#define V_HOST_ID_SIZE	768		/* The size of host IDs (keys), in bytes. */
+
 typedef enum {
 	V_NT_OBJECT = 0, 
 	V_NT_GEOMETRY, 
