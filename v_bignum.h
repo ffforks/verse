@@ -7,62 +7,69 @@
 
 /* ----------------------------------------------------------------------------------------- */
 
-#define	V_BIGNUM_BITS	2048	/* Don't change this unless you know what you're doing. */
+typedef unsigned short	VBigDig;
 
-/* The integer, as a sequence of bits in little-endian (!) order.
- * This means that VBigNum.x[0] contains the least significant bits.
+#define	V_BIGBITS	(CHAR_BIT * sizeof (VBigDig))
+
+/* Use this macro to initialize big number variables, like so:
+ * VBigDig BIGNUM(foo, 128), BIGNUM(bar, 256);
+ * Creates automatic variables 'foo' of 128 bits, and 'bar' of 256.
+ * 
+ * Note that 'bits' must be a multiple of V_BIGBITS, completely
+ * arbitrary number sizes is not supported by this module.
 */
-typedef struct
-{
-	unsigned short	x[V_BIGNUM_BITS / (CHAR_BIT * sizeof (unsigned short))];
-} VBigNum;
+#define	VBIGNUM(n, bits)	n[1 + (bits / V_BIGBITS)] = { bits / V_BIGBITS }
 
 /* ----------------------------------------------------------------------------------------- */
 
-/* "Constructors", initialize and return a new BigNum. */
-extern VBigNum	v_bignum_new_zero(void);
-extern VBigNum	v_bignum_new_one(void);
-extern VBigNum	v_bignum_new_ushort(unsigned short a);
-extern VBigNum	v_bignum_new_bignum(VBigNum a, unsigned int msb, unsigned int bits);
-extern VBigNum	v_bignum_new_string(const char *hex);
-extern VBigNum	v_bignum_new_bits(const unsigned char *bits);	/* Copy raw bits from <bits>. */
-extern VBigNum	v_bignum_new_random(unsigned int num_bits);
+/* Import/export numbers from raw bits. The number x must have been allocated
+ * with the desired number of bits to read/write.
+*/
+extern void	v_bignum_raw_import(VBigDig *x, const void *bits);
+extern void	v_bignum_raw_export(const VBigDig *x, void *bits);
 
-extern void	v_bignum_dump(VBigNum a, unsigned char *bits);	/* Copy raw bits to <bits>. */
+/* Initializers. */
+extern void	v_bignum_set_zero(VBigDig *x);
+extern void	v_bignum_set_one(VBigDig *x);
+extern void	v_bignum_set_digit(VBigDig *x, VBigDig y);
+extern void	v_bignum_set_string_hex(VBigDig *x, const char *string);
+extern void	v_bignum_set_bignum(VBigDig *x, const VBigDig *y);
+/* x = <bits> most significant <bits> bits of <y>, starting at <msb>. Right-
+ * adjusted in x, so that e.g. y=0xcafebabec001 msb=47 bits=16 gives x=0xcafe.
+*/ 
+extern void	v_bignum_set_bignum_part(VBigDig *x, const VBigDig *y,
+					 unsigned int msb, unsigned int bits);
+extern void	v_bignum_set_random(VBigDig *x);
 
-/* Handy during debugging. Prints in hexadecimal, with 0x prefix and linefeed. */
-extern void	v_bignum_print_hex(VBigNum a);
+/* Handy during debugging. */
+extern void	v_bignum_print_hex(const VBigDig *x);
+extern void	v_bignum_print_hex_lf(const VBigDig *x);
 
-extern VBigNum	v_bignum_not(VBigNum a);
+/* Bit operators. */
+extern void	v_bignum_not(VBigDig *x);
+extern int	v_bignum_bit_test(const VBigDig *x, unsigned int bit);
+extern void	v_bignum_bit_set(VBigDig *x, unsigned int bit);
+extern int	v_bignum_bit_msb(const VBigDig *x);
+extern int	v_bignum_bit_size(const VBigDig *x);
+extern void	v_bignum_bit_shift_left(VBigDig *x, unsigned int count);
+extern void	v_bignum_bit_shift_right(VBigDig *x, unsigned int count);
 
-/* Bit manipulation functions. */
-extern int	v_bignum_bit_test(VBigNum a, unsigned int bit);
-extern int	v_bignum_bit_msb(VBigNum a);
-extern VBigNum	v_bignum_bit_shift_left(VBigNum a, unsigned int count);
-extern VBigNum	v_bignum_bit_shift_right(VBigNum a, unsigned int count);
+/* Comparators. */
+extern int	v_bignum_eq_zero(const VBigDig *x);			/* x == 0. */
+extern int	v_bignum_eq_one(const VBigDig *x);			/* x == 1. */
+extern int	v_bignum_eq(const VBigDig *x, const VBigDig *y);	/* x == y. */
+extern int	v_bignum_gte(const VBigDig *x, const VBigDig *y);	/* x >= y. */
 
-/* Returns a == 0. */
-extern int	v_bignum_eq_zero(VBigNum a);
-/* Returns a == 1. */
-extern int	v_bignum_eq_one(VBigNum a);
-/* Returns a == b. */
-extern int	v_bignum_eq(VBigNum a, VBigNum b);
-/* Comparison, returns a >= b. */
-extern int	v_bignum_gte(VBigNum a, VBigNum b);
+/* Number vs single-digit arithmetic. */
+extern void	v_bignum_add_digit(VBigDig *x, VBigDig y);	/* x += y. */
+extern void	v_bignum_sub_digit(VBigDig *x, VBigDig y);	/* x -= y. */
+extern void	v_bignum_mul_digit(VBigDig *x, VBigDig y);	/* x *= y. */
 
-extern VBigNum	v_bignum_add_ushort(VBigNum a, unsigned short b);	/* Returns a + b. */
-extern VBigNum	v_bignum_sub_ushort(VBigNum a, unsigned short b);	/* Returns a - b. */
-extern VBigNum	v_bignum_mul_ushort(VBigNum a, unsigned short b);	/* Returns a * b. */
-
-/* Main mathematical routines. */
-extern VBigNum	v_bignum_add(VBigNum a, VBigNum b);
-extern VBigNum	v_bignum_sub(VBigNum a, VBigNum b);
-extern VBigNum	v_bignum_mul(VBigNum a, VBigNum b);
-
-/* Remainder can be NULL. */
-extern VBigNum	v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder);
-
-extern VBigNum	v_bignum_mod(VBigNum a, VBigNum b);
-
-/* Computes (a ** ex) % mod. where ** denotes exponentiation. */
-extern VBigNum	v_bignum_pow_mod(VBigNum a, VBigNum ex, VBigNum mod);
+/* Arithmetic. */
+extern void	v_bignum_add(VBigDig *x, const VBigDig *y);	/* x += y. */
+extern void	v_bignum_sub(VBigDig *x, const VBigDig *y);	/* x -= y. */
+extern void	v_bignum_mul(VBigDig *x, const VBigDig *y);	/* x *= y. */
+extern void	v_bignum_div(VBigDig *x, const VBigDig *y, VBigDig *remainder);
+extern void	v_bignum_mod(VBigDig *x, const VBigDig *y);	/* x %= y. */
+extern void	v_bignum_pow_mod(VBigDig *x, const VBigDig *y,
+				 const VBigDig *n);	/* x = pow(x, y) % n. */

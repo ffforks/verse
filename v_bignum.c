@@ -1,27 +1,34 @@
 /*
- * Routines for working with big (2048-bit) unsigned integers, and
- * doing common maths operations on them. Written by Emil Brink.
+ * Routines for big (thousands of bits) unsigned integers, and
+ * doing simple maths operations on them. Written by Emil Brink.
  * 
  * Part of the Verse core, see license details elsewhere.
  * 
- * All "big numbers" have the same length, V_BIGNUM_BITS bits to be
- * specific (2,048 at time of writing). They are represented as a
- * vector of unsigned shorts, x, with x[0] being the least significant
- * bits in host order. This means x[0] & 1 tests bit zero of the
- * bignum, and so on. Verse's uint16 and uint32 types are *not* used,
- * since there is no need to limit the bits. If your machine has 32-
- * bit shorts and 64-bit ints, this code should cope.
+ * Bignums are represented as vectors of VBigDig (unsigned short),
+ * where the first element holds the length of the number in such
+ * digits. So a 32-bit number would be { 2, low, high }; digits are
+ * in little-endian format.
+ * 
+ * Verse's uint16 and uint32 types are *not* used, since there is no
+ * need to limit the bits. If your machine has 32-bit shorts and 64-
+ * bit ints, this code should cope.
  * 
  * By using unsigned shorts, which are assumed to be half the size of
  * an unsigned int, we can easily do intermediary steps in int-sized
  * variables, and thus get space for manual carry-management.
  * 
- * The original focus for this code has been, um, speed of implementation
- * first, which (to me) means simplicity over performance in very many
- * cases. I'm not a numerical kind of guy. These routines were written
- * from scratch in less than three days, which did not leave much time
- * to meditate over FFTs and Karatsubas. Reasonable improvements are
- * of course welcome, although this code *should* not be a bottleneck.
+ * This is the second incarnation of this code, the first one used
+ * a fixed 2,048-bit VBigNum structure passed by value. It had to be
+ * replaced since it was too weak for the desired functionality. Now,
+ * there's roughly 1,5 weeks of time gone into this code, which still
+ * means it's optimized for simplicity rather than speed.
+ * 
+ * There has been neither time nor interest to meditate over FFTs and
+ * Karatsubas. Reasonable improvements are of course welcome, although
+ * this code *should* not be a bottleneck. Famous last words...
+ * 
+ * In general, these routines do not do a lot of error checking, they
+ * assume you know what you're doing. Numbers must have >0 digits.
 */
 
 #include <ctype.h>
@@ -31,501 +38,650 @@
 
 #include "v_bignum.h"
 
+#define	MAX_DIG	((1UL << V_BIGBITS) - 1)
+
 /* ----------------------------------------------------------------------------------------- */
 
-VBigNum v_bignum_new_zero(void)
-{
-	static VBigNum	zero = { { 1 } };
+/* Some routines need temporary storage to hold a term or two (the multi-
+ * plier, for instance). Since we don't want to use malloc()/free(), let's
+ * just have a bunch of digits that it's possible to allocate from in a
+ * stack-like manner.
+*/
+static VBigDig		heap[1024 + 32];
+static unsigned int	heap_pos;
 
-	if(zero.x[0])
-		memset(&zero.x, 0, sizeof zero.x);
-	return zero;
+/* Allocate a number of <n> digits, returning it un-initialized. */
+static VBigDig * bignum_alloc(unsigned int n)
+{
+	VBigDig	*y;
+
+	if(heap_pos + n > sizeof heap / sizeof *heap)
+	{
+		printf("Out of memory in bignum heap -- unbalanced calls?\n");
+		return NULL;
+	}
+	y = heap + heap_pos;
+	heap_pos += n + 1;
+	*y = n;
+	return y;
 }
 
-VBigNum v_bignum_new_one(void)
+/* Free a number previously allocated by bignum_allow() above. MUST match in sequences. */
+static void bignum_free(const VBigDig *x)
 {
-	VBigNum	a;
-
-	memset(a.x, 0, sizeof a.x);
-	a.x[0] = 1;
-	return a;
+	heap_pos -= *x + 1;
 }
 
-VBigNum v_bignum_new_ushort(unsigned short low)
-{
-	VBigNum	a;
+/* ----------------------------------------------------------------------------------------- */
 
-	memset(a.x, 0, sizeof a.x);
-	a.x[0] = low;
-	return a;
+/* Set x from bits. */
+void v_bignum_raw_import(VBigDig *x, const void *bits)
+{
+	memcpy(x + 1, bits, *x * sizeof *x);
 }
 
-/* Create a new bignum by extracting bits [msb-(bits-1),msb] from <src>. The new number is right-adjusted. */
-VBigNum v_bignum_new_bignum(VBigNum a, unsigned int msb, unsigned int bits)
+void v_bignum_raw_export(const VBigDig *x, void *bits)
 {
-	VBigNum	n = v_bignum_new_zero();
+	memcpy(bits, x + 1, *x * sizeof *x);
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* Assigns x = 0. */
+void v_bignum_set_zero(VBigDig *x)
+{
+	memset(x + 1, 0, *x * sizeof *x);
+}
+
+/* Assigns x = 1. */
+void v_bignum_set_one(VBigDig *x)
+{
 	int	i;
 
-	/* Extract the bits by simply testing source bits. Could be optimized. */
+	for(i = *x++ - 1, *x++ = 1; i > 0; i--)
+		*x++ = 0;
+}
+
+/* Assigns x = y. */
+void v_bignum_set_digit(VBigDig *x, VBigDig y)
+{
+	v_bignum_set_zero(x);
+	x[1] = y;
+}
+
+/* Assigns x = <string>, with string in hexadecimal ASCII. */
+void v_bignum_set_string_hex(VBigDig *x, const char *string)
+{
+	unsigned int	d;
+
+	if(string[0] == '0' && (string[1] == 'x' || string[1] == 'X'))
+		string += 2;
+	v_bignum_set_zero(x);
+	for(; *string && isxdigit(*string); string++)
+	{
+		v_bignum_bit_shift_left(x, 4);
+		d = tolower(*string) - '0';
+		if(d > 9)
+			d -= ('a' - '0') - 10;
+		x[1] |= (d & 0xF);
+	}
+}
+
+/* Performs x = y, taking care to handle different precisions correctly by truncating. */
+void v_bignum_set_bignum(VBigDig *x, const VBigDig *y)
+{
+	int	xs, ys, i, s;
+
+	xs = x[0];
+	ys = y[0];
+	if(xs == ys)	/* For same sizes, just memcpy() and be done. */
+	{
+		memcpy(x + 1, y + 1, xs * sizeof *x);
+		return;
+	}
+	else if(ys > xs)
+		s = xs;
+	else
+		s = ys;
+	/* Copy as many digits as will fit, and clear any remaining high digits. */
+	for(i = 1; i <= s; i++)
+		x[i] = y[i];
+	for(; i <= xs; i++)
+		x[i] = 0;
+}
+
+/* Performs x = y[msb:msb-bits], right-adjusting the result. */
+void v_bignum_set_bignum_part(VBigDig *x, const VBigDig *y, unsigned int msb, unsigned int bits)
+{
+	int	i, bit;
+
+	v_bignum_set_zero(x);
+	if(y == NULL || msb > (y[0] * (CHAR_BIT * sizeof *x)))
+		return;
 	for(i = 0; i < bits; i++)
 	{
-		if(v_bignum_bit_test(a, msb - (bits - 1) + i))
-			n.x[i / (CHAR_BIT * sizeof *n.x)] |= 1 << (i % (CHAR_BIT * sizeof *n.x));
+		bit = msb - (bits - 1) + i;
+		if(v_bignum_bit_test(y, bit))
+			v_bignum_bit_set(x, i);
 	}
-	return n;
 }
 
-VBigNum v_bignum_new_string(const char *string)
+/* Set x to a random bunch of bits. Should use a real random source. */
+void v_bignum_set_random(VBigDig *x)
 {
-	size_t	len = strlen(string);
-	int	i, here, d, digits;
-	VBigNum	x;
+	unsigned int	i, s = *x++;
 
-	digits = (CHAR_BIT * sizeof *x.x) / 4;	/* How many hex digits per slot? One digit is 4 bits. */
-
-	if(strncmp(string, "0x", 2) == 0)
-	{
-		string += 2;
-		len -= 2;
-	}
-	x = v_bignum_new_zero();
-	for(i = len - 1; i >= 0 && !isxdigit(string[i]); i--)
-		;
-	len = i + 1;
-	for(i = len - 1, d = 0; i >= 0; i--, d++)
-	{
-		here = toupper(string[i]);
-		if(!isxdigit(here))
-			break;
-		here -= isdigit(here) ? '0' : 'A' - 10;
-		x.x[d / digits] |= here << (4 * (d % digits));
-	}
-	return x;
+	for(i = 0; i < s; i++)
+		x[i] = rand();
 }
 
-VBigNum v_bignum_new_bits(const unsigned char *bits)
+/* Print x in hexadecimal, with 0x prefix but no linefeed. */
+void v_bignum_print_hex(const VBigDig *x)
 {
-	VBigNum	a;
-
-	memcpy(a.x, bits, sizeof a.x);
-	return a;
-}
-
-VBigNum v_bignum_new_random(unsigned int num_bits)
-{
-	VBigNum	a;
-	int	i;
-
-	if(num_bits > V_BIGNUM_BITS)
-		return v_bignum_new_zero();
-
-	memset(a.x, 0, sizeof a.x);
-	for(i = 0; i < (num_bits + CHAR_BIT * sizeof *a.x - 1) / (CHAR_BIT * sizeof *a.x); i++)
-		a.x[i] = rand();
-	/* NOTE: Happily assumes that <bits> is always a multiple of the bits-per-a.x[] value, i.e. 16. */
-
-	return a;
-}
-
-/* ----------------------------------------------------------------------------------------- */
-
-void v_bignum_dump(VBigNum a, unsigned char *bits)
-{
-	if(bits != NULL)
-		memcpy(bits, a.x, sizeof a.x);
-}
-
-void v_bignum_print_hex(VBigNum a)
-{
-	int	i;
+	int	i, s = *x;
 
 	printf("0x");
-	for(i = sizeof a.x / sizeof *a.x - 1; i >= 0; i--)
-		if(a.x[i])
-			break;
-	if(i < 0)
-		i = 0;
-	for(; i >= 0; i--)
-		printf("%04X", a.x[i]);
+	for(i = 0; i < s; i++)
+		printf("%04X", x[s - i]);
+}
+
+/* Print x in hexadecimal, with linefeed. */
+void v_bignum_print_hex_lf(const VBigDig *x)
+{
+	v_bignum_print_hex(x);
 	printf("\n");
 }
 
 /* ----------------------------------------------------------------------------------------- */
 
-/* Return bitwise inversion of <a>, i.e. ~a in C. */
-VBigNum v_bignum_not(VBigNum a)
+/* x = ~x. */
+void v_bignum_not(VBigDig *x)
 {
-	int	i;
+	unsigned int	i, s = *x++;
 
-	for(i = 0; i < sizeof a.x / sizeof *a.x; i++)
-		a.x[i] = ~a.x[i];
-	return a;
+	for(i = 0; i < s; i++)
+		x[i] = ~x[i];
 }
 
-/* ----------------------------------------------------------------------------------------- */
-
-/* Returns value of bit <i> in <a>. */
-int v_bignum_bit_test(VBigNum a, unsigned int i)
+int v_bignum_bit_test(const VBigDig *x, unsigned int bit)
 {
-	if(i < V_BIGNUM_BITS)
-		return (a.x[i / (CHAR_BIT * sizeof *a.x)] & (1 << (i % (CHAR_BIT * sizeof *a.x)))) != 0;
+	unsigned int	slot = bit / (CHAR_BIT * sizeof *x), m = 1 << (bit % (CHAR_BIT * sizeof *x));
+
+	if(slot < x[0])
+		return (x[slot + 1] & m) != 0;
 	return 0;
 }
 
-/* Return index of most significant bit, or -1 if a is zero. */
-int v_bignum_bit_msb(VBigNum a)
+/* Compute x |= (1 << bit). */
+void v_bignum_bit_set(VBigDig *x, unsigned int bit)
 {
-	int	i, msb = V_BIGNUM_BITS - 1;
+	unsigned int	slot, m;
 
-	for(i = (sizeof a.x / sizeof *a.x) - 1; i >= 0; i--, msb -= CHAR_BIT * sizeof *a.x)
+	if(bit >= (*x * (CHAR_BIT * sizeof *x)))
+		return;
+	slot = bit / (CHAR_BIT * sizeof *x);
+	m    = 1 << (bit % (CHAR_BIT * sizeof *x));
+	x[1 + slot] |= m;
+}
+
+/* Returns index of most signifant '1' bit of x, or -1 if x == 0. */
+int v_bignum_bit_msb(const VBigDig *x)
+{
+	int		i;
+	unsigned int	s = *x++;
+
+	for(i = s - 1; i >= 0; i--)
 	{
-		if(a.x[i] != 0)	/* Found word containing bits? */
+		if(x[i] != 0)
 		{
-			unsigned int	mask;
+			int	bit = (i + 1) * (CHAR_BIT * sizeof *x) - 1;
+			VBigDig	d = x[i], mask;
 
-			for(mask = 1 << (CHAR_BIT * sizeof *a.x - 1); mask != 0; mask >>= 1, msb--)
-				if(a.x[i] & mask)
-					return msb;
-			/* This can't happen. */
+			for(mask = 1 << (CHAR_BIT * sizeof *x - 1); mask != 0; mask >>= 1, bit--)
+			{
+				if(d & mask)
+					return bit;
+			}
 		}
 	}
 	return -1;
 }
 
-/* Return a << count. */
-VBigNum v_bignum_bit_shift_left(VBigNum a, unsigned int count)
+int v_bignum_bit_size(const VBigDig *x)
 {
-	unsigned int	x, carry;
-	int		i;
-
-	if(count == 0)
-		return a;
-	if(count >= CHAR_BIT * sizeof *a.x)
-	{
-		unsigned int	places = count / (CHAR_BIT * sizeof *a.x);
-
-		for(i = (sizeof a.x / sizeof *a.x) - 1; i >= places; i--)
-			a.x[i] = a.x[i - places];
-		for(; i >= 0; i--)
-			a.x[i] = 0;
-		count -= places * CHAR_BIT * sizeof *a.x;
-		if(count == 0)
-			return a;
-	}
-	for(i = carry = 0; i < (sizeof a.x / sizeof *a.x); i++)
-	{
-		x = a.x[i];
-		x <<= count;
-		x |= carry;
-		carry = x >> (CHAR_BIT * sizeof *a.x);
-		a.x[i] = x;
-	}
-	return a;
+	return *x * V_BIGBITS;
 }
 
-/* Return a >> count, i.e. shift a by count bits to the right (towards the lsb). */
-VBigNum v_bignum_bit_shift_right(VBigNum a, unsigned int count)
+/* Perform x <<= count. */
+void v_bignum_bit_shift_left(VBigDig *x, unsigned int count)
 {
-	unsigned int	x, carry;
+	unsigned int	t, carry, s = *x++;
 	int		i;
 
 	if(count == 0)
-		return a;
-	/* Quick-shift whole words by simply copying them towards a.x[0]. */
-	if(count >= CHAR_BIT * sizeof *a.x)
+		return;
+	if(count >= CHAR_BIT * sizeof *x)	/* Shift whole digits. */
 	{
-		unsigned int	places = count / (CHAR_BIT * sizeof *a.x);
+		unsigned int	places = count / (CHAR_BIT * sizeof *x);
 
-		for(i = 0; i < (sizeof a.x / sizeof *a.x) - places; i++)
-			a.x[i] = a.x[i + places];
-		for(; i < sizeof a.x / sizeof *a.x; i++)
-			a.x[i] = 0;
-		count -= places * CHAR_BIT * sizeof *a.x;
-		if(count == 0)	/* Done? */
-			return a;
+		for(i = s - 1; i >= places; i--)
+			x[i] = x[i - places];
+		for(; i >= 0; i--)		/* Clear out the LSBs. */
+			x[i] = 0;
+		count -= places * (CHAR_BIT * sizeof *x);
+		if(count == 0)
+			return;
 	}
-	for(i = (sizeof a.x / sizeof *a.x) - 1, carry = 0; i >= 0; i--)
+	/* Shift bits. */
+	for(i = carry = 0; i < s; i++)
 	{
-		x = a.x[i] << (CHAR_BIT * sizeof *a.x);
-		x >>= count;
-		x |= carry;
-		carry  = (x & 0xffff) << (CHAR_BIT * sizeof *a.x);	/* Compute carry word. */
-		a.x[i] = x >> (CHAR_BIT * sizeof *a.x);
+		t = x[i];
+		t <<= count;
+		t |= carry;
+		carry = t >> (CHAR_BIT * sizeof *x);
+/*		printf("i=%d carry=%u\n", i, carry);*/
+		x[i] = t;
 	}
-	return a;
+}
+
+/* Perform x >>= count. */
+void v_bignum_bit_shift_right(VBigDig *x, unsigned int count)
+{
+	unsigned int	t, carry, s = *x++;
+	int		i;
+
+	if(count == 0)
+		return;
+	/* Shift entire digits first. */
+	if(count >= CHAR_BIT * sizeof *x)
+	{
+		unsigned int	places = count / (CHAR_BIT * sizeof *x);
+
+		for(i = 0; i < s - places; i++)
+			x[i] = x[i + places];
+		for(; i < s; i++)
+			x[i] = 0;
+		count -= places * CHAR_BIT * sizeof *x;
+		if(count == 0)
+			return;
+	}
+	/* Shift any remaining bits. */
+	for(i = s - 1, carry = 0; i >= 0; i--)
+	{
+		t = x[i] << (CHAR_BIT * sizeof *x);
+		t >>= count;
+		t |= carry;
+		carry = (t & MAX_DIG) << (CHAR_BIT * sizeof *x);
+		x[i] = t >> (CHAR_BIT * sizeof *x);
+	}
 }
 
 /* ----------------------------------------------------------------------------------------- */
 
-int v_bignum_eq_zero(VBigNum a)
+/* Return x == 0. */
+int v_bignum_eq_zero(const VBigDig *x)
 {
-	int	i;
+	unsigned int	i, s = *x++;
 
-	for(i = 0; i < sizeof a.x / sizeof *a.x; i++)
-		if(a.x[i])
+	for(i = 0; i < s; i++)
+		if(x[i])
 			return 0;
 	return 1;
 }
 
-int v_bignum_eq_one(VBigNum a)
+/* Return x == 1. */
+int v_bignum_eq_one(const VBigDig *x)
 {
-	int	i;
+	unsigned int	i, s = *x++;
 
-	if(a.x[0] != 1)
+	if(x[0] != 1)
 		return 0;
-	for(i = 1; i < sizeof a.x / sizeof *a.x; i++)
-		if(a.x[i])
+	for(i = 1; i < s; i++)
+		if(x[i])
 			return 0;
 	return 1;
 }
 
-/* Computes a == b. Fairly simple. */
-int v_bignum_eq(VBigNum a, VBigNum b)
+/* Returns x == y, handling different lengths properly. */
+int v_bignum_eq(const VBigDig *x, const VBigDig *y)
 {
-	return memcmp(a.x, b.x, sizeof a.x) == 0;
+	unsigned int	i, xs, ys, cs;
+
+	if(x == y)		/* Quick test thanks to pointer representation. */
+		return 1;
+	xs = *x++;
+	ys = *y++;
+
+	if(xs == ys)		/* Same size? Then let's be quick about this. */
+		return memcmp(x, y, xs * sizeof *x) == 0;
+	else
+	{
+		cs = xs < ys ? xs : ys;		/* Common size. */
+		if(memcmp(x, y, cs * sizeof *x) == 0)
+		{
+			const VBigDig	*l;
+
+			if(cs == xs)		/* y is longer. */
+				l = y, i = ys - 1;
+			else
+				l = x, i = xs - 1;
+			for(; i > cs; i--)
+				if(l[i])
+					return 0;
+			return 1;
+		}
+	}
+	return 0;
 }
 
-/* Computes a >= b. */
-int v_bignum_gte(VBigNum a, VBigNum b)
+/* Returns x >= y. */
+int v_bignum_gte(const VBigDig *x, const VBigDig *y)
 {
-	int	i, j, k;
+	unsigned int	xs, ys;
+	int		i, j, k;
 
-	/* Find index of highest non-zero digit in each number. */
-	for(i = sizeof a.x / sizeof *a.x - 1; i >= 0; i--)
-		if(a.x[i] > 0)
+	if(x == y)
+		return 1;
+	/* Find indexes of highest-most used digit in each of the numbers. */
+	xs = *x++;
+	ys = *y++;
+	for(i = xs - 1; i >= 0; i--)
+		if(x[i] != 0)
 			break;
-	for(j = sizeof b.x / sizeof *b.x - 1; j >= 0; j--)
-		if(b.x[j] > 0)
+	for(j = ys - 1; j >= 0; j--)
+		if(y[j] != 0)
 			break;
-
+	/* Both zero? */
+	if(i < 0 && j < 0)
+		return 1;
 	/* Quick answers exists for different-sized numbers. Find them. */
 	if(i < j)
 		return 0;
 	if(i > j)
 		return 1;
-	/* If number of used digits are the same in both, compare digits. */
+	/* Compare digit by digit. */
 	for(k = i; k >= 0; k--)
 	{
-		if(a.x[k] < b.x[k])
+		if(x[k] < y[k])
 			return 0;
-		else if(a.x[k] > b.x[k])
+		if(x[k] > y[k])
 			return 1;
 	}
-	return a.x[k] >= b.x[k];
+	return x[k] >= y[k];
 }
 
 /* ----------------------------------------------------------------------------------------- */
 
-VBigNum v_bignum_add_ushort(VBigNum a, unsigned short b)
+/* Computes x += y. */
+void v_bignum_add_digit(VBigDig *x, VBigDig y)
 {
-	unsigned int	s;
+	unsigned int	i, s = *x++, t;
 
-	s = a.x[0] + b;
-	a.x[0] = s;
-	if(s > 0xffff)	/* Need to do carry distribution? */
+	t = x[0] + y;
+	x[0] = t;
+	if(t > MAX_DIG)
 	{
-		unsigned int	i;
-
-		for(i = 1; i < sizeof a.x / sizeof *a.x; i++)
+		for(i = 1; i < s; i++)
 		{
-			if(++a.x[i])
+			if(++x[i])
 				break;
 		}
 	}
-	return a;
 }
 
-VBigNum v_bignum_sub_ushort(VBigNum a, unsigned short b)
+/* Computes x -= y. */
+void v_bignum_sub_digit(VBigDig *x, VBigDig y)
 {
-	unsigned int	d;
+	unsigned int	i, s = *x++, t;
 
-	d = a.x[0] - b;
-	a.x[0] = d;
-	if(d > 0xffff)	/* Need to do carry distribution? */
+	t = x[0] - y;
+	x[0] = t;
+	if(t > MAX_DIG)
 	{
-		unsigned int	i;
-
-		for(i = 1; i < sizeof a.x / sizeof *a.x; i++)
+		for(i = 1; i < s; i++)
 		{
-			a.x[i]--;
-			if(a.x[i] < 0xffff)
+			x[i]--;
+			if(x[i] < MAX_DIG)
 				break;
 		}
 	}
-	return a;
 }
 
-/* Multiply big integer by single "digit". */
-VBigNum v_bignum_mul_ushort(VBigNum a, unsigned short b)
+/* Computes x *= y. */
+void v_bignum_mul_digit(VBigDig *x, VBigDig y)
 {
-	unsigned int	i, carry, p;
+	unsigned int	i, s = *x++, carry, t;
 
-	for(i = carry = 0; i < sizeof a.x / sizeof *a.x; i++)
+	for(i = carry = 0; i < s; i++)
 	{
-		p = b * a.x[i] + carry;
-		a.x[i] = p;
-		carry = p >> (CHAR_BIT * sizeof *a.x);
+		t = x[i] * y + carry;
+		x[i] = t;
+		carry = t >> (CHAR_BIT * sizeof *x);
 	}
-	return a;
 }
 
 /* ----------------------------------------------------------------------------------------- */
 
-/* Return a + b. */
-VBigNum v_bignum_add(VBigNum a, VBigNum b)
+/* Computes x += y. */
+void v_bignum_add(VBigDig *x, const VBigDig *y)
 {
-	unsigned int	i, carry, s;
-	VBigNum		sum;
+	unsigned int	i, xs = *x++, ys = *y++, s, carry, t;
 
-	for(i = carry = 0; i < sizeof a.x / sizeof *a.x; i++)
+	if(x == y)		/* Quick version for pointer-aliased x += x. */
 	{
-		s = a.x[i] + b.x[i] + carry;
-		sum.x[i] = s;
-		carry = s > 0xffff;
+		v_bignum_bit_shift_left(x, 1);
+		return;
 	}
-	return sum;
-}
-
-/* Compute a - b. */
-#if 0
-VBigNum v_bignum_sub(VBigNum a, VBigNum b)
-{
-	unsigned int	i, carry, d;
-	VBigNum		diff;
-
-	for(i = carry = 0; i < sizeof a.x / sizeof *a.x; i++)
+	
+	s = xs < ys ? xs : ys;
+	for(i = carry = 0; i < s; i++)
 	{
-		d = a.x[i] - b.x[i] - carry;
-		diff.x[i] = d;
-		carry = d > 0xffff;
+		t = x[i] + y[i] + carry;
+		x[i] = t;
+		carry = t > MAX_DIG;
 	}
-	return diff;
-}
-#endif
-
-VBigNum v_bignum_sub(VBigNum a, VBigNum b)
-{
-	b = v_bignum_not(b);
-	b = v_bignum_add_ushort(b, 1);
-	return v_bignum_add(a, b);
+	for(; carry && i < xs; i++)
+	{
+		t = x[i] + carry;
+		x[i] = t;
+		carry = t > MAX_DIG;
+	}
 }
 
-/* Return a * BASE ^ places, i.e. shift <a> <places> "digits" to the left, padding with zeros. */
-static VBigNum v_bignum_digit_shift_left(VBigNum a, unsigned short count)
+/* Computes x -= y. */
+void v_bignum_sub(VBigDig *x, const VBigDig *y)
 {
-	int	i;
+	unsigned int	i, xs = *x++, ys = *y++, s, carry, t;
 
-	if(count == 0)		/* Would work, but why bother? */
-		return a;
-	for(i = (sizeof a.x / sizeof *a.x) - 1; i >= count; i--)
-		a.x[i] = a.x[i - count];
+	if(x == y)
+	{
+		v_bignum_set_zero(x - 1);
+		return;
+	}
+	s = xs < ys ? xs : ys;
+	for(i = carry = 0; i < s; i++)
+	{
+		t = x[i] - y[i] - carry;
+		x[i] = t;
+		carry = t > MAX_DIG;
+	}
+	for(; carry && i < xs; i++)
+	{
+		t = x[i] - carry;
+		x[i] = t;
+		carry = t > MAX_DIG;
+	}
+}
+
+/* Computes x <<= count * (CHAR_BIT * sizeof *x). */
+static void bignum_digit_shift_left(VBigDig *x, unsigned short count)
+{
+	int	i, s = *x++;
+
+	if(count == 0)
+		return;
+	for(i = s - 1; i >= count; i--)
+		x[i] = x[i - count];
 	for(; i >= 0; i--)
-		a.x[i] = 0;
-	return a;
+		x[i] = 0;
 }
 
-/* Compute a * b. Simply the pen-and-paper method, nothing fancy. */
-VBigNum v_bignum_mul(VBigNum a, VBigNum b)
+/* Computes x *= y, at the precision of x. */
+void v_bignum_mul(VBigDig *x, const VBigDig *y)
 {
-	unsigned int	i;
-	VBigNum		temp, product;
+	unsigned int	i, ys = *y++;
+	VBigDig		*temp, *product;
 
-	product = v_bignum_new_zero();
-	for(i = 0; i < sizeof b.x / sizeof *b.x; i++)
+	temp    = bignum_alloc(*x);
+	product = bignum_alloc(*x);
+	v_bignum_set_zero(product);
+	for(i = 0; i < ys; i++)
 	{
-		temp = v_bignum_mul_ushort(a, b.x[i]);
-		temp = v_bignum_digit_shift_left(temp, i);
-		product = v_bignum_add(product, temp);
+		v_bignum_set_bignum(temp, x);
+		v_bignum_mul_digit(temp, y[i]);
+		bignum_digit_shift_left(temp, i);
+		v_bignum_add(product, temp);
 	}
-	return product;
+	v_bignum_set_bignum(x, product);	/* Overwrite source with result. */
+	bignum_free(product);
+	bignum_free(temp);
 }
 
-/* Returns a / b, sets *remainder to a % b. Pen-and-paper method, nothing fancy. */
-VBigNum v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder)
+/* Computes x /= y and remainder = x % y. */
+void v_bignum_div(VBigDig *x, const VBigDig *y, VBigDig *remainder)
 {
-	VBigNum	q, work;
-	int	msba = v_bignum_bit_msb(a), msbb = v_bignum_bit_msb(b), next;
+	VBigDig	*q, *work;
+	int	msbx = v_bignum_bit_msb(x), msby = v_bignum_bit_msb(y), next;
 
-	/* Sanity-check inputs. */
-	if(msbb > msba)
+	/* Compare magnitudes of inputs, allows quick exits. */
+	if(msby > msbx)
 	{
 		if(remainder != NULL)
-			*remainder = a;
-		return v_bignum_new_zero();
+			v_bignum_set_bignum(remainder, x);
+		v_bignum_set_zero(x);
+		return;
 	}
-	if(msbb == 0 && b.x[0] == 0)		/* Avoid division by zero. */
-		return v_bignum_new_zero();
-
-	/* Begin by setting result to zero, and "work" to the |b| highest bits of a. */
-	q    = v_bignum_new_zero();
-	work = v_bignum_new_bignum(a, msba, msbb + 1);
-	for(next = msba - (msbb + 1); next >= -1; next--)	/* Loop over rest of bits. */
+	if(msby < 0)
 	{
-		q = v_bignum_bit_shift_left(q, 1);
-		if(v_bignum_gte(work, b))
+		v_bignum_set_zero(x);
+		return;
+	}
+	q = bignum_alloc(*y);
+	v_bignum_set_zero(q);
+	work = bignum_alloc(*x);
+	v_bignum_set_bignum_part(work, x, msbx, msby + 1);
+
+	for(next = msbx - (msby + 1); next >= -1; next--)
+	{
+		v_bignum_bit_shift_left(q, 1);
+		if(v_bignum_gte(work, y))
 		{
-			q.x[0] |= 1;
-			work = v_bignum_sub(work, b);
+			q[1] |= 1;
+			v_bignum_sub(work, y);
 		}
-		if(next >= 0)	/* This is kind of a trick to use the extra iteration when next==-1. */
+		if(next >= 0)
 		{
-			work = v_bignum_bit_shift_left(work, 1);
-			if(v_bignum_bit_test(a, next))
-				work.x[0] |= 1;
+			v_bignum_bit_shift_left(work, 1);
+			if(v_bignum_bit_test(x, next))
+				work[1] |= 1;
 		}
 	}
 	if(remainder != NULL)
-		*remainder = work;
-	return q;
+	{
+		printf("div() got remainder ");
+		v_bignum_print_hex_lf(work);
+		v_bignum_set_bignum(remainder, work);
+	}
+	bignum_free(work);
+	v_bignum_set_bignum(x, q);
+	bignum_free(q);
 }
 
-/* Return a % b. Simply uses division and returns the remainder. */
-VBigNum v_bignum_mod(VBigNum a, VBigNum b)
+/* Computes x %= y. */
+void v_bignum_mod(VBigDig *x, const VBigDig *y)
 {
-	VBigNum	rem;
+	int	digs;
+	VBigDig	*tmp;
 
-	v_bignum_div(a, b, &rem);
-	return rem;
+	printf("computing ");
+	v_bignum_print_hex(x);
+	printf(" %% ");
+	v_bignum_print_hex(y);
+
+	digs = *x > *y ? *x : *y;
+	tmp = bignum_alloc(digs);
+	v_bignum_div(x, y, tmp);
+	v_bignum_set_bignum(x, tmp);
+	bignum_free(tmp);
+	printf(" = ");
+	v_bignum_print_hex_lf(x);
 }
 
-/* ----------------------------------------------------------------------------------------- */
-
-/* Compute (a raised to ex) modulo mod. From "Implementation of Fast RSA Key Generation
- * on Smart Cards" by Lu, dos Santos, and Pimentel.
-*/
-VBigNum v_bignum_pow_mod(VBigNum a, VBigNum ex, VBigNum mod)
+/* Computes x = (x^y) % n, where ^ denotes exponentiation. */
+void v_bignum_pow_mod(VBigDig *x, const VBigDig *y, const VBigDig *n)
 {
 	int	i, k;
-	VBigNum	b = a;
+	VBigDig	*tmp;
 
-	k = v_bignum_bit_msb(ex);
+	printf("computing pow(");
+	v_bignum_print_hex(x);
+	printf("L,");
+	v_bignum_print_hex(y);
+	printf("L,");
+	v_bignum_print_hex(n);
+	printf("L)\n");
+
+	tmp = bignum_alloc(2 * *x);	/* Squaring needs twice the bits, or lossage occurs. */
+	printf("pow-mod using %u bits for tmp\n", v_bignum_bit_size(tmp));
+	printf("n=");
+	v_bignum_print_hex_lf(n);
+	v_bignum_set_bignum(tmp, x);
+	k = v_bignum_bit_msb(y);
 	for(i = k - 1; i >= 0; i--)
 	{
-		b = v_bignum_mul(b, b);
-		b = v_bignum_mod(b, mod);
-		if(v_bignum_bit_test(ex, i))
+		v_bignum_mul(tmp, tmp);
+		printf("early %u ", i);
+		v_bignum_print_hex_lf(tmp);
+		v_bignum_mod(tmp, n);
+		printf("mod %u ", i);
+		v_bignum_print_hex_lf(tmp);
+		if(v_bignum_bit_test(y, i))
 		{
-			b = v_bignum_mul(b, a);
-			b = v_bignum_mod(b, mod);
+			v_bignum_mul(tmp, x);
+			v_bignum_mod(tmp, n);
 		}
 	}
-	return b;
+	printf("tmp=");
+	v_bignum_print_hex_lf(tmp);
+	v_bignum_set_bignum(x, tmp);
+	bignum_free(tmp);
 }
 
 /* ----------------------------------------------------------------------------------------- */
 
-/* Division, returns a / b and sets <remainder> to any remainder. For a >> b, this is *glacial*. */
-VBigNum v_bignum_div_slow(VBigNum a, VBigNum b, VBigNum *remainder)
-{
-	VBigNum	q;
+#if defined STANDALONE
 
-	q = v_bignum_new_zero();
-	while(v_bignum_gte(a, b))
-	{
-		q = v_bignum_add_ushort(q, 1);
-		a = v_bignum_sub(a, b);
-	}
-	if(remainder != NULL)
-		*remainder = a;
-	return q;
+int main(void)
+{
+	VBigDig	VBIGNUM(x, 3648), VBIGNUM(y, 128), VBIGNUM(z, 128);
+
+	printf("MAX_DIG=%u\n", MAX_DIG);
+	
+	v_bignum_set_string_hex(x, "0x433864FE0F8FAC180FF1BC3A5BFD0C5566F6B11679E27294EDCC43056EB73EE118415E0CD6E6519509476EB21341ED0328BA7B14E0ED80D5E100A4549C5202B57B4CF17A74987631B6BA896C0DBA2095A7EDE5B9C4B4EEFCD1B9EF8474BCB7FBD0F64B549625D444847ED1FCB7F8050EB4F22794F694A0FAC6DFFB781C264B227966840185F9216484F6A7954741CB11FC14DEC2937EAD2CE640FD9A4339706BDB5BC355079C2F2F7994669DFA5B20C50D957A676E67C86835037078323A0BDAD3686B8E638749F327A7AD433C0D18BCD2FC970D125914C7FBEE061290A0F0F3572E207");
+	v_bignum_set_bignum(y, x);
+	v_bignum_set_digit(z, 77);
+
+	printf("x:");
+	v_bignum_print_hex_lf(x);
+	printf("y:");
+	v_bignum_print_hex_lf(y);
+	printf("r:");
+	v_bignum_print_hex_lf(z);
+	v_bignum_pow_mod(x, y, z);
+	printf(" =");
+	v_bignum_print_hex_lf(x);
+
+	return 0;
 }
+
+#endif		/* STANDALONE */
