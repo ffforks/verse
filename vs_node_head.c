@@ -12,20 +12,20 @@
 #include "verse.h"
 #include "vs_server.h"
 
-typedef struct{
+typedef struct {
 	VNTag		tag;
 	VNTagType	type;
 	char		tag_name[16];
-}VSTag;
+} VSTag;
 
-typedef struct{
-	VSTag				*tags;
+typedef struct {
+	VSTag			*tags;
 	unsigned int		tag_count;
-	char				group_name[16];
+	char			group_name[16];
 	VSSubscriptionList	*subscribers;
 }VSTagGroup;
 
-void create_node_head(VSNodeHead *node, char *name, unsigned int owner)
+void create_node_head(VSNodeHead *node, const char *name, unsigned int owner)
 {
 	unsigned int i;
 	for(i = 0; name[i] != 0; i++);
@@ -69,7 +69,7 @@ void destroy_node_head(VSNodeHead *node)
 	}
 }
 
-void callback_send_tag_group_create(void *user, VNodeID node_id, uint16 group_id, char *name)
+static void callback_send_tag_group_create(void *user, VNodeID node_id, uint16 group_id, char *name)
 {
 	VSNodeHead *node;
 	unsigned int count, i, j, element;
@@ -121,7 +121,7 @@ void callback_send_tag_group_create(void *user, VNodeID node_id, uint16 group_id
 	vs_reset_subscript_session();
 }
 
-void callback_send_tag_group_destroy(void *user, VNodeID node_id, uint16 group_id)
+static void callback_send_tag_group_destroy(void *user, VNodeID node_id, uint16 group_id)
 {
 	VSNodeHead *node;
 	unsigned int count, i;
@@ -154,7 +154,7 @@ void callback_send_tag_group_destroy(void *user, VNodeID node_id, uint16 group_i
 	vs_reset_subscript_session();
 }
 
-void callback_send_tag_group_subscribe(void *user, VNodeID node_id, uint16 group_id)
+static void callback_send_tag_group_subscribe(void *user, VNodeID node_id, uint16 group_id)
 {
 	VSNodeHead *node;
 	unsigned int i;
@@ -174,7 +174,7 @@ void callback_send_tag_group_subscribe(void *user, VNodeID node_id, uint16 group
 	}
 }
 
-void callback_send_tag_group_unsubscribe(void *user, VNodeID node_id, uint16 group_id)
+static void callback_send_tag_group_unsubscribe(void *user, VNodeID node_id, uint16 group_id)
 {
 	VSNodeHead *node;
 	if((node = vs_get_node_head(node_id)) == 0)
@@ -183,7 +183,7 @@ void callback_send_tag_group_unsubscribe(void *user, VNodeID node_id, uint16 gro
 		vs_remove_subscriptor(((VSTagGroup *)node->tag_groups)[group_id].subscribers);
 }
  
-void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_id, uint16 tag_id, char *name, uint8 type, void *tag)
+static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_id, uint16 tag_id, char *name, uint8 type, void *tag)
 {
 	VSNodeHead *node;
 	VSTag *t = NULL;
@@ -270,7 +270,7 @@ void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_id, uint
 	vs_reset_subscript_session();
 }
 
-void callback_send_tag_destroy(void *user, VNodeID node_id, uint16 group_id, uint16 tag_id)
+static void callback_send_tag_destroy(void *user, VNodeID node_id, uint16 group_id, uint16 tag_id)
 {
 	VSNodeHead *node;
 	unsigned int count, i;
@@ -286,7 +286,7 @@ void callback_send_tag_destroy(void *user, VNodeID node_id, uint16 group_id, uin
 	vs_reset_subscript_session();
 }
 
-void callback_send_node_name_set(void *user, VNodeID node_id, char *name)
+static void callback_send_node_name_set(void *user, VNodeID node_id, char *name)
 {
 	VSNodeHead *node;
 	unsigned int count, i;
@@ -314,7 +314,7 @@ extern void vs_g_subscribe(VSNodeHead *node);
 extern void vs_m_subscribe(VSNodeHead *node);
 extern void vs_b_subscribe(VSNodeHead *node);
 
-void callback_send_node_subscribe(void *user, VNodeID node_id)
+static void callback_send_node_subscribe(void *user, VNodeID node_id)
 {
 	unsigned int i;
 	VSNodeHead *node;
@@ -345,7 +345,7 @@ void callback_send_node_subscribe(void *user, VNodeID node_id)
 	vs_add_new_subscriptor(node->subscribers);
 }
 
-void callback_send_node_unsubscribe(VNodeID node_id)
+static void callback_send_node_unsubscribe(VNodeID node_id)
 {
 	VSNodeHead *node;
 	if((node = vs_get_node_head(node_id)) == 0)
@@ -365,6 +365,5 @@ void vs_h_callback_init(void)
 	verse_callback_set(verse_send_node_subscribe, callback_send_node_subscribe, NULL);
 	verse_callback_set(verse_send_node_unsubscribe, callback_send_node_unsubscribe, NULL);
 }
-
 
 #endif
