@@ -7,34 +7,33 @@
 
 #include "v_cmd_gen.h"
 
-#if !defined(V_GENERATE_FUNC_MODE)
+#if !defined V_GENERATE_FUNC_MODE
 
 #include "verse.h"
 #include "vs_server.h"
 
-
-typedef struct{
+typedef struct {
 	real64 pre_value;
 	uint32 pre_pos;
 	real64 value;
 	real64 post_value;
 	uint32 post_pos;
-}VSNKey;
+} VSNKey;
 
-typedef struct{
-	VSNKey				*keys;
-	unsigned int		length;
-	char				name[16];
+typedef struct {
+	VSNKey		*keys;
+	unsigned int	length;
+	char		name[16];
 	VSSubscriptionList *subscribers;
-}VSNCurve;
+} VSNCurve;
 
 typedef struct{
-	VSNodeHead		head;
-	VSNCurve		*curves;
+	VSNodeHead	head;
+	VSNCurve	*curves;
 	unsigned int	curve_count;
-}VSNodeCurve;
+} VSNodeCurve;
 
-VSNodeCurve *vs_c_create_node(unsigned int owner)
+VSNodeCurve * vs_c_create_node(unsigned int owner)
 {
 	VSNodeCurve *node;
 	char name[48];
@@ -81,7 +80,7 @@ void callback_send_c_unsubscribe(void *user, VNodeID node_id)
 	vs_remove_subscriptor(node->head.subscribers);
 }
 
-void callback_send_c_curve_create(void *user, VNodeID node_id, VLayerID curve_id, const char *name)
+static void callback_send_c_curve_create(void *user, VNodeID node_id, VLayerID curve_id, const char *name)
 {
 	VSNodeCurve *node;
 	unsigned int i, j, count;
@@ -125,7 +124,7 @@ void callback_send_c_curve_create(void *user, VNodeID node_id, VLayerID curve_id
 	vs_reset_subscript_session();
 }
 
-void callback_send_c_curve_destroy(void *user, VNodeID node_id, VLayerID curve_id)
+static void callback_send_c_curve_destroy(void *user, VNodeID node_id, VLayerID curve_id)
 {
 	VSNodeCurve *node;
 	unsigned int i, count;
@@ -144,7 +143,7 @@ void callback_send_c_curve_destroy(void *user, VNodeID node_id, VLayerID curve_i
 	vs_reset_subscript_session();
 }
 
-void callback_send_c_curve_key_set(void *user, VNodeID node_id, VLayerID curve_id, uint32 key_id, real64 pre_value, uint32 pre_pos, real64 value, real64 post_value, uint32 post_pos)
+static void callback_send_c_curve_key_set(void *user, VNodeID node_id, VLayerID curve_id, uint32 key_id, real64 pre_value, uint32 pre_pos, real64 value, real64 post_value, uint32 post_pos)
 {
 	VSNodeCurve *node;
 	unsigned int i, count;
@@ -175,7 +174,7 @@ void callback_send_c_curve_key_set(void *user, VNodeID node_id, VLayerID curve_i
 	vs_reset_subscript_session();
 }
 
-void callback_send_c_curve_key_destroy(void *user, VNodeID node_id, VLayerID curve_id, uint32 key_id)
+static void callback_send_c_curve_key_destroy(void *user, VNodeID node_id, VLayerID curve_id, uint32 key_id)
 {
 	VSNodeCurve *node;
 	unsigned int i, count;
@@ -197,7 +196,7 @@ void callback_send_c_curve_key_destroy(void *user, VNodeID node_id, VLayerID cur
 	vs_reset_subscript_session();
 }
 
-void callback_send_c_curve_subscribe(void *user, VNodeID node_id, VLayerID curve_id)
+static void callback_send_c_curve_subscribe(void *user, VNodeID node_id, VLayerID curve_id)
 {
 	VSNodeCurve *node;
 	unsigned int i;
@@ -212,7 +211,7 @@ void callback_send_c_curve_subscribe(void *user, VNodeID node_id, VLayerID curve
 			verse_send_c_curve_key_set(node_id, curve_id, i, node->curves[curve_id].keys[i].pre_value, node->curves[curve_id].keys[i].pre_pos, node->curves[curve_id].keys[i].value, node->curves[curve_id].keys[i].post_value, node->curves[curve_id].keys[i].post_pos);
 }
 
-void callback_send_c_curve_unsubscribe(void *user, VNodeID node_id, VLayerID curve_id)
+static void callback_send_c_curve_unsubscribe(void *user, VNodeID node_id, VLayerID curve_id)
 {
 	VSNodeCurve *node;
 	node = (VSNodeCurve *)vs_get_node(node_id, V_NT_CURVE);
