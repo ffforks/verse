@@ -55,6 +55,13 @@ static void v_cg_init(void)
 			f = VCGData.init;
 		else
 			f = VCGData.nodes[i];
+		fprintf(f,
+			"/*\n"
+			"** This is automatically generated source code -- do not edit.\n"
+			"** Changes are affected either by editing the corresponding protocol\n"
+			"** definition file (v_cmd_def_X.c where X=node type), or by editing\n"
+			"** the code generator itself, in v_cmd_gen.c.\n"
+			"*/\n\n");
 		fprintf(f, "#include <stdlib.h>\n");
 		fprintf(f, "#include <stdio.h>\n\n");
 		fprintf(f, "#include \"v_cmd_gen.h\"\n");
