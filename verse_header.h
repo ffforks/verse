@@ -58,11 +58,6 @@ typedef enum {
 	VN_O_METHOD_PTYPE_REAL32,
 	VN_O_METHOD_PTYPE_REAL64,
 
-	VN_O_METHOD_PTYPE_STRING,
-
-	VN_O_METHOD_PTYPE_NODE,
-	VN_O_METHOD_PTYPE_LAYER,
-
 	VN_O_METHOD_PTYPE_REAL32_VEC2,
 	VN_O_METHOD_PTYPE_REAL32_VEC3,
 	VN_O_METHOD_PTYPE_REAL32_VEC4,
@@ -77,7 +72,12 @@ typedef enum {
 
 	VN_O_METHOD_PTYPE_REAL64_MAT4,
 	VN_O_METHOD_PTYPE_REAL64_MAT9,
-	VN_O_METHOD_PTYPE_REAL64_MAT16
+	VN_O_METHOD_PTYPE_REAL64_MAT16,
+
+	VN_O_METHOD_PTYPE_STRING,
+
+	VN_O_METHOD_PTYPE_NODE,
+	VN_O_METHOD_PTYPE_LAYER
 } VNOParamType;
 
 typedef	union {
@@ -89,13 +89,13 @@ typedef	union {
 	uint32		vuint32;
 	real32		vreal32;
 	real64		vreal64;
-	char		*vstring;
-	VNodeID		vnode;
-	VLayerID	vlayer;
 	real32		vreal32_vec[4];
 	real32		vreal32_mat[16];
 	real64		vreal64_vec[4];
 	real64		vreal64_mat[16];
+	char		*vstring;
+	VNodeID		vnode;
+	VLayerID	vlayer;
 } VNOParam;
 
 #define VN_TAG_MAX_BLOB_SIZE 500
@@ -311,11 +311,11 @@ typedef union{
 } VNBTile;
 
 typedef enum {
-	VN_C_CONTENT_LANGUAGE_SIZE = 32,
-	VN_C_CONTENT_INFO_SIZE = 256,
-	VN_C_BUFFER_NAME_SIZE = 32,
-	VN_C_TEXT_SIZE = 256
-} VNCConstants;
+	VN_T_CONTENT_LANGUAGE_SIZE = 32,
+	VN_T_CONTENT_INFO_SIZE = 256,
+	VN_T_BUFFER_NAME_SIZE = 16,
+	VN_T_MAX_TEXT_CMD_SIZE = 1450
+} VNTConstants;
 
 #define VN_AUDIO_MAX_SAMPLE_SIZE_UNCOMPRESSED 1400
 #define VN_AUDIO_MAX_SAMPLE_SIZE_COMPRESSED 5000
