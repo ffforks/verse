@@ -222,6 +222,7 @@ typedef enum {
 	VN_M_FT_LIGHT,
 	VN_M_FT_REFLECTION,
 	VN_M_FT_TRANSPARENCY,
+	VN_M_FT_VOLUME,
 	VN_M_FT_GEOMETRY,
 	VN_M_FT_TEXTURE,
 	VN_M_FT_NOISE,
@@ -254,6 +255,13 @@ typedef union {
 		real64 normal_falloff;
 		real64 refraction_index;
 	} transparency;
+	struct {
+		real64 diffusion;
+		real64 col_r;
+		real64 col_g;
+		real64 col_b;
+		VNMFragmentID color;
+	} volume;
 	struct {
 		char layer_r[16];
 		char layer_g[16];
@@ -288,9 +296,7 @@ typedef union {
 		VNMRampPoint ramp[48];
 	} ramp;
 	struct {
-		char label_r[16];
-		char label_g[16];
-		char label_b[16];
+		char label[16];
 	} animation;
 	struct {
 		VNMFragmentID alt_a;
