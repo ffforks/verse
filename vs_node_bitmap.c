@@ -7,7 +7,7 @@
 
 #include "v_cmd_gen.h"
 
-#if !defined(V_GENERATE_FUNC_MODE)
+#if !defined V_GENERATE_FUNC_MODE
 
 #include "verse.h"
 #include "vs_server.h"
@@ -15,14 +15,14 @@
 static unsigned int number_of_tiles = 0;
 static unsigned int got_number_of_tiles = 0;
 
-typedef struct{
+typedef struct {
 	VNBLayerType		type;
 	char			name[16];
 	void			*layer;
 	VSSubscriptionList	*subscribers;
 } VSNBLayers;
 
-typedef struct{
+typedef struct {
 	VSNodeHead	head;
 	uint16		size[3];
 	VSNBLayers	*layers;
