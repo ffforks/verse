@@ -144,14 +144,14 @@ void v_con_network_listen(void)
 {
 	void *address;
 	char buf[V_MAX_CONNECT_PACKET_SIZE];
-	unsigned int size;
+
 	/* no mid send new work looking for now */
 	if(VConData.con_count > 0)
 	{
 		address = v_con_get_network_address();
 		if(address != NULL)
 		{
-			size = v_n_receive_data(address, buf, V_MAX_CONNECT_PACKET_SIZE, TRUE);
+			int size = v_n_receive_data(address, buf, V_MAX_CONNECT_PACKET_SIZE, TRUE);
 			while(size != -1 && size != 0)
 			{
 				v_fs_buf_store_pack(buf, size);
@@ -167,7 +167,8 @@ void verse_callback_update(unsigned int milliseconds)
 {
 	void *address;
 	char buf[V_MAX_CONNECT_PACKET_SIZE];
-	unsigned int size;
+	int size;
+
 	v_con_init();
 	if(v_fs_func_accept_connections())
 	{
