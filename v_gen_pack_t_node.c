@@ -204,7 +204,7 @@ unsigned int v_unpack_t_buffer_subscribe(const char *buf, size_t buffer_length, 
 	return buffer_pos;
 }
 
-void verse_send_t_insert_line(VNodeID node_id, VNMBufferID buffer_id, uint32 line, uint16 index, const char *text)
+void verse_send_t_line_insert(VNodeID node_id, VNMBufferID buffer_id, uint32 line, uint16 index, const char *text)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -214,7 +214,7 @@ void verse_send_t_insert_line(VNodeID node_id, VNMBufferID buffer_id, uint32 lin
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 99);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: t_insert_line(node_id = %u buffer_id = %u line = %u index = %u text = %s );\n", node_id, buffer_id, line, index, text);
+	printf("send: t_line_insert(node_id = %u buffer_id = %u line = %u index = %u text = %s );\n", node_id, buffer_id, line, index, text);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
@@ -225,7 +225,7 @@ void verse_send_t_insert_line(VNodeID node_id, VNMBufferID buffer_id, uint32 lin
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-void verse_send_t_delete_line(VNodeID node_id, VNMBufferID buffer_id, uint32 line)
+void verse_send_t_line_delete(VNodeID node_id, VNMBufferID buffer_id, uint32 line)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -235,7 +235,7 @@ void verse_send_t_delete_line(VNodeID node_id, VNMBufferID buffer_id, uint32 lin
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 99);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: t_delete_line(node_id = %u buffer_id = %u line = %u );\n", node_id, buffer_id, line);
+	printf("send: t_line_delete(node_id = %u buffer_id = %u line = %u );\n", node_id, buffer_id, line);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
@@ -246,17 +246,17 @@ void verse_send_t_delete_line(VNodeID node_id, VNMBufferID buffer_id, uint32 lin
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_t_insert_line(const char *buf, size_t buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_t_line_insert(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_t_insert_line)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 line, uint16 index, const char *text);
+	void (* func_t_line_insert)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 line, uint16 index, const char *text);
 	VNodeID node_id;
 	VNMBufferID buffer_id;
 	uint32 line;
 	uint16 index;
 	char text[512];
 	
-	func_t_insert_line = user_func;
+	func_t_line_insert = user_func;
 	if(buffer_length < 12)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -265,18 +265,18 @@ unsigned int v_unpack_t_insert_line(const char *buf, size_t buffer_length, void 
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &index);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], text, 512, buffer_length - buffer_pos);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: t_insert_line(node_id = %u buffer_id = %u line = %u index = %u text = %s ); callback = %p\n", node_id, buffer_id, line, index, text, user_func);
+	printf("receive: t_line_insert(node_id = %u buffer_id = %u line = %u index = %u text = %s ); callback = %p\n", node_id, buffer_id, line, index, text, user_func);
 #endif
 	if(text[0] == 0)
 	{
-		void (* alias_t_delete_line)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 line);
-		alias_t_delete_line = v_fs_get_alias_user_func(99);
-		if(alias_t_delete_line != NULL)
-			alias_t_delete_line(v_fs_get_alias_user_data(99), node_id, buffer_id, line);
+		void (* alias_t_line_delete)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 line);
+		alias_t_line_delete = v_fs_get_alias_user_func(99);
+		if(alias_t_line_delete != NULL)
+			alias_t_line_delete(v_fs_get_alias_user_data(99), node_id, buffer_id, line);
 		return buffer_pos;
 	}
-	if(func_t_insert_line != NULL)
-		func_t_insert_line(user_data, node_id, buffer_id, line, index, text);
+	if(func_t_line_insert != NULL)
+		func_t_line_insert(user_data, node_id, buffer_id, line, index, text);
 
 	return buffer_pos;
 }
