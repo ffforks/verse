@@ -10,8 +10,6 @@
 
 #include "v_cmd_gen.h"
 
-#if defined V_GENERATE_FUNC_MODE
-
 #define MAX_PARAMS_PER_CMD	16
 
 /**/
@@ -66,19 +64,19 @@ static void v_cg_init(void)
 		else
 			f = VCGData.nodes[i];
 		fprintf(f, "#include <stdlib.h>\n");
-		fprintf(f, "#include <stdio.h>\n");
-		fprintf(f, "#include %cv_cmd_gen.h%c\n", 34, 34);
+		fprintf(f, "#include <stdio.h>\n\n");
+		fprintf(f, "#include \"v_cmd_gen.h\"\n");
 		fprintf(f, "#if !defined(V_GENERATE_FUNC_MODE)\n");
-		fprintf(f, "#include %cverse.h%c\n", 34, 34);
-		fprintf(f, "#include %cv_cmd_buf.h%c\n", 34, 34);
-		fprintf(f, "#include %cv_network_que.h%c\n", 34, 34);
-		fprintf(f, "#include %cv_network.h%c\n", 34, 34);
-		fprintf(f, "#include %cv_connection.h%c\n\n", 34, 34);
+		fprintf(f, "#include \"verse.h\"\n");
+		fprintf(f, "#include \"v_cmd_buf.h\"\n");
+		fprintf(f, "#include \"v_network_que.h\"\n");
+		fprintf(f, "#include \"v_network.h\"\n");
+		fprintf(f, "#include \"v_connection.h\"\n\n");
 	}
 	VCGData.cmd_id = 0;
-	fprintf(f, "#include %cv_gen_unpack_func.h%c\n", 34, 34);
-	fprintf(f, "#include %cv_internal_verse.h%c\n", 34, 34);
-	fprintf(f, "#include %cverse.h%c\n\n", 34, 34);
+	fprintf(f, "#include \"v_gen_unpack_func.h\"\n\n");
+	fprintf(f, "#include \"v_internal_verse.h\"\n\n");
+	fprintf(f, "#include \"verse.h\"\n\n\n");
 
 	fprintf(VCGData.init, "void init_pack_and_unpack_fucs(void)\n{\n");
 	fprintf(VCGData.verse_h, "#if !defined(VERSE_H)\n");
@@ -846,5 +844,3 @@ int main(int argc, char *argv[])
 
 	return EXIT_SUCCESS;
 }
-
-#endif
