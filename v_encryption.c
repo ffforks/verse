@@ -159,15 +159,15 @@ void v_e_connect_create_key(uint8 *private_key, uint8 *public_key, uint8 *n)
 /*	printf("phi=");
 	v_bignum_print_hex_lf(phi);
 */	v_bignum_set_string_hex(pub, "0x10001");
+	v_e_math_inv(priv, pub, phi);
 /*	printf(" pub=");
 	v_bignum_print_hex_lf(pub);
-*/	v_e_math_inv(priv, pub, phi);
-/*	printf("priv=");
+	printf("priv=");
 	v_bignum_print_hex_lf(priv);
 */
 	v_bignum_set_bignum(mod, p);
 	v_bignum_mul(mod, q);
-/*	printf("n=");
+/*	printf(" mod=");
 	v_bignum_print_hex_lf(mod);
 	printf("key-creation finished\n");
 */	/* Write out the keys. */
