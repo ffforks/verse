@@ -46,7 +46,7 @@ void * verse_method_call_pack(unsigned int param_count, const VNOParam *params, 
 				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], params[i].vreal64);
 			break;
 			case VN_O_METHOD_PTYPE_STRING :
-				buffer_pos = vnp_raw_pack_string(&buf[buffer_pos], params[i].vstring, (1500 + 8 * 16) - buffer_pos);
+				buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], params[i].vstring, (1500 + 8 * 16) - buffer_pos);
 			break;
 			case VN_O_METHOD_PTYPE_NODE :
 				buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], params[i].vnode);
@@ -115,10 +115,13 @@ void * verse_method_call_pack(unsigned int param_count, const VNOParam *params, 
 
 boolean verse_method_call_unpack(const void *data, unsigned int param_count, VNOParam *params, const VNOParamType *param_type)
 {
-	unsigned int i, j, buffer_pos, size;
+	unsigned int i, j, buffer_pos = 0, size, len;
 	const uint8 *buf;
+	static char string[2048];
+	char *stringput = string;
+
 	buf = data;
-	size = vnp_raw_unpack_uint16(buf, 0);
+	buffer_pos += vnp_raw_unpack_uint16(buf, &size);
 	for(i = 0; i < param_count; i++)
 	{
 		switch(param_type[i])
@@ -148,7 +151,10 @@ boolean verse_method_call_unpack(const void *data, unsigned int param_count, VNO
 				buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &params[i].vreal64);
 			break;
 			case VN_O_METHOD_PTYPE_STRING :
-				buffer_pos = vnp_raw_unpack_string(&buf[buffer_pos], params[i].vstring, (1500 + 8 * 16) - buffer_pos, -1);
+				params[i].vstring = stringput;
+				len = vnp_raw_unpack_string(&buf[buffer_pos], stringput, (1500 + 8 * 16) - buffer_pos, -1);
+				stringput += len;
+				buffer_pos += len;
 			break;
 			case VN_O_METHOD_PTYPE_NODE :
 				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &params[i].vnode);
