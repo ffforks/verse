@@ -680,7 +680,6 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	/* Step 2, initialize. */
 	r1 = bignum_alloc(*x);
 	r2 = bignum_alloc(*x);
-	r = x;
 	v_bignum_set_bignum(r1, x);
 	for(i = k + 1; i < *r1; i++)
 		r1[i + 1] = 0;
@@ -688,29 +687,22 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	v_bignum_mul(r2, m);
 	for(i = k + 1; i < *r2; i++)
 		r2[i + 1] = 0;
+	r = x;
 	v_bignum_set_bignum(r, r1);
 	v_bignum_sub(r, r2);
-	/* Step 3, make sure r is positive. Shaky. */
+	/* Step 3, make sure r is positive. */
 	if(v_bignum_bit_test(r, V_BIGBITS * *r - 1))
 	{
 		VBigDig	*term;
 		
 		term = bignum_alloc(k + 1 * V_BIGBITS);
-
 		v_bignum_set_zero(term);
 		v_bignum_bit_set(term, V_BIGBITS * (k + 1));
-/*		printf("danger\n");
-		v_bignum_print_hex_lf(r);
-*/		v_bignum_add(r, term);
-/*		v_bignum_print_hex_lf(r);*/
-/*		v_bignum_not(r);
-		v_bignum_add_digit(r, 1);
-*/		bignum_free(term);
+		v_bignum_add(r, term);
+		bignum_free(term);
 	}
 	/* Step 4, loop. */
-/*	printf("candidate: r=");
-	v_bignum_print_hex_lf(r);
-*/	while(v_bignum_gte(r, m))
+	while(v_bignum_gte(r, m))
 		v_bignum_sub(r, m);
 
 	bignum_free(r2);
