@@ -146,6 +146,17 @@ void v_fs_unpack(uint8 *data, unsigned int length)
 			}
 			i += output;
 		}
+		else	/* If unknown command byte was found, complain loudly and stop parsing packet. */
+		{
+			size_t	j;
+
+			printf("\n** Unknown command ID %d (0x%02X) encountered--aborting packet decode\n", cmd_id, cmd_id);
+			printf("rest of packet: ");
+			for(j = i; j < length; j++)
+				printf("%02X ", data[j]);
+			printf("\n");
+			break;
+		}
 	}
 /*	if(expected != NULL)
 		verse_send_packet_ack(pack_id);*/
