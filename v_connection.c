@@ -408,7 +408,7 @@ void verse_session_get_time(uint32 *seconds, uint32 *fractions)
 {
 	uint32 s, f;
 	v_n_get_current_time(&s, &f);
-	if((uint32)~0 - f > VConData.con[VConData.current_connection].timedelta_f)
+	if((uint32)~0 - f < VConData.con[VConData.current_connection].timedelta_f)
 		s++;
 	if(seconds != NULL) 
 	{
