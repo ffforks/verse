@@ -152,7 +152,8 @@ int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 		v_n_get_address_string(address, string);
 		printf("send to %s\n", string);
 	}
-*/	return sendto(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr_in));
+*/
+	return sendto(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr_in));
 }
 
 #if !defined V_GENERATE_FUNC_MODE
@@ -194,8 +195,11 @@ int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
 	address_in.sin_port = htons(my_port); 
 	address_in.sin_addr.s_addr = INADDR_ANY;
 	len = recvfrom(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, &from_length);
-	address->ip   = ntohl(address_in.sin_addr.s_addr);
-	address->port = ntohs(address_in.sin_port);
+	if(len > 0)
+	{
+		address->ip   = ntohl(address_in.sin_addr.s_addr);
+		address->port = ntohs(address_in.sin_port);
+	}
 	return len;
 }
 
