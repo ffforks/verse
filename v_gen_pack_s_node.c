@@ -752,7 +752,7 @@ unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length, void *us
 		return buffer_pos;
 	}
 
-	
+	if(type >= VN_TAG_TYPE_COUNT)
 	{
 		void (* alias_tag_destroy)(void *user_data, VNodeID node_id, uint16 group_id, uint16 tag_id);
 		alias_tag_destroy = v_fs_get_alias_user_func(18);
