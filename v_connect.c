@@ -18,7 +18,7 @@
 
 extern void verse_send_packet_ack(uint32 packet_id);
 
-void v_send_hidden_connect_contact() /*  Stage 0: Clinets inital call to connect to host */
+void v_send_hidden_connect_contact(void) /*  Stage 0: Clinets inital call to connect to host */
 {
 	uint8 buf[V_ENCRYPTION_LOGIN_KEY_HALF_SIZE + 4 + 1 + 1], *public_key;
 	unsigned int i, buffer_pos = 0;
@@ -35,7 +35,7 @@ void v_send_hidden_connect_contact() /*  Stage 0: Clinets inital call to connect
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
 }
 
-void v_send_hidden_connect_send_key() /*  Stage 1: Hosts reply to any atempt to connect */
+void v_send_hidden_connect_send_key(void) /*  Stage 1: Hosts reply to any atempt to connect */
 {
 	uint8 buf[V_ENCRYPTION_LOGIN_KEY_SIZE * 3 + 4 + 1 + 1 + 1 + 4 + 4], *host_id;
 	unsigned int i, buffer_pos = 0, s, f;
@@ -57,7 +57,7 @@ void v_send_hidden_connect_send_key() /*  Stage 1: Hosts reply to any atempt to 
 }
 
 
-void v_send_hidden_connect_login() /* Stage 2: clients sends encrypted name and password */
+void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypted name and password */
 {
 	uint8 buf[1500], *name, *pass, *my_key, name_pass[V_ENCRYPTION_LOGIN_KEY_SIZE], encrypted_key[V_ENCRYPTION_LOGIN_KEY_SIZE];
 	unsigned int buffer_pos = 0, i, j;
@@ -83,7 +83,7 @@ void v_send_hidden_connect_login() /* Stage 2: clients sends encrypted name and 
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
 }
 
-void v_send_hidden_connect_accept() /* Host accepts Clients connectionatempt and sends over data encryption key */
+void v_send_hidden_connect_accept(void) /* Host accepts Clients connectionatempt and sends over data encryption key */
 {
 	uint8 buf[1500], *data_key, *host_id, encrypted[V_ENCRYPTION_DATA_KEY_SIZE];
 	unsigned int i, buffer_pos = 0;
@@ -149,7 +149,7 @@ VSession * verse_send_connect(const char *name, const char *pass, const char *ad
 }
 
 
-void v_update_connection_pending()
+void v_update_connection_pending(void)
 {
 	VSession (* func_connect)(void *user_data, char *address, const char *name, const char *pass, const char *key);
 	VSession (* func_connect_accept)(void *user_data, VNodeID avatar, char *address, uint8 *host_id);
