@@ -79,7 +79,7 @@ void vs_b_unsubscribe(VSNodeBitmap *node)
 static void callback_send_b_dimensions_set(void *user, VNodeID node_id, uint16 width, uint16 height, uint16 depth)
 {
 	VSNodeBitmap *node;
-	unsigned int i, j, k, count, tiles[2], read, write, end;
+	unsigned int i, j, k, count, tiles[2], read, write, end = 0;
 	if((node = (VSNodeBitmap *)vs_get_node(node_id, V_NT_BITMAP)) == NULL)
 		return;
 	tiles[0] = (width + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE;
