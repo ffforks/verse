@@ -12,15 +12,15 @@
 
 extern void init_pack_and_unpack_fucs(void);
 
-struct{
-	unsigned int	(*unpack_func[V_FS_MAX_CMDS])(char *data, unsigned int length, void *user_func, void *user_data);
-	void			*pack_func[V_FS_MAX_CMDS];
-	void			*user_func[V_FS_MAX_CMDS];
-	void			*user_data[V_FS_MAX_CMDS];
-	void			*alias_pack_func[V_FS_MAX_CMDS];
-	void			*alias_user_func[V_FS_MAX_CMDS];
-	void			*alias_user_data[V_FS_MAX_CMDS];
-}VCmdData;
+static struct {
+	unsigned int	(*unpack_func[V_FS_MAX_CMDS])(const char *data, size_t length, void *user_func, void *user_data);
+	void		*pack_func[V_FS_MAX_CMDS];
+	void		*user_func[V_FS_MAX_CMDS];
+	void		*user_data[V_FS_MAX_CMDS];
+	void		*alias_pack_func[V_FS_MAX_CMDS];
+	void		*alias_user_func[V_FS_MAX_CMDS];
+	void		*alias_user_data[V_FS_MAX_CMDS];
+} VCmdData;
 
 boolean v_fs_initialized = FALSE;
 
@@ -56,7 +56,7 @@ void v_fs_init(void)
 }
 
 
-void v_fs_add_func(unsigned int cmd_id, unsigned int (*unpack_func)(char *data, unsigned int length, void *user_func, void *user_data), void *pack_func, void *alias_func)
+void v_fs_add_func(unsigned int cmd_id, unsigned int (*unpack_func)(const char *data, size_t length, void *user_func, void *user_data), void *pack_func, void *alias_func)
 {
 	VCmdData.unpack_func[cmd_id] = unpack_func;
 	VCmdData.pack_func[cmd_id] = pack_func;
@@ -113,7 +113,7 @@ boolean v_fs_func_accept_connections()
 */	return TRUE;
 }
 
-void v_fs_buf_unpack(uint8 *data, unsigned int length)
+void v_fs_buf_unpack(const uint8 *data, unsigned int length)
 {
 	uint32 i = 0, output, pack_id, *expected;
 	uint8 cmd_id;
@@ -131,7 +131,7 @@ void v_fs_buf_unpack(uint8 *data, unsigned int length)
 		if(VCmdData.unpack_func[cmd_id] != NULL)
 		{
 			output = VCmdData.unpack_func[cmd_id](&data[i], length - i, VCmdData.user_func[cmd_id], VCmdData.user_data[cmd_id]);
-			if(output == -1)
+			if(output == (unsigned int) -1)	/* FIXME: Can this happen? Should be size_t or int, depending. */
 			{
 				verse_send_packet_nak(pack_id);
 				return;
@@ -162,7 +162,7 @@ void v_fs_buf_store_pack(uint8 *data, unsigned int length)
 				output = VCmdData.unpack_func[cmd_id](&data[i], length - i, VCmdData.user_func[cmd_id], VCmdData.user_data[cmd_id]);
 			else
 				output = VCmdData.unpack_func[cmd_id](&data[i], length - i, NULL, NULL);
-			if(output == -1)
+			if(output == (unsigned int) -1)	/* Can this happen? Should be size_t or int, depending. */
 			{
 				verse_send_packet_nak(pack_id);
 				return;
