@@ -24,7 +24,7 @@ void verse_send_t_set_language(VNodeID node_id, const char *language)
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 96);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 96);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_t_set_language(node_id = %u language = %s );\n", node_id, language);
 #endif
@@ -67,7 +67,7 @@ void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, uint16 i
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 97);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 97);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_t_buffer_create(node_id = %u buffer_id = %u index = %u name = %s );\n", node_id, buffer_id, index, name);
 #endif
@@ -91,7 +91,7 @@ void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 97);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 97);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_t_buffer_destroy(node_id = %u buffer_id = %u );\n", node_id, buffer_id);
 #endif
@@ -151,7 +151,7 @@ void verse_send_t_buffer_subscribe(VNodeID node_id, VNMBufferID buffer_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 98);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 98);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_t_buffer_subscribe(node_id = %u buffer_id = %u );\n", node_id, buffer_id);
 #endif
@@ -174,7 +174,7 @@ void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 98);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 98);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_t_buffer_unsubscribe(node_id = %u buffer_id = %u );\n", node_id, buffer_id);
 #endif

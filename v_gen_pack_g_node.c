@@ -24,7 +24,7 @@ void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *n
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 48);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 48);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_layer_create(node_id = %u layer_id = %u name = %s type = %u def_uint = %u def_real = %f );\n", node_id, layer_id, name, type, def_uint, def_real);
 #endif
@@ -50,7 +50,7 @@ void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 48);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 48);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_layer_destroy(node_id = %u layer_id = %u );\n", node_id, layer_id);
 #endif
@@ -120,7 +120,7 @@ void verse_send_g_layer_subscribe(VNodeID node_id, VLayerID layer_id, VNRealForm
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 49);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 49);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_layer_subscribe(node_id = %u layer_id = %u type = %u );\n", node_id, layer_id, type);
 #endif
@@ -143,7 +143,7 @@ void verse_send_g_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 49);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 49);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_layer_unsubscribe(node_id = %u layer_id = %u );\n", node_id, layer_id);
 #endif
@@ -202,7 +202,7 @@ void verse_send_g_vertex_set_xyz_real32(VNodeID node_id, VLayerID layer_id, uint
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 50);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 50);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_vertex_set_xyz_real32(node_id = %u layer_id = %u vertex_id = %u x = %f y = %f z = %f );\n", node_id, layer_id, vertex_id, x, y, z);
 #endif
@@ -228,7 +228,7 @@ void verse_send_g_vertex_delete_real32(VNodeID node_id, uint32 vertex_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 50);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 50);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_vertex_delete_real32(node_id = %u vertex_id = %u );\n", node_id, vertex_id);
 #endif
@@ -294,7 +294,7 @@ void verse_send_g_vertex_set_xyz_real64(VNodeID node_id, VLayerID layer_id, uint
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 51);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 51);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_vertex_set_xyz_real64(node_id = %u layer_id = %u vertex_id = %u x = %f y = %f z = %f );\n", node_id, layer_id, vertex_id, x, y, z);
 #endif
@@ -320,7 +320,7 @@ void verse_send_g_vertex_delete_real64(VNodeID node_id, uint32 vertex_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 51);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 51);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_vertex_delete_real64(node_id = %u vertex_id = %u );\n", node_id, vertex_id);
 #endif
@@ -386,7 +386,7 @@ void verse_send_g_vertex_set_uint32(VNodeID node_id, VLayerID layer_id, uint32 v
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 52);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 52);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_vertex_set_uint32(node_id = %u layer_id = %u vertex_id = %u value = %u );\n", node_id, layer_id, vertex_id, value);
 #endif
@@ -435,7 +435,7 @@ void verse_send_g_vertex_set_real64(VNodeID node_id, VLayerID layer_id, uint32 v
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 53);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 53);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_vertex_set_real64(node_id = %u layer_id = %u vertex_id = %u value = %f );\n", node_id, layer_id, vertex_id, value);
 #endif
@@ -484,7 +484,7 @@ void verse_send_g_vertex_set_real32(VNodeID node_id, VLayerID layer_id, uint32 v
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 54);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 54);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_vertex_set_real32(node_id = %u layer_id = %u vertex_id = %u value = %f );\n", node_id, layer_id, vertex_id, value);
 #endif
@@ -533,7 +533,7 @@ void verse_send_g_polygon_set_corner_uint32(VNodeID node_id, VLayerID layer_id, 
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 55);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 55);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_polygon_set_corner_uint32(node_id = %u layer_id = %u polygon_id = %u v0 = %u v1 = %u v2 = %u v3 = %u );\n", node_id, layer_id, polygon_id, v0, v1, v2, v3);
 #endif
@@ -560,7 +560,7 @@ void verse_send_g_polygon_delete(VNodeID node_id, uint32 polygon_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 55);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 55);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_polygon_delete(node_id = %u polygon_id = %u );\n", node_id, polygon_id);
 #endif
@@ -629,7 +629,7 @@ void verse_send_g_polygon_set_corner_real64(VNodeID node_id, VLayerID layer_id, 
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 56);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 56);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_polygon_set_corner_real64(node_id = %u layer_id = %u polygon_id = %u v0 = %f v1 = %f v2 = %f v3 = %f );\n", node_id, layer_id, polygon_id, v0, v1, v2, v3);
 #endif
@@ -687,7 +687,7 @@ void verse_send_g_polygon_set_corner_real32(VNodeID node_id, VLayerID layer_id, 
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 57);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 57);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_polygon_set_corner_real32(node_id = %u layer_id = %u polygon_id = %u v0 = %f v1 = %f v2 = %f v3 = %f );\n", node_id, layer_id, polygon_id, v0, v1, v2, v3);
 #endif
@@ -745,7 +745,7 @@ void verse_send_g_polygon_set_face_uint8(VNodeID node_id, VLayerID layer_id, uin
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 58);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 58);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_polygon_set_face_uint8(node_id = %u layer_id = %u polygon_id = %u value = %u );\n", node_id, layer_id, polygon_id, value);
 #endif
@@ -794,7 +794,7 @@ void verse_send_g_polygon_set_face_uint32(VNodeID node_id, VLayerID layer_id, ui
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 59);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 59);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_polygon_set_face_uint32(node_id = %u layer_id = %u polygon_id = %u value = %u );\n", node_id, layer_id, polygon_id, value);
 #endif
@@ -843,7 +843,7 @@ void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer_id, ui
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 60);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 60);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_polygon_set_face_real64(node_id = %u layer_id = %u polygon_id = %u value = %f );\n", node_id, layer_id, polygon_id, value);
 #endif
@@ -892,7 +892,7 @@ void verse_send_g_polygon_set_face_real32(VNodeID node_id, VLayerID layer_id, ui
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 61);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 61);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_polygon_set_face_real32(node_id = %u layer_id = %u polygon_id = %u value = %f );\n", node_id, layer_id, polygon_id, value);
 #endif
@@ -941,7 +941,7 @@ void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 d
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 62);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 62);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_crease_set_vertex(node_id = %u layer = %s def_crease = %u );\n", node_id, layer, def_crease);
 #endif
@@ -989,7 +989,7 @@ void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 63);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 63);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_crease_set_edge(node_id = %u layer = %s def_crease = %u );\n", node_id, layer, def_crease);
 #endif
@@ -1037,7 +1037,7 @@ void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weigh
 	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_bone_create(node_id = %u bone_id = %u weight = %s reference = %s parent = %u pos_x = %f pos_y = %f pos_z = %f rot_x = %f rot_y = %f rot_z = %f rot_w = %f );\n", node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, rot_w);
 #endif
@@ -1069,7 +1069,7 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id)
 	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_g_bone_destroy(node_id = %u bone_id = %u );\n", node_id, bone_id);
 #endif

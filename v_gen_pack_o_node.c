@@ -24,7 +24,7 @@ void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time_s, uint32 ti
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 32);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 32);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_transform_pos_real32(node_id = %u time_s = %u time_f = %u pos = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, pos, speed, accelerate, drag_normal, drag);
 #endif
@@ -135,7 +135,7 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 ti
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 33);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 33);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_transform_rot_real32(node_id = %u time_s = %u time_f = %u rot = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, rot, speed, accelerate, drag_normal, drag);
 #endif
@@ -250,7 +250,7 @@ void verse_send_o_transform_scale_real32(VNodeID node_id, real32 scale_x, real32
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 34);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 34);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_transform_scale_real32(node_id = %u scale_x = %f scale_y = %f scale_z = %f );\n", node_id, scale_x, scale_y, scale_z);
 #endif
@@ -299,7 +299,7 @@ void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time_s, uint32 ti
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 35);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 35);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_transform_pos_real64(node_id = %u time_s = %u time_f = %u pos = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, pos, speed, accelerate, drag_normal, drag);
 #endif
@@ -410,7 +410,7 @@ void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 ti
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 36);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 36);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_transform_rot_real64(node_id = %u time_s = %u time_f = %u rot = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, rot, speed, accelerate, drag_normal, drag);
 #endif
@@ -525,7 +525,7 @@ void verse_send_o_transform_scale_real64(VNodeID node_id, real64 scale_x, real64
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 37);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 37);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_transform_scale_real64(node_id = %u scale_x = %f scale_y = %f scale_z = %f );\n", node_id, scale_x, scale_y, scale_z);
 #endif
@@ -574,7 +574,7 @@ void verse_send_o_transform_subscribe(VNodeID node_id, VNRealFormat type)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 38);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 38);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_transform_subscribe(node_id = %u type = %u );\n", node_id, type);
 #endif
@@ -597,7 +597,7 @@ void verse_send_o_transform_unsubscribe(VNodeID node_id, VNRealFormat type)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 38);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 38);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_transform_unsubscribe(node_id = %u type = %u );\n", node_id, type);
 #endif
@@ -658,7 +658,7 @@ void verse_send_o_light_set(VNodeID node_id, real64 light_r, real64 light_g, rea
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 39);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 39);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_light_set(node_id = %u light_r = %f light_g = %f light_b = %f );\n", node_id, light_r, light_g, light_b);
 #endif
@@ -707,7 +707,7 @@ void verse_send_o_link_set(VNodeID node_id, uint16 link_id, VNodeID link, const 
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 40);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 40);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_link_set(node_id = %u link_id = %u link = %u label = %s target_id = %u );\n", node_id, link_id, link, label, target_id);
 #endif
@@ -733,7 +733,7 @@ void verse_send_o_link_destroy(VNodeID node_id, uint16 link_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 40);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 40);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_link_destroy(node_id = %u link_id = %u );\n", node_id, link_id);
 #endif
@@ -803,7 +803,7 @@ void verse_send_o_method_group_create(VNodeID node_id, uint16 group_id, const ch
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 41);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 41);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_method_group_create(node_id = %u group_id = %u name = %s );\n", node_id, group_id, name);
 #endif
@@ -826,7 +826,7 @@ void verse_send_o_method_group_destroy(VNodeID node_id, uint16 group_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 41);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 41);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_method_group_destroy(node_id = %u group_id = %u );\n", node_id, group_id);
 #endif
@@ -883,7 +883,7 @@ void verse_send_o_method_group_subscribe(VNodeID node_id, uint16 group_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 42);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 42);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_method_group_subscribe(node_id = %u group_id = %u );\n", node_id, group_id);
 #endif
@@ -906,7 +906,7 @@ void verse_send_o_method_group_unsubscribe(VNodeID node_id, uint16 group_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 42);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 42);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_method_group_unsubscribe(node_id = %u group_id = %u );\n", node_id, group_id);
 #endif
@@ -965,7 +965,7 @@ void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 43);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 43);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_method_create(node_id = %u group_id = %u method_id = %u name = %s param_count = %u param_types = %p param_names = %p );\n", node_id, group_id, method_id, name, param_count, param_types, param_names);
 #endif
@@ -1005,7 +1005,7 @@ void verse_send_o_method_destroy(VNodeID node_id, uint16 group_id, uint16 method
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 43);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 43);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_method_destroy(node_id = %u group_id = %u method_id = %u );\n", node_id, group_id, method_id);
 #endif
@@ -1092,7 +1092,7 @@ void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 44);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 44);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_method_call(node_id = %u group_id = %u method_id = %u sender = %u params = %p );\n", node_id, group_id, method_id, sender, params);
 #endif
@@ -1158,7 +1158,7 @@ void verse_send_o_anim_run(VNodeID node_id, uint16 link_id, uint32 time_s, uint3
 	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 45);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 45);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_anim_run(node_id = %u link_id = %u time_s = %u time_f = %u pos = %f speed = %f accel = %f scale = %f scale_speed = %f );\n", node_id, link_id, time_s, time_f, pos, speed, accel, scale, scale_speed);
 #endif
@@ -1188,7 +1188,7 @@ void verse_send_o_anim_stop(VNodeID node_id, uint16 link_id)
 	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 45);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 45);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_o_anim_stop(node_id = %u link_id = %u );\n", node_id, link_id);
 #endif

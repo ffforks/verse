@@ -24,7 +24,7 @@ void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, VNALayerType 
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 160);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 160);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_layer_create(node_id = %u layer_id = %u type = %u frequency = %f name = %s );\n", node_id, layer_id, type, frequency, name);
 #endif
@@ -49,7 +49,7 @@ void verse_send_a_layer_destroy(VNodeID node_id, VLayerID layer_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 160);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 160);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_layer_destroy(node_id = %u layer_id = %u );\n", node_id, layer_id);
 #endif
@@ -114,7 +114,7 @@ void verse_send_a_layer_subscribe(VNodeID node_id, VLayerID layer_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 161);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 161);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_layer_subscribe(node_id = %u layer_id = %u );\n", node_id, layer_id);
 #endif
@@ -137,7 +137,7 @@ void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 161);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 161);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_layer_unsubscribe(node_id = %u layer_id = %u );\n", node_id, layer_id);
 #endif
@@ -196,7 +196,7 @@ void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 block_ind
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 162);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 162);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_block_set(node_id = %u layer_id = %u block_index = %u type = %u data = %p );\n", node_id, layer_id, block_index, type, data);
 #endif
@@ -250,7 +250,7 @@ void verse_send_a_block_clear(VNodeID node_id, VLayerID layer_id, uint32 block_i
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 162);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 162);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_block_clear(node_id = %u layer_id = %u block_index = %u );\n", node_id, layer_id, block_index);
 #endif
@@ -374,7 +374,7 @@ void verse_send_a_stream_create(VNodeID node_id, VLayerID stream_id, const char 
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 163);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 163);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_stream_create(node_id = %u stream_id = %u name = %s );\n", node_id, stream_id, name);
 #endif
@@ -397,7 +397,7 @@ void verse_send_a_stream_destroy(VNodeID node_id, VLayerID stream_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 163);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 163);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_stream_destroy(node_id = %u stream_id = %u );\n", node_id, stream_id);
 #endif
@@ -454,7 +454,7 @@ void verse_send_a_stream_subscribe(VNodeID node_id, VLayerID stream_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 164);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 164);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_stream_subscribe(node_id = %u stream_id = %u );\n", node_id, stream_id);
 #endif
@@ -477,7 +477,7 @@ void verse_send_a_stream_unsubscribe(VNodeID node_id, VLayerID stream_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 164);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 164);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_stream_unsubscribe(node_id = %u stream_id = %u );\n", node_id, stream_id);
 #endif
@@ -536,7 +536,7 @@ void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uin
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 165);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 165);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_a_stream(node_id = %u stream_id = %u time_s = %u time_f = %u type = %u frequency = %f data = %p );\n", node_id, stream_id, time_s, time_f, type, frequency, data);
 #endif

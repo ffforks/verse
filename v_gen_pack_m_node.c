@@ -24,7 +24,7 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 68);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 68);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_m_fragment_create(node_id = %u frag_id = %u type = %u fragment = %p );\n", node_id, frag_id, type, fragment);
 #endif
@@ -140,7 +140,7 @@ void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id)
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 68);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 68);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_m_fragment_destroy(node_id = %u frag_id = %u );\n", node_id, frag_id);
 #endif

@@ -24,7 +24,7 @@ void verse_send_packet_ack(uint32 packet_id)
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 7);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 7);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], packet_id);
@@ -62,7 +62,7 @@ void verse_send_packet_nak(uint32 packet_id)
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 8);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 8);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], packet_id);
@@ -100,7 +100,7 @@ void verse_send_node_list(uint32 mask)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 9);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 9);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_node_list(mask = %u );\n", mask);
 #endif
@@ -140,7 +140,7 @@ void verse_send_node_create(VNodeID node_id, VNodeType type, VNodeOwner owner)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 10);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 10);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_node_create(node_id = %u type = %u owner = %u );\n", node_id, type, owner);
 #endif
@@ -163,7 +163,7 @@ void verse_send_node_destroy(VNodeID node_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 10);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 10);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_node_destroy(node_id = %u );\n", node_id);
 #endif
@@ -223,7 +223,7 @@ void verse_send_node_subscribe(VNodeID node_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 11);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 11);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_node_subscribe(node_id = %u );\n", node_id);
 #endif
@@ -245,7 +245,7 @@ void verse_send_node_unsubscribe(VNodeID node_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 11);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 11);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_node_unsubscribe(node_id = %u );\n", node_id);
 #endif
@@ -301,7 +301,7 @@ void verse_send_tag_group_create(VNodeID node_id, uint16 group_id, const char *n
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 16);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 16);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_tag_group_create(node_id = %u group_id = %u name = %s );\n", node_id, group_id, name);
 #endif
@@ -324,7 +324,7 @@ void verse_send_tag_group_destroy(VNodeID node_id, uint16 group_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 16);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 16);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_tag_group_destroy(node_id = %u group_id = %u );\n", node_id, group_id);
 #endif
@@ -381,7 +381,7 @@ void verse_send_tag_group_subscribe(VNodeID node_id, uint16 group_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 17);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 17);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_tag_group_subscribe(node_id = %u group_id = %u );\n", node_id, group_id);
 #endif
@@ -404,7 +404,7 @@ void verse_send_tag_group_unsubscribe(VNodeID node_id, uint16 group_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 17);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 17);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_tag_group_unsubscribe(node_id = %u group_id = %u );\n", node_id, group_id);
 #endif
@@ -463,7 +463,7 @@ void verse_send_tag_create(VNodeID node_id, uint16 group_id, uint16 tag_id, cons
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 18);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 18);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_tag_create(node_id = %u group_id = %u tag_id = %u name = %s type = %u tag = %p );\n", node_id, group_id, tag_id, name, type, tag);
 #endif
@@ -544,7 +544,7 @@ void verse_send_tag_destroy(VNodeID node_id, uint16 group_id, uint16 tag_id)
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 18);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 18);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_tag_destroy(node_id = %u group_id = %u tag_id = %u );\n", node_id, group_id, tag_id);
 #endif
@@ -671,7 +671,7 @@ void verse_send_node_name_set(VNodeID node_id, const char *name)
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 19);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 19);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_node_name_set(node_id = %u name = %s );\n", node_id, name);
 #endif

@@ -24,7 +24,7 @@ void verse_send_b_dimensions_set(VNodeID node_id, uint16 width, uint16 height, u
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 80);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 80);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_b_dimensions_set(node_id = %u width = %u height = %u depth = %u );\n", node_id, width, height, depth);
 #endif
@@ -73,7 +73,7 @@ void verse_send_b_layer_create(VNodeID node_id, VLayerID layer_id, const char *n
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 81);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 81);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_b_layer_create(node_id = %u layer_id = %u name = %s type = %u );\n", node_id, layer_id, name, type);
 #endif
@@ -97,7 +97,7 @@ void verse_send_b_layer_destroy(VNodeID node_id, VLayerID layer_id)
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 81);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 81);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_b_layer_destroy(node_id = %u layer_id = %u );\n", node_id, layer_id);
 #endif
@@ -161,7 +161,7 @@ void verse_send_b_layer_subscribe(VNodeID node_id, VLayerID layer_id, uint8 leve
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 82);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 82);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_b_layer_subscribe(node_id = %u layer_id = %u level = %u );\n", node_id, layer_id, level);
 #endif
@@ -184,7 +184,7 @@ void verse_send_b_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 82);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 82);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_b_layer_unsubscribe(node_id = %u layer_id = %u );\n", node_id, layer_id);
 #endif
@@ -241,7 +241,7 @@ void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, uint16 tile_x, ui
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 83);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 83);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_b_tile_set(node_id = %u layer_id = %u tile_x = %u tile_y = %u z = %u type = %u tile = %p );\n", node_id, layer_id, tile_x, tile_y, z, type, tile);
 #endif
