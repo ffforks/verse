@@ -8,7 +8,7 @@
 /* A callback for connection acception: will be called when server accepts this client. */
 static void callback_accept_connect(void *user, uint32 avatar, void *address, void *connection)
 {
-    uint i, mask = 0;
+    uint32 i, mask = 0;
 
     printf("Connected to a Verse host!\n\nListing nodes:\n");
 
