@@ -28,9 +28,9 @@
 unsigned int std_queue_size = STD_QUE_SIZE;
 
 typedef struct{
-	void		*next;
-	char		*data;
-	unsigned int	size;
+	void	*next;
+	char	*data;
+	size_t	size;
 } NetPacked;
 
 struct VNetQueue {
@@ -39,8 +39,8 @@ struct VNetQueue {
 	VCMDBufHead	*unsent[V_NQ_OPTIMIZATION_SLOTS];
 	VCMDBufHead	*history[V_NQ_OPTIMIZATION_SLOTS];
 	VCMDBufHead	*ack_nak;
-	unsigned int	unsent_size;
-	unsigned int	sent_size;
+	size_t		unsent_size;
+	size_t		sent_size;
 	unsigned int	packet_id;
 	unsigned int	slot;
 };
@@ -73,7 +73,7 @@ VNetQueue * v_nq_create_network_queue(void)
 	return queue;
 }
 
-char * v_nq_get_packed(VNetQueue *queue, unsigned int *length)
+char * v_nq_get_packed(VNetQueue *queue, size_t *length)
 {
 	NetPacked	*p;
 	char		*data;
@@ -90,7 +90,7 @@ char * v_nq_get_packed(VNetQueue *queue, unsigned int *length)
 	return data;
 }
 
-void v_nq_store_packed(VNetQueue *queue, const char *data, unsigned int length)
+void v_nq_store_packed(VNetQueue *queue, const char *data, size_t length)
 {
 	NetPacked	*p;
 
