@@ -147,6 +147,7 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_add_param(VCGP_REAL64,		"rot_x");
 	v_cg_add_param(VCGP_REAL64,		"rot_y");
 	v_cg_add_param(VCGP_REAL64,		"rot_z");
+	v_cg_add_param(VCGP_REAL64,		"rot_w");
 	v_cg_alias(FALSE, "g_bone_destroy", "if(name[0] == 0)", 2, NULL);
 
 	v_cg_end_cmd();

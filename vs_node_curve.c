@@ -16,6 +16,7 @@ typedef struct {
 	real64 pre_value;
 	uint32 pre_pos;
 	real64 value;
+	real64 pos;
 	real64 post_value;
 	uint32 post_pos;
 } VSNKey;
@@ -143,7 +144,7 @@ static void callback_send_c_curve_destroy(void *user, VNodeID node_id, VLayerID 
 	vs_reset_subscript_session();
 }
 
-static void callback_send_c_curve_key_set(void *user, VNodeID node_id, VLayerID curve_id, uint32 key_id, real64 pre_value, uint32 pre_pos, real64 value, real64 post_value, uint32 post_pos)
+static void callback_send_c_curve_key_set(void *user, VNodeID node_id, VLayerID curve_id, uint32 key_id, real64 pre_value, uint32 pre_pos, real64 value, real64 pos, real64 post_value, uint32 post_pos)
 {
 	VSNodeCurve *node;
 	unsigned int i, count;
@@ -162,6 +163,7 @@ static void callback_send_c_curve_key_set(void *user, VNodeID node_id, VLayerID 
 	node->curves[curve_id].keys[key_id].pre_value = pre_value;
 	node->curves[curve_id].keys[key_id].pre_pos = pre_pos;
 	node->curves[curve_id].keys[key_id].value = value;
+	node->curves[curve_id].keys[key_id].pos = pos;
 	node->curves[curve_id].keys[key_id].post_value = post_value;
 	node->curves[curve_id].keys[key_id].post_pos = post_pos;
 
@@ -169,7 +171,7 @@ static void callback_send_c_curve_key_set(void *user, VNodeID node_id, VLayerID 
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->head.subscribers, i);
-		verse_send_c_curve_key_set(node_id, curve_id, key_id, pre_value, pre_pos, value, post_value, post_pos);
+		verse_send_c_curve_key_set(node_id, curve_id, key_id, pre_value, pre_pos, value, pos, post_value, post_pos);
 	}
 	vs_reset_subscript_session();
 }
@@ -208,7 +210,7 @@ static void callback_send_c_curve_subscribe(void *user, VNodeID node_id, VLayerI
 
 	for(i = 0; i < node->curves[curve_id].length; i++)
 		if(node->curves[curve_id].keys[i].value != V_REAL64_MAX)
-			verse_send_c_curve_key_set(node_id, curve_id, i, node->curves[curve_id].keys[i].pre_value, node->curves[curve_id].keys[i].pre_pos, node->curves[curve_id].keys[i].value, node->curves[curve_id].keys[i].post_value, node->curves[curve_id].keys[i].post_pos);
+			verse_send_c_curve_key_set(node_id, curve_id, i, node->curves[curve_id].keys[i].pre_value, node->curves[curve_id].keys[i].pre_pos, node->curves[curve_id].keys[i].value, node->curves[curve_id].keys[i].pos, node->curves[curve_id].keys[i].post_value, node->curves[curve_id].keys[i].post_pos);
 }
 
 static void callback_send_c_curve_unsubscribe(void *user, VNodeID node_id, VLayerID curve_id)
