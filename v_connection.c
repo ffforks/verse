@@ -27,7 +27,7 @@ typedef struct {
 	unsigned int	packet_id;
 	unsigned int	ping_timeout;
 	unsigned int	connect_timeout;
-	void		*orderd_storage;
+	void		*ordered_storage;
 } VConnection;
 
 struct {
@@ -60,8 +60,8 @@ void verse_set_connect_port(uint16 port)
 }
 
 extern void *v_fs_create_func_storage(void);
-extern void *v_create_orderd_storage(void);
-extern void v_destroy_orderd_storage(void *data);
+extern void *v_create_ordered_storage(void);
+extern void v_destroy_ordered_storage(void *data);
 
 VNetworkAddress * v_con_connect(const char *address)
 {
@@ -80,7 +80,7 @@ VNetworkAddress * v_con_connect(const char *address)
 	VConData.con[VConData.con_count].packet_id = 0;
 	VConData.con[VConData.con_count].ping_timeout = 0;
 	VConData.con[VConData.con_count].connect_timeout = 0;
-	VConData.con[VConData.con_count].orderd_storage = v_create_orderd_storage();
+	VConData.con[VConData.con_count].ordered_storage = v_create_ordered_storage();
 	VConData.current_connection = VConData.con_count;
 	++VConData.con_count;
 
@@ -95,7 +95,7 @@ void verse_session_destroy(VSession session)
 	{
 		v_nq_destroy_network_queue(VConData.con[i].network_queue);
 		v_n_destroy_network_address(VConData.con[i].network_address);
-		v_destroy_orderd_storage(VConData.con[i].orderd_storage);
+		v_destroy_ordered_storage(VConData.con[i].ordered_storage);
 		VConData.con[i] = VConData.con[--VConData.con_count];
 	}
 }
@@ -123,9 +123,9 @@ unsigned int * v_con_get_network_expected_packet(void)
 	return &VConData.con[VConData.current_connection].packet_id;
 }
 
-void * v_con_get_orderd_storage(void)
+void * v_con_get_ordered_storage(void)
 {
-	return VConData.con[VConData.con_count].orderd_storage;
+	return VConData.con[VConData.con_count].ordered_storage;
 }
 
 uint32 verse_session_get_avatar(void)

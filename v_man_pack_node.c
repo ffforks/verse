@@ -124,7 +124,7 @@ typedef struct{
 	uint16		text_receive_id;
 }VOrderdStorage;
 
-VOrderdStorage *v_create_orderd_storage(void)
+VOrderdStorage *v_create_ordered_storage(void)
 {
 	VOrderdStorage *s;
 	s = malloc(sizeof *s);
@@ -134,7 +134,7 @@ VOrderdStorage *v_create_orderd_storage(void)
 	return s;
 }
 
-void v_destroy_orderd_storage(VOrderdStorage *s)
+void v_destroy_ordered_storage(VOrderdStorage *s)
 {
 	VTempLine *line, *next;
 	line = s->text_temp;
@@ -163,7 +163,7 @@ void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, u
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_t_line_insert(node_id = %u buffer_id = %u pos = %u length = %u text = %s );\n", node_id, buffer_id, pos, length, text);
 #endif
-	s = v_con_get_orderd_storage();
+	s = v_con_get_ordered_storage();
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], pos);
@@ -209,7 +209,7 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 		l.text = NULL;
 	else
 		l.text = text;
-	s = v_con_get_orderd_storage();
+	s = v_con_get_ordered_storage();
 	if(s->text_receive_id == l.index)
 	{
 		v_call_line(&l);
