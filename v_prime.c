@@ -15,7 +15,7 @@
 #include "v_encryption.h"
 #include "verse_header.h"
 
-#define	BITS		(512)/*CHAR_BIT * V_ENCRYPTION_LOGIN_KEY_SIZE)*/
+#define	BITS		V_ENCRYPTION_LOGIN_KEY_BITS	/* Save some typing. */
 
 #define CYCLES	10	/* Number of times to apply Miller-Rabin test. */
 
