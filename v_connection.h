@@ -5,10 +5,10 @@
 #include "v_network.h"
 
 extern void *	v_con_get_network_queue(void);
-extern void *	v_con_get_network_address(void);
+extern VNetworkAddress *	v_con_get_network_address(void);
 extern void *	v_con_get_network_address_id(unsigned int id);
 extern unsigned int *v_con_get_network_expected_packet(void);
-extern void *	v_con_get_orderd_storage(void);
+extern void *	v_con_get_ordered_storage(void);
 extern void *	v_con_get_func_storage(void);
 extern VNetworkAddress *	v_con_connect(const char *address);
 extern unsigned int v_con_get_network_address_count(void);
