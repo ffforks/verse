@@ -226,9 +226,9 @@ extern void	v_update_connection_pending(void);
 
 boolean v_con_callback_update(void)
 {
-	boolean output = FALSE;
-	int size, connection;
-	VNetInPacked *p;
+	boolean		output = FALSE;
+	unsigned int	size, connection;
+	VNetInPacked	*p;
 
 	connection = VConData.current_connection;
 	for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
@@ -239,13 +239,11 @@ boolean v_con_callback_update(void)
 		return FALSE;
 */	if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
 	{
-		p = v_niq_get(&VConData.con[VConData.current_connection].in_queue, &size);
-		while(size > 0)
+		while((p = v_niq_get(&VConData.con[VConData.current_connection].in_queue, &size)) != NULL)
 		{
 			VConData.pending_packets--;
 			v_fs_unpack(p->data, size);
 			v_niq_release(&VConData.con[VConData.current_connection].in_queue, p);
-			p = v_niq_get(&VConData.con[VConData.current_connection].in_queue, &size);
 			output = TRUE;
 		}
 		v_con_network_listen();
