@@ -84,9 +84,9 @@ VNetworkAddress * v_con_connect(const char *address)
 	VConData.current_connection = VConData.con_count;
 	++VConData.con_count;
 
-/*	if(VConData.connect_address == NULL)
+	if(VConData.connect_address == NULL)
 		VConData.connect_address = net;
-*/
+
 	return net;
 }
 
