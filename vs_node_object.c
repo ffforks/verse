@@ -29,7 +29,7 @@ typedef struct {
 } VSMethod;
 
 typedef struct {
-	char		name[16];
+	char		name[VN_O_METHOD_GROUP_NAME_SIZE];
 	VSMethod	*methods;
 	unsigned int	method_count;
 	VSSubscriptionList *subscribers;
@@ -339,10 +339,10 @@ static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 gr
 		}
 	}
 
-	/* FIXME: Is this correct? It looks rather weird to me... /Emil */
-	for(i = 0; i != name[i]; i++)
+	for(i = 0; i < VN_O_METHOD_NAME_SIZE && name[i] != 0; i++)
 		group->methods[method_id].name[i] = name[i];
-
+	group->methods[method_id].name[i] = '\0';
+	
 	group->methods[method_id].param_count = param_count; 
 	group->methods[method_id].param_types = malloc((sizeof *group->methods[method_id].param_types) * param_count);
 	group->methods[method_id].param_names = malloc((sizeof *group->methods[method_id].param_names) * param_count * 16);
