@@ -117,7 +117,7 @@ typedef struct{
 	VNodeID		node_id;
 	VNMBufferID buffer_id;
 	uint32		pos;
-	uint16		length;
+	uint32		length;
 	uint16		index; 
 	char		*text;
 	void		*next;
@@ -155,7 +155,7 @@ void v_destroy_ordered_storage(VOrderdStorage *s)
 }
 
 
-void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint16 length, const char *text)
+void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text)
 {
 	uint8 *buf;
 	VOrderdStorage *s;
@@ -172,9 +172,12 @@ void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, u
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], pos);
-	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], length);	
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], length);	
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], s->text_send_id++);
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, 1500 - 15);
+	if(text == NULL)
+		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);
+	else
+		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, VN_T_MAX_TEXT_CMD_SIZE);
 	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -207,7 +210,7 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &l.node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &l.buffer_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &l.pos);
-	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &l.length);	
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &l.length);	
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &l.index);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], text, 512, buffer_length - buffer_pos);
 	if(text[0] == 0)
