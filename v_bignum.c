@@ -372,7 +372,7 @@ VBigNum v_bignum_mul(VBigNum a, VBigNum b)
 	return product;
 }
 
-/* Returns a / b, sets *remainer to a % b. Pen-and-paper method, nothing fancy. */
+/* Returns a / b, sets *remainder to a % b. Pen-and-paper method, nothing fancy. */
 VBigNum v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder)
 {
 	VBigNum	q, work;
@@ -381,7 +381,8 @@ VBigNum v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder)
 	/* Sanity-check inputs. */
 	if(msbb > msba)
 	{
-		*remainder = b;
+		if(remainder != NULL)
+			*remainder = b;
 		return v_bignum_new_zero();
 	}
 	if(msbb == 0 && ((b.x[0] & 1) == 0))	/* Avoid division by zero. */
@@ -430,7 +431,8 @@ VBigNum v_bignum_div_slow(VBigNum a, VBigNum b, VBigNum *remainder)
 		q = v_bignum_add_ushort(q, 1);
 		a = v_bignum_sub(a, b);
 	}
-	*remainder = a;
+	if(remainder != NULL)
+		*remainder = a;
 	return q;
 }
 
