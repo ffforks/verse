@@ -27,9 +27,10 @@ static void callback_send_connect(void *user, char *name, char *pass, void *addr
 		avatar = vs_node_create(0, V_NT_OBJECT);
 		session = verse_send_connect_accept(avatar, address, NULL);
 		vs_add_new_connection(session, name, pass, avatar);
-	}else
+	}
+	else
 	{
-		verse_send_connect_terminate(address, "Im sorry but you are not wellcome here.");
+		verse_send_connect_terminate(address, "I'm sorry but you are not welcome here.");
 	}
 }
 static void callback_send_connect_terminate(void *user, char *address, char *bye)
