@@ -26,7 +26,7 @@ static void callback_send_connect(void *user, const char *name, const char *pass
 	printf("Connecting '%s'\n", name);
 	if(TRUE)
 	{
-		avatar = vs_node_create(0, V_NT_OBJECT);
+		avatar = vs_node_create(~0, V_NT_OBJECT);
 		session = verse_send_connect_accept(avatar, address, NULL);
 		vs_add_new_connection(session, name, pass, avatar);
 	}
