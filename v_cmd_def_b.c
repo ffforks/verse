@@ -36,7 +36,7 @@ void v_gen_bitmap_cmd_def(void)
 	v_cg_alias(FALSE, "b_layer_unsubscribe", "if(level == 255)", 2, NULL);
 	v_cg_end_cmd();
 
-	v_cg_new_manual_cmd(83, "b_tile_set", "void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id," 
+	v_cg_new_manual_cmd(83, "b_tile_set", "void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, " 
 				"uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, const VNBTile *tile)",
 			    NULL, NULL);
 
