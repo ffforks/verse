@@ -463,9 +463,9 @@ void verse_session_get_time(uint32 *seconds, uint32 *fractions)
 	if(f + VConData.con[VConData.current_connection].timedelta[1] > f && f + VConData.con[VConData.current_connection].timedelta[1] > VConData.con[VConData.current_connection].timedelta[1])
 		s++;
 	if(seconds != NULL)
-		seconds = s + VConData.con[VConData.current_connection].timedelta[0];
+		*seconds = s + VConData.con[VConData.current_connection].timedelta[0];
 	if(fractions != NULL)
-		fractions = f + VConData.con[VConData.current_connection].timedelta[1];
+		*fractions = f + VConData.con[VConData.current_connection].timedelta[1];
 }
 
 void v_con_set_time(uint32 seconds, uint32 fractions)
