@@ -206,17 +206,13 @@ static void callback_send_o_method_group_create(void *user, VNodeID node_id, uin
 		if(node->groups[i].name[j] == name[j])
 			return;
 	}
-	if(group_id < node->group_count && node->groups[group_id].name[0] != 0)
-	{
-		for(i = 0; i < 16; i++)
-			node->groups[group_id].name[i] = name[i];
-	}else
+	if(group_id >= node->group_count || node->groups[group_id].name[0] == 0)
 	{
 		for(group_id = 0; group_id < node->group_count && node->groups[group_id].name[0] != 0; group_id++)
 		if(group_id == node->group_count)
 		{
 			node->groups = realloc(node->groups, sizeof(*node->groups) * (node->group_count + 16));
-			for(i = node->group_count; i < node->group_count + 16U; i++)
+			for(i = node->group_count; i < node->group_count + 16; i++)
 			{
 				node->groups[i].name[0] = 0;
 				node->groups[i].methods = NULL;
@@ -226,6 +222,9 @@ static void callback_send_o_method_group_create(void *user, VNodeID node_id, uin
 		}
 		node->groups[group_id].subscribers = vs_create_subscription_list();
 	}
+	for(i = 0; i < 15 && name[i] != 0; i++)
+		node->groups[group_id].name[i] = name[i];
+	node->groups[group_id].name[i] = 0;
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
 	{
@@ -303,14 +302,14 @@ static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 gr
 	VSNodeObject *node;
 	unsigned int i, j, count;
 	VSMethodGroup *group;
-
+printf("start\n");
 	node = (VSNodeObject *) vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL || vs_get_node(node_id, V_NT_OBJECT) == NULL)
 		return;
-
+printf("cp0\n");
 	if(group_id >= node->group_count || node->groups[group_id].name[0] == 0)
 		return;
-
+printf("cp1\n");
 	group = &node->groups[group_id];
 	for(i = 0; i < group->method_count; i++)
 	{
@@ -318,6 +317,7 @@ static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 gr
 		if(group->methods[i].name[j] == name[j])
 			return;
 	}
+printf("cp2\n");
 	if(method_id < group->method_count && group->methods[method_id].name[0] != 0)
 	{
 		for(i = 0; i < 16; i++)
@@ -329,8 +329,8 @@ static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 gr
 		}
 	}else
 	{
-		for(method_id = 0; method_id < group->method_count && group->methods[method_id].name[0] != 0; method_id++)
-		if(group_id == group->method_count)
+		for(method_id = 0; method_id < group->method_count && group->methods[method_id].name[0] != 0; method_id++);
+		if(method_id == group->method_count)
 		{
 			group->methods = realloc(group->methods, sizeof(*group->methods) * (group->method_count + 16));
 			for(i = group->method_count; i < group->method_count + 16; i++)
@@ -338,14 +338,17 @@ static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 gr
 			group->method_count += 16;
 		}
 	}
-
+printf("cp3\n");
 	for(i = 0; i < VN_O_METHOD_NAME_SIZE && name[i] != 0; i++)
 		group->methods[method_id].name[i] = name[i];
 	group->methods[method_id].name[i] = '\0';
-	
+printf("cp4\n");
 	group->methods[method_id].param_count = param_count; 
-	group->methods[method_id].param_types = malloc((sizeof *group->methods[method_id].param_types) * param_count);
-	group->methods[method_id].param_names = malloc((sizeof *group->methods[method_id].param_names) * param_count * 16);
+	if(param_count > 0)
+	{
+		group->methods[method_id].param_types = malloc((sizeof *group->methods[method_id].param_types) * param_count);
+		group->methods[method_id].param_names = malloc((sizeof *group->methods[method_id].param_names) * param_count * 16);
+	}
 	for(i = 0; i < param_count; i++)
 	{
 		group->methods[method_id].param_types[i] = param_types[i];
@@ -354,12 +357,14 @@ static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 gr
 		group->methods[method_id].param_names[i * 16 + j] = param_names[i][j];
 	}
 	count =	vs_get_subscript_count(node->groups[group_id].subscribers);
+printf("cp5\n");
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->groups[group_id].subscribers, i);
 		verse_send_o_method_create(node_id, group_id, method_id, name, param_count, param_types, param_names);
 	}
 	vs_reset_subscript_session();
+printf("end\n");
 }
 
 static void callback_send_o_method_destroy(void *user, VNodeID node_id, uint16 group_id, uint16 method_id)
@@ -410,7 +415,9 @@ static void callback_send_o_method_call(void *user, VNodeID node_id, uint16 grou
 			verse_send_o_method_call(node_id, group_id, method_id, sender, data);
 	}
 	vs_reset_subscript_session();
+
 }
+
 
 void vs_o_callback_init(void)
 {
