@@ -142,13 +142,11 @@ void v_e_connect_create_key(uint8 *public_key, uint8 *private_key, uint8 *n)
 	VBigDig	VBIGNUM(p, BITS / 2), VBIGNUM(q, BITS / 2), VBIGNUM(qmo, BITS / 2), VBIGNUM(phi, BITS),
 		VBIGNUM(pub, BITS), VBIGNUM(priv, BITS), VBIGNUM(mod, BITS);
 
-	printf("find prime p\n");
+/*	printf("find prime p\n");*/
 	v_prime_set_random(p);
-/*	v_bignum_set_string_hex(p, "0xD5E1F71B7B7AFFEA270C2BF0203B6D88510CE648C93D34ED07C1A7A10719DB7B4551C7083AB587503B4675621912D8C277B2E26107C85B7437AF36A0C8BAD5F6D00F4F89DFAFB984DAE439F2A44A1C1EDE87219B2DD32C46624F4010A0C5BE008BC2C5536E3D6283FDAF36B1D0F91C3EAAB1D12892B961B866907930F6471A3F");*/
-	printf("find prime q\n");
+/*	printf("find prime q\n");*/
 	v_prime_set_random(q);
-/*	v_bignum_set_string_hex(q, "0xFF5E957FB852A85FB86965A8908314B84FDF9F3F515935C085190B567186CDE1404D2F46649F7864BBC600AFA44A9B494010420C3521DA192C78DBE4ED1116FFDD1552A917DBA3B115C8F144C35F1A1E1A264602C43AB737CB0942406941C7E8738063F0D41A207DC09F623E662765F61593593DED071579FECE9A67FF233AEB");*/
-	printf("done, computing key\n");
+/*	printf("done, computing key\n");*/
 /*	printf("p=");
 	v_bignum_print_hex_lf(p);
 	printf("q=");
@@ -161,18 +159,18 @@ void v_e_connect_create_key(uint8 *public_key, uint8 *private_key, uint8 *n)
 /*	printf("phi=");
 	v_bignum_print_hex_lf(phi);
 */	v_bignum_set_string_hex(pub, "0x10001");
-	printf("e=");
+/*	printf("e=");
 	v_bignum_print_hex_lf(pub);
 	v_e_math_inv(priv, pub, phi);
 	printf("d=");
 	v_bignum_print_hex_lf(priv);
-
+*/
 	v_bignum_set_bignum(mod, p);
 	v_bignum_mul(mod, q);
 /*	printf("n=");
 	v_bignum_print_hex_lf(n);
-*/	printf("key-creation finished\n");
-	/* Write out the keys. */
+	printf("key-creation finished\n");
+*/	/* Write out the keys. */
 	v_bignum_raw_export(pub, public_key);
 	v_bignum_raw_export(priv, private_key);
 	v_bignum_raw_export(mod, n);
