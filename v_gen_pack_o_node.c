@@ -32,7 +32,7 @@ void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time, real32 *pos
 	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time);
 	{
-		char bitfeald = 0;
+		unsigned char mask = 0;
 		unsigned int cmd;
 		cmd = buffer_pos++;
 		buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], pos[0]);
@@ -40,31 +40,31 @@ void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time, real32 *pos
 		buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], pos[2]);
 		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001)
 		{
-			bitfeald += 1;
+			mask |= 1;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], speed[0]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], speed[1]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], speed[2]);
 		}
 		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001)
 		{
-			bitfeald += 2;
+			mask |= 2;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], accelerate[0]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], accelerate[1]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], accelerate[2]);
 		}
 		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001)
 		{
-			bitfeald += 4;
+			mask |= 4;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag_normal[0]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag_normal[1]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag_normal[2]);
 		}
 		if(drag > 0.0000001 || drag < -0.0000001)
 		{
-			bitfeald += 8;
+			mask |= 8;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag);
 		}
-		vnp_raw_pack_uint8(&buf[cmd], bitfeald);
+		vnp_raw_pack_uint8(&buf[cmd], mask);
 	}if(FALSE)
 	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
@@ -137,7 +137,7 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time, real32 *rot
 	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time);
 	{
-		char bitfeald = 0;
+		unsigned char mask = 0;
 		unsigned int cmd;
 		cmd = buffer_pos++;
 		buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], rot[0]);
@@ -145,31 +145,31 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time, real32 *rot
 		buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], rot[2]);
 		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001)
 		{
-			bitfeald += 1;
+			mask |= 1;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], speed[0]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], speed[1]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], speed[2]);
 		}
 		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001)
 		{
-			bitfeald += 2;
+			mask |= 2;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], accelerate[0]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], accelerate[1]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], accelerate[2]);
 		}
 		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001)
 		{
-			bitfeald += 4;
+			mask |= 4;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag_normal[0]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag_normal[1]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag_normal[2]);
 		}
 		if(drag > 0.0000001 || drag < -0.0000001)
 		{
-			bitfeald += 8;
+			mask |= 8;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag);
 		}
-		vnp_raw_pack_uint8(&buf[cmd], bitfeald);
+		vnp_raw_pack_uint8(&buf[cmd], mask);
 	}if(FALSE)
 	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
@@ -288,7 +288,7 @@ void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time, real64 *pos
 	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time);
 	{
-		char bitfeald = 0;
+		unsigned char mask = 0;
 		unsigned int cmd;
 		cmd = buffer_pos++;
 		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], pos[0]);
@@ -296,31 +296,31 @@ void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time, real64 *pos
 		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], pos[2]);
 		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001)
 		{
-			bitfeald += 1;
+			mask |= 1;
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], speed[0]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], speed[1]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], speed[2]);
 		}
 		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001)
 		{
-			bitfeald += 2;
+			mask |= 2;
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], accelerate[0]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], accelerate[1]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], accelerate[2]);
 		}
 		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001)
 		{
-			bitfeald += 4;
+			mask |= 4;
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag_normal[0]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag_normal[1]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag_normal[2]);
 		}
 		if(drag > 0.0000001 || drag < -0.0000001)
 		{
-			bitfeald += 8;
+			mask |= 8;
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag);
 		}
-		vnp_raw_pack_uint8(&buf[cmd], bitfeald);
+		vnp_raw_pack_uint8(&buf[cmd], mask);
 	}if(FALSE)
 	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
