@@ -339,12 +339,14 @@ typedef enum {
 } VNTConstants;
 
 /* This is how many *samples* are included in a block of the given type. Not bytes. */
-#define VN_A_BLOCK_SIZE_INT8 1024
-#define VN_A_BLOCK_SIZE_INT16 512
-#define VN_A_BLOCK_SIZE_INT24 384
-#define VN_A_BLOCK_SIZE_INT32 256
-#define VN_A_BLOCK_SIZE_REAL32 256
-#define VN_A_BLOCK_SIZE_REAL64 128
+typedef enum {
+	VN_A_BLOCK_SIZE_INT8 = 1024,
+	VN_A_BLOCK_SIZE_INT16 = 512,
+	VN_A_BLOCK_SIZE_INT24 = 384,
+	VN_A_BLOCK_SIZE_INT32 = 256,
+	VN_A_BLOCK_SIZE_REAL32 = 256,
+	VN_A_BLOCK_SIZE_REAL64 = 128,
+} VNAConstants;
 
 typedef enum {
 	VN_A_LAYER_INT8,
