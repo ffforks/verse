@@ -119,6 +119,7 @@ VNetworkAddress * v_n_create_network_address(int my_port, const char *addr)
 
 #if defined _WIN32
 	static boolean initialized = FALSE;
+
 	if(!initialized)
 	{
 		WSADATA wsaData;
@@ -157,8 +158,10 @@ VNetworkAddress * v_n_create_network_address(int my_port, const char *addr)
 			address_in.sin_family = AF_INET;     /* host byte order */
 			address_in.sin_port = htons(my_port); /* short, network byte order */
 			address_in.sin_addr.s_addr = INADDR_ANY;
-			bind(address->socket, (struct sockaddr *)&address_in, sizeof(struct sockaddr));
-			ok = TRUE;
+			if(bind(address->socket, (struct sockaddr *) &address_in, sizeof(struct sockaddr)) == 0)
+				ok = TRUE;
+			else
+				perror("Verse bind() failed");
 		}
 		free(work);
 		if(ok)
