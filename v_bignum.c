@@ -663,7 +663,7 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	for(k = *m; m[k] == 0; k--)
 		;
 	/* Step 1, compute the q helper. */
-	q = bignum_alloc(2 * *x);
+	q = bignum_alloc(*x + *mu - (k - 1));	/* Tighter bound number length (was 2 * *x). */
 	v_bignum_set_bignum(q, x);
 	v_bignum_bit_shift_right(q, 16 * (k - 1));
 	v_bignum_mul(q, mu);
@@ -699,7 +699,6 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 
 	bignum_free(r2);
 	bignum_free(r1);
-
 	bignum_free(q);
 }
 
