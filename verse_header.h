@@ -1,6 +1,8 @@
 #if !defined VERSE_TYPES
 #define	VERSE_TYPES
 
+#include <stdlib.h>
+
 typedef unsigned char boolean;
 typedef unsigned int uint32;
 typedef int int32;
