@@ -87,7 +87,7 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 	unsigned int count, i;
 	VSNodeHead *node;
 	VNodeID node_id;
-
+	printf("vs_node_create(%u, %u)\n", owner_id, type);
 	switch(type)
 	{
 		case V_NT_OBJECT :
@@ -110,7 +110,6 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 			node = vs_p_create_node(owner_id);
 		break;*/
 		case V_NT_CURVE :
-			return 0;
 			node = vs_c_create_node(owner_id);
 		break;
 	}
