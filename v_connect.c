@@ -139,9 +139,9 @@ void v_update_connection_pending()
 /*		v_send_hidden_connect_send_key();
 		break;
 	case V_CS_PENDING_ACCEPT : */ /* Client sends login */
-		v_send_hidden_connect_login();
+/*		v_send_hidden_connect_login();
 		break;
-	case V_CS_PENDING_HOST_CALLBACK : /* Host got login waits for accept connect callback */
+*/	case V_CS_PENDING_HOST_CALLBACK : /* Host got login waits for accept connect callback */
 		printf("0\n");
 		v_con_set_connect_stage(V_CS_PENDING_DECISION);
 		printf("1\n");
