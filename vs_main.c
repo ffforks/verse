@@ -23,7 +23,7 @@ static void callback_send_connect(void *user, char *name, char *pass, void *addr
 	VNodeID avatar;
 	VSession *session;
 
-	printf("connecting '%s'\n", name);
+	printf("Connecting '%s'\n", name);
 	if(TRUE)
 	{
 		avatar = vs_node_create(0, V_NT_OBJECT);
