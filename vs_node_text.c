@@ -207,7 +207,7 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 	unsigned int i, count, text_length;
 	char *buf;
 
-	node = (VSNodeText *)vs_get_node(node_id, V_NT_TEXT);
+	node = (VSNodeText *) vs_get_node(node_id, V_NT_TEXT);
 	if(node == NULL)
 		return;
 	if(buffer_id >= node->buffer_count || node->buffer[buffer_id].name[0] == 0)
@@ -237,7 +237,8 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 
 		for(i = 0; text[i] != 0; i++)
 			buf[pos + i] = text[i];
-	}else
+	}
+	else
 	{
 		for(i = tb->length; i != pos + text_length; i--)
 			buf[i + text_length - length] = buf[i];
