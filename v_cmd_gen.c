@@ -555,7 +555,7 @@ static void v_cg_gen_unpack(void)
 	boolean printed = FALSE;
 	f = VCGData.nodes[VCGData.type];
 	printf("generating function: v_unpack_%s\n", VCGData.func_name);
-	fprintf(f, "unsigned int v_unpack_%s(char *buf, unsigned int buffer_length, void *user_func, void *user_data)\n", VCGData.func_name);
+	fprintf(f, "unsigned int v_unpack_%s(const char *buf, size_t buffer_length, void *user_func, void *user_data)\n", VCGData.func_name);
 	fprintf(f, "{\n");
 	fprintf(f, "\tunsigned int buffer_pos = 0;\n");
 	fprintf(f, "\tvoid (* func_%s)(void *user_data, ", VCGData.func_name);
