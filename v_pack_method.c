@@ -1,4 +1,9 @@
+/*
+**
+*/
+
 #include <stdlib.h>
+
 #include "v_cmd_gen.h"
 
 #if !defined(V_GENERATE_FUNC_MODE)
@@ -6,7 +11,7 @@
 #include "verse.h"
 #include "v_pack.h"
 
-void *verse_pack_method_call(unsigned int param_count, VNOParam *params, VNOParamType *param_type)
+void * verse_pack_method_call(unsigned int param_count, const VNOParam *params, const VNOParamType *param_type)
 {
 	unsigned int i, j, buffer_pos;
 	uint8 *buf;
@@ -108,7 +113,7 @@ void *verse_pack_method_call(unsigned int param_count, VNOParam *params, VNOPara
 	return buf;
 }
 
-boolean  verse_unpack_method_call(void *data, unsigned int param_count, VNOParam *params, VNOParamType *param_type)
+boolean verse_unpack_method_call(void *data, unsigned int param_count, VNOParam *params, const VNOParamType *param_type)
 {
 	unsigned int i, j, buffer_pos, size;
 	uint8 *buf;
