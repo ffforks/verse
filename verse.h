@@ -392,7 +392,7 @@ extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, co
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECEIVE_COMMANDS
 */
-
+ 
 #endif		/* VERSE_TYPES */
 
 /* Command sending functions begin. ----------------------------------------- */
