@@ -305,6 +305,7 @@ void v_callback_connect_terminate(const char *bye)
 {
 	void (* func_connect_terminate)(void *user_data, char *address, const char *bye);
 	char address_string[32];
+
 	printf("terminate\n");
 	func_connect_terminate = v_fs_get_user_func(2);
 	v_n_get_address_string(v_con_get_network_address(), address_string);

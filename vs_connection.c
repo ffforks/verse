@@ -95,7 +95,8 @@ void vs_remove_connection(void)
 	{
 		VSConnectionStorage.connection[VSConnectionStorage.current_session].session = VSConnectionStorage.connection[j].session;
 		VSConnectionStorage.connection[VSConnectionStorage.current_session].node_id = VSConnectionStorage.connection[j].node_id;
-	}else
+	}
+	else
 		VSConnectionStorage.current_session = 0;
 }
 
