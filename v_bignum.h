@@ -19,6 +19,7 @@ typedef struct
 
 /* ----------------------------------------------------------------------------------------- */
 
+/* "Constructors", initialize and return a new BigNum. */
 extern VBigNum	v_bignum_new_zero(void);
 extern VBigNum	v_bignum_new_one(void);
 extern VBigNum	v_bignum_new_ushort(unsigned short a);
@@ -26,21 +27,28 @@ extern VBigNum	v_bignum_new_bignum(VBigNum a, unsigned int msb, unsigned int bit
 extern VBigNum	v_bignum_new_string(const char *hex);
 extern VBigNum	v_bignum_new_random(void);
 
+/* Handy during debugging. Prints in hexadecimal, with 0x prefix and linefeed. */
 extern void	v_bignum_print_hex(VBigNum a);
 
+/* Bit manipulation functions. */
 extern int	v_bignum_bit_test(VBigNum a, unsigned int bit);
 extern int	v_bignum_bit_msb(VBigNum a);
 extern VBigNum	v_bignum_bit_shift_left(VBigNum a, unsigned int count);
 extern VBigNum	v_bignum_bit_shift_right(VBigNum a, unsigned int count);
 
+/* Comparison, returns a >= b. */
 extern int	v_bignum_gte(VBigNum a, VBigNum b);
 
-extern VBigNum	v_bignum_add_ushort(VBigNum a, unsigned short b);
-extern VBigNum	v_bignum_sub_ushort(VBigNum a, unsigned short b);
-extern VBigNum	v_bignum_mul_ushort(VBigNum a, unsigned short b);
+extern VBigNum	v_bignum_add_ushort(VBigNum a, unsigned short b);	/* Returns a + b. */
+extern VBigNum	v_bignum_sub_ushort(VBigNum a, unsigned short b);	/* Returns a - b. */
+extern VBigNum	v_bignum_mul_ushort(VBigNum a, unsigned short b);	/* Returns a * b. */
 
+/* Main mathematical routines. */
 extern VBigNum	v_bignum_add(VBigNum a, VBigNum b);
 extern VBigNum	v_bignum_sub(VBigNum a, VBigNum b);
 extern VBigNum	v_bignum_mul(VBigNum a, VBigNum b);
+
+/* Remainder can be NULL. */
 extern VBigNum	v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder);
+
 extern VBigNum	v_bignum_mod(VBigNum a, VBigNum b);
