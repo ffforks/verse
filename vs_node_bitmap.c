@@ -422,7 +422,8 @@ static void callback_send_b_layer_unsubscribe(void *user, VNodeID node_id, VLaye
 	vs_remove_subscriptor(node->layers[layer_id].subscribers);
 }
 
-static void callback_send_b_tile_set(void *user, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 tile_z, uint8 type, VNBTile *data)
+static void callback_send_b_tile_set(void *user, VNodeID node_id, VLayerID layer_id,
+				     uint16 tile_x, uint16 tile_y, uint16 tile_z, uint8 type, VNBTile *data)
 {
 	VSNodeBitmap *node;
 	unsigned int i, count, tile[3];
