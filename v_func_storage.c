@@ -116,15 +116,15 @@ boolean v_fs_func_acsept_connections()
 
 void v_fs_buf_unpack(uint8 *data, unsigned int length)
 {
-	uint32 i = 0, output, pack_id, *ecspected_paket;
+	uint32 i = 0, output, pack_id, *expected;
 	uint8 cmd_id;
-	ecspected_paket = v_con_get_network_ecspected_paket();
+	expected = v_con_get_network_expected_packet();
 	i = vnp_raw_unpack_uint32(&data[i], &pack_id); /* each pack starts whit a 32 bit id */
-	if(pack_id < *ecspected_paket)
+	if(pack_id < *expected)
 		return;
-	for(; *ecspected_paket < pack_id; (*ecspected_paket)++)
-		verse_send_packet_nak(*ecspected_paket);
-	(*ecspected_paket)++;
+	for(; *expected < pack_id; (*expected)++)
+		verse_send_packet_nak(*expected);
+	(*expected)++;
 	while(i < length)
 	{
 		i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
@@ -145,15 +145,15 @@ void v_fs_buf_unpack(uint8 *data, unsigned int length)
 
 void v_fs_buf_store_pack(uint8 *data, unsigned int length)
 {
-	uint32 i = 0, output, pack_id, *ecspected_paket;
+	uint32 i = 0, output, pack_id, *expected;
 	uint8 cmd_id;
-	ecspected_paket = v_con_get_network_ecspected_paket();
+	expected = v_con_get_network_expected_packet();
 	i = vnp_raw_unpack_uint32(&data[i], &pack_id); /* each pack starts with a 32 bit id */
-	if(pack_id < *ecspected_paket)
+	if(pack_id < *expected)
 		return;
-	for(; *ecspected_paket < pack_id; (*ecspected_paket)++)
-		verse_send_packet_nak(*ecspected_paket);
-	(*ecspected_paket)++;
+	for(; *expected < pack_id; (*expected)++)
+		verse_send_packet_nak(*expected);
+	(*expected)++;
 	while(i < length)
 	{
 		i += vnp_raw_unpack_uint8(&data[i], &cmd_id);

@@ -110,7 +110,7 @@ void *v_con_get_network_address()
 	return VConData.con[VConData.current_connection].network_address;
 }
 
-unsigned int *v_con_get_network_ecspected_paket()
+unsigned int *v_con_get_network_expected_packet()
 {
 	return &VConData.con[VConData.current_connection].packet_id;
 }

@@ -5,7 +5,7 @@
 extern void *	v_con_get_network_queue();
 extern void *	v_con_get_network_address();
 extern void *	v_con_get_network_address_id(unsigned int id);
-extern unsigned int *v_con_get_network_ecspected_paket();
+extern unsigned int *v_con_get_network_expected_packet();
 extern void *	v_con_get_func_storage();
 extern void *	v_con_connect(char *address);
 extern unsigned int v_con_get_network_address_count();
