@@ -1,20 +1,27 @@
+/*
+**
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "v_cmd_gen.h"
-#if !defined(V_GENERATE_FUNC_MODE)
+
+#if !defined V_GENERATE_FUNC_MODE
+
 #include "verse.h"
 #include "v_cmd_buf.h"
 #include "v_network_que.h"
 #include "v_network.h"
 #include "v_connection.h"
 
-
-VSession *verse_send_connect(char *name, char *pass, char *address)
+VSession * verse_send_connect(const char *name, const char *pass, const char *address)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	VSession *con;
+	VSession con;
+
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
@@ -34,7 +41,7 @@ VSession *verse_send_connect(char *name, char *pass, char *address)
 	return con;
 }
 
-unsigned int v_unpack_connect(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_connect(const char *buf, unsigned int buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	VSession (* func_connect)(void *user_data, char *name, char *pass, char *address);
@@ -57,12 +64,13 @@ unsigned int v_unpack_connect(char *buf, unsigned int buffer_length, void *user_
 	return buffer_pos;
 }
 
-VSession *verse_send_connect_accept(VNodeID avatar, char *address)
+VSession * verse_send_connect_accept(VNodeID avatar, const char *address)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	VSession *con;
+	VSession con;
+
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
@@ -80,7 +88,7 @@ VSession *verse_send_connect_accept(VNodeID avatar, char *address)
 		v_cmd_buf_free(head);
 	return con;
 }
-unsigned int v_unpack_connect_accept(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_connect_accept(const char *buf, unsigned int buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	VSession (* func_connect_accept)(void *user_data, VNodeID avatar, char *address);
