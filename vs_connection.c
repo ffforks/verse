@@ -5,6 +5,7 @@
 #if !defined(V_GENERATE_FUNC_MODE)
 
 #include "verse.h"
+#include "v_util.h"
 
 #define VS_CONNECTION_CHUNK_SIZE	256
 
@@ -39,19 +40,18 @@ void vs_init_connection_storage(void)
 
 void vs_add_new_connection(VSession session, const char *name, const char *pass, unsigned int node_id)
 {
-	unsigned int i;
+	VSConnection	*conn;
+
 	if(VSConnectionStorage.connection_length % VS_CONNECTION_CHUNK_SIZE == 0)
 		VSConnectionStorage.connection = realloc(VSConnectionStorage.connection, (sizeof *VSConnectionStorage.connection) * (VSConnectionStorage.connection_length + VS_CONNECTION_CHUNK_SIZE));
-	VSConnectionStorage.connection[VSConnectionStorage.connection_length].session = session;
-	VSConnectionStorage.connection[VSConnectionStorage.connection_length].node_id = node_id;
-	VSConnectionStorage.connection_length++;
-	for(i = 0; i < 127 && name[i] != 0; i++)
-		VSConnectionStorage.connection[VSConnectionStorage.connection_length].name[i] = name[i];
-	VSConnectionStorage.connection[VSConnectionStorage.connection_length].name[i] = 0;
-	for(i = 0; i < 127 && pass[i] != 0; i++)
-		VSConnectionStorage.connection[VSConnectionStorage.connection_length].pass[i] = pass[i];
-	VSConnectionStorage.connection[VSConnectionStorage.connection_length].pass[i] = 0;
+	conn = &VSConnectionStorage.connection[VSConnectionStorage.connection_length];
 
+	conn->session = session;
+	conn->node_id = node_id;
+	v_strlcpy(conn->name, name, sizeof conn->name);
+	v_strlcpy(conn->pass, pass, sizeof conn->pass);
+
+	VSConnectionStorage.connection_length += VS_CONNECTION_CHUNK_SIZE;
 }
 
 uint32 vs_get_avatar(void)
