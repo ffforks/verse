@@ -27,6 +27,7 @@ typedef enum {
 	V_NT_TEXT, 
 	V_NT_PARTICLE,
 	V_NT_CURVE, 
+	V_NT_AUDIO, 
 	V_NT_NUM_TYPES, 
 	V_NT_SYSTEM = V_NT_NUM_TYPES, 
 	V_NT_NUM_TYPES_NETPACK
@@ -300,6 +301,25 @@ typedef enum {
 	VN_C_TEXT_SIZE = 256
 } VNCConstants;
 
+#define VN_AUDIO_MAX_SAMPLE_SIZE_UNCOMPRESSED 1400
+#define VN_AUDIO_MAX_SAMPLE_SIZE_COMPRESSED 5000
+
+typedef enum {
+    VN_A_LAYER_INTEGER8,
+    VN_A_LAYER_INTEGER16,
+    VN_A_LAYER_INTEGER24,
+    VN_A_LAYER_INTEGER32,
+    VN_A_LAYER_REAL32,
+    VN_A_LAYER_REAL64,
+} VNALayerType;
+
+typedef enum {
+    VN_A_UNCOMPRESSED_SUSTAINED,
+    VN_A_COMPRESSED_SUSTAINED,
+    VN_A_UNCOMPRESSED_UNSUSTAINED,
+    VN_A_COMPRESSED_UNSUSTAINED
+} VNATransferType;
+
 typedef enum {
 	VN_P_FORCE_RADIAL = 0,
 	VN_P_FORCE_DIRECTIONAL
@@ -320,6 +340,9 @@ extern size_t verse_session_get_size(void);
 
 extern void *verse_pack_method_call(uint32 param_count, const VNOParam *params, const VNOParamType *param_type);
 extern boolean verse_unpack_method_call(void *data, uint32 param_count, VNOParam *params, const VNOParamType *param_type);
+
+extern void *verse_audio_compress(uint32 length, VNALayerType type, void *data);
+extern void *verse_audio_uncompress(uint32 length, VNALayerType type, void *data);
 /*
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECEIVE_COMMANDS
