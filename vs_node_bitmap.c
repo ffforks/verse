@@ -12,9 +12,6 @@
 #include "verse.h"
 #include "vs_server.h"
 
-static unsigned int number_of_tiles = 0;
-static unsigned int got_number_of_tiles = 0;
-
 typedef struct {
 	VNBLayerType		type;
 	char			name[16];
@@ -82,11 +79,178 @@ void callback_send_b_unsubscribe(void *user, VNodeID node_id)
 static void callback_send_b_init_dimensions(void *user, VNodeID node_id, uint16 width, uint16 height, uint16 depth)
 {
 	VSNodeBitmap *node;
-	unsigned int i, count;
+	unsigned int i, j, k, count, tiles[2], read, write, end;
 	if((node = (VSNodeBitmap *)vs_get_node(node_id, V_NT_BITMAP)) == NULL)
 		return;
-	if(node->size[0] != 0 || width == 0 || height == 0 || depth == 0)
-		return;
+	tiles[0] = (width + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE;
+	tiles[1] = (height + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE;
+	node->size[0] = (node->size[0] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE;
+	node->size[1] = (node->size[1] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE;
+	if(node->size[0] > tiles[0])
+		node->size[0] = tiles[0];
+	if(node->size[1] > tiles[1])
+		node->size[1] = tiles[1];
+	if(node->size[2] > depth)
+		node->size[2] = depth;
+
+	for(i = 0; i < node->layer_count; i++)
+	{
+		if(node->layers[i].name[0] != 0)
+		{
+			switch(node->layers[i].type)
+			{
+				case VN_B_LAYER_UINT1 :
+				{
+					uint16 *array, *old;
+					write = 0;
+					old = node->layers[i].layer;
+					array = node->layers[i].layer = malloc((sizeof *array) * tiles[0] * tiles[1] * depth);
+					for(j = 0; j < node->size[2]; j++)
+					{
+						for(k = 0; k < node->size[1]; k++)
+						{
+							read = (j * node->size[1] * node->size[0] + k * node->size[0]);
+						
+							end = (j * tiles[1] * tiles[0] + k * tiles[0] + node->size[0]);
+							while(write < end)
+								array[write++] = old[read++];
+					
+							end = (j * tiles[1] * tiles[0] + (k + 1) * tiles[0]);
+							while(write < end)
+								array[write++] = 0;
+						}
+						end = ((j + 1) * tiles[1] * tiles[0]);
+							while(write < end)
+								array[write++] = 0;
+					}
+					k = depth * tiles[1] * tiles[0];
+					while(write < end)
+						array[write++] = 0;
+				}
+				break;
+				case VN_B_LAYER_UINT8 :
+				{
+					uint8 *array, *old;
+					write = 0;
+					old = node->layers[i].layer;
+					array = node->layers[i].layer = malloc((sizeof *array) * tiles[0] * tiles[1] * depth * VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+					for(j = 0; j < node->size[2]; j++)
+					{
+						for(k = 0; k < node->size[1]; k++)
+						{
+							read = (j * node->size[1] * node->size[0] + k * node->size[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+						
+							end = (j * tiles[1] * tiles[0] + k * tiles[0] + node->size[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = old[read++];
+					
+							end = (j * tiles[1] * tiles[0] + (k + 1) * tiles[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = 0;
+						}
+						end = ((j + 1) * tiles[1] * tiles[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = 0;
+					}
+					end = depth * tiles[1] * tiles[0] * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+					while(write < end)
+						array[write++] = 0;
+				}
+				break;
+				case VN_B_LAYER_UINT16 :
+				{
+					uint16 *array, *old;
+					write = 0;
+					old = node->layers[i].layer;
+					array = node->layers[i].layer = malloc((sizeof *array) * tiles[0] * tiles[1] * depth * VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+					for(j = 0; j < node->size[2]; j++)
+					{
+						for(k = 0; k < node->size[1]; k++)
+						{
+							read = (j * node->size[1] * node->size[0] + k * node->size[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+						
+							end = (j * tiles[1] * tiles[0] + k * tiles[0] + node->size[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = old[read++];
+					
+							end = (j * tiles[1] * tiles[0] + (k + 1) * tiles[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = 0;
+						}
+						end = ((j + 1) * tiles[1] * tiles[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = 0;
+					}
+					end = depth * tiles[1] * tiles[0] * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+					while(write < end)
+						array[write++] = 0;
+				}
+				break;
+				case VN_B_LAYER_REAL32 :
+				{
+					real32 *array, *old;
+					write = 0;
+					old = node->layers[i].layer;
+					array = node->layers[i].layer = malloc((sizeof *array) * tiles[0] * tiles[1] * depth * VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+					for(j = 0; j < node->size[2]; j++)
+					{
+						for(k = 0; k < node->size[1]; k++)
+						{
+							read = (j * node->size[1] * node->size[0] + k * node->size[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+						
+							end = (j * tiles[1] * tiles[0] + k * tiles[0] + node->size[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = old[read++];
+					
+							end = (j * tiles[1] * tiles[0] + (k + 1) * tiles[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = 0;
+						}
+						end = ((j + 1) * tiles[1] * tiles[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = 0;
+					}
+					end = depth * tiles[1] * tiles[0] * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+					while(write < end)
+						array[write++] = 0;
+				}
+				break;
+				case VN_B_LAYER_REAL64 :
+				{
+					real64 *array, *old;
+					write = 0;
+					old = node->layers[i].layer;
+					array = node->layers[i].layer = malloc((sizeof *array) * tiles[0] * tiles[1] * depth * VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+					for(j = 0; j < node->size[2]; j++)
+					{
+						for(k = 0; k < node->size[1]; k++)
+						{
+							read = (j * node->size[1] * node->size[0] + k * node->size[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+						
+							end = (j * tiles[1] * tiles[0] + k * tiles[0] + node->size[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = old[read++];
+					
+							end = (j * tiles[1] * tiles[0] + (k + 1) * tiles[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = 0;
+						}
+						end = ((j + 1) * tiles[1] * tiles[0]) * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+							while(write < end)
+								array[write++] = 0;
+					}
+					end = depth * tiles[1] * tiles[0] * VN_B_TILE_SIZE * VN_B_TILE_SIZE;
+					while(write < end)
+						array[write++] = 0;
+				}
+				break;
+			}
+			
+
+
+		}
+	}
+
 	node->size[0] = width;
 	node->size[1] = height;
 	node->size[2] = depth;
@@ -97,8 +261,6 @@ static void callback_send_b_init_dimensions(void *user, VNodeID node_id, uint16 
 		verse_send_b_init_dimensions(node_id, width, height, depth);
 	}
 	vs_reset_subscript_session();
-	number_of_tiles = 0;
-	got_number_of_tiles = 0;
 }
 
 static void callback_send_b_layer_create(void *user, VNodeID node_id, VLayerID layer_id, char *name, uint8 type)
@@ -107,12 +269,10 @@ static void callback_send_b_layer_create(void *user, VNodeID node_id, VLayerID l
 	unsigned int i, count;
 	if((node = (VSNodeBitmap *)vs_get_node(node_id, V_NT_BITMAP)) == NULL)
 		return;
-	if(node->size[0] == 0)
-		return;
 
-	if(node->layer_count <= layer_id|| node->layers[layer_id].name[0] == 0)
+	if(node->layer_count <= layer_id || node->layers[layer_id].name[0] == 0)
 	{
-		for(layer_id = 0; layer_id < node->layer_count && node->layers[layer_id].layer != NULL; layer_id++);
+		for(layer_id = 0; layer_id < node->layer_count && node->layers[layer_id].name[0] != 0; layer_id++);
 		if(layer_id == node->layer_count)
 		{
 			node->layers = realloc(node->layers, (sizeof *node->layers) * (node->layer_count + 16));
@@ -128,42 +288,50 @@ static void callback_send_b_layer_create(void *user, VNodeID node_id, VLayerID l
 		node->layers[layer_id].subscribers = vs_create_subscription_list();
 		node->layers[layer_id].type = type + 1;
 	}
-	for(i = 0; i < 16; i++)
-		node->layers[layer_id].name[i] = name[i];
-	if(node->layers[layer_id].type != type)
+
+	if(node->layers[layer_id].type != type || node->layers[layer_id].name[0] == 0)
 	{
-		node->layers[layer_id].type = type;
 		count = ((node->size[0] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE) * ((node->size[1] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 		count *= VN_B_TILE_SIZE * VN_B_TILE_SIZE * node->size[2];
-		switch(type)
-		{
-			case VN_B_LAYER_UINT1 :
-				node->layers[layer_id].layer = malloc(sizeof(uint8) * count / 8);
-				for(i = 0; i < count / 8; i++)
-					((uint8 *)node->layers[layer_id].layer)[i] = 0;
-			break;
-			case VN_B_LAYER_UINT8 :
-				node->layers[layer_id].layer = malloc(sizeof(uint8) * count);
-				for(i = 0; i < count; i++)
-					((uint8 *)node->layers[layer_id].layer)[i] = 0;
-			break;
-			case VN_B_LAYER_UINT16 :
-				node->layers[layer_id].layer = malloc(sizeof(uint16) * count);
-				for(i = 0; i < count; i++)
-					((uint16 *)node->layers[layer_id].layer)[i] = 0;
-			break;
-			case VN_B_LAYER_REAL32 :
-				node->layers[layer_id].layer = malloc(sizeof(uint32) * count);
-				for(i = 0; i < count; i++)
-					((uint32 *)node->layers[layer_id].layer)[i] = 0;
-			break;
-			case VN_B_LAYER_REAL64 :
-				node->layers[layer_id].layer = malloc(sizeof(double) * count);
-				for(i = 0; i < count; i++)
-					((double *)node->layers[layer_id].layer)[i] = 0.0;
-			break;
-		}
+		if(node->layers[layer_id].layer != NULL)
+			free(node->layers[layer_id].layer);
+		if(count != 0)
+		{	
+			switch(type)
+			{
+				case VN_B_LAYER_UINT1 :
+					node->layers[layer_id].layer = malloc(sizeof(uint8) * count / 8);
+					for(i = 0; i < count / 8; i++)
+						((uint8 *)node->layers[layer_id].layer)[i] = 0;
+				break;
+				case VN_B_LAYER_UINT8 :
+					node->layers[layer_id].layer = malloc(sizeof(uint8) * count);
+					for(i = 0; i < count; i++)
+						((uint8 *)node->layers[layer_id].layer)[i] = 0;
+				break;
+				case VN_B_LAYER_UINT16 :
+					node->layers[layer_id].layer = malloc(sizeof(uint16) * count);
+					for(i = 0; i < count; i++)
+						((uint16 *)node->layers[layer_id].layer)[i] = 0;
+				break;
+				case VN_B_LAYER_REAL32 :
+					node->layers[layer_id].layer = malloc(sizeof(uint32) * count);
+					for(i = 0; i < count; i++)
+						((uint32 *)node->layers[layer_id].layer)[i] = 0;
+				break;
+				case VN_B_LAYER_REAL64 :
+					node->layers[layer_id].layer = malloc(sizeof(double) * count);
+					for(i = 0; i < count; i++)
+						((double *)node->layers[layer_id].layer)[i] = 0.0;
+				break;
+			}
+		}else
+			node->layers[layer_id].layer = NULL;
 	}
+	node->layers[layer_id].type = type;
+	for(i = 0; i < 15 && name[i] != 0; i++)
+		node->layers[layer_id].name[i] = name[i];
+	node->layers[layer_id].name[i] = 0;
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
 	{
@@ -181,7 +349,8 @@ static void callback_send_b_layer_destroy(void *user, VNodeID node_id, VLayerID 
 		return;
 	if(layer_id >= node->layer_count || node->layers[layer_id].layer == NULL)
 		return;
-	free(node->layers[layer_id].layer);
+	if(node->layers[layer_id].layer != NULL)
+		free(node->layers[layer_id].layer);
 	node->layers[layer_id].layer = NULL;
 	node->layers[layer_id].type = 0;
 	node->layers[layer_id].name[0] = 0;
@@ -261,10 +430,8 @@ static void callback_send_b_layer_set_tile(void *user, VNodeID node_id, VLayerID
 		return;
 	if(layer_id >= node->layer_count || node->layers[layer_id].layer == NULL || node->layers[layer_id].type != type)
 		return;
-	got_number_of_tiles++;
 	if(tile_x >= ((node->size[0] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE) || tile_y >= ((node->size[1] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE) || tile_z >= node->size[2])
 		return;
-	number_of_tiles++;
 	tile[0] = ((node->size[0] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[1] = ((node->size[1] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[2] = node->size[2];
