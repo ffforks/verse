@@ -258,7 +258,7 @@ void v_gen_system_cmd_def(void)
 	"\t\tfunc_tag_create(user_data, node_id, group_id, tag_id, name, type, &tag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
-	v_cg_alias(FALSE, "tag_destroy", "", 3, NULL);
+	v_cg_alias(FALSE, "tag_destroy", "if(type >= VN_TAG_TYPE_COUNT)", 3, NULL);
 	v_cg_end_cmd();
 
 	v_cg_new_cmd(V_NT_SYSTEM,		"node_name_set", 19, VCGCT_NORMAL); 
