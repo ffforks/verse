@@ -103,8 +103,7 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 			node = vs_b_create_node(owner_id);
 		break;
 		case V_NT_TEXT :
-			return 0;
-/*			node = vs_t_create_node(owner_id);*/
+			node = vs_t_create_node(owner_id);
 		break;
 		case V_NT_PARTICLE :
 			return 0;			
