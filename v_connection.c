@@ -110,7 +110,9 @@ void verse_session_destroy(VSession session)
 	unsigned int i;
 	for(i = 0; i < VConData.con_count && VConData.con[i].out_queue != session; i++);
 	if(i < VConData.con_count)
+	{
 		VConData.con[i].destroy_flag = TRUE;
+	}
 }
 
 void verse_session_set(void *session)
@@ -159,18 +161,17 @@ void v_con_network_listen(void)
 	int size = 0;
 	unsigned int connection;
 	uint32 packet_id;
+
 	v_con_init();
 	connection = VConData.current_connection;
 	size = v_n_receive_data(&address, buf, sizeof buf);
 	while(size != -1 && size != 0)
 	{
-
 		VConData.current_connection = v_co_find_connection(address.ip, address.port);
 		if(VConData.current_connection < VConData.con_count)
 		{			
 			if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
 			{
-
 				vnp_raw_unpack_uint32(buf, &packet_id);
 				store = v_niq_store(&VConData.con[VConData.current_connection].in_queue, size, packet_id);
 				if(store != NULL)
@@ -178,11 +179,13 @@ void v_con_network_listen(void)
 					VConData.pending_packets++;
 					v_e_dencrypt_data_packet(buf, store, size, VConData.con[VConData.current_connection].key_data);
 				}
-			}else
+			}
+			else
 			{
 				v_unpack_connection(buf, size);
 			}
-		}else if(v_fs_func_accept_connections())
+		}
+		else if(v_fs_func_accept_connections())
 		{
 			v_con_connect(address.ip, address.port, V_CS_IDLE);
 			v_unpack_connection(buf, size);
@@ -225,7 +228,7 @@ boolean v_con_callback_update(void)
 extern void verse_send_packet_nak(uint32 packet_id);
 
 void v_callback_connect_terminate(const char *bye);
-#define V_CON_MAZ_MICROSECOND_BETWEEN_SENDS 1000
+#define V_CON_MAX_MICROSECOND_BETWEEN_SENDS 1000
 
 void verse_callback_update(unsigned int microseconds)
 {
@@ -240,7 +243,9 @@ void verse_callback_update(unsigned int microseconds)
 			v_destroy_ordered_storage(VConData.con[VConData.current_connection].ordered_storage);
 			VConData.con[VConData.current_connection] = VConData.con[--VConData.con_count];
 			if(connection < VConData.con_count)
+			{
 				VConData.current_connection = 0;
+			}
 			return;
 		}
 	}
@@ -255,10 +260,10 @@ void verse_callback_update(unsigned int microseconds)
 	if(VConData.con_count > 0)
 		if(v_con_callback_update())
 			return;
-	for(passed = 0; passed <= microseconds && VConData.pending_packets == 0; passed += V_CON_MAZ_MICROSECOND_BETWEEN_SENDS)
+	for(passed = 0; passed <= microseconds && VConData.pending_packets == 0; passed += V_CON_MAX_MICROSECOND_BETWEEN_SENDS)
 	{
-		if(V_CON_MAZ_MICROSECOND_BETWEEN_SENDS < microseconds - passed)
-			v_n_wait_for_incoming(V_CON_MAZ_MICROSECOND_BETWEEN_SENDS);
+		if(V_CON_MAX_MICROSECOND_BETWEEN_SENDS < microseconds - passed)
+			v_n_wait_for_incoming(V_CON_MAX_MICROSECOND_BETWEEN_SENDS);
 		else
 			v_n_wait_for_incoming(microseconds - passed);
 		v_con_network_listen();
@@ -480,6 +485,5 @@ void v_con_set_time(uint32 seconds, uint32 fractions)
 	VConData.con[VConData.current_connection].timedelta[0] = seconds - s;
 	VConData.con[VConData.current_connection].timedelta[1] = tmp;
 }
-
 
 #endif
