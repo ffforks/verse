@@ -14,7 +14,7 @@
 /* Release information. */
 #define	V_RELEASE_NUMBER	4
 #define	V_RELEASE_PATCH		0
-#define	V_RELEASE_LABEL		"pre5"
+#define	V_RELEASE_LABEL		"pre7"
 
 typedef unsigned char boolean;
 typedef unsigned int uint32;
