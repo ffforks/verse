@@ -238,8 +238,9 @@ static void callback_send_c_curve_subscribe(void *user, VNodeID node_id, VLayerI
 static void callback_send_c_curve_unsubscribe(void *user, VNodeID node_id, VLayerID curve_id)
 {
 	VSNodeCurve *node;
+
 	node = (VSNodeCurve *)vs_get_node(node_id, V_NT_CURVE);
-	if(node == NULL || node->curve_count >= curve_id || node->curves[curve_id].name[0] == 0)
+	if(node == NULL || curve_id >= node->curve_count || node->curves[curve_id].name[0] == 0)
 		return;
 	vs_remove_subscriptor(node->curves[curve_id].subscribers);
 }
