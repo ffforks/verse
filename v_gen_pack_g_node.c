@@ -16,7 +16,7 @@
 #include "v_network.h"
 #include "v_connection.h"
 
-void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_integer, real64 def_real)
+void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_uint, real64 def_real)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -26,14 +26,14 @@ void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *n
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 48);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_g_layer_create(node_id = %u layer_id = %u name = %s type = %u def_integer = %u def_real = %f );\n", node_id, layer_id, name, type, def_integer, def_real);
+	printf("send: verse_send_g_layer_create(node_id = %u layer_id = %u name = %s type = %u def_uint = %u def_real = %f );\n", node_id, layer_id, name, type, def_uint, def_real);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)type);
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], def_integer);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], def_uint);
 	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], def_real);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
@@ -65,12 +65,12 @@ void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id)
 unsigned int v_unpack_g_layer_create(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_g_layer_create)(void *user_data, VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_integer, real64 def_real);
+	void (* func_g_layer_create)(void *user_data, VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_uint, real64 def_real);
 	VNodeID node_id;
 	VLayerID layer_id;
 	char name[16];
 	uint8 type;
-	uint32 def_integer;
+	uint32 def_uint;
 	real64 def_real;
 	
 	func_g_layer_create = v_fs_get_user_func(48);
@@ -82,13 +82,13 @@ unsigned int v_unpack_g_layer_create(const char *buf, size_t buffer_length)
 	if(buffer_length < 13 + buffer_pos)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &type);
-	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &def_integer);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &def_uint);
 	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &def_real);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(name[0] == 0)
 		printf("receive: verse_send_g_layer_destroy(node_id = %u layer_id = %u ); callback = %p\n", node_id, layer_id, v_fs_get_alias_user_func(48));
 	else
-		printf("receive: verse_send_g_layer_create(node_id = %u layer_id = %u name = %s type = %u def_integer = %u def_real = %f ); callback = %p\n", node_id, layer_id, name, type, def_integer, def_real, v_fs_get_user_func(48));
+		printf("receive: verse_send_g_layer_create(node_id = %u layer_id = %u name = %s type = %u def_uint = %u def_real = %f ); callback = %p\n", node_id, layer_id, name, type, def_uint, def_real, v_fs_get_user_func(48));
 #endif
 	if(name[0] == 0)
 	{
@@ -99,7 +99,7 @@ unsigned int v_unpack_g_layer_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_g_layer_create != NULL)
-		func_g_layer_create(v_fs_get_user_data(48), node_id, layer_id, name, (VNGLayerType)type, def_integer, def_real);
+		func_g_layer_create(v_fs_get_user_data(48), node_id, layer_id, name, (VNGLayerType)type, def_uint, def_real);
 
 	return buffer_pos;
 }
@@ -356,7 +356,7 @@ unsigned int v_unpack_g_vertex_set_real64_xyz(const char *buf, size_t buffer_len
 	return buffer_pos;
 }
 
-void verse_send_g_vertex_set_uinteger32(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, uint32 value)
+void verse_send_g_vertex_set_uint32(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, uint32 value)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -366,7 +366,7 @@ void verse_send_g_vertex_set_uinteger32(VNodeID node_id, VLayerID layer_id, uint
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 52);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_g_vertex_set_uinteger32(node_id = %u layer_id = %u vertex_id = %u value = %u );\n", node_id, layer_id, vertex_id, value);
+	printf("send: verse_send_g_vertex_set_uint32(node_id = %u layer_id = %u vertex_id = %u value = %u );\n", node_id, layer_id, vertex_id, value);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -377,16 +377,16 @@ void verse_send_g_vertex_set_uinteger32(VNodeID node_id, VLayerID layer_id, uint
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_vertex_set_uinteger32(const char *buf, size_t buffer_length)
+unsigned int v_unpack_g_vertex_set_uint32(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_g_vertex_set_uinteger32)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, uint32 value);
+	void (* func_g_vertex_set_uint32)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, uint32 value);
 	VNodeID node_id;
 	VLayerID layer_id;
 	uint32 vertex_id;
 	uint32 value;
 	
-	func_g_vertex_set_uinteger32 = v_fs_get_user_func(52);
+	func_g_vertex_set_uint32 = v_fs_get_user_func(52);
 	if(buffer_length < 14)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -394,10 +394,10 @@ unsigned int v_unpack_g_vertex_set_uinteger32(const char *buf, size_t buffer_len
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &vertex_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &value);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_g_vertex_set_uinteger32(node_id = %u layer_id = %u vertex_id = %u value = %u ); callback = %p\n", node_id, layer_id, vertex_id, value, v_fs_get_user_func(52));
+	printf("receive: verse_send_g_vertex_set_uint32(node_id = %u layer_id = %u vertex_id = %u value = %u ); callback = %p\n", node_id, layer_id, vertex_id, value, v_fs_get_user_func(52));
 #endif
-	if(func_g_vertex_set_uinteger32 != NULL)
-		func_g_vertex_set_uinteger32(v_fs_get_user_data(52), node_id, layer_id, vertex_id, value);
+	if(func_g_vertex_set_uint32 != NULL)
+		func_g_vertex_set_uint32(v_fs_get_user_data(52), node_id, layer_id, vertex_id, value);
 
 	return buffer_pos;
 }
@@ -448,7 +448,7 @@ unsigned int v_unpack_g_vertex_set_real64(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_g_polygon_set_corner_uinteger32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3)
+void verse_send_g_polygon_set_corner_uint32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -458,7 +458,7 @@ void verse_send_g_polygon_set_corner_uinteger32(VNodeID node_id, VLayerID layer_
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 54);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_g_polygon_set_corner_uinteger32(node_id = %u layer_id = %u polygon_id = %u v0 = %u v1 = %u v2 = %u v3 = %u );\n", node_id, layer_id, polygon_id, v0, v1, v2, v3);
+	printf("send: verse_send_g_polygon_set_corner_uint32(node_id = %u layer_id = %u polygon_id = %u v0 = %u v1 = %u v2 = %u v3 = %u );\n", node_id, layer_id, polygon_id, v0, v1, v2, v3);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -496,10 +496,10 @@ void verse_send_g_polygon_delete(VNodeID node_id, uint32 polygon_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_polygon_set_corner_uinteger32(const char *buf, size_t buffer_length)
+unsigned int v_unpack_g_polygon_set_corner_uint32(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_g_polygon_set_corner_uinteger32)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3);
+	void (* func_g_polygon_set_corner_uint32)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3);
 	VNodeID node_id;
 	VLayerID layer_id;
 	uint32 polygon_id;
@@ -508,7 +508,7 @@ unsigned int v_unpack_g_polygon_set_corner_uinteger32(const char *buf, size_t bu
 	uint32 v2;
 	uint32 v3;
 	
-	func_g_polygon_set_corner_uinteger32 = v_fs_get_user_func(54);
+	func_g_polygon_set_corner_uint32 = v_fs_get_user_func(54);
 	if(buffer_length < 26)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -522,7 +522,7 @@ unsigned int v_unpack_g_polygon_set_corner_uinteger32(const char *buf, size_t bu
 	if(v0 == -1 || v1 == -1 || v2 == -1)
 		printf("receive: verse_send_g_polygon_delete(node_id = %u polygon_id = %u ); callback = %p\n", node_id, polygon_id, v_fs_get_alias_user_func(54));
 	else
-		printf("receive: verse_send_g_polygon_set_corner_uinteger32(node_id = %u layer_id = %u polygon_id = %u v0 = %u v1 = %u v2 = %u v3 = %u ); callback = %p\n", node_id, layer_id, polygon_id, v0, v1, v2, v3, v_fs_get_user_func(54));
+		printf("receive: verse_send_g_polygon_set_corner_uint32(node_id = %u layer_id = %u polygon_id = %u v0 = %u v1 = %u v2 = %u v3 = %u ); callback = %p\n", node_id, layer_id, polygon_id, v0, v1, v2, v3, v_fs_get_user_func(54));
 #endif
 	if(v0 == -1 || v1 == -1 || v2 == -1)
 	{
@@ -532,8 +532,8 @@ unsigned int v_unpack_g_polygon_set_corner_uinteger32(const char *buf, size_t bu
 			alias_g_polygon_delete(v_fs_get_alias_user_data(54), node_id, layer_id);
 		return buffer_pos;
 	}
-	if(func_g_polygon_set_corner_uinteger32 != NULL)
-		func_g_polygon_set_corner_uinteger32(v_fs_get_user_data(54), node_id, layer_id, polygon_id, v0, v1, v2, v3);
+	if(func_g_polygon_set_corner_uint32 != NULL)
+		func_g_polygon_set_corner_uint32(v_fs_get_user_data(54), node_id, layer_id, polygon_id, v0, v1, v2, v3);
 
 	return buffer_pos;
 }
@@ -593,7 +593,7 @@ unsigned int v_unpack_g_polygon_set_corner_real64(const char *buf, size_t buffer
 	return buffer_pos;
 }
 
-void verse_send_g_polygon_set_face_uinteger8(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint8 value)
+void verse_send_g_polygon_set_face_uint8(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint8 value)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -603,7 +603,7 @@ void verse_send_g_polygon_set_face_uinteger8(VNodeID node_id, VLayerID layer_id,
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 56);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_g_polygon_set_face_uinteger8(node_id = %u layer_id = %u polygon_id = %u value = %u );\n", node_id, layer_id, polygon_id, value);
+	printf("send: verse_send_g_polygon_set_face_uint8(node_id = %u layer_id = %u polygon_id = %u value = %u );\n", node_id, layer_id, polygon_id, value);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -614,16 +614,16 @@ void verse_send_g_polygon_set_face_uinteger8(VNodeID node_id, VLayerID layer_id,
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_polygon_set_face_uinteger8(const char *buf, size_t buffer_length)
+unsigned int v_unpack_g_polygon_set_face_uint8(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_g_polygon_set_face_uinteger8)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint8 value);
+	void (* func_g_polygon_set_face_uint8)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint8 value);
 	VNodeID node_id;
 	VLayerID layer_id;
 	uint32 polygon_id;
 	uint8 value;
 	
-	func_g_polygon_set_face_uinteger8 = v_fs_get_user_func(56);
+	func_g_polygon_set_face_uint8 = v_fs_get_user_func(56);
 	if(buffer_length < 11)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -631,15 +631,15 @@ unsigned int v_unpack_g_polygon_set_face_uinteger8(const char *buf, size_t buffe
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &polygon_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &value);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_g_polygon_set_face_uinteger8(node_id = %u layer_id = %u polygon_id = %u value = %u ); callback = %p\n", node_id, layer_id, polygon_id, value, v_fs_get_user_func(56));
+	printf("receive: verse_send_g_polygon_set_face_uint8(node_id = %u layer_id = %u polygon_id = %u value = %u ); callback = %p\n", node_id, layer_id, polygon_id, value, v_fs_get_user_func(56));
 #endif
-	if(func_g_polygon_set_face_uinteger8 != NULL)
-		func_g_polygon_set_face_uinteger8(v_fs_get_user_data(56), node_id, layer_id, polygon_id, value);
+	if(func_g_polygon_set_face_uint8 != NULL)
+		func_g_polygon_set_face_uint8(v_fs_get_user_data(56), node_id, layer_id, polygon_id, value);
 
 	return buffer_pos;
 }
 
-void verse_send_g_polygon_set_face_uinteger32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 value)
+void verse_send_g_polygon_set_face_uint32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 value)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -649,7 +649,7 @@ void verse_send_g_polygon_set_face_uinteger32(VNodeID node_id, VLayerID layer_id
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 57);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_g_polygon_set_face_uinteger32(node_id = %u layer_id = %u polygon_id = %u value = %u );\n", node_id, layer_id, polygon_id, value);
+	printf("send: verse_send_g_polygon_set_face_uint32(node_id = %u layer_id = %u polygon_id = %u value = %u );\n", node_id, layer_id, polygon_id, value);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -660,16 +660,16 @@ void verse_send_g_polygon_set_face_uinteger32(VNodeID node_id, VLayerID layer_id
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_polygon_set_face_uinteger32(const char *buf, size_t buffer_length)
+unsigned int v_unpack_g_polygon_set_face_uint32(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_g_polygon_set_face_uinteger32)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 value);
+	void (* func_g_polygon_set_face_uint32)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 value);
 	VNodeID node_id;
 	VLayerID layer_id;
 	uint32 polygon_id;
 	uint32 value;
 	
-	func_g_polygon_set_face_uinteger32 = v_fs_get_user_func(57);
+	func_g_polygon_set_face_uint32 = v_fs_get_user_func(57);
 	if(buffer_length < 14)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -677,10 +677,10 @@ unsigned int v_unpack_g_polygon_set_face_uinteger32(const char *buf, size_t buff
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &polygon_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &value);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_g_polygon_set_face_uinteger32(node_id = %u layer_id = %u polygon_id = %u value = %u ); callback = %p\n", node_id, layer_id, polygon_id, value, v_fs_get_user_func(57));
+	printf("receive: verse_send_g_polygon_set_face_uint32(node_id = %u layer_id = %u polygon_id = %u value = %u ); callback = %p\n", node_id, layer_id, polygon_id, value, v_fs_get_user_func(57));
 #endif
-	if(func_g_polygon_set_face_uinteger32 != NULL)
-		func_g_polygon_set_face_uinteger32(v_fs_get_user_data(57), node_id, layer_id, polygon_id, value);
+	if(func_g_polygon_set_face_uint32 != NULL)
+		func_g_polygon_set_face_uint32(v_fs_get_user_data(57), node_id, layer_id, polygon_id, value);
 
 	return buffer_pos;
 }

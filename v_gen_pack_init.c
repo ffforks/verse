@@ -58,12 +58,12 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(49, v_unpack_g_layer_subscribe, verse_send_g_layer_subscribe, verse_send_g_layer_unsubscribe);
 	v_fs_add_func(50, v_unpack_g_vertex_set_real32_xyz, verse_send_g_vertex_set_real32_xyz, verse_send_g_vertex_delete_real32);
 	v_fs_add_func(51, v_unpack_g_vertex_set_real64_xyz, verse_send_g_vertex_set_real64_xyz, verse_send_g_vertex_delete_real64);
-	v_fs_add_func(52, v_unpack_g_vertex_set_uinteger32, verse_send_g_vertex_set_uinteger32, NULL);
+	v_fs_add_func(52, v_unpack_g_vertex_set_uint32, verse_send_g_vertex_set_uint32, NULL);
 	v_fs_add_func(53, v_unpack_g_vertex_set_real64, verse_send_g_vertex_set_real64, NULL);
-	v_fs_add_func(54, v_unpack_g_polygon_set_corner_uinteger32, verse_send_g_polygon_set_corner_uinteger32, verse_send_g_polygon_delete);
+	v_fs_add_func(54, v_unpack_g_polygon_set_corner_uint32, verse_send_g_polygon_set_corner_uint32, verse_send_g_polygon_delete);
 	v_fs_add_func(55, v_unpack_g_polygon_set_corner_real64, verse_send_g_polygon_set_corner_real64, NULL);
-	v_fs_add_func(56, v_unpack_g_polygon_set_face_uinteger8, verse_send_g_polygon_set_face_uinteger8, NULL);
-	v_fs_add_func(57, v_unpack_g_polygon_set_face_uinteger32, verse_send_g_polygon_set_face_uinteger32, NULL);
+	v_fs_add_func(56, v_unpack_g_polygon_set_face_uint8, verse_send_g_polygon_set_face_uint8, NULL);
+	v_fs_add_func(57, v_unpack_g_polygon_set_face_uint32, verse_send_g_polygon_set_face_uint32, NULL);
 	v_fs_add_func(58, v_unpack_g_polygon_set_face_real64, verse_send_g_polygon_set_face_real64, NULL);
 	v_fs_add_func(59, v_unpack_g_crease_set_vertex, verse_send_g_crease_set_vertex, NULL);
 	v_fs_add_func(60, v_unpack_g_crease_set_edge, verse_send_g_crease_set_edge, NULL);

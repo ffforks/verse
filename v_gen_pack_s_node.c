@@ -619,49 +619,49 @@ void verse_send_tag_create(VNodeID node_id, uint16 group_id, uint16 tag_id, cons
 	switch(type)
 	{
 		case VN_TAG_BOOLEAN :
-			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((VNTag *)tag)->active);
+			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((VNTag *)tag)->vboolean);
 		break;
-		case VN_TAG_INTEGER :
-			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->integer);
+		case VN_TAG_UINT32 :
+			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->vuint32);
 		break;
-		case VN_TAG_REAL :
-			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->real);
+		case VN_TAG_REAL64 :
+			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vreal64);
 		break;
 		case VN_TAG_STRING :
 		{
 			unsigned int i;
-			for(i = 0; ((VNTag *)tag)->string[i] != 0 && i < VN_TAG_MAX_BLOB_SIZE; i++)
-				buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((VNTag *)tag)->string[i]);
+			for(i = 0; ((VNTag *)tag)->vstring[i] != 0 && i < VN_TAG_MAX_BLOB_SIZE; i++)
+				buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((VNTag *)tag)->vstring[i]);
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);
 		}
 		break;
-		case VN_TAG_VECTOR :
+		case VN_TAG_REAL64_VEC3 :
 		{
-			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vector[0]);
-			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vector[1]);
-			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vector[2]);
+			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vreal64_vec3[0]);
+			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vreal64_vec3[1]);
+			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((VNTag *)tag)->vreal64_vec3[2]);
 		}
 		break;
 		case VN_TAG_LINK :
 		{
-			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->link);
+			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->vlink);
 		}
 		break;
 		case VN_TAG_ANIMATION :
 		{
-			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->animation.curve);
-			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->animation.start);
-			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->animation.end);
+			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->vanimation.curve);
+			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->vanimation.start);
+			buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((VNTag *)tag)->vanimation.end);
 		}
 		break;
 		case VN_TAG_BLOB :
 		{
 			unsigned int i;
-			if(((VNTag *)tag)->blob.blob_size > VN_TAG_MAX_BLOB_SIZE)
-				((VNTag *)tag)->blob.blob_size = VN_TAG_MAX_BLOB_SIZE;
-			buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], ((VNTag *)tag)->blob.blob_size);
-			for(i = 0; i < ((VNTag *)tag)->blob.blob_size; i++)
-				buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)((VNTag *)tag)->blob.blob)[i]);
+			if(((VNTag *)tag)->vblob.size > VN_TAG_MAX_BLOB_SIZE)
+				((VNTag *)tag)->vblob.size = VN_TAG_MAX_BLOB_SIZE;
+			buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], ((VNTag *)tag)->vblob.size);
+			for(i = 0; i < ((VNTag *)tag)->vblob.size; i++)
+				buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)((VNTag *)tag)->vblob.blob)[i]);
 		}
 		break;
 	}
@@ -726,46 +726,46 @@ unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length)
 		switch(type)
 		{
 			case VN_TAG_BOOLEAN :
-				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &tag.active);
+				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &tag.vboolean);
 			break;
-			case VN_TAG_INTEGER :
-				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.integer);
+			case VN_TAG_UINT32 :
+				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.vuint32);
 			break;
-			case VN_TAG_REAL :
-				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.real);
+			case VN_TAG_REAL64 :
+				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vreal64);
 			break;
 			case VN_TAG_STRING :
 			{
-				tag.string = string;
+				tag.vstring = string;
 				vnp_raw_unpack_string(&buf[buffer_pos], string, VN_TAG_MAX_BLOB_SIZE, buffer_length - buffer_pos);
 			}
 			break;
-			case VN_TAG_VECTOR :
+			case VN_TAG_REAL64_VEC3 :
 			{
-				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vector[0]);
-				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vector[1]);
-				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vector[2]);
+				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vreal64_vec3[0]);
+				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vreal64_vec3[1]);
+				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tag.vreal64_vec3[2]);
 			}
 			break;
 			case VN_TAG_LINK :
 			{
-				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.link);
+				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.vlink);
 			}
 			break;
 			case VN_TAG_ANIMATION :
 			{
-				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.animation.curve);
-				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.animation.start);
-				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.animation.end);
+				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.vanimation.curve);
+				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.vanimation.start);
+				buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &tag.vanimation.end);
 			}
 			break;
 			case VN_TAG_BLOB :
 			{
-				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tag.blob.blob_size);
-				if(tag.blob.blob_size > VN_TAG_MAX_BLOB_SIZE)
-					tag.blob.blob_size = VN_TAG_MAX_BLOB_SIZE;
-				tag.blob.blob = string;
-				for(i = 0; i < tag.blob.blob_size; i++)
+				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tag.vblob.size);
+				if(tag.vblob.size > VN_TAG_MAX_BLOB_SIZE)
+					tag.vblob.size = VN_TAG_MAX_BLOB_SIZE;
+				tag.vblob.blob = string;
+				for(i = 0; i < tag.vblob.size; i++)
 					buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &string[i]);
 			}
 			break;
