@@ -205,7 +205,7 @@ char * v_fs_connect_get_address(void)
 	return connect_address;
 }
 
-extern unsigned int v_unpack_connect(char *data, unsigned int length, void *user_func, void *user_data);
+extern unsigned int v_unpack_connect(const char *data, size_t length, void *user_func, void *user_data);
 
 void v_fs_connect_unpack(uint8 *data, unsigned int length, char *address)
 {
