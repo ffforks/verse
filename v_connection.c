@@ -189,8 +189,8 @@ void v_con_network_listen(void)
 	{
 		VConData.current_connection = v_co_find_connection(address.ip, address.port); /* Is there a connection matching the IP and port? */
 		vnp_raw_unpack_uint32(buf, &packet_id); /* Unpack the ID of the packet. */
-/*		printf("got packet %u\n", packet_id);*/
-		if(VConData.current_connection < VConData.con_count && !(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED && packet_id == 0)) /* If this isn't a packet from an existing connection, disregard it. */
+		if(VConData.current_connection < VConData.con_count &&
+		   !(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED && packet_id == 0)) /* If this isn't a packet from an existing connection, disregard it. */
 		{
 			if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED) /* Is this connection initialized? */
 			{
@@ -215,9 +215,9 @@ void v_con_network_listen(void)
 				v_con_connect(address.ip, address.port, V_CS_IDLE); /* Create a new connection. */
 				v_unpack_connection(buf, size); /* Unpack the connection-attempt. */
 			}
-
-		}else
-			printf("unhandled packet!!!!!\n");
+		}
+		else
+			fprintf(stderr, __FILE__ ": Unhandled packet--dropping\n");
 		size = v_n_receive_data(&address, buf, sizeof buf); /* See if there are more incoming packets. */
 	}
 	VConData.current_connection = connection; /* Reset the current connection. */
@@ -241,7 +241,7 @@ boolean v_con_callback_update(void)
 */	if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
 	{
 		p = v_niq_get(&VConData.con[VConData.current_connection].in_queue, &size);
-		while(size != 0 && size != -1)
+		while(size > 0)
 		{
 			VConData.pending_packets--;
 			v_fs_unpack(p->data, size);
@@ -294,12 +294,12 @@ void verse_callback_update(unsigned int microseconds)
 	if(VConData.con_count > 0)
 		if(v_con_callback_update())
 			return;
-	for(passed = 0; passed <= microseconds && VConData.pending_packets == 0; passed += V_CON_MAX_MICROSECOND_BETWEEN_SENDS)
+	for(passed = 0; passed <= microseconds && VConData.pending_packets == 0;)
 	{
 		if(V_CON_MAX_MICROSECOND_BETWEEN_SENDS < microseconds - passed)
-			v_n_wait_for_incoming(V_CON_MAX_MICROSECOND_BETWEEN_SENDS);
+			passed += v_n_wait_for_incoming(V_CON_MAX_MICROSECOND_BETWEEN_SENDS);
 		else
-			v_n_wait_for_incoming(microseconds - passed);
+			passed += v_n_wait_for_incoming(microseconds - passed);
 		v_con_network_listen();
 		connection = VConData.current_connection;
 		for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
@@ -357,19 +357,17 @@ uint8 **v_con_get_expected_key(void)
 	return &VConData.con[VConData.current_connection].expected_key;
 }
 
-uint8 *v_con_get_host_id(void)
+uint8 * v_con_get_host_id(void)
 {
 	return VConData.host_id;
 }
 
-void v_con_set_data_key(uint8 *key)
+void v_con_set_data_key(const uint8 *key)
 {
-	unsigned int i;
-	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
-		VConData.con[VConData.current_connection].key_data[i] = key[i];
+	memcpy(VConData.con[VConData.current_connection].key_data, key, V_ENCRYPTION_DATA_KEY_SIZE);
 }
 
-uint8 * v_con_get_data_key(void)
+const uint8 * v_con_get_data_key(void)
 {
 	return VConData.con[VConData.current_connection].key_data;
 }
