@@ -637,7 +637,7 @@ void v_cg_gen_unpack(void)
 	}
 	fprintf(f, ");\n");
 	fprintf(f, "\n\treturn buffer_pos;\n");
-	fprintf(f, "}\n");
+	fprintf(f, "}\n\n");
 }
 
 void v_cg_gen_alias(void)
