@@ -63,6 +63,7 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 		((double *)node->layer[0].layer)[i] = V_REAL64_MAX;
 	node->layer[0].subscribers = vs_create_subscription_list();
 	node->layer[0].subscribersd = vs_create_subscription_list();
+	node->layer[0].def.real = 0.0;
 
 	for(i = 0; polygon[i] != 0; i++)
 		node->layer[1].name[i] = polygon[i];
@@ -73,6 +74,7 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 		((uint32 *)node->layer[1].layer)[i] = -1;
 	node->layer[1].subscribers = vs_create_subscription_list();
 	node->layer[1].subscribersd = NULL;
+	node->layer[1].def.integer = 0;
 
 	for(i = 2; i < 16; i++)
 	{
@@ -81,6 +83,7 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 		node->layer[i].layer = NULL;
 		node->layer[i].subscribers = NULL;
 		node->layer[i].subscribersd = NULL;
+		node->layer[i].def.integer = 0;
 	}
 	node->crease_vertex = 0;
 	node->crease_vertex_layer[0] = 0;
@@ -274,7 +277,7 @@ static void callback_send_g_layer_subscribe(void *user, VNodeID node_id, VLayerI
 	switch(layer->type)
 	{
 		case VN_G_LAYER_VERTEX_XYZ :
-			if(VN_FORMAT_REAL64)
+			if(type == VN_FORMAT_REAL64)
 			{
 				for(i = 0; i < node->vertex_size; i++)
 					if(((double *)node->layer[0].layer)[i * 3] != V_REAL64_MAX)
@@ -669,7 +672,7 @@ static void callback_send_g_polygon_set_corner_real64(void *user, VNodeID node_i
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->layer[layer_id].subscribers, i);
-		verse_send_g_polygon_set_corner_real64(node_id, layer_id, polygon_id, (float)v0, (float)v1, (float)v2, (float)v3);
+		verse_send_g_polygon_set_corner_real32(node_id, layer_id, polygon_id, (float)v0, (float)v1, (float)v2, (float)v3);
 	}
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribersd);
 	for(i = 0; i < count; i++)
@@ -699,7 +702,7 @@ static void callback_send_g_polygon_set_corner_real32(void *user, VNodeID node_i
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->layer[layer_id].subscribers, i);
-		verse_send_g_polygon_set_corner_real64(node_id, layer_id, polygon_id, v0, v1, v2, v3);
+		verse_send_g_polygon_set_corner_real32(node_id, layer_id, polygon_id, v0, v1, v2, v3);
 	}
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribersd);
 	for(i = 0; i < count; i++)
@@ -768,7 +771,7 @@ static void callback_send_g_polygon_set_face_real64(void *user, VNodeID node_id,
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->layer[layer_id].subscribers, i);
-		verse_send_g_polygon_set_face_real64(node_id, layer_id, polygon_id, (float)value);
+		verse_send_g_polygon_set_face_real32(node_id, layer_id, polygon_id, (float)value);
 	}
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribersd);
 	for(i = 0; i < count; i++)
@@ -795,7 +798,7 @@ static void callback_send_g_polygon_set_face_real32(void *user, VNodeID node_id,
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->layer[layer_id].subscribers, i);
-		verse_send_g_polygon_set_face_real64(node_id, layer_id, polygon_id, value);
+		verse_send_g_polygon_set_face_real32(node_id, layer_id, polygon_id, value);
 	}
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribersd);
 	for(i = 0; i < count; i++)
