@@ -130,6 +130,16 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 	return node_id;
 }
 
+void vs_reset_owner(VNodeID owner_id)
+{
+	unsigned int i;
+
+	for(i = 0; i < VSNodeStorage.node_length; i++)
+		if(VSNodeStorage.nodes[i] != NULL)
+			if(VSNodeStorage.nodes[i]->owner == owner_id)
+				VSNodeStorage.nodes[i]->owner = ~0;
+}
+
 static void callback_send_node_create(void *user_data, VNodeID node_id, uint8 type, VNodeOwner owner_id)
 {
 	vs_node_create(vs_get_avatar(), type);
