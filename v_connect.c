@@ -52,7 +52,6 @@ static void v_send_hidden_connect_send_key(void) /*  Stage 1: Hosts reply to any
 	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], host_id[V_ENCRYPTION_LOGIN_N_START + i]);
 	
-	fprintf(stderr, "b n = %u ", (int)host_id[V_ENCRYPTION_LOGIN_N_START]);
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
 }
 
@@ -74,8 +73,6 @@ static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypte
 	name_pass[i + V_ENCRYPTION_LOGIN_KEY_SIZE / 2] = 0;
 	my_key = v_con_get_other_key();
 	v_e_connect_encrypt(encrypted_key, name_pass, &my_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &my_key[V_ENCRYPTION_LOGIN_N_START]);
-
-	printf("n = %u ", (int)my_key[V_ENCRYPTION_LOGIN_N_START]);
 
 	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], encrypted_key[i]);
@@ -212,12 +209,12 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 	
 	buffer_pos = vnp_raw_unpack_uint32(&buf[buffer_pos], &pack_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &cmd_id);
-	printf("connection packet %u, cmd %u", pack_id, cmd_id);
+/*	printf("connection packet %u, cmd %u", pack_id, cmd_id);*/
 	pre = v_con_get_connect_stage();
 	if(cmd_id == 0)
 	{
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &stage);
-		printf(" stage %u\n", stage);
+/*		printf(" stage %u\n", stage);*/
 		if(stage == 0 && V_CS_IDLE == v_con_get_connect_stage()) /* reseved by host */
 		{
 			uint8 *other_key, *my_key;
@@ -265,8 +262,6 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &other_key[V_ENCRYPTION_LOGIN_N_START + i]);
 	
-			fprintf(stderr, "a n = %u ", (int)other_key[V_ENCRYPTION_LOGIN_N_START]);
-
 			v_con_set_connect_stage(V_CS_PENDING_ACCEPT);
 			v_send_hidden_connect_login();
 			return; 
@@ -301,10 +296,10 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &data[i]);
 			host_id = v_con_get_host_id();
 			v_e_connect_encrypt(unpack, data, &host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
-			fprintf(stderr, "n = %u ", (int)host_id[V_ENCRYPTION_LOGIN_N_START]);
+/*			fprintf(stderr, "n = %u ", (int)host_id[V_ENCRYPTION_LOGIN_N_START]);*/
 			v_con_set_name_pass(unpack, &unpack[V_ENCRYPTION_LOGIN_KEY_SIZE / 2]);
 			v_con_set_connect_stage(V_CS_PENDING_HOST_CALLBACK);
-			printf("got here right\n");
+/*			printf("got here right\n");*/
 			return; 
 		}
 	}
