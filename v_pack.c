@@ -46,6 +46,31 @@ size_t vnp_raw_unpack_uint16(const void *buffer, uint16 *data)
 	return sizeof *data;
 }
 
+size_t vnp_raw_pack_uint24(void *buffer, uint32 data)
+{
+	register uint8 *p = buffer;
+
+	data >>= 8;
+	*(p++) = (data >> 24) & 0xFF;
+	*(p++) = (data >> 16) & 0xFF;
+	*(p++) = (data >> 8)  & 0xFF;
+
+	return 3;
+}
+
+size_t vnp_raw_unpack_uint24(const void *buffer, uint32 *data)
+{
+	register const uint8 *p = buffer;
+	register uint32	tmp = 0;
+
+	tmp |= ((uint32) *p++) << 24;
+	tmp |= ((uint32) *p++) << 16;
+	tmp |= ((uint32) *p++) << 8;
+	*data = tmp << 8;
+
+	return 3;
+}
+
 size_t vnp_raw_pack_uint32(void *buffer, uint32 data)
 {
 	register uint8 *p = buffer;
