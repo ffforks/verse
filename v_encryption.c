@@ -19,23 +19,25 @@
 extern void	v_prime_set_random(VBigDig *x);
 extern void	v_prime_set_table(VBigDig *x, int i);
 
-void v_e_data_create_key(uint8 *to) /* possibly the worst key gen ever */
+const uint8 * v_e_data_create_key(void) /* possibly the worst key gen ever */
 {
 	static unsigned int counter = 0;
-	unsigned int i, temp;
+	static uint8	buffer[V_ENCRYPTION_DATA_KEY_SIZE];
+	unsigned int	i, temp;
 
 	for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++) 
 	{
 		counter++;
 		temp = (counter << 13) ^ counter;
 		temp = (temp * (temp * temp * 15731 + 789221) + 1376312589) & 0x7fffffff;
-		to[i] = temp;
+		buffer[i] = temp;
 	}
+	return buffer;
 }
 
-void v_e_data_encrypt_command(uint8 *packet, size_t packet_size, const uint8 *command, size_t command_size, uint8 *key)
+void v_e_data_encrypt_command(uint8 *packet, size_t packet_size, const uint8 *command, size_t command_size, const uint8 *key)
 {
-	uint32	i, pos;
+	uint32	pos, i;
 
 	vnp_raw_unpack_uint32(packet, &pos);
 	pos = key[pos % V_ENCRYPTION_DATA_KEY_SIZE] + packet_size - 4;
