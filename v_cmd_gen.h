@@ -39,6 +39,4 @@ extern void v_cg_add_param(VCGParam type, const char *name);
 extern void v_cg_alias(char bool_switch, const char *name, const char *qualifier,
 		       unsigned int param, unsigned int *param_array);
 extern void v_cg_end_cmd(void);
-extern void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name,
-				const char *params, const char *alias_name,
-				const char *alias_params);
+extern void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *params, const char *alias_name, const char *alias_params);
