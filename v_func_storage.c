@@ -23,7 +23,7 @@ static struct {
 	boolean		call;
 } VCmdData;
 
-boolean v_fs_initialized = FALSE;
+static boolean v_fs_initialized = FALSE;
 
 extern void verse_send_packet_ack(uint32 packet_id);
 extern void callback_send_packet_ack(void *user, uint32 packet_id);
