@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "v_cmd_buf.h"
 #include "v_network_in_que.h"
@@ -102,7 +103,7 @@ void *v_con_connect(uint32 ip, uint16 port, VConnectStage stage)
 	VConData.con[VConData.con_count].timedelta[1] = 0;
 	VConData.current_connection = VConData.con_count;
 	++VConData.con_count;
-	return VConData.con[VConData.con_count].out_queue;
+	return VConData.con[VConData.current_connection].out_queue;
 }
 
 void verse_session_destroy(VSession session)
