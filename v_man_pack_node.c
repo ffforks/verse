@@ -93,7 +93,7 @@ void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, u
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 99);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_t_line_insert(node_id = %u buffer_id = %u pos = %u length = %u text = %s );\n", node_id, buffer_id, pos, length, text);
+	printf("send: verse_send_t_text_set(node_id = %u buffer_id = %u pos = %u length = %u text = %s );\n", node_id, buffer_id, pos, length, text);
 #endif
 	s = v_con_get_ordered_storage();
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
@@ -115,9 +115,9 @@ void v_call_line(VTempLine *line)
 	char *t;
 	void (* func_t_line_insert)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint16 length, char *text);
 	func_t_line_insert = v_fs_get_user_func(99);
-	#if defined V_PRINT_RECEIVE_COMMANDS
-		printf("receive: verse_send_t_line_insert(node_id = %u buffer_id = %u pos = %u length = %u text = %s ); callback = %p\n", line->node_id, line->buffer_id, line->pos, line->length, line->text, v_fs_get_user_func(99));
-	#endif
+#if defined V_PRINT_RECEIVE_COMMANDS
+	printf("receive: verse_send_t_text_set(node_id = %u buffer_id = %u pos = %u length = %u text = %s ); callback = %p\n", line->node_id, line->buffer_id, line->pos, line->length, line->text, v_fs_get_user_func(99));
+#endif
 	if(line->text == NULL)
 		t = "";
 	else
@@ -131,7 +131,7 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 	unsigned int i, buffer_pos = 0;
 	VOrderedStorage *s;
 	VTempLine l, *line, *past = NULL;
-	char text[512];
+	char text[1500];
 
 	if(buffer_length < 12)
 		return -1;
@@ -140,7 +140,7 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &l.pos);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &l.length);	
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &l.index);
-	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], text, 512, buffer_length - buffer_pos);
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], text, sizeof text, buffer_length - buffer_pos);
 	if(text[0] == 0)
 		l.text = NULL;
 	else
