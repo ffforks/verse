@@ -96,7 +96,12 @@ static void v_cg_init(void)
 		"** Verse API Header file (for use with libverse.a).\n"
 		"** This is automatically generated code; do not edit.\n"
 		"*/\n\n"
+		"\n"
 		"#if !defined VERSE_H\n"
+		"\n"
+		"#if defined __cplusplus\t\t/* Declare as C symbols for C++ users. */\n"
+		"extern \"C\" {\n"
+		"#endif\n\n"
 		"#define\tVERSE_H\n\n");
 	/* Copy contents of "verse_header.h" into output "verse.h". */
 	f = fopen("verse_header.h", "r");
@@ -114,6 +119,10 @@ static void v_cg_close(void)
 		fprintf(VCGData.nodes[i], "#endif\n\n");
 	}
 	fprintf(VCGData.init, "}\n#endif\n\n");
+	fprintf(VCGData.verse_h,
+		"\n#if defined __cplusplus\n"
+		"}\n"
+		"#endif\n");
 	fprintf(VCGData.verse_h, "\n#endif\t\t/* VERSE_H */\n");
 }
 
