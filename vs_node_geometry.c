@@ -417,17 +417,18 @@ static void callback_send_g_layer_unsubscribe(void *user, VNodeID node_id, VNMFr
 static boolean vs_g_extend_arrays(VSNodeGeometry *node, boolean vertex, unsigned int id)
 {
 	unsigned int i, j;
+
 	if(vertex)
 	{
-		if(node->vertex_size + 256 < id)
+/*		if(node->vertex_size + 256 < id)
 			return FALSE;
-		if(node->vertex_size > id)
+*/		if(node->vertex_size > id)
 			return TRUE;
 	}else
 	{
-		if(node->poly_size + 256 < id)
+/*		if(node->poly_size + 256 < id)
 			return FALSE;
-		if(node->poly_size > id)
+*/		if(node->poly_size > id)
 			return TRUE;
 	}
 
