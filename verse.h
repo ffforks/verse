@@ -1,15 +1,17 @@
 #if !defined(VERSE_H)
 #define	VERSE_H
+/*
+**
+*/
 
-
-#if !defined(VERSE_HEADER_H)
+#if !defined VERSE_HEADER_H
 #define	VERSE_HEADER_H
 
 /*
-#ifdef _MSC_VER
+#if defined _MSC_VER
 typedef __int64 int64;
 typedef unsigned __int64 uint64;
-#elif __GNUC__
+#elif defined __GNUC__
 typedef long long int64;
 typedef unsigned long long uint64;
 #endif
@@ -28,7 +30,6 @@ typedef double real64;
 #define V_REAL64_MAX         1.7976931348623158e+308 /* max value */
 #define V_REAL32_MAX         3.40282347e+38F
 
-
 #define TRUE 1
 #define FALSE 0
 
@@ -43,7 +44,7 @@ typedef enum {
 	V_NT_NUM_TYPES, 
 	V_NT_SYSTEM = V_NT_NUM_TYPES, 
 	V_NT_NUM_TYPES_NETPACK
-}VNodeType;
+} VNodeType;
 
 typedef uint32		VNodeID;
 typedef uint16		VLayerID;		/* Commonly used to identify layers. */
@@ -84,8 +85,8 @@ typedef enum {
 
 	VN_O_METHOD_PTYPE_4_MATRIX64,
 	VN_O_METHOD_PTYPE_9_MATRIX64,
-	VN_O_METHOD_PTYPE_16_MATRIX64,
-}VNOParamType;
+	VN_O_METHOD_PTYPE_16_MATRIX64
+} VNOParamType;
 
 typedef	union{
 	int8		integer8;
@@ -103,7 +104,7 @@ typedef	union{
 	real64		vector64[4];
 	real32		matrix32[16];
 	real64		matrix64[16];
-}VNOParam;
+} VNOParam;
 
 #define VN_TAG_MAX_BLOB_SIZE 500
 
@@ -224,7 +225,7 @@ typedef enum {
 	VN_M_FT_MATRIX,
 	VN_M_FT_RAMP,
 	VN_M_FT_ALTERNATIVE,
-	VN_M_FT_OUTPUT,
+	VN_M_FT_OUTPUT
 } VNMFragmentType;
 
 typedef union{
@@ -294,7 +295,7 @@ typedef union{
 		VNMFragmentID front;
 		VNMFragmentID back;
 	}output;
-}VMatFrag;
+} VMatFrag;
 
 typedef enum {
 	VN_B_LAYER_INTEGER1 = 0,
@@ -337,8 +338,7 @@ extern boolean verse_unpack_method_call(void *data, uint32 param_count, VNOParam
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECIVE_COMMANDS
 */
-#endif		/* V_VLL_H */
-
+#endif		/* VERSE_HEADER_H */
 extern VSession *verse_send_connect(const char *name, const char *pass, const char *address);
 extern VSession *verse_send_connect_accept(VNodeID avatar, const char *address);
 extern void verse_send_connect_deny(void *address);
