@@ -31,9 +31,6 @@
 
 #include "v_bignum.h"
 
-#define	V_BIGNUM_STANDALONE		/* Define to include main(), for testing. */
-#undef	V_BIGNUM_STANDALONE
-
 /* ----------------------------------------------------------------------------------------- */
 
 VBigNum v_bignum_new_zero(void)
@@ -435,42 +432,3 @@ VBigNum v_bignum_div_slow(VBigNum a, VBigNum b, VBigNum *remainder)
 		*remainder = a;
 	return q;
 }
-
-/* ----------------------------------------------------------------------------------------- */
-
-#if defined V_BIGNUM_STANDALONE
-
-int main(void)
-{
-/*	VBigNum	a = bignum_from_string("39A27483D4D6851BAC7CDF637861367A1431FDB1450489EF1EB2"),
-		b = bignum_from_string("4000000000000000"), q, r;
-*/
-	VBigNum	a = v_bignum_new_string("21"), b = v_bignum_new_string("3"), q, r;
-	VBigNum	c = v_bignum_new_string("39A27483D4D6851BAC7CDF637861367A1431FDB1450489EF1EB2deadcafebabe"),
-		d = v_bignum_new_string("deafbabe");
-
-	printf("c==c? %d\n", v_bignum_eq(c, c));
-	printf("c==d? %d\n", v_bignum_eq(c, d));
-
-	v_bignum_print_hex(a);
-	v_bignum_print_hex(b);
-	q = v_bignum_div(a, b, &r);
-	printf("q: ");
-	v_bignum_print_hex(q);
-	printf("r: ");
-	v_bignum_print_hex(r);
-
-	printf("----------------------------------------------------------\n");
-	
-	v_bignum_print_hex(c);
-	v_bignum_print_hex(d);
-	q = v_bignum_div(c, d, &r);
-	printf("q: ");
-	v_bignum_print_hex(q);
-	printf("r: ");
-	v_bignum_print_hex(r);
-
-	return 0;
-}
-
-#endif		/* V_BIGNUM_STANDALONE */
