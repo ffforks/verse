@@ -7,6 +7,8 @@
 #include "verse_header.h"
 #include "v_pack.h"
 
+#define	V_NQ_MAX_PACKET_SIZE	1500
+
 typedef enum {
 	VCMDBS_10 = 0,
 	VCMDBS_50 = 1,
