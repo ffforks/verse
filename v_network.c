@@ -2,7 +2,7 @@
 **
 */
 
-#if defined WIN32
+#if defined _WIN32
 #include <winsock.h>
 typedef unsigned int uint;
 typedef SOCKET VSocket;
@@ -111,7 +111,7 @@ VNetworkAddress * v_n_create_network_address(int my_port, const char *addr)
 	VNetworkAddress *address;
 	struct sockaddr_in address_in;
 
-#if defined(WIN32)
+#if defined(_WIN32)
 	static boolean initialized = FALSE;
 	if(!initialized)
 	{
