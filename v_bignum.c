@@ -129,6 +129,12 @@ VBigNum v_bignum_new_random(unsigned int num_bits)
 
 /* ----------------------------------------------------------------------------------------- */
 
+void v_bignum_dump(VBigNum a, unsigned char *bits)
+{
+	if(bits != NULL)
+		memcpy(bits, a.x, sizeof a.x);
+}
+
 void v_bignum_print_hex(VBigNum a)
 {
 	int	i;
