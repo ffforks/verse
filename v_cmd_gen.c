@@ -45,18 +45,18 @@ static void v_cg_init(void)
 	FILE *f;
 
 /*	v_cg_gen_spec_init();*/
-	VCGData.nodes[V_NT_OBJECT] = fopen("v_gen_pack_o_node.c", "w"); 
-	VCGData.nodes[V_NT_GEOMETRY] = fopen("v_gen_pack_g_node.c", "w");  
-	VCGData.nodes[V_NT_MATERIAL] = fopen("v_gen_pack_m_node.c", "w");  
-	VCGData.nodes[V_NT_BITMAP] = fopen("v_gen_pack_b_node.c", "w");  
-	VCGData.nodes[V_NT_TEXT] = fopen("v_gen_pack_t_node.c", "w");  
-	VCGData.nodes[V_NT_PARTICLE] = fopen("v_gen_pack_p_node.c", "w"); 
-	VCGData.nodes[V_NT_CURVE] = fopen("v_gen_pack_c_node.c", "w");  
-	VCGData.nodes[V_NT_SYSTEM] = fopen("v_gen_pack_s_node.c", "w"); 
-	VCGData.init = fopen("v_gen_pack_init.c", "w");
-	VCGData.unpack = fopen("v_gen_unpack_func.h", "w"); 
-	VCGData.verse_h = fopen("verse.h", "w"); 
-	VCGData.internal_verse_h = fopen("v_internal_verse.h", "w");
+	VCGData.nodes[V_NT_OBJECT] = fopen("v_gen_pack_o_node.c", "wt");
+	VCGData.nodes[V_NT_GEOMETRY] = fopen("v_gen_pack_g_node.c", "wt");  
+	VCGData.nodes[V_NT_MATERIAL] = fopen("v_gen_pack_m_node.c", "wt");  
+	VCGData.nodes[V_NT_BITMAP] = fopen("v_gen_pack_b_node.c", "wt");  
+	VCGData.nodes[V_NT_TEXT] = fopen("v_gen_pack_t_node.c", "wt");  
+	VCGData.nodes[V_NT_PARTICLE] = fopen("v_gen_pack_p_node.c", "wt"); 
+	VCGData.nodes[V_NT_CURVE] = fopen("v_gen_pack_c_node.c", "wt");  
+	VCGData.nodes[V_NT_SYSTEM] = fopen("v_gen_pack_s_node.c", "wt"); 
+	VCGData.init = fopen("v_gen_pack_init.c", "wt");
+	VCGData.unpack = fopen("v_gen_unpack_func.h", "wt"); 
+	VCGData.verse_h = fopen("verse.h", "wt");
+	VCGData.internal_verse_h = fopen("v_internal_verse.h", "wt");
 	for(i = 0; i < V_NT_NUM_TYPES_NETPACK + 1; i++)
 	{
 		if(i == V_NT_NUM_TYPES_NETPACK)
@@ -80,8 +80,8 @@ static void v_cg_init(void)
 
 	fprintf(VCGData.init, "void init_pack_and_unpack_fucs(void)\n{\n");
 	fprintf(VCGData.verse_h, "#if !defined(VERSE_H)\n");
-	fprintf(VCGData.verse_h, "#define	VERSE_H\n");
-	f = fopen("verse_header.h", "r");
+	fprintf(VCGData.verse_h, "#define VERSE_H\n");
+	f = fopen("verse_header.h", "rt");
 	while((c = getc(f)) != EOF)
 		putc(c, VCGData.verse_h);
 }
@@ -721,7 +721,7 @@ FILE *spec;
 
 void v_cg_gen_spec_init(void)
 {
-	spec = fopen("verse_cmd_spec.txt", "w"); 
+	spec = fopen("verse_cmd_spec.txt", "wt");
 }
 
 void v_cg_gen_spec(voidx)
