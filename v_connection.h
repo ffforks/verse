@@ -58,13 +58,11 @@ extern unsigned int		v_con_get_network_address_count(void);
 
 extern boolean			v_co_switch_connection(uint32 ip, uint16 port);
 
+extern void			v_con_inqueue_timer_update(void);
 
 
 /* Func storage related functions (v_func_storage.c)*/
-
 extern void				v_fs_unpack(uint8 *data, unsigned int length);
-
-
 
 extern boolean			v_fs_func_accept_connections(void);
 extern void				v_fs_add_func(unsigned int cmd_id, unsigned int (*unpack_func)(const char *buf, size_t buffer_length), void *pack_func, void *alias_func);
