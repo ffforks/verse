@@ -205,6 +205,7 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 	VSNodeText *node;
 	unsigned int i, count, text_length;
 	char *buf;
+
 	node = (VSNodeText *)vs_get_node(node_id, V_NT_TEXT);
 	if(node == NULL)
 		return;
@@ -226,7 +227,6 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 		buf = realloc(buf, node->buffer[buffer_id].length + text_length - length + VS_TEXT_CHUNK_SIZE);
 		node->buffer[buffer_id].allocated = node->buffer[buffer_id].length + text_length - length + VS_TEXT_CHUNK_SIZE;
 	}
-
 
 	if(text_length < length)
 	{
