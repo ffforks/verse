@@ -738,7 +738,7 @@ static void callback_send_g_crease_set_edge(void *user, VNodeID node_id, char *l
 	vs_reset_subscript_session();
 }
 
-void vs_g_callback_init()
+void vs_g_callback_init(void)
 {
 	verse_callback_set(verse_send_g_layer_create, callback_send_g_layer_create, NULL);
 	verse_callback_set(verse_send_g_layer_destroy, callback_send_g_layer_destroy, NULL);

@@ -262,7 +262,7 @@ static void callback_send_t_delete_line(void *user, VNodeID node_id, VNMBufferID
 	vs_reset_subscript_session();
 }
 
-void vs_t_callback_init()
+void vs_t_callback_init(void)
 {
 	verse_callback_set(verse_send_t_set_language,		callback_send_t_set_language, NULL);
 	verse_callback_set(verse_send_t_buffer_create,		callback_send_t_buffer_create, NULL);

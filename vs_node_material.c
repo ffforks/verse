@@ -117,7 +117,7 @@ static void callback_send_m_fragment_destroy(void *user, VNodeID node_id, VNMFra
 	vs_reset_subscript_session();
 }
 
-void vs_m_callback_init()
+void vs_m_callback_init(void)
 {
 	verse_callback_set(verse_send_m_fragment_create, callback_send_m_fragment_create, NULL);
 	verse_callback_set(verse_send_m_fragment_destroy, callback_send_m_fragment_destroy, NULL);

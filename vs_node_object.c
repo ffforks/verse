@@ -413,7 +413,7 @@ static void callback_send_o_method_send(void *user, VNodeID node_id, uint16 grou
 }
 
 
-void vs_o_callback_init()
+void vs_o_callback_init(void)
 {
 	verse_callback_set(verse_send_o_link_set, callback_send_o_link_set, NULL);
 	verse_callback_set(verse_send_o_set_light, callback_send_o_set_light, NULL);

@@ -220,7 +220,7 @@ static void callback_send_c_curve_unsubscribe(void *user, VNodeID node_id, VLaye
 	vs_remove_subscriptor(node->curves[curve_id].subscribers);
 }
 
-void vs_c_callback_init()
+void vs_c_callback_init(void)
 {
 	verse_callback_set(verse_send_c_curve_create,		callback_send_c_curve_create,		NULL);
 	verse_callback_set(verse_send_c_curve_destroy,		callback_send_c_curve_destroy,		NULL);
