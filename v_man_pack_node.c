@@ -41,13 +41,13 @@ VSession * verse_send_connect(const char *name, const char *pass, const char *ad
 	return con;
 }
 
-unsigned int v_unpack_connect(const char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_connect(const char *buf, unsigned int buffer_length)
 {
 	unsigned int buffer_pos = 0;
 	VSession (* func_connect)(void *user_data, char *name, char *pass, char *address);
 	char name[16];
-	char pass[16];	
-	func_connect = user_func;
+	char pass[16];
+	func_connect = v_fs_get_user_func(0);
 	if(buffer_length < 0)
 		return -1;
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
@@ -60,7 +60,7 @@ unsigned int v_unpack_connect(const char *buf, unsigned int buffer_length, void 
 	printf("receive: verse_send_connect(name = %s pass = %s ); callback = %p\n", name, pass, user_func);
 	#endif
 	if(func_connect != NULL && v_fs_connect_get_address() != NULL)
-		func_connect(user_data, name, pass, v_fs_connect_get_address());
+		func_connect(v_fs_get_user_data(0), name, pass, v_fs_connect_get_address());
 	return buffer_pos;
 }
 
@@ -89,13 +89,13 @@ VSession * verse_send_connect_accept(VNodeID avatar, const char *address)
 	return con;
 }
 
-unsigned int v_unpack_connect_accept(const char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_connect_accept(const char *buf, unsigned int buffer_length)
 {
 	unsigned int buffer_pos = 0;
 	VSession (* func_connect_accept)(void *user_data, VNodeID avatar, char *address);
 	VNodeID avatar;
 	char *address;
-	func_connect_accept = user_func;
+	func_connect_accept = v_fs_get_user_func(1);
 	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &avatar);
@@ -103,7 +103,7 @@ unsigned int v_unpack_connect_accept(const char *buf, unsigned int buffer_length
 	printf("receive: verse_send_connect_accept(avatar = %u ); callback = %p\n", avatar, user_func);
 	#endif
 	if(func_connect_accept != NULL)
-		func_connect_accept(user_data, avatar, address);
+		func_connect_accept(v_fs_get_user_data(1), avatar, address);
 
 	return buffer_pos;
 }

@@ -255,7 +255,7 @@ void v_gen_system_cmd_def(void)
 	"\t\t\tbreak;\n"
 	"\t\t}\n"
 	"\t\tif(func_tag_create != NULL)\n"
-	"\t\tfunc_tag_create(user_data, node_id, group_id, tag_id, name, type, &tag);\n"
+	"\t\tfunc_tag_create(v_fs_get_user_data(18), node_id, group_id, tag_id, name, type, &tag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_alias(FALSE, "tag_destroy", "if(type >= VN_TAG_TYPE_COUNT)", 3, NULL);

@@ -26,7 +26,7 @@ void verse_send_t_set_language(VNodeID node_id, const char *language)
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 96);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: t_set_language(node_id = %u language = %s );\n", node_id, language);
+	printf("send: verse_send_t_set_language(node_id = %u language = %s );\n", node_id, language);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	address_size = buffer_pos;
@@ -35,23 +35,23 @@ void verse_send_t_set_language(VNodeID node_id, const char *language)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_t_set_language(const char *buf, size_t buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_t_set_language(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_t_set_language)(void *user_data, VNodeID node_id, const char *language);
 	VNodeID node_id;
 	char language[512];
 	
-	func_t_set_language = user_func;
+	func_t_set_language = v_fs_get_user_func(96);
 	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], language, 512, buffer_length - buffer_pos);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: t_set_language(node_id = %u language = %s ); callback = %p\n", node_id, language, user_func);
+	printf("receive: verse_send_t_set_language(node_id = %u language = %s ); callback = %p\n", node_id, language, v_fs_get_user_func(96));
 #endif
 	if(func_t_set_language != NULL)
-		func_t_set_language(user_data, node_id, language);
+		func_t_set_language(v_fs_get_user_data(96), node_id, language);
 
 	return buffer_pos;
 }
@@ -66,7 +66,7 @@ void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, uint16 i
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 97);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: t_buffer_create(node_id = %u buffer_id = %u index = %u name = %s );\n", node_id, buffer_id, index, name);
+	printf("send: verse_send_t_buffer_create(node_id = %u buffer_id = %u index = %u name = %s );\n", node_id, buffer_id, index, name);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
@@ -87,7 +87,7 @@ void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id)
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 97);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: t_buffer_destroy(node_id = %u buffer_id = %u );\n", node_id, buffer_id);
+	printf("send: verse_send_t_buffer_destroy(node_id = %u buffer_id = %u );\n", node_id, buffer_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
@@ -98,7 +98,7 @@ void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_t_buffer_create)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint16 index, const char *name);
@@ -107,7 +107,7 @@ unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length, voi
 	uint16 index;
 	char name[16];
 	
-	func_t_buffer_create = user_func;
+	func_t_buffer_create = v_fs_get_user_func(97);
 	if(buffer_length < 8)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -115,7 +115,10 @@ unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length, voi
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &index);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: t_buffer_create(node_id = %u buffer_id = %u index = %u name = %s ); callback = %p\n", node_id, buffer_id, index, name, user_func);
+	if(name[0] == 0)
+		printf("receive: verse_send_t_buffer_destroy(node_id = %u buffer_id = %u ); callback = %p\n", node_id, buffer_id, v_fs_get_alias_user_func(97));
+	else
+		printf("receive: verse_send_t_buffer_create(node_id = %u buffer_id = %u index = %u name = %s ); callback = %p\n", node_id, buffer_id, index, name, v_fs_get_user_func(97));
 #endif
 	if(name[0] == 0)
 	{
@@ -126,7 +129,7 @@ unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length, voi
 		return buffer_pos;
 	}
 	if(func_t_buffer_create != NULL)
-		func_t_buffer_create(user_data, node_id, buffer_id, index, name);
+		func_t_buffer_create(v_fs_get_user_data(97), node_id, buffer_id, index, name);
 
 	return buffer_pos;
 }
@@ -141,7 +144,7 @@ void verse_send_t_buffer_subscribe(VNodeID node_id, VNMBufferID buffer_id)
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 98);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: t_buffer_subscribe(node_id = %u buffer_id = %u );\n", node_id, buffer_id);
+	printf("send: verse_send_t_buffer_subscribe(node_id = %u buffer_id = %u );\n", node_id, buffer_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
@@ -161,7 +164,7 @@ void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id)
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 98);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: t_buffer_unsubscribe(node_id = %u buffer_id = %u );\n", node_id, buffer_id);
+	printf("send: verse_send_t_buffer_unsubscribe(node_id = %u buffer_id = %u );\n", node_id, buffer_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
@@ -171,7 +174,7 @@ void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_t_buffer_subscribe(const char *buf, size_t buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_t_buffer_subscribe(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_t_buffer_subscribe)(void *user_data, VNodeID node_id, VNMBufferID buffer_id);
@@ -179,13 +182,16 @@ unsigned int v_unpack_t_buffer_subscribe(const char *buf, size_t buffer_length, 
 	VNMBufferID buffer_id;
 	char alias_bool;
 
-	func_t_buffer_subscribe = user_func;
+	func_t_buffer_subscribe = v_fs_get_user_func(98);
 	if(buffer_length < 6)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &buffer_id);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: t_buffer_subscribe(node_id = %u buffer_id = %u ); callback = %p\n", node_id, buffer_id, user_func);
+	if(alias_bool)
+		printf("receive: verse_send_t_buffer_unsubscribe(node_id = %u buffer_id = %u ); callback = %p\n", node_id, buffer_id, v_fs_get_alias_user_func(98));
+	else
+		printf("receive: verse_send_t_buffer_subscribe(node_id = %u buffer_id = %u ); callback = %p\n", node_id, buffer_id, v_fs_get_user_func(98));
 #endif
 	if(buffer_length < buffer_pos + 1)
 		return -1;
@@ -199,7 +205,7 @@ unsigned int v_unpack_t_buffer_subscribe(const char *buf, size_t buffer_length, 
 		return buffer_pos;
 	}
 	if(func_t_buffer_subscribe != NULL)
-		func_t_buffer_subscribe(user_data, node_id, buffer_id);
+		func_t_buffer_subscribe(v_fs_get_user_data(98), node_id, buffer_id);
 
 	return buffer_pos;
 }
@@ -214,7 +220,7 @@ void verse_send_t_line_insert(VNodeID node_id, VNMBufferID buffer_id, uint32 lin
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 99);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: t_line_insert(node_id = %u buffer_id = %u line = %u index = %u text = %s );\n", node_id, buffer_id, line, index, text);
+	printf("send: verse_send_t_line_insert(node_id = %u buffer_id = %u line = %u index = %u text = %s );\n", node_id, buffer_id, line, index, text);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
@@ -235,7 +241,7 @@ void verse_send_t_line_delete(VNodeID node_id, VNMBufferID buffer_id, uint32 lin
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 99);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: t_line_delete(node_id = %u buffer_id = %u line = %u );\n", node_id, buffer_id, line);
+	printf("send: verse_send_t_line_delete(node_id = %u buffer_id = %u line = %u );\n", node_id, buffer_id, line);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
@@ -246,7 +252,7 @@ void verse_send_t_line_delete(VNodeID node_id, VNMBufferID buffer_id, uint32 lin
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_t_line_insert(const char *buf, size_t buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_t_line_insert(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_t_line_insert)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 line, uint16 index, const char *text);
@@ -256,7 +262,7 @@ unsigned int v_unpack_t_line_insert(const char *buf, size_t buffer_length, void 
 	uint16 index;
 	char text[512];
 	
-	func_t_line_insert = user_func;
+	func_t_line_insert = v_fs_get_user_func(99);
 	if(buffer_length < 12)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -265,7 +271,10 @@ unsigned int v_unpack_t_line_insert(const char *buf, size_t buffer_length, void 
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &index);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], text, 512, buffer_length - buffer_pos);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: t_line_insert(node_id = %u buffer_id = %u line = %u index = %u text = %s ); callback = %p\n", node_id, buffer_id, line, index, text, user_func);
+	if(text[0] == 0)
+		printf("receive: verse_send_t_line_delete(node_id = %u buffer_id = %u line = %u ); callback = %p\n", node_id, buffer_id, line, v_fs_get_alias_user_func(99));
+	else
+		printf("receive: verse_send_t_line_insert(node_id = %u buffer_id = %u line = %u index = %u text = %s ); callback = %p\n", node_id, buffer_id, line, index, text, v_fs_get_user_func(99));
 #endif
 	if(text[0] == 0)
 	{
@@ -276,7 +285,7 @@ unsigned int v_unpack_t_line_insert(const char *buf, size_t buffer_length, void 
 		return buffer_pos;
 	}
 	if(func_t_line_insert != NULL)
-		func_t_line_insert(user_data, node_id, buffer_id, line, index, text);
+		func_t_line_insert(v_fs_get_user_data(99), node_id, buffer_id, line, index, text);
 
 	return buffer_pos;
 }

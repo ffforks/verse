@@ -219,7 +219,7 @@ void v_gen_material_cmd_def(void)
 	"\t\t\tbreak;\n"
 	"\t\t}\n"
 	"\t\tif(func_m_fragment_create != NULL)\n"
-	"\t\t\tfunc_m_fragment_create(user_data, node_id, frag_id, type, &frag);\n"
+	"\t\t\tfunc_m_fragment_create(v_fs_get_user_data(64), node_id, frag_id, type, &frag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_alias(FALSE, "m_fragment_destroy", "if(type > VN_M_FT_OUTPUT)", 2, NULL);
