@@ -913,7 +913,7 @@ void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, co
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
 	if(node == NULL)
 		return;
-	if(bone_id >= node->bone_count || node->bones[bone_id].weight[0] == 0.0)
+	if(bone_id >= node->bone_count || node->bones[bone_id].weight[0] == '\0')
 	{
 		/* Find free bone to re-use, if any. */
 		for(bone_id = 0; bone_id < node->bone_count && node->bones[bone_id].weight[0] == 0; bone_id++)
@@ -924,7 +924,7 @@ void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, co
 			node->bone_count += 16;
 			node->bones = realloc(node->bones, (sizeof *node->bones) * node->bone_count);
 			for(i = bone_id; i < node->bone_count; i++)
-				node->bones[i].weight[0] = 0;
+				node->bones[i].weight[0] = '\0';
 		}
 	}
 	for(i = 0; i < 16 - 1 && weight[i] != '\0'; i++)
