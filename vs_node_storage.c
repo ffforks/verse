@@ -182,17 +182,15 @@ void callback_send_node_destroy(void *user_data, VNodeID node_id)
 		case V_NT_TEXT :
 			vs_t_destroy_node(node);
 		break;
-/*		case V_NT_PARTICLE :
-			vs_p_destroy_node(node);
-		break;*/
 		case V_NT_CURVE :
 			vs_c_destroy_node(node);
 		break;
 		case V_NT_AUDIO :
 			vs_c_destroy_node(node);
 		break;
-	default:
-		fprintf(stderr, __FILE__ " Can't send node_destroy for type %d--not implemented", type);
+		default:
+			fprintf(stderr, __FILE__ " Can't handle node_destroy for type %d--not implemented", type);
+		return;
 	}
 	count =	vs_get_subscript_count(VSNodeStorage.list[type]);
 	for(i = 0; i < count; i++)
