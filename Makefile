@@ -27,7 +27,7 @@ LIBVERSE_SRC =  $(PROT_OUT) v_cmd_buf.c v_connection.c v_connection.h \
 		v_network.c v_network.h v_network_que.c \
 		v_network_que.h v_pack.c v_pack.h v_pack_method.c
 
-LIBVERSE_OBJ = $(LIBVERSE_SRC:%.c=%.o)
+LIBVERSE_OBJ = $(patsubst %h,, $(LIBVERSE_SRC:%.c=%.o))
 
 # The server is a simple 1:1 mapping, so just use wildcards.
 VERSE_SRC = $(wildcard vs_*.c)
