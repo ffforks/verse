@@ -4,12 +4,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "verse_header.h"
 #include "v_pack.h"
 #include "v_cmd_gen.h"
 #include "v_connection.h"
-
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
 #include "v_cmd_buf.h"
@@ -124,21 +122,36 @@ boolean v_fs_func_accept_connections(void)
 	return VCmdData.user_func[0] != NULL;
 }
 
+/* Inspect beginning of packet, looking for ACK or NAK commands. */
+void v_fs_unpack_beginning(const uint8 *data, unsigned int length)
+{
+	uint32 id, i = 4;
+	uint8 cmd_id;
+
+	i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
+	while(i < length && (cmd_id == 7 || cmd_id == 8))
+	{
+		i += vnp_raw_unpack_uint32(&data[i], &id);
+		if(cmd_id == 7)
+			callback_send_packet_ack(NULL, id);
+		else
+			callback_send_packet_nak(NULL, id);
+		i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
+	}
+}
+
 void v_fs_unpack(uint8 *data, unsigned int length)
 {
 	uint32 i, output, pack_id;
 	uint8 cmd_id;
 
-	i = vnp_raw_unpack_uint32(data, &pack_id); /* each pack starts with a 32 bit id */
-/*	printf("unpak %u %u %u\n", length, i, *expected);
-	if(expected != NULL)
+	i = vnp_raw_unpack_uint32(data, &pack_id); /* each packet starts with a 32 bit id */
+	vnp_raw_unpack_uint8(&data[i], &cmd_id);
+	while(i < length && (cmd_id == 7 || cmd_id == 8))
 	{
-		if(pack_id < *expected)
-			return;
-		for(; *expected < pack_id; (*expected)++)
-			verse_send_packet_nak(*expected);
-		(*expected)++;
-	}*/
+		i += 5;
+		vnp_raw_unpack_uint8(&data[i], &cmd_id);
+	}
 	while(i < length)
 	{
 		i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
