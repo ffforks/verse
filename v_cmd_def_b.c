@@ -35,7 +35,15 @@ void v_gen_bitmap_cmd_def(void)
 	v_cg_add_param(VCGP_UINT8,		"level");
 	v_cg_alias(FALSE, "b_layer_unsubscribe", "if(level == 255)", 2, NULL);
 	v_cg_end_cmd();
-
+/*
+typedef union{
+	uint8	onebit[2];
+	uint8	eightbit[16];
+	uint16	sixteenbit[16];
+	real32	thirtytwobit[16];
+	real64	sixtyfourbit[16];
+}VNBTile;	
+	*/
 
 	v_cg_new_cmd(V_NT_BITMAP,		"b_layer_set_tile", 83, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
@@ -46,95 +54,64 @@ void v_gen_bitmap_cmd_def(void)
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_ENUM_NAME,	"VNBLayerType");
 	v_cg_add_param(VCGP_ENUM,		"type");
-	v_cg_add_param(VCGP_POINTER,		"data");
+	v_cg_add_param(VCGP_POINTER_TYPE, "VNBTile");
+	v_cg_add_param(VCGP_POINTER,	"tile");
 
 	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
 	"\t\tunsigned int i;\n"
 	"\t\tswitch(type)\n"
 	"\t\t{\n"
 	"\t\t\tcase VN_B_LAYER_UINT1 :\n"
-	"\t\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8; i++)\n"
-	"\t\t\t\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)data)[i]);\n"
+	"\t\t\t\tbuffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], tile->vuint1);\n"
 	"\t\t\tbreak;\n"
 	"\t\t\tcase VN_B_LAYER_UINT8 :\n"
 	"\t\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
-	"\t\t\t\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)data)[i]);\n"
+	"\t\t\t\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], tile->vuint8[i]);\n"
 	"\t\t\tbreak;\n"
 	"\t\t\tcase VN_B_LAYER_UINT16 :\n"
 	"\t\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
-	"\t\t\t\t\tbuffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], ((uint16 *)data)[i]);\n"
+	"\t\t\t\t\tbuffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], tile->vuint16[i]);\n"
 	"\t\t\tbreak;\n"
 	"\t\t\tcase VN_B_LAYER_REAL32 :\n"
 	"\t\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
-	"\t\t\t\t\tbuffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], ((real32 *)data)[i]);\n"
+	"\t\t\t\t\tbuffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], tile->vreal32[i]);\n"
 	"\t\t\tbreak;\n"
 	"\t\t\tcase VN_B_LAYER_REAL64 :\n"
 	"\t\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
-	"\t\t\t\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], ((real64 *)data)[i]);\n"
+	"\t\t\t\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], tile->vreal64[i]);\n"
 	"\t\t\tbreak;\n"
 	"\t\t}\n"
 	"\t}\n");
 
-	v_cg_add_param(VCGP_UNPACK_INLINE, "\tswitch(type)\n"
-	"\t{\n"
-	"\t\tcase VN_B_LAYER_UINT1 :\n"
+	v_cg_add_param(VCGP_UNPACK_INLINE, "\t{\n\tunsigned int i;\n"
+	
+	"\t\tVNBTile tile;\n"
+	"\t\tswitch(type)\n"
 	"\t\t{\n"
-	"\t\t\tunsigned int i;\n"
-	"\t\t\tuint8 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8];\n"
-	"\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8; i++)\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &tile[i]);\n"
-	"\t\t\tif(func_b_layer_set_tile != NULL)\n"
-	"\t\t\t\tfunc_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);\n"
-	"\t\t\treturn buffer_pos;\n"
+	"\t\t\tcase VN_B_LAYER_UINT1 :\n"
+	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile.vuint1);\n"
+	"\t\t\tbreak;\n"
+	"\t\t\tcase VN_B_LAYER_UINT8 :\n"
+	"\t\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
+	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &tile.vuint8[i]);\n"
+	"\t\t\tbreak;\n"
+	"\t\t\tcase VN_B_LAYER_UINT16 :\n"
+	"\t\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
+	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile.vuint16[i]);\n"
+	"\t\t\tbreak;\n"
+	"\t\t\tcase VN_B_LAYER_REAL32 :\n"
+	"\t\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
+	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &tile.vreal32[i]);\n"
+	"\t\t\tbreak;\n"
+	"\t\t\tcase VN_B_LAYER_REAL64 :\n"
+	"\t\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
+	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tile.vreal64[i]);\n"
+	"\t\t\tbreak;\n"
 	"\t\t}\n"
-	"\t\tcase VN_B_LAYER_UINT8 :\n"
-	"\t\t{\n"
-	"\t\t\tunsigned int i;\n"
-	"\t\t\tuint8 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];\n"
-	"\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &tile[i]);\n"
-	"\t\t\tif(func_b_layer_set_tile != NULL)\n"
-	"\t\t\t\tfunc_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);\n"
-	"\t\t\treturn buffer_pos;\n"
-	"\t\t}\n"
-	"\t\tbreak;\n"
-	"\t\tcase VN_B_LAYER_UINT16 :\n"
-	"\t\t{\n"
-	"\t\t\tunsigned int i;\n"
-	"\t\t\tuint16 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];\n"
-	"\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile[i]);\n"
-	"\t\t\tif(func_b_layer_set_tile != NULL)\n"
-	"\t\t\t\tfunc_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);\n"
-	"\t\t\treturn buffer_pos;\n"
-	"\t\t}\n"
-	"\t\tbreak;\n"
-	"\t\tcase VN_B_LAYER_REAL32 :\n"
-	"\t\t{\n"
-	"\t\t\tunsigned int i;\n"
-	"\t\t\treal32 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];\n"
-	"\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &tile[i]);\n"
-	"\t\t\tif(func_b_layer_set_tile != NULL)\n"
-	"\t\t\t\tfunc_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);\n"
-	"\t\t\treturn buffer_pos;\n"
-	"\t\t}\n"
-	"\t\tbreak;\n"
-	"\t\tcase VN_B_LAYER_REAL64 :\n"
-	"\t\t{\n"
-	"\t\t\tunsigned int i;\n"
-	"\t\t\treal64 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];\n"
-	"\t\t\tfor(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tile[i]);\n"
-	"\t\t\tif(func_b_layer_set_tile != NULL)\n"
-	"\t\t\t\tfunc_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);\n"
-	"\t\t\treturn buffer_pos;\n"
-	"\t\t}\n"
-	"\t\tbreak;\n"
-	"\t\tfunc_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, data);\n"
+	"\t\tif(func_b_layer_set_tile != NULL && type <= VN_B_LAYER_REAL64)\n"
+	"\t\t\tfunc_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, &tile);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
-
 	v_cg_end_cmd();
 }
 
