@@ -99,7 +99,10 @@ VSocket v_n_socket_create(void)
 	address.sin_port = htons(my_port); /* short, network byte order */
 	address.sin_addr.s_addr = INADDR_ANY;
 	if(bind(my_socket, (struct sockaddr *) &address, sizeof(struct sockaddr)) != 0)
+	{
+		fprintf(stderr, "v_network: Failed to bind(), code %d (%s)\n", errno, strerror(errno));
 		exit(0); /* FIX ME */
+	}
 	return my_socket;
 }
 
