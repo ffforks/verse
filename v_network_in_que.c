@@ -31,7 +31,7 @@ uint32 v_niq_time_out(const VNetInQueue *queue)
 {
 	uint32 seconds;
 	v_n_get_current_time(&seconds, NULL);
-	printf("time = %u %u %u\n", seconds, queue->seconds, seconds - queue->seconds);
+/*	printf("time = %u %u %u\n", seconds, queue->seconds, seconds - queue->seconds);*/
 	return seconds - queue->seconds;
 }
 
