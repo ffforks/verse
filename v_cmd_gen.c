@@ -12,12 +12,6 @@
 
 #define MAX_PARAMS_PER_CMD	16
 
-/**/
-static FILE *spec;
-extern void v_cg_gen_spec_init(void);
-extern void v_cg_gen_spec(void);
-/**/
-
 static struct {
 	FILE		*nodes[V_NT_NUM_TYPES_NETPACK];
 	FILE		*init;
@@ -43,7 +37,6 @@ static void v_cg_init(void)
 	int	i;
 	FILE	*f;
 
-/*	v_cg_gen_spec_init();*/
 	VCGData.nodes[V_NT_OBJECT] = fopen("v_gen_pack_o_node.c", "wt");
 	VCGData.nodes[V_NT_GEOMETRY] = fopen("v_gen_pack_g_node.c", "wt");  
 	VCGData.nodes[V_NT_MATERIAL] = fopen("v_gen_pack_m_node.c", "wt");  
@@ -78,11 +71,17 @@ static void v_cg_init(void)
 	fprintf(f, "#include \"verse.h\"\n\n\n");
 
 	fprintf(VCGData.init, "void init_pack_and_unpack_fucs(void)\n{\n");
-	fprintf(VCGData.verse_h, "#if !defined(VERSE_H)\n");
-	fprintf(VCGData.verse_h, "#define VERSE_H\n");
+	fprintf(VCGData.verse_h,
+		"/*\n"
+		"** Verse API Header file (for use with libverse.a).\n"
+		"** This is automatically generated code; do not edit.\n"
+		"*/\n\n"
+		"#if !defined VERSE_H\n"
+		"#define\tVERSE_H\n\n");
 	f = fopen("verse_header.h", "rt");
 	while((i = getc(f)) != EOF)
 		putc(i, VCGData.verse_h);
+	fprintf(VCGData.verse_h, "\n/* Command sending functions begin. ----------------------------------------- */\n\n");
 }
 
 static void v_cg_close(void)
@@ -93,7 +92,7 @@ static void v_cg_close(void)
 		fprintf(VCGData.nodes[i], "#endif\n\n");
 	}
 	fprintf(VCGData.init, "}\n#endif\n\n");
-	fprintf(VCGData.verse_h, "\n#endif\n\n");
+	fprintf(VCGData.verse_h, "\n#endif\t\t/* VERSE_H */\n");
 }
 
 void v_cg_new_cmd(unsigned int type, const char *name, unsigned int cmd_id, VCGCommandType command)
@@ -700,7 +699,6 @@ void v_cg_end_cmd(void)
 	v_cg_gen_init();
 	v_cg_gen_verse_h();
 	v_cg_gen_unpack_h();
-	/*	v_cg_gen_spec();*/
 	VCGData.alias_name = NULL;
 }
 
@@ -716,110 +714,6 @@ void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def,
 		fprintf(VCGData.init, "NULL);\n");
 	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length, void *user_func, void *user_data);\n", name);
 }
-/*
-FILE *spec;
-
-void v_cg_gen_spec_init(void)
-{
-	spec = fopen("verse_cmd_spec.txt", "wt");
-}
-
-void v_cg_gen_spec(voidx)
-{
-	unsigned int i, size = 0;
-	fprintf(spec, "\tverse_send_%s\n\n", VCGData.func_name);
-	switch(VCGData.type)
-	{
-		case V_NT_OBJECT :
-			fprintf(spec, "Node type: Object\n");
-			break;
-		case V_NT_GEOMETRY :
-			fprintf(spec, "Node type: Geometry\n");
-			break;
-		case V_NT_MATERIAL :
-			fprintf(spec, "Node type: Material\n");
-			break;
-		case V_NT_BITMAP :
-			fprintf(spec, "Node type: Bitmap\n");
-			break;
-		case V_NT_TEXT :
-			fprintf(spec, "Node type: Text\n");
-			break;
-		case V_NT_PARTICLE :
-			fprintf(spec, "Node type: Particle\n");
-			break;
-		case V_NT_CURVE :
-			fprintf(spec, "Node type: Curve\n");
-			break;
-		case V_NT_SYSTEM :
-			fprintf(spec, "Node type: System\n");
-			break;
-	}
-	fprintf(spec, "Comand Number: %u\n", VCGData.cmd_id);
-	switch(VCGData.command)
-	{
-	case VCGCT_NORMAL :
-		fprintf(spec, "Comand type: Normal\n");
-	break;
-	case VCGCT_UNIQUE :
-		fprintf(spec, "Comand type: Unique\n");
-	break;
-	case VCGCT_ONCE :
-		fprintf(spec, "Comand type: Once\n");
-	break;
-	case VCGCT_INVISIBLE_SYSTEM :
-		fprintf(spec, "Comand type: Normal\n");
-	break;
-	case VCGCT_ORDERED :
-		fprintf(spec, "Comand type: Orderd\n");
-	break;
-	}
-	for(i = 0; i < VCGData.param_count; i++)
-	{
-		switch(VCGData.param_type[i])
-		{
-			case  VCGP_UINT8 :
-			case  VCGP_ENUM :
-				size++;
-				break;
-			case  VCGP_UINT16 :
-			case  VCGP_LAYER_ID :
-			case  VCGP_BUFFER_ID :
-			case  VCGP_FRAGMENT_ID :
-				size += 2;
-				break;
-			case  VCGP_NODE_ID : 
-			case  VCGP_UINT32 :
-			case  VCGP_REAL32 :
-				size += 4;
-				break;
-			case  VCGP_REAL64 :
-				size += 8;
-				break;
-			case  VCGP_END_ADDRESS :
-				i = VCGData.param_count;
-		}
-	}
-	if(VCGData.command == VCGCT_NORMAL || VCGData.command == VCGCT_INVISIBLE_SYSTEM)
-		fprintf(spec, "Address Length: %u bytes\n", size);
-	fprintf(spec, "Function defenition:\n\n");
-	fprintf(spec, "\tvoid verse_send_%s(", VCGData.func_name);
-	v_cg_gen_func_params(spec, FALSE, FALSE);
-	fprintf(spec, ")\n\n");
-	fprintf(spec, "Func alias:");
-	if(VCGData.alias_name != NULL)
-	{	fprintf(spec, "\n\n\tvoid verse_send_%s(", VCGData.alias_name);
-		v_cg_gen_func_params(spec, FALSE, TRUE);
-		fprintf(spec, ")\n\n");
-	}else
-		fprintf(spec, " None\n");
-	fprintf(spec, "Other definitions: None\n\n");
-	fprintf(spec, "Pack:\n\n\t");
-	v_cg_gen_func_params(spec, FALSE, FALSE);
-	fprintf(spec, "\n\nParent Subscriber: verse_send_node_subscribe\n\n");
-	fprintf(spec, "Description:\n\n");
-	fprintf(spec, "------------\n\n");
-}*/
 
 int main(int argc, char *argv[])
 {
