@@ -23,10 +23,7 @@ extern boolean	v_fs_buf_unpack_stored(void);
 
 
 extern boolean	v_fs_func_accept_connections(void);
-extern void	v_fs_add_func(unsigned int cmd_id,
-			      unsigned int (*unpack_func)(const char *buf, size_t buffer_length, void *user_func,
-							  void *user_data),
-			      void *pack_func, void *alias_func);
+extern void	v_fs_add_func(unsigned int cmd_id, unsigned int (*unpack_func)(const char *buf, size_t buffer_length), void *pack_func, void *alias_func);
 
 extern void *	v_fs_get_alias_user_func(unsigned int cmd_id);
 extern void *	v_fs_get_alias_user_data(unsigned int cmd_id);
