@@ -39,67 +39,6 @@ void v_gen_bitmap_cmd_def(void)
 	v_cg_new_manual_cmd(83, "b_tile_set", "void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, " 
 				"uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, const VNBTile *tile)",
 			    NULL, NULL);
-
-/*	v_cg_new_cmd(V_NT_BITMAP,		"b_tile_set", 83, VCGCT_NORMAL); 
-	v_cg_add_param(VCGP_NODE_ID,	"node_id");
-	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
-	v_cg_add_param(VCGP_UINT16,		"tile_x");
-	v_cg_add_param(VCGP_UINT16,		"tile_y");
-	v_cg_add_param(VCGP_UINT16,		"z");
-	v_cg_add_param(VCGP_END_ADDRESS, NULL);
-	v_cg_add_param(VCGP_ENUM_NAME,	"VNBLayerType");
-	v_cg_add_param(VCGP_ENUM,		"type");
-	v_cg_add_param(VCGP_POINTER_TYPE, "VNBTile");
-	v_cg_add_param(VCGP_POINTER,	"tile");
-
-	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
-	"\t\tunsigned int i;\n"
-	"\t\tswitch(type)\n"
-	"\t\t{\n"
-	"\t\t\tcase VN_B_LAYER_UINT1 :\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_pack_uint8_vector(&buf[buffer_pos], tile->vuint1, VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8);\n"
-	"\t\t\tbreak;\n"
-	"\t\t\tcase VN_B_LAYER_UINT8 :\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_pack_uint8_vector(&buf[buffer_pos], tile->vuint8, VN_B_TILE_SIZE * VN_B_TILE_SIZE);\n"
-	"\t\t\tbreak;\n"
-	"\t\t\tcase VN_B_LAYER_UINT16 :\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_pack_uint16_vector(&buf[buffer_pos], tile->vuint16, VN_B_TILE_SIZE * VN_B_TILE_SIZE);\n"
-	"\t\t\tbreak;\n"
-	"\t\t\tcase VN_B_LAYER_REAL32 :\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_pack_real32_vector(&buf[buffer_pos], tile->vreal32, VN_B_TILE_SIZE * VN_B_TILE_SIZE);\n"
-	"\t\t\tbreak;\n"
-	"\t\t\tcase VN_B_LAYER_REAL64 :\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_pack_real64_vector(&buf[buffer_pos], tile->vreal64, VN_B_TILE_SIZE * VN_B_TILE_SIZE);\n"
-	"\t\t\tbreak;\n"
-	"\t\t}\n"
-	"\t}\n");
-
-	v_cg_add_param(VCGP_UNPACK_INLINE, "\t{\n\tunsigned int i;\n"
-	
-	"\t\tVNBTile tile;\n"
-	"\t\tswitch(type)\n"
-	"\t\t{\n"
-	"\t\t\tcase VN_B_LAYER_UINT1 :\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint8_vector(&buf[buffer_pos], tile.vuint1, VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8);\n"
-	"\t\t\tbreak;\n"
-	"\t\t\tcase VN_B_LAYER_UINT8 :\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint8_vector(&buf[buffer_pos], tile.vuint8, VN_B_TILE_SIZE * VN_B_TILE_SIZE);\n"
-	"\t\t\tbreak;\n"
-	"\t\t\tcase VN_B_LAYER_UINT16 :\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint16_vector(&buf[buffer_pos], tile.vuint16, VN_B_TILE_SIZE * VN_B_TILE_SIZE);\n"
-	"\t\t\tbreak;\n"
-	"\t\t\tcase VN_B_LAYER_REAL32 :\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_unpack_real32_vector(&buf[buffer_pos], tile.vreal32, VN_B_TILE_SIZE * VN_B_TILE_SIZE);\n"
-	"\t\t\tbreak;\n"
-	"\t\t\tcase VN_B_LAYER_REAL64 :\n"
-	"\t\t\t\tbuffer_pos += vnp_raw_unpack_real64_vector(&buf[buffer_pos], tile.vreal64, VN_B_TILE_SIZE * VN_B_TILE_SIZE);\n"
-	"\t\t\tbreak;\n"
-	"\t\t}\n"
-	"\t\tif(func_b_tile_set != NULL && type <= VN_B_LAYER_REAL64)\n"
-	"\t\t\tfunc_b_tile_set(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, &tile);\n"
-	"\t\treturn buffer_pos;\n"
-	"\t}\n");
-	v_cg_end_cmd();*/
 }
 
 #endif
