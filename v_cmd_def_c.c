@@ -32,6 +32,7 @@ void v_gen_curve_cmd_def(void)
 	v_cg_add_param(VCGP_REAL64,		"pre_value");
 	v_cg_add_param(VCGP_UINT32,		"pre_pos");
 	v_cg_add_param(VCGP_REAL64,		"value");
+	v_cg_add_param(VCGP_REAL64,		"pos");
 	v_cg_add_param(VCGP_REAL64,		"post_value");
 	v_cg_add_param(VCGP_UINT32,		"post_pos");
 	v_cg_alias(FALSE, "c_curve_key_destroy", "if(pre_value == 0)", 3, NULL);
