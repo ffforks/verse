@@ -237,7 +237,6 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 			buf[pos + i] = text[i];
 	}else
 	{
-		printf("current buf len: %u\n", node->buffer[buffer_id].length);
 		for(i = node->buffer[buffer_id].length; i != pos + text_length; i--)
 			buf[i + text_length - length] = buf[i];
 		buf[i + text_length - length] = buf[i];
