@@ -51,7 +51,6 @@ void destroy_node_head(VSNodeHead *node)
 		{
 			for(j = 0; j < ((VSTagGroup *)node->tag_groups)[i].tag_count; i++)
 			{
-				free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag_name);
 				if(((VSTagGroup *)node->tag_groups)[i].tags[j].type == VN_TAG_STRING)
 					free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag.vstring);
 				if(((VSTagGroup *)node->tag_groups)[i].tags[j].type == VN_TAG_BLOB)
