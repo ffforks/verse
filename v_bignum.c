@@ -382,7 +382,7 @@ VBigNum v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder)
 	if(msbb > msba)
 	{
 		if(remainder != NULL)
-			*remainder = b;
+			*remainder = a;
 		return v_bignum_new_zero();
 	}
 	if(msbb == 0 && ((b.x[0] & 1) == 0))	/* Avoid division by zero. */
