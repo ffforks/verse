@@ -216,9 +216,9 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 
 	text_length = strlen(text);
 
+	/* Clamp position and length of deleted region. */
 	if(pos > tb->length)
 		pos = tb->length;
-
 	if(pos + length > tb->length)
 		length = tb->length - pos;
 
@@ -230,12 +230,12 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 		tb->allocated = tb->length + text_length - length + VS_TEXT_CHUNK_SIZE;
 	}
 
-	if(text_length < length)
+	if(text_length < length)		/* Insert smaller than delete? */
 	{
 		memmove(buf + pos + text_length, buf + pos + length, tb->length - (pos + length));
 		memcpy(buf + pos, text, text_length);
 	}
-	else
+	else					/* Insert is larger than delete. */
 	{
 		memmove(buf + pos + text_length, buf + pos + length, tb->length - pos);
 		memcpy(buf + pos, text, text_length);
@@ -243,6 +243,7 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 
 	tb->length += (int) text_length - length;
 
+	/* Buffer very much larger than content? Then shrink it. */
 	if(tb->allocated > VS_TEXT_CHUNK_SIZE * 8 && tb->allocated * 2 > tb->length)
 	{
 		buf = realloc(buf, tb->length + VS_TEXT_CHUNK_SIZE);
