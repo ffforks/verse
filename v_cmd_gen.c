@@ -100,7 +100,7 @@ static void v_cg_init(void)
 		"#if !defined VERSE_H\n"
 		"#define\tVERSE_H\n\n");
 	/* Copy contents of "verse_header.h" into output "verse.h". */
-	f = fopen("verse_header.h", "rt");
+	f = fopen("verse_header.h", "r");
 	while((i = fgetc(f)) != EOF)
 		fputc(i, VCGData.verse_h);
 	fclose(f);
