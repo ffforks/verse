@@ -51,7 +51,7 @@ void vs_add_new_connection(VSession session, const char *name, const char *pass,
 	v_strlcpy(conn->name, name, sizeof conn->name);
 	v_strlcpy(conn->pass, pass, sizeof conn->pass);
 
-	VSConnectionStorage.connection_length += VS_CONNECTION_CHUNK_SIZE;
+	VSConnectionStorage.connection_length++;
 }
 
 uint32 vs_get_avatar(void)
