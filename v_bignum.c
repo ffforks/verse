@@ -160,15 +160,15 @@ VBigNum v_bignum_bit_shift_left(VBigNum a, unsigned int count)
 
 	if(count == 0)
 		return a;
-	if(count >= 16)
+	if(count >= CHAR_BIT * sizeof *a.x)
 	{
-		unsigned int	places = count / 16;
+		unsigned int	places = count / (CHAR_BIT * sizeof *a.x);
 
 		for(i = (sizeof a.x / sizeof *a.x) - 1; i >= places; i--)
 			a.x[i] = a.x[i - places];
 		for(; i >= 0; i--)
 			a.x[i] = 0;
-		count -= places * 16;
+		count -= places * CHAR_BIT * sizeof *a.x;
 		if(count == 0)
 			return a;
 	}
@@ -177,7 +177,7 @@ VBigNum v_bignum_bit_shift_left(VBigNum a, unsigned int count)
 		x = a.x[i];
 		x <<= count;
 		x |= carry;
-		carry = x >> 16;
+		carry = x >> (CHAR_BIT * sizeof *a.x);
 		a.x[i] = x;
 	}
 	return a;
@@ -192,25 +192,25 @@ VBigNum v_bignum_bit_shift_right(VBigNum a, unsigned int count)
 	if(count == 0)
 		return a;
 	/* Quick-shift whole words by simply copying them towards a.x[0]. */
-	if(count >= 16)
+	if(count >= CHAR_BIT * sizeof *a.x)
 	{
-		unsigned int	places = count / 16;
+		unsigned int	places = count / (CHAR_BIT * sizeof *a.x);
 
 		for(i = 0; i < (sizeof a.x / sizeof *a.x) - places; i++)
 			a.x[i] = a.x[i + places];
 		for(; i < sizeof a.x / sizeof *a.x; i++)
 			a.x[i] = 0;
-		count -= places * 16;
+		count -= places * CHAR_BIT * sizeof *a.x;
 		if(count == 0)	/* Done? */
 			return a;
 	}
 	for(i = (sizeof a.x / sizeof *a.x) - 1, carry = 0; i >= 0; i--)
 	{
-		x = a.x[i] << 16;		/* Set temporary's high word to next word of number. */
+		x = a.x[i] << (CHAR_BIT * sizeof *a.x);
 		x >>= count;
 		x |= carry;
-		carry  = (x & 0xffff) << 16;	/* Compute carry word. */
-		a.x[i] = x >> 16;
+		carry  = (x & 0xffff) << (CHAR_BIT * sizeof *a.x);	/* Compute carry word. */
+		a.x[i] = x >> (CHAR_BIT * sizeof *a.x);
 	}
 	return a;
 }
@@ -302,7 +302,7 @@ VBigNum v_bignum_mul_ushort(VBigNum a, unsigned short b)
 	{
 		p = b * a.x[i] + carry;
 		a.x[i] = p;
-		carry = p >> 16;
+		carry = p >> (CHAR_BIT * sizeof *a.x);
 	}
 	return a;
 }
