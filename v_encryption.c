@@ -34,7 +34,6 @@ const uint8 * v_e_data_create_key(void) /* possibly the worst key gen ever */
 	}
 	/* FIXME: This really isn't very pretty. */
 	buffer[0] &= 0x3f;	/* Make sure top word is... Low. For RSA compatibility. */
-	buffer[1] &= 0x3f;	/* Make sure top word is... Low. For RSA compatibility. */
 
 	return buffer;
 }
@@ -193,6 +192,16 @@ void v_e_connect_encrypt(uint8 *output, const uint8 *data, const uint8 *key, con
 	v_bignum_raw_import(packet, data);
 	v_bignum_raw_import(expo, key);
 	v_bignum_raw_import(mod, key_n);
+
+	/* Verify that data is less than the modulo, this is a prerequisite for encryption. */
+	if(!v_bignum_gte(mod, packet))
+	{
+		printf("*** WARNING. Data is not less than modulo, as it should be--encryption will break!\n");
+		printf(" RSA modulo: ");
+		v_bignum_print_hex_lf(mod);
+		printf("   RSA data: ");
+		v_bignum_print_hex_lf(packet);
+	}
 /*	printf("RSA key: ");
 	v_bignum_print_hex_lf(expo);
 	printf("RSA mod: ");
