@@ -161,7 +161,7 @@ VNetworkAddress * v_n_create_network_address(int my_port, const char *addr)
 			if(bind(address->socket, (struct sockaddr *) &address_in, sizeof(struct sockaddr)) == 0)
 				ok = TRUE;
 			else
-				perror("Verse bind() failed");
+				fprintf(stderr, "Verse bind() failed (code %d, %s)", errno, strerror(errno));
 		}
 		free(work);
 		if(ok)
