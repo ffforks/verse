@@ -790,10 +790,11 @@ static void callback_send_g_polygon_set_face_uint32(void *user, VNodeID node_id,
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
+
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
 	if(node == NULL)
 		return;
-	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_FACE_UINT8)
+	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_FACE_UINT32)
 		return;
 	if(!vs_g_extend_arrays(node, FALSE, polygon_id))
 		return;
