@@ -712,7 +712,7 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 }
 
 /* Computes x *= x, using the algorithm 14.16 from Handbook of Applied Cryptography. */
-void v_bignum_square_half(VBigDig *x)
+void v_bignum_square_half_fsck(VBigDig *x)
 {
 	int		t = *x / 2, i, j, high = 0, k = 0;
 	unsigned long	uv, c;
@@ -728,29 +728,82 @@ void v_bignum_square_half(VBigDig *x)
 	v_bignum_print_hex_lf(x);
 	for(i = 0; i < t; i++)
 	{
-		uv   = w[1 + 2 * i] + (x[1 + i] * x[1 + i]);
-		printf("#setting digit %d to %04lX (1)\n", 2 * i, uv);
+		uv = w[1 + 2 * i] + x[1 + i] * x[1 + i];
+		printf("setting w[%d]=%lX\n", 2 * i, uv);
 		w[1 + 2 * i] = uv;
-		c = uv >> (V_BIGBITS);
-		printf("# c=%lX\n", c);
-/*		high = 0;*/
+		c = uv >> V_BIGBITS;		/* c = upper 17 bits of uv (dropping MSB). */
+		printf("uv before=%X, c=%X\n", uv, c);
+		high = 0;
 		for(j = i + 1; j < t; j++)
 		{
-			uv = x[1 + i] * x[1 + j];
-			high = (uv & 0x80000000) != 0;
+			uv = x[1 + j] * x[1 + i];
+			high = (uv & 0x80000000) != 0;			/* Pre-compute MSB of large product. */
 			uv *= 2;
 			uv += w[1 + i + j] + c;
-			printf("print %d, %u + 2*%u*%u + 0x%lX == 0x%u%lX # c=%lX\n", k++,
-			       w[1 + i + j], x[1 + j], x[1 + j], c, high, uv, c);
-			printf("#setting digit %d to %04lX (c=%X) (2)\n", i + j, uv, c);
+			printf("setting w[%d]=%X [inner]\n", i + j, uv);
 			w[1 + i + j] = uv;
-			c = (uv >> (1 + V_BIGBITS)) | (high << V_BIGBITS);
+			c = (uv >> V_BIGBITS) | (high << V_BIGBITS);	/* Update c, set MSB manually. */
 		}
-		printf("#setting digit %d to %04X high=%04X (3)\n", 1 + i + t, uv >> 1 + V_BIGBITS, high << V_BIGBITS - 1);
-		w[1 + i + t] = (uv >> (1 + V_BIGBITS)) | (high << V_BIGBITS - 1);
+		printf("setting w[%d]=%lX [after]\n", i + t, uv);
+		w[1 + i + t] = c;
 	}
 	v_bignum_set_bignum(x, w);
 	bignum_free(w);
+}
+
+void v_bignum_square_half(VBigDig *x)
+{
+	unsigned long	w[1024], uv, c, ouv;
+	int		t = *x, i, j, high;
+	static unsigned long	count = 0U;
+
+	if(t == 0)
+		return;
+	for(; x[t] == 0; t--)
+		;
+	memset(w, 0, 2 * t * sizeof *w);	/* Clear digits of w. */
+/*	printf("print %lu, ", ++count);
+	v_bignum_print_hex(x);
+	printf("*");
+	v_bignum_print_hex(x);
+*/	for(i = 0; i < t; i++)
+	{
+/*		printf("computing w[%d]: %lX + %lX * %lX\n", 2 * i, w[2 * i], x[1 + i], x[1 + i]);*/
+		uv = w[2 * i] + x[1 + i] * x[1 + i];
+/*		printf("setting w[%d]=%X [before]\n", 2 * i, uv & 0xffff);*/
+		w[2 * i] = uv & 0xffff;
+		c = uv >> 16;
+/*		printf("uv before=%X, c=%X\n", uv, c);*/
+		high = 0;
+		for(j = i + 1; j < t; j++)
+		{
+/*			printf("computing uv=%X+2*%X*%X+%X\n", w[i + j], x[1 + j], x[1 + i], c);*/
+			uv = x[1 + j] * x[1 + i];
+			high = (uv & 0x80000000) != 0;
+			uv *= 2;
+			ouv = uv;
+			uv += w[i + j] + c;
+/*			printf("ouv=0x%lX uv=0x%lX\n", ouv, uv);*/
+			high |= uv < ouv;
+/*			printf("setting w[%d]=%lX [inner] uv=%lX high=%d c=%X\n", i + j, uv & 0xffff, uv, high, c);*/
+			w[i + j] = uv & 0xffff;
+			c = (uv >> 16) | (high << 16);
+		}
+/*		printf("setting w[%d] to %X [after]\n", i + t, (uv >> 16) | (high << 16));*/
+		w[i + t] = (uv >> 16) | (high << 16);
+	}
+/*	printf("w=0x");
+	for(i = *x - 1; i >= 0; i--)
+		printf("%04X.", w[i]);
+	printf("\n");
+*/	/* Write low words of w back into x, trashing it with the square. */
+	for(i = 0; i < 2 * t; i++)
+		x[1 + i] = w[i];
+	for(; i < *x; i++)
+		x[1 + i] = 0;
+/*	printf("==");
+	v_bignum_print_hex_lf(x);
+*/
 }
 
 /* Computes x = (x^y) % n, where ^ denotes exponentiation. */
