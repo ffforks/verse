@@ -30,4 +30,4 @@ verse: $(VERSE_OBJ) libverse.a
 # -----------------------------------------------------
 
 clean:
-	rm -f *.o tutorials/*.o $(TARGETS)
+	rm -f *.o $(TARGETS)
