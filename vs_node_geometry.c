@@ -7,26 +7,26 @@
 
 #include "v_cmd_gen.h"
 
-#if !defined(V_GENERATE_FUNC_MODE)
+#if !defined V_GENERATE_FUNC_MODE
 
 #include "verse.h"
 #include "vs_server.h"
 
 #define VS_G_LAYER_CHUNK 32
 
-typedef struct{
+typedef struct {
 	VNGLayerType	type;
-	char			name[16];
-	void			*layer;
+	char		name[16];
+	void		*layer;
 	VSSubscriptionList *subscribers;
 	VSSubscriptionList *subscribersd;
 	union{
 		uint32 integer;
 		double real;
-	}def;
-}VSNGLayer;
+	} def;
+} VSNGLayer;
 
-typedef struct{
+typedef struct {
 	VSNodeHead	head;
 	VSNGLayer	*layer;
 	uint16		layer_count;
@@ -36,9 +36,9 @@ typedef struct{
 	char		crease_vertex_layer[16];
 	uint32		crease_edge;
 	char		crease_edge_layer[16];
-}VSNodeGeometry;
+} VSNodeGeometry;
 
-VSNodeGeometry *vs_g_create_node(unsigned int owner)
+VSNodeGeometry * vs_g_create_node(unsigned int owner)
 {
 	VSNodeGeometry *node;
 	char *vertex = "vertex";
@@ -118,7 +118,7 @@ void callback_send_g_unsubscribe(void *user, VNodeID node_id)
 	vs_remove_subscriptor(node->head.subscribers);
 }
 
-void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID layer_id, char *name, uint8 type, uint32 def_integer, double def_real)
+static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID layer_id, char *name, uint8 type, uint32 def_integer, double def_real)
 {
 	VSNodeGeometry *node;
 	unsigned int i, j, count;
@@ -226,7 +226,7 @@ void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID layer_id
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_layer_destroy(void *user, VNodeID node_id, VLayerID layer_id)
+static void callback_send_g_layer_destroy(void *user, VNodeID node_id, VLayerID layer_id)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -253,7 +253,7 @@ void callback_send_g_layer_destroy(void *user, VNodeID node_id, VLayerID layer_i
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_layer_subscribe(void *user, VNodeID node_id, VLayerID layer_id, uint8 type)
+static void callback_send_g_layer_subscribe(void *user, VNodeID node_id, VLayerID layer_id, uint8 type)
 {
 	VSNodeGeometry *node;
 	VSNGLayer	*layer;
@@ -324,7 +324,7 @@ void callback_send_g_layer_subscribe(void *user, VNodeID node_id, VLayerID layer
 	}
 }
 
-void callback_send_g_layer_unsubscribe(void *user, VNodeID node_id, VNMFragmentID fragment, VLayerID layer_id)
+static void callback_send_g_layer_unsubscribe(void *user, VNodeID node_id, VNMFragmentID fragment, VLayerID layer_id)
 {
 	VSNodeGeometry *node;
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
@@ -410,7 +410,7 @@ boolean vs_b_extend_arrays(VSNodeGeometry *node, boolean vertex, unsigned int id
 	return TRUE;
 }
 
-void callback_send_g_vertex_set_real32_xyz(void *user, VNodeID node_id, uint32 vertex_id, VLayerID layer_id, float x, float y, float z)
+static void callback_send_g_vertex_set_real32_xyz(void *user, VNodeID node_id, uint32 vertex_id, VLayerID layer_id, float x, float y, float z)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -454,7 +454,7 @@ void callback_send_g_vertex_set_real32_xyz(void *user, VNodeID node_id, uint32 v
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_vertex_set_real64_xyz(void *user, VNodeID node_id, uint32 vertex_id, VLayerID layer_id, double x, double y, double z)
+static void callback_send_g_vertex_set_real64_xyz(void *user, VNodeID node_id, uint32 vertex_id, VLayerID layer_id, double x, double y, double z)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -499,7 +499,7 @@ void callback_send_g_vertex_set_real64_xyz(void *user, VNodeID node_id, uint32 v
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_vertex_set_uinteger32(void *user, VNodeID node_id, uint32 vertex_id, VLayerID layer_id, uint32 value)
+static void callback_send_g_vertex_set_uinteger32(void *user, VNodeID node_id, uint32 vertex_id, VLayerID layer_id, uint32 value)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -520,7 +520,7 @@ void callback_send_g_vertex_set_uinteger32(void *user, VNodeID node_id, uint32 v
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_vertex_set_real64(void *user, VNodeID node_id, uint32 vertex_id, VLayerID layer_id, double value)
+static void callback_send_g_vertex_set_real64(void *user, VNodeID node_id, uint32 vertex_id, VLayerID layer_id, double value)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -541,7 +541,7 @@ void callback_send_g_vertex_set_real64(void *user, VNodeID node_id, uint32 verte
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_vertex_delete_real(void *user, VNodeID node_id, uint32 vertex_id)
+static void callback_send_g_vertex_delete_real(void *user, VNodeID node_id, uint32 vertex_id)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -568,7 +568,7 @@ void callback_send_g_vertex_delete_real(void *user, VNodeID node_id, uint32 vert
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_polygon_set_corner_uinteger32(void *user, VNodeID node_id, uint32 polygon_id, VLayerID layer_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3)
+static void callback_send_g_polygon_set_corner_uinteger32(void *user, VNodeID node_id, uint32 polygon_id, VLayerID layer_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -594,7 +594,7 @@ void callback_send_g_polygon_set_corner_uinteger32(void *user, VNodeID node_id, 
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_polygon_set_corner_real64(void *user, VNodeID node_id, uint32 polygon_id, VLayerID layer_id, double v0, double v1, double v2, double v3)
+static void callback_send_g_polygon_set_corner_real64(void *user, VNodeID node_id, uint32 polygon_id, VLayerID layer_id, double v0, double v1, double v2, double v3)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -618,7 +618,7 @@ void callback_send_g_polygon_set_corner_real64(void *user, VNodeID node_id, uint
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_polygon_set_face_uinteger8(void *user, VNodeID node_id, uint32 polygon_id, VLayerID layer_id, uint8 value)
+static void callback_send_g_polygon_set_face_uinteger8(void *user, VNodeID node_id, uint32 polygon_id, VLayerID layer_id, uint8 value)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -639,7 +639,7 @@ void callback_send_g_polygon_set_face_uinteger8(void *user, VNodeID node_id, uin
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_polygon_set_face_uinteger32(void *user, VNodeID node_id, uint32 polygon_id, VLayerID layer_id, uint32 value)
+static void callback_send_g_polygon_set_face_uinteger32(void *user, VNodeID node_id, uint32 polygon_id, VLayerID layer_id, uint32 value)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -660,7 +660,7 @@ void callback_send_g_polygon_set_face_uinteger32(void *user, VNodeID node_id, ui
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_polygon_set_face_real64(void *user, VNodeID node_id, uint32 polygon_id, VLayerID layer_id, double value)
+static void callback_send_g_polygon_set_face_real64(void *user, VNodeID node_id, uint32 polygon_id, VLayerID layer_id, double value)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -681,7 +681,7 @@ void callback_send_g_polygon_set_face_real64(void *user, VNodeID node_id, uint32
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_polygon_delete(void *user, VNodeID node_id, uint32 polygon_id)
+static void callback_send_g_polygon_delete(void *user, VNodeID node_id, uint32 polygon_id)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -700,7 +700,7 @@ void callback_send_g_polygon_delete(void *user, VNodeID node_id, uint32 polygon_
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_crease_set_vertex(void *user, VNodeID node_id, char *layer, uint32 def_crease)
+static void callback_send_g_crease_set_vertex(void *user, VNodeID node_id, char *layer, uint32 def_crease)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -719,7 +719,7 @@ void callback_send_g_crease_set_vertex(void *user, VNodeID node_id, char *layer,
 	vs_reset_subscript_session();
 }
 
-void callback_send_g_crease_set_edge(void *user, VNodeID node_id, char *layer, uint32 def_crease)
+static void callback_send_g_crease_set_edge(void *user, VNodeID node_id, char *layer, uint32 def_crease)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
