@@ -215,12 +215,12 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 	
 	buffer_pos = vnp_raw_unpack_uint32(&buf[buffer_pos], &pack_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &cmd_id);
-/*	printf("connection packet %u, cmd %u", pack_id, cmd_id);*/
+	printf("connection packet %u, cmd %u\n", pack_id, cmd_id);
 	pre = v_con_get_connect_stage();
 	if(cmd_id == 0)
 	{
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &stage);
-/*		printf(" stage %u\n", stage);*/
+		printf(" stage %u\n", stage);
 		if(stage == 0 && V_CS_IDLE == v_con_get_connect_stage()) /* reseved by host */
 		{
 			uint8 *other_key, *my_key;
@@ -412,6 +412,7 @@ unsigned int v_unpack_ping(const char *buf, size_t buffer_length)
 	void (* func_ping)(void *user_data, const char *address, const char *text);
 	char address[64];
 	char message[1400];
+
 	func_ping = v_fs_get_user_func(5);
 	v_n_get_address_string(v_con_get_network_address(), address);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], message, 1400, buffer_length - buffer_pos);
@@ -447,6 +448,7 @@ boolean v_connect_unpack_ping(const char *buf, size_t buffer_length, uint32 ip, 
 			if(NULL != v_fs_get_user_func(5))
 			{
 				VPingCommand *pc;
+
 				pc = malloc(sizeof *pc);
 				pc->ip = ip;
 				pc->port = port;
