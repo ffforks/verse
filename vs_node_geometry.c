@@ -133,17 +133,13 @@ void vs_g_subscribe(VSNodeGeometry *node)
 			verse_send_g_bone_create(node->head.id, (uint16)i, node->bones[i].weight, node->bones[i].reference, node->bones[i].parent, node->bones[i].pos_x, node->bones[i].pos_y, node->bones[i].pos_z, node->bones[i].rot_x, node->bones[i].rot_y, node->bones[i].rot_z, node->bones[i].rot_w);
 }
 
-void callback_send_g_unsubscribe(void *user, VNodeID node_id)
+
+void vs_g_unsubscribe(VSNodeGeometry *node)
 {
-	VSNodeGeometry *node;
 	unsigned int i;
-	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
-	if(node == NULL)
-		return;
 	for(i = 0; i < node->layer_count; i++)
 		if(node->layer[i].layer != NULL)	
 			vs_remove_subscriptor(node->layer[i].subscribers);
-	vs_remove_subscriptor(node->head.subscribers);
 }
 
 static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID layer_id, char *name, uint8 type, uint32 def_uint, double def_real)

@@ -68,18 +68,12 @@ void vs_c_subscribe(VSNodeCurve *node)
 
 }
 
-void callback_send_c_unsubscribe(void *user, VNodeID node_id)
+void vs_c_unsubscribe(VSNodeCurve *node)
 {
-	VSNodeCurve *node;
 	unsigned int i;
-	node = (VSNodeCurve *)vs_get_node(node_id, V_NT_CURVE);
-	if(node == NULL)
-		return;
-
 	for(i = 0; i < node->curve_count; i++)
 		if(node->curves[i].name[0] != 0)	
 			vs_remove_subscriptor(node->curves[i].subscribers);
-	vs_remove_subscriptor(node->head.subscribers);
 }
 
 static void callback_send_c_curve_create(void *user, VNodeID node_id, VLayerID curve_id, const char *name, uint8 dimensions)

@@ -73,17 +73,9 @@ void vs_t_subscribe(VSNodeText *node)
 			verse_send_t_buffer_create(node->head.id, i, 0, node->buffer[i].name);
 }
 
-/* FIXME: This is dead code... Feels weird. Do we not need to keep track of subcribers
- * to individual layers? The same question can be asked in the bitmap node...
-*/
-static void callback_send_t_unsubscribe(void *user, VNodeID node_id)
+void vs_t_unsubscribe(VSNodeText *node)
 {
-	VSNodeText *node;
 	unsigned int i;
-	node = (VSNodeText *)vs_get_node(node_id, V_NT_TEXT);
-	if(node == NULL)
-		return;
-	vs_remove_subscriptor(node->head.subscribers);
 	for(i = 0; i < node->buffer_count; i++)
 		if(node->buffer[i].name[0] != 0)
 			vs_remove_subscriptor(node->buffer[i].subscribers);

@@ -67,16 +67,14 @@ void vs_b_subscribe(VSNodeBitmap *node)
 			verse_send_b_layer_create(node->head.id, (uint16)i, node->layers[i].name, (uint8)node->layers[i].type);
 }
 
-/* FIXME: This is dead code. Is it not needed? See text node, too.
-static void callback_send_b_unsubscribe(void *user, VNodeID node_id)
+
+void vs_b_unsubscribe(VSNodeBitmap *node)
 {
-	VSNodeBitmap *node;
-	node = (VSNodeBitmap *)vs_get_node(node_id, V_NT_BITMAP);
-	if(node == NULL)
-		return;
-	vs_remove_subscriptor(node->head.subscribers);
+	unsigned int i;
+	for(i = 0; i < node->layer_count; i++)
+		if(node->layers[i].name[0] != 0)
+			vs_remove_subscriptor(node->layers[i].subscribers);
 }
-*/
 
 static void callback_send_b_init_dimensions(void *user, VNodeID node_id, uint16 width, uint16 height, uint16 depth)
 {
@@ -382,6 +380,7 @@ static void callback_send_b_layer_subscribe(void *user, VNodeID node_id, VLayerI
 	tile[1] = ((node->size[1] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[2] = node->size[2];
 	data = node->layers[layer_id].layer;
+	vs_add_new_subscriptor(node->layers[layer_id].subscribers);
 	switch(node->layers[layer_id].type)
 	{
 	case VN_B_LAYER_UINT1:

@@ -51,13 +51,8 @@ void vs_m_subscribe(VSNodeMaterial *node)
 			verse_send_m_fragment_create(node->head.id, (uint16)i, (uint8)node->frag[i].type, &node->frag[i].frag);
 }
 
-void callback_send_m_unsubscribe(void *user, VNodeID node_id)
+void vs_m_unsubscribe(VSNodeMaterial *node)
 {
-	VSNodeMaterial *node;
-	node = (VSNodeMaterial *)vs_get_node(node_id, V_NT_MATERIAL);
-	if(node == NULL)
-		return;
-	vs_remove_subscriptor(node->head.subscribers);
 }
 
 static void callback_send_m_fragment_create(void *user, VNodeID node_id, VNMFragmentID frag_id, uint8 type, VMatFrag *fragment)

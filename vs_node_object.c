@@ -39,7 +39,7 @@ typedef struct {
 	real64	position[3];
 	real64	rotation[4];
 	real64	scale[3];
-	VSSubscriptionList *subscribers;
+/*	VSSubscriptionList *subscribers;*/
 } VSTransform;
 
 typedef struct {
@@ -126,6 +126,17 @@ void vs_o_subscribe(VSNodeObject *node)
 	for(i = 0; i < node->group_count; i++)
 		if(node->groups[i].name[0] != 0)
 			verse_send_o_method_group_create(node->head.id, i, node->groups[i].name);
+}
+
+void vs_o_unsubscribe(VSNodeObject *node)
+{
+	unsigned int i;
+	for(i = 0; i < node->group_count; i++)
+		if(node->groups[i].name[0] != 0)
+			vs_remove_subscriptor(node->groups[i].subscribers);
+	vs_remove_subscriptor(node->trans_sub64);
+	vs_remove_subscriptor(node->trans_sub32);
+
 }
 
 static void callback_send_o_transform_pos_real32(void *user, VNodeID node_id, uint32 time_s, uint32 time_f, real32 *pos, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag)
