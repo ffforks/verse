@@ -219,9 +219,9 @@ void v_cg_create_print(FILE *f, boolean send, boolean alias)
 	if(alias)
 		name = VCGData.alias_name;
 	if(send)
-		fprintf(f, "\t#if defined(V_PRINT_SEND_COMMANDS)\n\tprintf(\"send: verse_send_%s(", name);
+		fprintf(f, "#if defined V_PRINT_SEND_COMMANDS\n\tprintf(\"send: %s(", name);
 	else
-		fprintf(f, "\t#if defined(V_PRINT_RECIVE_COMMANDS)\n\tprintf(\"receive: verse_send_%s(", name);
+		fprintf(f, "#if defined V_PRINT_RECEIVE_COMMANDS\n\tprintf(\"receive: %s(", name);
 
 	length = VCGData.param_count;
 	if(alias)
@@ -296,9 +296,9 @@ void v_cg_create_print(FILE *f, boolean send, boolean alias)
 		}
 	}
 	if(send)
-		fprintf(f, ");\n\t#endif\n");
+		fprintf(f, ");\n#endif\n");
 	else
-		fprintf(f, ", user_func);\n\t#endif\n");
+		fprintf(f, ", user_func);\n#endif\n");
 }
 
 unsigned int v_cg_compute_command_size(unsigned int start, boolean end)
