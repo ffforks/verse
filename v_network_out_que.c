@@ -93,10 +93,10 @@ void v_noq_destroy_network_queue(VNetOutQueue *queue)
 	free(queue);
 }
 
-unsigned int ack_balance = 0;
-unsigned int nak_balance = 0;
-unsigned int in_balance = 1;
-unsigned int out_balance = 1;
+static unsigned int ack_balance = 0;
+static unsigned int nak_balance = 0;
+static unsigned int in_balance = 1;
+static unsigned int out_balance = 1;
 
 
 boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
@@ -183,7 +183,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 		if(s != new_sec)
 		{
 			s = new_sec;
-			printf("this second sendt %u pack_id %u rate %u a %u n %u\n", count, queue->packet_id, (uint32)(queue->send_rate / 1500), ack_balance, nak_balance);
+			printf("this second sent %u pack_id %u rate %u a %u n %u\n", count, queue->packet_id, (uint32)(queue->send_rate / 1500), ack_balance, nak_balance);
 			ack_balance = 0;
 			nak_balance = 0;
 			count = 0;
