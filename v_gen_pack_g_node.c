@@ -54,7 +54,7 @@ void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_layer_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_layer_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_layer_create)(void *user_data, VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_integer, real64 def_real);
@@ -134,7 +134,7 @@ void verse_send_g_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_layer_subscribe(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_layer_subscribe(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_layer_subscribe)(void *user_data, VNodeID node_id, VLayerID layer_id, VNORealFormat type);
@@ -214,7 +214,7 @@ void verse_send_g_vertex_delete_real32(VNodeID node_id, uint32 vertex_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_vertex_set_real32_xyz(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_vertex_set_real32_xyz(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_vertex_set_real32_xyz)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real32 x, real32 y, real32 z);
@@ -296,7 +296,7 @@ void verse_send_g_vertex_delete_real64(VNodeID node_id, uint32 vertex_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_vertex_set_real64_xyz(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_vertex_set_real64_xyz(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_vertex_set_real64_xyz)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 x, real64 y, real64 z);
@@ -353,7 +353,7 @@ void verse_send_g_vertex_set_uinteger32(VNodeID node_id, VLayerID layer_id, uint
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_vertex_set_uinteger32(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_vertex_set_uinteger32(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_vertex_set_uinteger32)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, uint32 value);
@@ -398,7 +398,7 @@ void verse_send_g_vertex_set_real64(VNodeID node_id, VLayerID layer_id, uint32 v
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_vertex_set_real64(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_vertex_set_real64(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_vertex_set_real64)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 value);
@@ -470,7 +470,7 @@ void verse_send_g_polygon_delete(VNodeID node_id, uint32 polygon_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_polygon_set_corner_uinteger32(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_polygon_set_corner_uinteger32(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_polygon_set_corner_uinteger32)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3);
@@ -532,7 +532,7 @@ void verse_send_g_polygon_set_corner_real64(VNodeID node_id, VLayerID layer_id, 
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_polygon_set_corner_real64(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_polygon_set_corner_real64(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_polygon_set_corner_real64)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real64 v0, real64 v1, real64 v2, real64 v3);
@@ -583,7 +583,7 @@ void verse_send_g_polygon_set_face_uinteger8(VNodeID node_id, VLayerID layer_id,
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_polygon_set_face_uinteger8(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_polygon_set_face_uinteger8(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_polygon_set_face_uinteger8)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint8 value);
@@ -628,7 +628,7 @@ void verse_send_g_polygon_set_face_uinteger32(VNodeID node_id, VLayerID layer_id
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_polygon_set_face_uinteger32(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_polygon_set_face_uinteger32(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_polygon_set_face_uinteger32)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 value);
@@ -673,7 +673,7 @@ void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer_id, ui
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_polygon_set_face_real64(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_polygon_set_face_real64(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_polygon_set_face_real64)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real64 value);
@@ -717,7 +717,7 @@ void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 d
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_crease_set_vertex(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_crease_set_vertex(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_crease_set_vertex)(void *user_data, VNodeID node_id, const char *layer, uint32 def_crease);
@@ -761,7 +761,7 @@ void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_crease_set_edge(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_crease_set_edge(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_crease_set_edge)(void *user_data, VNodeID node_id, const char *layer, uint32 def_crease);
@@ -839,7 +839,7 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint32 bone_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_g_bone_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_g_bone_create)(void *user_data, VNodeID node_id, uint32 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z);

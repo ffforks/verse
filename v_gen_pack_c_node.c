@@ -48,7 +48,7 @@ void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_c_curve_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_c_curve_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_c_curve_create)(void *user_data, VNodeID node_id, VLayerID curve_id, const char *name);
@@ -118,7 +118,7 @@ void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_c_curve_subscribe(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_c_curve_subscribe(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_c_curve_subscribe)(void *user_data, VNodeID node_id, VLayerID curve_id);
@@ -200,7 +200,7 @@ void verse_send_c_curve_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 k
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_c_curve_key_set(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_c_curve_key_set(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_c_curve_key_set)(void *user_data, VNodeID node_id, VLayerID curve_id, uint32 key_id, real64 pre_value, uint32 pre_pos, real64 value, real64 post_value, uint32 post_pos);

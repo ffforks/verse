@@ -29,7 +29,7 @@ void verse_send_b_init_dimensions(VNodeID node_id, uint16 width, uint16 height, 
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_b_init_dimensions(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_b_init_dimensions(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_b_init_dimensions)(void *user_data, VNodeID node_id, uint16 width, uint16 height, uint16 depth);
@@ -95,7 +95,7 @@ void verse_send_b_layer_destroy(VNodeID node_id, VLayerID layer_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_b_layer_create(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_b_layer_create(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_b_layer_create)(void *user_data, VNodeID node_id, VLayerID layer_id, const char *name, VNBLayerType type);
@@ -169,7 +169,7 @@ void verse_send_b_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_b_layer_subscribe(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_b_layer_subscribe(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_b_layer_subscribe)(void *user_data, VNodeID node_id, VLayerID layer_id, uint8 level);
@@ -248,7 +248,7 @@ void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_b_layer_set_tile(char *buf, unsigned int buffer_length, void *user_func, void *user_data)
+unsigned int v_unpack_b_layer_set_tile(const char *buf, size_t buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
 	void (* func_b_layer_set_tile)(void *user_data, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, void *data);
