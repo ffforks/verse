@@ -18,7 +18,7 @@
 
 #define CONNECTION_CHUNK_SIZE	16
 #define V_MAX_CONNECT_PACKET_SIZE	1500
-#define V_CON_MAX_MICROSECOND_BETWEEN_SENDS 1000
+#define V_CON_MAX_MICROSECOND_BETWEEN_SENDS	1000
 #define V_RE_CONNECTON_TIME_OUT 3
 #define V_CONNECTON_TIME_OUT 30
 
@@ -58,14 +58,17 @@ static struct {
 void v_con_init(void) /* since verse doesnt have an init function this function is runned over an ove ard starts whit a check it it has run before */
 {
 	static boolean v_con_initialized = FALSE;
-	if(v_con_initialized == TRUE)
+
+	if(v_con_initialized)
 		return;
 	v_con_initialized = TRUE;
 	VConData.con = malloc((sizeof *VConData.con) * CONNECTION_CHUNK_SIZE);
 	memset(VConData.con, 0, (sizeof *VConData.con) * CONNECTION_CHUNK_SIZE);	/* Clear the memory. */
 	VConData.con_count = 0;
 	VConData.pending_packets = 0;
-	v_e_create_key(&VConData.host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &VConData.host_id[V_ENCRYPTION_LOGIN_PUBLIC_START], &VConData.host_id[V_ENCRYPTION_LOGIN_N_START]); /* default host id if none is set by user */
+/*	v_e_connect_create_key(&VConData.host_id[V_ENCRYPTION_LOGIN_PRIVATE_START],
+		       &VConData.host_id[V_ENCRYPTION_LOGIN_PUBLIC_START],
+		       &VConData.host_id[V_ENCRYPTION_LOGIN_N_START]);*/ /* default host id if none is set by user */
 }
 
 void verse_set_port(uint16 port)
@@ -75,7 +78,8 @@ void verse_set_port(uint16 port)
 
 void verse_host_id_create(uint8 *id)
 {
-	v_e_create_key(&id[V_ENCRYPTION_LOGIN_PRIVATE_START], &id[V_ENCRYPTION_LOGIN_PUBLIC_START], &id[V_ENCRYPTION_LOGIN_N_START]);
+	v_e_connect_create_key(&id[V_ENCRYPTION_LOGIN_PRIVATE_START],
+			       &id[V_ENCRYPTION_LOGIN_PUBLIC_START], &id[V_ENCRYPTION_LOGIN_N_START]);
 }
 
 void verse_host_id_set(uint8 *id)
@@ -194,7 +198,7 @@ void v_con_network_listen(void)
 				if(store != NULL)
 				{
 					VConData.pending_packets++; /* We now have one more packet pending unpack. */
-					v_e_dencrypt_data_packet(buf, store, size, VConData.con[VConData.current_connection].key_data); /* Decrypt the packet. */
+					v_e_data_decrypt_packet(store, buf, size, VConData.con[VConData.current_connection].key_data); /* Decrypt the packet. */
 				}
 			}
 			else
@@ -219,7 +223,7 @@ void v_con_network_listen(void)
 	VConData.current_connection = connection; /* Reset the current connection. */
 }
 
-void v_update_connection_pending(void);
+extern void	v_update_connection_pending(void);
 
 boolean v_con_callback_update(void)
 {

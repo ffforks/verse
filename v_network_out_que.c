@@ -129,7 +129,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 		buf->next = queue->history[queue->slot];
 		queue->history[queue->slot] = buf;
 		buf->packet = queue->packet_id;
-		v_e_encrypt_command(data, size, ((VCMDBuffer1500 *)buf)->buf, buf->size, v_con_get_data_key());
+		v_e_data_encrypt_command(data, size, ((VCMDBuffer1500 *)buf)->buf, buf->size, v_con_get_data_key());
 		size += buf->size;
 		queue->sent_size += buf->size;
 		buf = queue->ack_nak;
@@ -211,7 +211,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 				queue->history[queue->slot] = buf;
 				buf->packet = queue->packet_id;
 
-				v_e_encrypt_command(data, size, ((VCMDBuffer1500 *)buf)->buf, buf->size, v_con_get_data_key());
+				v_e_data_encrypt_command(data, size, ((VCMDBuffer1500 *)buf)->buf, buf->size, v_con_get_data_key());
 
 				size += buf->size;
 

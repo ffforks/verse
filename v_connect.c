@@ -18,7 +18,7 @@
 
 extern void verse_send_packet_ack(uint32 packet_id);
 
-void v_send_hidden_connect_contact(void) /*  Stage 0: Clinets inital call to connect to host */
+static void v_send_hidden_connect_contact(void) /*  Stage 0: Clinets inital call to connect to host */
 {
 	uint8 buf[V_ENCRYPTION_LOGIN_KEY_HALF_SIZE + 4 + 1 + 1], *public_key;
 	unsigned int i, buffer_pos = 0;
@@ -35,7 +35,7 @@ void v_send_hidden_connect_contact(void) /*  Stage 0: Clinets inital call to con
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
 }
 
-void v_send_hidden_connect_send_key(void) /*  Stage 1: Hosts reply to any atempt to connect */
+static void v_send_hidden_connect_send_key(void) /*  Stage 1: Hosts reply to any atempt to connect */
 {
 	uint8 buf[V_ENCRYPTION_LOGIN_KEY_SIZE * 3 + 4 + 1 + 1 + 1 + 4 + 4], *host_id;
 	unsigned int i, buffer_pos = 0, s, f;
@@ -56,8 +56,7 @@ void v_send_hidden_connect_send_key(void) /*  Stage 1: Hosts reply to any atempt
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
 }
 
-
-void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypted name and password */
+static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypted name and password */
 {
 	uint8 buf[1500], *name, *pass, *my_key, name_pass[V_ENCRYPTION_LOGIN_KEY_SIZE], encrypted_key[V_ENCRYPTION_LOGIN_KEY_SIZE];
 	unsigned int buffer_pos = 0, i, j;
@@ -74,17 +73,16 @@ void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypted name 
 		name_pass[i + V_ENCRYPTION_LOGIN_KEY_SIZE / 2] = pass[i];
 	name_pass[i + V_ENCRYPTION_LOGIN_KEY_SIZE / 2] = 0;
 	my_key = v_con_get_other_key();
-	v_e_encrypt(encrypted_key, name_pass, &my_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &my_key[V_ENCRYPTION_LOGIN_N_START]);
+	v_e_connect_encrypt(encrypted_key, name_pass, &my_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &my_key[V_ENCRYPTION_LOGIN_N_START]);
 
 	printf("n = %u ", (int)my_key[V_ENCRYPTION_LOGIN_N_START]);
 
 	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
-
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], encrypted_key[i]);
+		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], encrypted_key[i]);
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
 }
 
-void v_send_hidden_connect_accept(void) /* Host accepts Clients connectionatempt and sends over data encryption key */
+static void v_send_hidden_connect_accept(void) /* Host accepts Clients connectionatempt and sends over data encryption key */
 {
 	uint8 buf[1500], *data_key, *host_id, encrypted[V_ENCRYPTION_DATA_KEY_SIZE];
 	unsigned int i, buffer_pos = 0;
@@ -93,23 +91,22 @@ void v_send_hidden_connect_accept(void) /* Host accepts Clients connectionatempt
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], verse_session_get_avatar());
 	data_key = v_con_get_data_key();
 	host_id = v_con_get_host_id();
-	v_e_encrypt(encrypted, data_key, &host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
+	v_e_connect_encrypt(encrypted, data_key, &host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
 	for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], encrypted[i]);
 	v_n_send_data(v_con_get_network_address(), buf, buffer_pos);
 }
 
-void v_send_hidden_connect_terminate(VNetworkAddress *address, unsigned int packet_id, const char *bye) /* Host accepts Clients connectionatempt and sends over data encryption key */
+static void v_send_hidden_connect_terminate(VNetworkAddress *address, unsigned int packet_id, const char *bye) /* Host accepts Clients connectionatempt and sends over data encryption key */
 {
 	uint8 buf[1500];
 	unsigned int buffer_pos = 0;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], packet_id);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 2);/* Packing the command */
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], bye, 512); /* pack message */
-	v_e_encrypt_command(buf, sizeof(uint32), buf+sizeof(uint32), buffer_pos, v_con_get_data_key());
+	v_e_data_encrypt_command(buf, sizeof (uint32), buf + sizeof (uint32), buffer_pos, v_con_get_data_key());
 	v_n_send_data(address, buf, buffer_pos);
 }
-
 
 VSession * verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_key)
 {
@@ -136,7 +133,7 @@ VSession * verse_send_connect(const char *name, const char *pass, const char *ad
 			*v_con_get_expected_key() = key;
 		}
 		my_key = v_con_get_my_key();
-		v_e_create_key(&my_key[V_ENCRYPTION_LOGIN_PRIVATE_START], &my_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &my_key[V_ENCRYPTION_LOGIN_N_START]);
+		v_e_connect_create_key(&my_key[V_ENCRYPTION_LOGIN_PRIVATE_START], &my_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &my_key[V_ENCRYPTION_LOGIN_N_START]);
 		v_send_hidden_connect_contact();
 		return session;
 	}
@@ -148,7 +145,6 @@ VSession * verse_send_connect(const char *name, const char *pass, const char *ad
 		return NULL;
 	}
 }
-
 
 void v_update_connection_pending(void)
 {
@@ -201,8 +197,7 @@ void v_update_connection_pending(void)
 			func_connect_termanate(v_fs_get_user_data(2), address_string, "no message");
 		break;
 	default:
-
-	;
+		;
 	}	
 }
 
@@ -228,7 +223,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			uint8 *other_key, *my_key;
 			verse_send_packet_ack(pack_id);
 			my_key = v_con_get_my_key();
-			v_e_encrypt_data_key_generate(v_con_get_data_key());
+			v_e_data_create_key(v_con_get_data_key());
 			other_key = v_con_get_other_key();
 			for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START + i]);/* Packing the command */
@@ -282,7 +277,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			if(i < 0)
 			{
 				other_key = v_con_get_my_key();
-				v_e_encrypt(decrypted_key, encrypted_key, &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START + i], &other_key[V_ENCRYPTION_LOGIN_N_START + i]);
+				v_e_connect_encrypt(decrypted_key, encrypted_key, &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START + i], &other_key[V_ENCRYPTION_LOGIN_N_START + i]);
 				for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_HALF_SIZE && my_key[V_ENCRYPTION_LOGIN_PUBLIC_START + i] == decrypted_key[i]; i++);
 				if(i < 0) /* Host is not who it appers top be */
 				{
@@ -305,7 +300,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &data[i]);
 			host_id = v_con_get_host_id();
-			v_e_encrypt(unpack, data, &host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
+			v_e_connect_encrypt(unpack, data, &host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
 			fprintf(stderr, "n = %u ", (int)host_id[V_ENCRYPTION_LOGIN_N_START]);
 			v_con_set_name_pass(unpack, &unpack[V_ENCRYPTION_LOGIN_KEY_SIZE / 2]);
 			v_con_set_connect_stage(V_CS_PENDING_HOST_CALLBACK);
@@ -323,7 +318,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 		for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
 			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &key[i]);
 		other_key = v_con_get_other_key();
-		v_e_encrypt(decrypted, key, &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &other_key[V_ENCRYPTION_LOGIN_N_START]);
+		v_e_connect_encrypt(decrypted, key, &other_key[V_ENCRYPTION_LOGIN_PUBLIC_START], &other_key[V_ENCRYPTION_LOGIN_N_START]);
 		v_con_set_data_key(decrypted);
 		v_con_set_connect_stage(V_CS_PENDING_CLIENT_CALLBACK_ACCEPT);
 		v_send_hidden_connect_send_key();
@@ -373,7 +368,6 @@ void v_callback_connect_terminate(const char *bye)
 	if(func_connect_terminate != 0)
 		func_connect_terminate(v_fs_get_user_data(2), address_string, bye);
 }
-
 
 void verse_send_connect_terminate(const char *address, const char *bye)
 {
@@ -458,7 +452,8 @@ boolean v_connect_unpack_ping(const char *buf, size_t buffer_length, uint32 ip, 
 				pc = malloc(sizeof *pc);
 				pc->ip = ip;
 				pc->port = port;
-				vnp_raw_unpack_string(&buf[buffer_pos], pc->message, 1400, buffer_length - buffer_pos);
+				vnp_raw_unpack_string(&buf[buffer_pos], pc->message,
+						      sizeof pc->message, buffer_length - buffer_pos);
 				pc->next = v_ping_commands;
 				v_ping_commands = pc;
 			}
