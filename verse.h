@@ -362,6 +362,16 @@ typedef enum {
 	VN_A_LAYER_REAL64,
 } VNALayerType;
 
+/* Audio commands take pointers to blocks of these. They are not packed as unions. */
+typedef union {
+	int8	vint8;
+	int16	vint16;
+	uint8	vint24[3];
+	int32	vint32;
+	real32	vreal32;
+	real64	vreal64;
+} VNASample;
+
 extern void		verse_set_port(uint16 port);
 extern void		verse_host_id_create(uint8 *id);
 extern void		verse_host_id_set(uint8 *id);
@@ -375,9 +385,6 @@ extern void		verse_session_get_time(uint32 *seconds, uint32 *fractions);
 
 extern void *		verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
 extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
-
-extern void *		verse_audio_compress(uint32 length, VNALayerType type, const void *data);
-extern void *		verse_audio_uncompress(uint32 length, VNALayerType type, const void *data);
 
 /*
 #define V_PRINT_SEND_COMMANDS
@@ -479,13 +486,13 @@ extern void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, VNALay
 extern void verse_send_a_layer_destroy(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_a_layer_subscribe(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);
-extern void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 id, VNALayerType type, const void *data);
-extern void verse_send_a_block_clear(VNodeID node_id, VLayerID layer_id, uint32 id);
+extern void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 block_index, VNALayerType type, const VNASample *data);
+extern void verse_send_a_block_clear(VNodeID node_id, VLayerID layer_id, uint32 block_index);
 extern void verse_send_a_stream_create(VNodeID node_id, VLayerID stream_id, const char *name);
 extern void verse_send_a_stream_destroy(VNodeID node_id, VLayerID stream_id);
 extern void verse_send_a_stream_subscribe(VNodeID node_id, VLayerID stream_id);
 extern void verse_send_a_stream_unsubscribe(VNodeID node_id, VLayerID stream_id);
-extern void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNALayerType type, real64 frequency, const void *data);
+extern void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNALayerType type, real64 frequency, const VNASample *data);
 
 
 #endif		/* VERSE_H */

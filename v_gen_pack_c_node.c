@@ -154,7 +154,7 @@ unsigned int v_unpack_c_curve_subscribe(const char *buf, size_t buffer_length)
 	void (* func_c_curve_subscribe)(void *user_data, VNodeID node_id, VLayerID curve_id);
 	VNodeID node_id;
 	VLayerID curve_id;
-	char alias_bool;
+	uint8	alias_bool;
 
 	func_c_curve_subscribe = v_fs_get_user_func(129);
 	if(buffer_length < 6)

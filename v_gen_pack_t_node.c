@@ -195,7 +195,7 @@ unsigned int v_unpack_t_buffer_subscribe(const char *buf, size_t buffer_length)
 	void (* func_t_buffer_subscribe)(void *user_data, VNodeID node_id, VNMBufferID buffer_id);
 	VNodeID node_id;
 	VNMBufferID buffer_id;
-	char alias_bool;
+	uint8	alias_bool;
 
 	func_t_buffer_subscribe = v_fs_get_user_func(98);
 	if(buffer_length < 6)

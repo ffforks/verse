@@ -341,7 +341,7 @@ unsigned int v_unpack_node_subscribe(const char *buf, size_t buffer_length)
 	unsigned int buffer_pos = 0;
 	void (* func_node_subscribe)(void *user_data, VNodeID node_id);
 	VNodeID node_id;
-	char alias_bool;
+	uint8	alias_bool;
 
 	func_node_subscribe = v_fs_get_user_func(11);
 	if(buffer_length < 4)
@@ -502,7 +502,7 @@ unsigned int v_unpack_tag_group_subscribe(const char *buf, size_t buffer_length)
 	void (* func_tag_group_subscribe)(void *user_data, VNodeID node_id, uint16 group_id);
 	VNodeID node_id;
 	uint16 group_id;
-	char alias_bool;
+	uint8	alias_bool;
 
 	func_tag_group_subscribe = v_fs_get_user_func(17);
 	if(buffer_length < 6)

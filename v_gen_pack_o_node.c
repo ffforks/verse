@@ -619,7 +619,7 @@ unsigned int v_unpack_o_transform_subscribe(const char *buf, size_t buffer_lengt
 	void (* func_o_transform_subscribe)(void *user_data, VNodeID node_id, VNRealFormat type);
 	VNodeID node_id;
 	VNRealFormat type;
-	char alias_bool;
+	uint8	alias_bool;
 
 	func_o_transform_subscribe = v_fs_get_user_func(38);
 	if(buffer_length < 4)
@@ -760,7 +760,7 @@ unsigned int v_unpack_o_link_set(const char *buf, size_t buffer_length)
 	VNodeID link;
 	char label[16];
 	uint32 target_id;
-	char alias_bool;
+	uint8	alias_bool;
 
 	func_o_link_set = v_fs_get_user_func(40);
 	if(buffer_length < 6)
@@ -927,7 +927,7 @@ unsigned int v_unpack_o_method_group_subscribe(const char *buf, size_t buffer_le
 	void (* func_o_method_group_subscribe)(void *user_data, VNodeID node_id, uint16 group_id);
 	VNodeID node_id;
 	uint16 group_id;
-	char alias_bool;
+	uint8	alias_bool;
 
 	func_o_method_group_subscribe = v_fs_get_user_func(42);
 	if(buffer_length < 6)
@@ -1066,7 +1066,7 @@ unsigned int v_unpack_o_method_create(const char *buf, size_t buffer_length)
 			text += size;
 		}
 		if(func_o_method_create != NULL)
-			func_o_method_create(v_fs_get_user_data(43), node_id, group_id, method_id, name, param_count, types, names);
+			func_o_method_create(v_fs_get_user_data(43), node_id, group_id, method_id, name, param_count, types, (const char **) names);
 		return buffer_pos;
 	}
 
@@ -1106,7 +1106,7 @@ void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id
 		vnp_raw_unpack_uint16(params, &size);
 		for(i = 0; i < size; i++)
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)params)[i]);
-		free(params);
+		free((void *) params);	/* Drop the const. */
 	}
 	v_cmd_buf_set_size(head, buffer_pos);
 	v_noq_send_buf(v_con_get_network_queue(), head);
@@ -1226,7 +1226,7 @@ unsigned int v_unpack_o_anim_run(const char *buf, size_t buffer_length)
 	real64 speed_ramp;
 	real64 factor;
 	real64 factor_ramp;
-	char alias_bool;
+	uint8	alias_bool;
 
 	func_o_anim_run = v_fs_get_user_func(45);
 	if(buffer_length < 6)
