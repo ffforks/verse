@@ -1,5 +1,13 @@
+/*
+** This is automatically generated source code -- do not edit.
+** Changes are affected either by editing the corresponding protocol
+** definition file (v_cmd_def_X.c where X=node type), or by editing
+** the code generator itself, in v_cmd_gen.c.
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "v_cmd_gen.h"
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
@@ -17,9 +25,9 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);/* Packing the command */
-	#if defined(V_PRINT_SEND_COMMANDS)
-	printf("send: verse_send_m_fragment_create(node_id = %u frag_id = %u type = %u fragment = %p );\n", node_id, frag_id, type, fragment);
-	#endif
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: m_fragment_create(node_id = %u frag_id = %u type = %u fragment = %p );\n", node_id, frag_id, type, fragment);
+#endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], frag_id);
 	address_size = buffer_pos;
@@ -124,9 +132,9 @@ void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id)
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);/* Packing the command */
-	#if defined(V_PRINT_SEND_COMMANDS)
-	printf("send: verse_send_m_fragment_destroy(node_id = %u frag_id = %u );\n", node_id, frag_id);
-	#endif
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: m_fragment_destroy(node_id = %u frag_id = %u );\n", node_id, frag_id);
+#endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], frag_id);
 	address_size = buffer_pos;
@@ -150,9 +158,9 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length, v
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &type);
-	#if defined(V_PRINT_RECIVE_COMMANDS)
-	printf("receive: verse_send_m_fragment_create(node_id = %u frag_id = %u type = %u ); callback = %p\n", node_id, frag_id, type, user_func);
-	#endif
+#if defined V_PRINT_RECEIVE_COMMANDS
+	printf("receive: m_fragment_create(node_id = %u frag_id = %u type = %u ); callback = %p\n", node_id, frag_id, type, user_func);
+#endif
 	if(type <= VN_M_FT_OUTPUT)
 	{
 		VMatFrag frag;
@@ -283,5 +291,6 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length, v
 
 	return buffer_pos;
 }
+
 #endif
 
