@@ -42,15 +42,18 @@ static int quick_filter(const VBigDig *n)
 */
 static int miller_rabin(const VBigDig *n)
 {
-	int	i, k;
-	VBigDig	VBIGNUM(a, BITS / 2), VBIGNUM(d, BITS), VBIGNUM(nmo, BITS / 2), VBIGNUM(x, BITS);
+	int		i, k;
+	VBigDig		VBIGNUM(a, BITS / 2), VBIGNUM(d, BITS), VBIGNUM(nmo, BITS / 2), VBIGNUM(x, BITS);
+	const VBigDig	*mu;
+
+	mu = v_bignum_reduce_begin(n);
 
 /*	printf("Miller-Rabin testing: ");
 	v_bignum_print_hex_lf(n);
 */
 	/* Pick a "witness", a number in the [1, n) range. */
 	v_bignum_set_random(a);
-	v_bignum_mod(a, n);
+	v_bignum_reduce(a, n, mu);
 /*	printf("witness: ");
 	v_bignum_print_hex_lf(a);
 */
@@ -62,15 +65,19 @@ static int miller_rabin(const VBigDig *n)
 	{
 		v_bignum_set_bignum(x, d);
 		v_bignum_mul(d, d);
-		v_bignum_mod(d, n);
+		v_bignum_reduce(d, n, mu);
 		if(v_bignum_eq_one(d) && !v_bignum_eq_one(x) && !v_bignum_eq(x, nmo))
+		{
+			v_bignum_reduce_end(mu);
 			return 0;	/* Composite found. */
+		}
 		if(v_bignum_bit_test(nmo, i))
 		{
 			v_bignum_mul(d, a);
-			v_bignum_mod(d, n);
+			v_bignum_reduce(d, n, mu);
 		}
 	}
+	v_bignum_reduce_end(mu);
 	return v_bignum_eq_one(d);	/* It might be prime. */
 }
 
