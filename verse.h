@@ -488,7 +488,7 @@ extern void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id);
 extern void verse_send_c_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, real64 *pre_value, uint32 *pre_pos, real64 *value, real64 pos, real64 *post_value, uint32 *post_pos);
 extern void verse_send_c_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 key_id);
 
-extern void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, VNALayerType type, const char *name);
+extern void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, VNALayerType type, real64 frequency, const char *name);
 extern void verse_send_a_layer_destroy(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_a_layer_subscribe(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);
@@ -498,7 +498,7 @@ extern void verse_send_a_stream_create(VNodeID node_id, VLayerID stream_id, cons
 extern void verse_send_a_stream_destroy(VNodeID node_id, VLayerID stream_id);
 extern void verse_send_a_stream_subscribe(VNodeID node_id, VLayerID stream_id);
 extern void verse_send_a_stream_unsubscribe(VNodeID node_id, VLayerID stream_id);
-extern void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint16 id, uint32 time_s, uint32 time_f, VNALayerType type, void *data);
+extern void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint16 id, uint32 time_s, uint32 time_f, VNALayerType type, real64 frequency, void *data);
 
 
 #endif		/* VERSE_H */
