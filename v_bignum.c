@@ -711,6 +711,48 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	bignum_free(q);
 }
 
+/* Computes x *= x, using the algorithm 14.16 from Handbook of Applied Cryptography. */
+void v_bignum_square_half(VBigDig *x)
+{
+	int		t = *x / 2, i, j, high = 0, k = 0;
+	unsigned long	uv, c;
+	VBigDig		*w;
+
+	if(t == 0)
+		return;
+	for(; x[t] == 0; t--)	/* Reduce to find actual # of digits used. */
+		;
+	w = bignum_alloc(*x);
+	v_bignum_set_zero(w);
+	printf("x=");
+	v_bignum_print_hex_lf(x);
+	for(i = 0; i < t; i++)
+	{
+		uv   = w[1 + 2 * i] + (x[1 + i] * x[1 + i]);
+		printf("#setting digit %d to %04lX (1)\n", 2 * i, uv);
+		w[1 + 2 * i] = uv;
+		c = uv >> (V_BIGBITS);
+		printf("# c=%lX\n", c);
+/*		high = 0;*/
+		for(j = i + 1; j < t; j++)
+		{
+			uv = x[1 + i] * x[1 + j];
+			high = (uv & 0x80000000) != 0;
+			uv *= 2;
+			uv += w[1 + i + j] + c;
+			printf("print %d, %u + 2*%u*%u + 0x%lX == 0x%u%lX # c=%lX\n", k++,
+			       w[1 + i + j], x[1 + j], x[1 + j], c, high, uv, c);
+			printf("#setting digit %d to %04lX (c=%X) (2)\n", i + j, uv, c);
+			w[1 + i + j] = uv;
+			c = (uv >> (1 + V_BIGBITS)) | (high << V_BIGBITS);
+		}
+		printf("#setting digit %d to %04X high=%04X (3)\n", 1 + i + t, uv >> 1 + V_BIGBITS, high << V_BIGBITS - 1);
+		w[1 + i + t] = (uv >> (1 + V_BIGBITS)) | (high << V_BIGBITS - 1);
+	}
+	v_bignum_set_bignum(x, w);
+	bignum_free(w);
+}
+
 /* Computes x = (x^y) % n, where ^ denotes exponentiation. */
 void v_bignum_pow_mod(VBigDig *x, const VBigDig *y, const VBigDig *n)
 {
