@@ -665,23 +665,17 @@ void v_bignum_reduce_end(const VBigDig *mu)
 
 void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 {
-	VBigDig	*q1, *q2, *q3, *r1, *r2, *r;
+	VBigDig	*q, *r1, *r2, *r;
 	int	i, k;
 
 	for(k = *m; m[k] == 0; k--)
 		;
-	/* Step 1, compute the q helpers. */
-	q1 = bignum_alloc(*x);
-	v_bignum_set_bignum(q1, x);
-	v_bignum_bit_shift_right(q1, 16 * (k - 1));
-
-	q2 = bignum_alloc(2 * *x);
-	v_bignum_set_bignum(q2, q1);
-	v_bignum_mul(q2, mu);
-
-	q3 = bignum_alloc(*q2);
-	v_bignum_set_bignum(q3, q2);
-	v_bignum_bit_shift_right(q3, 16 * (k + 1));
+	/* Step 1, compute the q helper. */
+	q = bignum_alloc(2 * *x);
+	v_bignum_set_bignum(q, x);
+	v_bignum_bit_shift_right(q, 16 * (k - 1));
+	v_bignum_mul(q, mu);
+	v_bignum_bit_shift_right(q, 16 * (k + 1));
 
 	/* Step 2, initialize. */
 	r1 = bignum_alloc(*x);
@@ -690,7 +684,7 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	v_bignum_set_bignum(r1, x);
 	for(i = k + 1; i < *r1; i++)
 		r1[i + 1] = 0;
-	v_bignum_set_bignum(r2, q3);
+	v_bignum_set_bignum(r2, q);
 	v_bignum_mul(r2, m);
 	for(i = k + 1; i < *r2; i++)
 		r2[i + 1] = 0;
@@ -722,9 +716,7 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	bignum_free(r2);
 	bignum_free(r1);
 
-	bignum_free(q3);
-	bignum_free(q2);
-	bignum_free(q1);
+	bignum_free(q);
 }
 
 /* Computes x = (x^y) % n, where ^ denotes exponentiation. */
