@@ -386,7 +386,6 @@ void v_gen_object_cmd_def(void)
 	"\t\t}\n"
 	"\t\tif(sum + buffer_pos > 1500)\n"
 	"\t\t\treturn;\n"
-	"\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], param_count);\n"
 	"\t\tfor(i = 0; i < param_count; i++)\n"
 	"\t\t{\n"
 	"\t\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], param_types[i]);\n"
