@@ -12,7 +12,7 @@
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
 #include "v_cmd_buf.h"
-#include "v_network_que.h"
+#include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
 
@@ -28,8 +28,7 @@ void init_pack_and_unpack(void)
 {
 	v_fs_add_func(0, v_unpack_connect, verse_send_connect, NULL);
 	v_fs_add_func(1, v_unpack_connect_accept, verse_send_connect_accept, NULL);
-	v_fs_add_func(2, v_unpack_connect_deny, verse_send_connect_deny, NULL);
-	v_fs_add_func(3, v_unpack_connect_terminate, verse_send_connect_terminate, NULL);
+	v_fs_add_func(2, v_unpack_connect_terminate, verse_send_connect_terminate, NULL);
 	v_fs_add_func(4, v_unpack_get_time, verse_send_get_time, NULL);
 	v_fs_add_func(5, v_unpack_ping, verse_send_ping, NULL);
 	v_fs_add_func(7, v_unpack_packet_ack, verse_send_packet_ack, NULL);
@@ -54,6 +53,7 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(42, v_unpack_o_method_group_subscribe, verse_send_o_method_group_subscribe, verse_send_o_method_group_unsubscribe);
 	v_fs_add_func(43, v_unpack_o_method_create, verse_send_o_method_create, verse_send_o_method_destroy);
 	v_fs_add_func(44, v_unpack_o_method_call, verse_send_o_method_call, NULL);
+	v_fs_add_func(45, v_unpack_o_anim_run, verse_send_o_anim_run, verse_send_o_anim_stop);
 	v_fs_add_func(48, v_unpack_g_layer_create, verse_send_g_layer_create, verse_send_g_layer_destroy);
 	v_fs_add_func(49, v_unpack_g_layer_subscribe, verse_send_g_layer_subscribe, verse_send_g_layer_unsubscribe);
 	v_fs_add_func(50, v_unpack_g_vertex_set_real32_xyz, verse_send_g_vertex_set_real32_xyz, verse_send_g_vertex_delete_real32);
@@ -72,20 +72,23 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(63, v_unpack_g_crease_set_edge, verse_send_g_crease_set_edge, NULL);
 	v_fs_add_func(64, v_unpack_g_bone_create, verse_send_g_bone_create, verse_send_g_bone_destroy);
 	v_fs_add_func(68, v_unpack_m_fragment_create, verse_send_m_fragment_create, verse_send_m_fragment_destroy);
-	v_fs_add_func(80, v_unpack_b_init_dimensions, verse_send_b_init_dimensions, NULL);
+	v_fs_add_func(80, v_unpack_b_dimensions_set, verse_send_b_dimensions_set, NULL);
 	v_fs_add_func(81, v_unpack_b_layer_create, verse_send_b_layer_create, verse_send_b_layer_destroy);
 	v_fs_add_func(82, v_unpack_b_layer_subscribe, verse_send_b_layer_subscribe, verse_send_b_layer_unsubscribe);
-	v_fs_add_func(83, v_unpack_b_layer_set_tile, verse_send_b_layer_set_tile, NULL);
+	v_fs_add_func(83, v_unpack_b_tile_set, verse_send_b_tile_set, NULL);
 	v_fs_add_func(96, v_unpack_t_set_language, verse_send_t_set_language, NULL);
 	v_fs_add_func(97, v_unpack_t_buffer_create, verse_send_t_buffer_create, verse_send_t_buffer_destroy);
 	v_fs_add_func(98, v_unpack_t_buffer_subscribe, verse_send_t_buffer_subscribe, verse_send_t_buffer_unsubscribe);
 	v_fs_add_func(99, v_unpack_t_text_set, verse_send_t_text_set, NULL);
 	v_fs_add_func(128, v_unpack_c_curve_create, verse_send_c_curve_create, verse_send_c_curve_destroy);
 	v_fs_add_func(129, v_unpack_c_curve_subscribe, verse_send_c_curve_subscribe, verse_send_c_curve_unsubscribe);
-	v_fs_add_func(130, v_unpack_c_curve_key_set, verse_send_c_curve_key_set, verse_send_c_curve_key_destroy);
+	v_fs_add_func(130, v_unpack_c_key_set, verse_send_c_key_set, verse_send_c_key_destroy);
 	v_fs_add_func(160, v_unpack_a_layer_create, verse_send_a_layer_create, verse_send_a_layer_destroy);
 	v_fs_add_func(161, v_unpack_a_layer_subscribe, verse_send_a_layer_subscribe, verse_send_a_layer_unsubscribe);
-	v_fs_add_func(162, v_unpack_a_audio, verse_send_a_audio, NULL);
+	v_fs_add_func(162, v_unpack_a_block_set, verse_send_a_block_set, NULL);
+	v_fs_add_func(163, v_unpack_a_stream_create, verse_send_a_stream_create, verse_send_a_stream_destroy);
+	v_fs_add_func(164, v_unpack_a_stream_subscribe, verse_send_a_stream_subscribe, verse_send_a_stream_unsubscribe);
+	v_fs_add_func(165, v_unpack_a_stream, verse_send_a_stream, NULL);
 }
 #endif
 

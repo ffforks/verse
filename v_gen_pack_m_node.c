@@ -12,14 +12,14 @@
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
 #include "v_cmd_buf.h"
-#include "v_network_que.h"
+#include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
 
 void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -30,7 +30,6 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], frag_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)type);
 	switch(type)
 	{
@@ -40,7 +39,7 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->color.blue);
 		break;
 	case VN_M_FT_LIGHT :
-		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->light.type);
+		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)fragment->light.type);
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->light.normal_falloff);
 		buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], fragment->light.brdf);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->light.brdf_r, 16);
@@ -59,6 +58,13 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->geometry.layer_g, 16);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->geometry.layer_b, 16);
 		break;
+	case VN_M_FT_VOLUME :
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.diffusion);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.col_r);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.col_g);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.col_b);
+		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->volume.color);
+		break;
 	case VN_M_FT_TEXTURE :
 		buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], fragment->texture.bitmap);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->texture.layer_r, 16);
@@ -66,16 +72,12 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->texture.layer_b, 16);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->texture.mapping);
 		break;
-	case VN_M_FT_TAG :
-		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->tag.name, 16);
-		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->tag.group, 16);
-		break;
 	case VN_M_FT_NOISE :
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)fragment->noise.type);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->noise.mapping);
 		break;
 	case VN_M_FT_BLENDER :
-		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->blender.type);
+		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)fragment->blender.type);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.data_a);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.data_b);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.control);
@@ -92,8 +94,8 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		{
 			unsigned int i, pos;
 			double last;
-			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->ramp.type);
-			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->ramp.channel);
+			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)fragment->ramp.type);
+			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)fragment->ramp.channel);
 			buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->ramp.mapping);
 			pos = buffer_pos;
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->ramp.point_count);
@@ -109,24 +111,31 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 				vnp_raw_pack_uint8(&buf[pos], i);
 		}
 		break;
+	case VN_M_FT_ANIMATION :
+		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->animation.label, 16);
+		break;
 	case VN_M_FT_ALTERNATIVE :
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->alternative.alt_a);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->alternative.alt_b);
 		break;
 	case VN_M_FT_OUTPUT :
-		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->output.type, 16);
+		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->output.label, 16);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->output.front);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->output.back);
 		break;
 	}
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || frag_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -137,10 +146,13 @@ void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], frag_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)-1);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || frag_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
@@ -154,7 +166,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 	VMatFrag *fragment;
 	
 	func_m_fragment_create = v_fs_get_user_func(68);
-	if(buffer_length < 7)
+	if(buffer_length < 6)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag_id);
@@ -169,6 +181,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 	if(type <= VN_M_FT_OUTPUT)
 	{
 		VMatFrag frag;
+		uint8 temp;
 		switch(type)
 		{
 		case VN_M_FT_COLOR :
@@ -181,7 +194,8 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 		case VN_M_FT_LIGHT :
 			if(buffer_pos + 13 > buffer_length)
 				return -1;
-			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.light.type);
+			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
+			frag.light.type = (VNMLightType)temp;
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.light.normal_falloff);
 			buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &frag.light.brdf);
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.light.brdf_r, 16, buffer_length - buffer_pos);
@@ -199,6 +213,15 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.transparency.normal_falloff);
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.transparency.refraction_index);
 			break;
+	case VN_M_FT_VOLUME :
+			if(buffer_pos + 34 > buffer_length)
+				return -1;
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.diffusion);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.col_r);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.col_g);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.col_b);
+			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.volume.color);
+			break;
 		case VN_M_FT_GEOMETRY :
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.geometry.layer_r, 16, buffer_length - buffer_pos);
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.geometry.layer_g, 16, buffer_length - buffer_pos);
@@ -213,20 +236,18 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.texture.layer_b, 16, buffer_length - buffer_pos);
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.texture.mapping);
 			break;
-		case VN_M_FT_TAG :
-			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.tag.name, 16, buffer_length - buffer_pos);
-			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.tag.group, 16, buffer_length - buffer_pos);
-			break;
 		case VN_M_FT_NOISE :
 			if(buffer_pos + 4 > buffer_length)
 				return -1;
-			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.noise.type);
+			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
+			frag.noise.type = (VNMNoiseType)temp;
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.noise.mapping);
 			break;
 		case VN_M_FT_BLENDER :
 			if(buffer_pos + 7 > buffer_length)
 				return -1;
-			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.blender.type);
+			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
+			frag.blender.type = (VNMBlendType)temp;
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.data_a);
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.data_b);
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.control);
@@ -248,9 +269,10 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			else
 			{
 				unsigned int i, pos;
-				double last;
-				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.ramp.type);
-				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.ramp.channel);
+				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
+				frag.ramp.type = (VNMRampType)temp;
+				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
+				frag.ramp.channel = (VNMRampChannel)temp;
 				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.ramp.mapping);
 				pos = buffer_pos;
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.ramp.point_count);
@@ -264,6 +286,9 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 					frag.ramp.point_count = i;
 			}
 			break;
+		case VN_M_FT_ANIMATION :
+			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.animation.label, 16, buffer_length - buffer_pos);
+			break;
 		case VN_M_FT_ALTERNATIVE :
 			if(buffer_pos + 4 > buffer_length)
 				return -1;
@@ -271,7 +296,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.alternative.alt_b);
 			break;
 		case VN_M_FT_OUTPUT :
-			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.output.type, 16, buffer_length - buffer_pos);
+			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.output.label, 16, buffer_length - buffer_pos);
 			if(buffer_pos + 4 > buffer_length)
 				return -1;
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.output.front);

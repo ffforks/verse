@@ -12,14 +12,14 @@
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
 #include "v_cmd_buf.h"
-#include "v_network_que.h"
+#include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
 
 void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_uint, real64 def_real)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -30,19 +30,22 @@ void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *n
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)type);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], def_uint);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], def_real);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -53,13 +56,16 @@ void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)-1);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_layer_create(const char *buf, size_t buffer_length)
@@ -109,7 +115,7 @@ unsigned int v_unpack_g_layer_create(const char *buf, size_t buffer_length)
 void verse_send_g_layer_subscribe(VNodeID node_id, VLayerID layer_id, VNRealFormat type)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -120,16 +126,19 @@ void verse_send_g_layer_subscribe(VNodeID node_id, VLayerID layer_id, VNRealForm
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)type);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_g_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -140,10 +149,13 @@ void verse_send_g_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)-1);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_layer_subscribe(const char *buf, size_t buffer_length)
@@ -156,7 +168,7 @@ unsigned int v_unpack_g_layer_subscribe(const char *buf, size_t buffer_length)
 	VNRealFormat type;
 	
 	func_g_layer_subscribe = v_fs_get_user_func(49);
-	if(buffer_length < 7)
+	if(buffer_length < 6)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -185,7 +197,7 @@ unsigned int v_unpack_g_layer_subscribe(const char *buf, size_t buffer_length)
 void verse_send_g_vertex_set_real32_xyz(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real32 x, real32 y, real32 z)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -197,18 +209,21 @@ void verse_send_g_vertex_set_real32_xyz(VNodeID node_id, VLayerID layer_id, uint
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], x);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], y);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], z);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || vertex_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_g_vertex_delete_real32(VNodeID node_id, uint32 vertex_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -220,12 +235,15 @@ void verse_send_g_vertex_delete_real32(VNodeID node_id, uint32 vertex_id)
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], 0);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], V_REAL32_MAX);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], V_REAL32_MAX);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], V_REAL32_MAX);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || vertex_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 9);
+	else
+		v_cmd_buf_set_address_size(head, 9);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_vertex_set_real32_xyz(const char *buf, size_t buffer_length)
@@ -240,7 +258,7 @@ unsigned int v_unpack_g_vertex_set_real32_xyz(const char *buf, size_t buffer_len
 	real32 z;
 	
 	func_g_vertex_set_real32_xyz = v_fs_get_user_func(50);
-	if(buffer_length < 22)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -271,7 +289,7 @@ unsigned int v_unpack_g_vertex_set_real32_xyz(const char *buf, size_t buffer_len
 void verse_send_g_vertex_set_real64_xyz(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 x, real64 y, real64 z)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -283,18 +301,21 @@ void verse_send_g_vertex_set_real64_xyz(VNodeID node_id, VLayerID layer_id, uint
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], x);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], y);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], z);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || vertex_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_g_vertex_delete_real64(VNodeID node_id, uint32 vertex_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -306,12 +327,15 @@ void verse_send_g_vertex_delete_real64(VNodeID node_id, uint32 vertex_id)
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], 0);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || vertex_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 9);
+	else
+		v_cmd_buf_set_address_size(head, 9);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_vertex_set_real64_xyz(const char *buf, size_t buffer_length)
@@ -326,7 +350,7 @@ unsigned int v_unpack_g_vertex_set_real64_xyz(const char *buf, size_t buffer_len
 	real64 z;
 	
 	func_g_vertex_set_real64_xyz = v_fs_get_user_func(51);
-	if(buffer_length < 34)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -357,7 +381,7 @@ unsigned int v_unpack_g_vertex_set_real64_xyz(const char *buf, size_t buffer_len
 void verse_send_g_vertex_set_uint32(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, uint32 value)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -369,10 +393,13 @@ void verse_send_g_vertex_set_uint32(VNodeID node_id, VLayerID layer_id, uint32 v
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], value);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || vertex_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_vertex_set_uint32(const char *buf, size_t buffer_length)
@@ -385,7 +412,7 @@ unsigned int v_unpack_g_vertex_set_uint32(const char *buf, size_t buffer_length)
 	uint32 value;
 	
 	func_g_vertex_set_uint32 = v_fs_get_user_func(52);
-	if(buffer_length < 14)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -403,7 +430,7 @@ unsigned int v_unpack_g_vertex_set_uint32(const char *buf, size_t buffer_length)
 void verse_send_g_vertex_set_real64(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 value)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -415,10 +442,13 @@ void verse_send_g_vertex_set_real64(VNodeID node_id, VLayerID layer_id, uint32 v
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], value);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || vertex_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_vertex_set_real64(const char *buf, size_t buffer_length)
@@ -431,7 +461,7 @@ unsigned int v_unpack_g_vertex_set_real64(const char *buf, size_t buffer_length)
 	real64 value;
 	
 	func_g_vertex_set_real64 = v_fs_get_user_func(53);
-	if(buffer_length < 18)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -449,7 +479,7 @@ unsigned int v_unpack_g_vertex_set_real64(const char *buf, size_t buffer_length)
 void verse_send_g_vertex_set_real32(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real32 value)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -461,10 +491,13 @@ void verse_send_g_vertex_set_real32(VNodeID node_id, VLayerID layer_id, uint32 v
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], value);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || vertex_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_vertex_set_real32(const char *buf, size_t buffer_length)
@@ -477,7 +510,7 @@ unsigned int v_unpack_g_vertex_set_real32(const char *buf, size_t buffer_length)
 	real32 value;
 	
 	func_g_vertex_set_real32 = v_fs_get_user_func(54);
-	if(buffer_length < 14)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -495,7 +528,7 @@ unsigned int v_unpack_g_vertex_set_real32(const char *buf, size_t buffer_length)
 void verse_send_g_polygon_set_corner_uint32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -507,19 +540,22 @@ void verse_send_g_polygon_set_corner_uint32(VNodeID node_id, VLayerID layer_id, 
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], v0);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], v1);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], v2);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], v3);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || polygon_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_g_polygon_delete(VNodeID node_id, uint32 polygon_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -531,13 +567,16 @@ void verse_send_g_polygon_delete(VNodeID node_id, uint32 polygon_id)
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], 0);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || polygon_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 9);
+	else
+		v_cmd_buf_set_address_size(head, 9);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_polygon_set_corner_uint32(const char *buf, size_t buffer_length)
@@ -553,7 +592,7 @@ unsigned int v_unpack_g_polygon_set_corner_uint32(const char *buf, size_t buffer
 	uint32 v3;
 	
 	func_g_polygon_set_corner_uint32 = v_fs_get_user_func(55);
-	if(buffer_length < 26)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -585,7 +624,7 @@ unsigned int v_unpack_g_polygon_set_corner_uint32(const char *buf, size_t buffer
 void verse_send_g_polygon_set_corner_real64(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real64 v0, real64 v1, real64 v2, real64 v3)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -597,13 +636,16 @@ void verse_send_g_polygon_set_corner_real64(VNodeID node_id, VLayerID layer_id, 
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], v0);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], v1);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], v2);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], v3);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || polygon_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_polygon_set_corner_real64(const char *buf, size_t buffer_length)
@@ -619,7 +661,7 @@ unsigned int v_unpack_g_polygon_set_corner_real64(const char *buf, size_t buffer
 	real64 v3;
 	
 	func_g_polygon_set_corner_real64 = v_fs_get_user_func(56);
-	if(buffer_length < 42)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -640,7 +682,7 @@ unsigned int v_unpack_g_polygon_set_corner_real64(const char *buf, size_t buffer
 void verse_send_g_polygon_set_corner_real32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real32 v0, real32 v1, real32 v2, real32 v3)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -652,13 +694,16 @@ void verse_send_g_polygon_set_corner_real32(VNodeID node_id, VLayerID layer_id, 
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], v0);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], v1);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], v2);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], v3);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || polygon_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_polygon_set_corner_real32(const char *buf, size_t buffer_length)
@@ -674,7 +719,7 @@ unsigned int v_unpack_g_polygon_set_corner_real32(const char *buf, size_t buffer
 	real32 v3;
 	
 	func_g_polygon_set_corner_real32 = v_fs_get_user_func(57);
-	if(buffer_length < 26)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -695,7 +740,7 @@ unsigned int v_unpack_g_polygon_set_corner_real32(const char *buf, size_t buffer
 void verse_send_g_polygon_set_face_uint8(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint8 value)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -707,10 +752,13 @@ void verse_send_g_polygon_set_face_uint8(VNodeID node_id, VLayerID layer_id, uin
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], value);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || polygon_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_polygon_set_face_uint8(const char *buf, size_t buffer_length)
@@ -723,7 +771,7 @@ unsigned int v_unpack_g_polygon_set_face_uint8(const char *buf, size_t buffer_le
 	uint8 value;
 	
 	func_g_polygon_set_face_uint8 = v_fs_get_user_func(58);
-	if(buffer_length < 11)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -741,7 +789,7 @@ unsigned int v_unpack_g_polygon_set_face_uint8(const char *buf, size_t buffer_le
 void verse_send_g_polygon_set_face_uint32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 value)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -753,10 +801,13 @@ void verse_send_g_polygon_set_face_uint32(VNodeID node_id, VLayerID layer_id, ui
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], value);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || polygon_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_polygon_set_face_uint32(const char *buf, size_t buffer_length)
@@ -769,7 +820,7 @@ unsigned int v_unpack_g_polygon_set_face_uint32(const char *buf, size_t buffer_l
 	uint32 value;
 	
 	func_g_polygon_set_face_uint32 = v_fs_get_user_func(59);
-	if(buffer_length < 14)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -787,7 +838,7 @@ unsigned int v_unpack_g_polygon_set_face_uint32(const char *buf, size_t buffer_l
 void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real64 value)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -799,10 +850,13 @@ void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer_id, ui
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], value);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || polygon_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_polygon_set_face_real64(const char *buf, size_t buffer_length)
@@ -815,7 +869,7 @@ unsigned int v_unpack_g_polygon_set_face_real64(const char *buf, size_t buffer_l
 	real64 value;
 	
 	func_g_polygon_set_face_real64 = v_fs_get_user_func(60);
-	if(buffer_length < 18)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -833,7 +887,7 @@ unsigned int v_unpack_g_polygon_set_face_real64(const char *buf, size_t buffer_l
 void verse_send_g_polygon_set_face_real32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real32 value)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -845,10 +899,13 @@ void verse_send_g_polygon_set_face_real32(VNodeID node_id, VLayerID layer_id, ui
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], value);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || polygon_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_polygon_set_face_real32(const char *buf, size_t buffer_length)
@@ -861,7 +918,7 @@ unsigned int v_unpack_g_polygon_set_face_real32(const char *buf, size_t buffer_l
 	real32 value;
 	
 	func_g_polygon_set_face_real32 = v_fs_get_user_func(61);
-	if(buffer_length < 14)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
@@ -879,7 +936,7 @@ unsigned int v_unpack_g_polygon_set_face_real32(const char *buf, size_t buffer_l
 void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 def_crease)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -889,11 +946,14 @@ void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 d
 	printf("send: verse_send_g_crease_set_vertex(node_id = %u layer = %s def_crease = %u );\n", node_id, layer, def_crease);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], layer, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], def_crease);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_crease_set_vertex(const char *buf, size_t buffer_length)
@@ -924,7 +984,7 @@ unsigned int v_unpack_g_crease_set_vertex(const char *buf, size_t buffer_length)
 void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def_crease)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -934,11 +994,14 @@ void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def
 	printf("send: verse_send_g_crease_set_edge(node_id = %u layer = %s def_crease = %u );\n", node_id, layer, def_crease);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], layer, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], def_crease);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_crease_set_edge(const char *buf, size_t buffer_length)
@@ -966,22 +1029,22 @@ unsigned int v_unpack_g_crease_set_edge(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w)
+void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_g_bone_create(node_id = %u bone_id = %u name = %s parent = %u pos_x = %f pos_y = %f pos_z = %f rot_x = %f rot_y = %f rot_z = %f rot_w = %f );\n", node_id, bone_id, name, parent, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, rot_w);
+	printf("send: verse_send_g_bone_create(node_id = %u bone_id = %u weight = %s reference = %s parent = %u pos_x = %f pos_y = %f pos_z = %f rot_x = %f rot_y = %f rot_z = %f rot_w = %f );\n", node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, rot_w);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], bone_id);
-	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], weight, 16);
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], reference, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], parent);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos_x);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos_y);
@@ -990,14 +1053,18 @@ void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *name,
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot_y);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot_z);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot_w);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || bone_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -1008,7 +1075,7 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], bone_id);
-	address_size = buffer_pos;
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
@@ -1018,17 +1085,22 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id)
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || bone_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_g_bone_create)(void *user_data, VNodeID node_id, uint16 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w);
+	void (* func_g_bone_create)(void *user_data, VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w);
 	VNodeID node_id;
 	uint16 bone_id;
-	char name[16];
+	char weight[16];
+	char reference[16];
 	uint32 parent;
 	real64 pos_x;
 	real64 pos_y;
@@ -1043,7 +1115,10 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &bone_id);
-	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], weight, 16, buffer_length - buffer_pos);
+	if(buffer_length < 0 + buffer_pos)
+		return -1;
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], reference, 16, buffer_length - buffer_pos);
 	if(buffer_length < 60 + buffer_pos)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &parent);
@@ -1055,12 +1130,12 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &rot_z);
 	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &rot_w);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	if(name[0] == 0)
+	if(weight[0] == 0)
 		printf("receive: verse_send_g_bone_destroy(node_id = %u bone_id = %u ); callback = %p\n", node_id, bone_id, v_fs_get_alias_user_func(64));
 	else
-		printf("receive: verse_send_g_bone_create(node_id = %u bone_id = %u name = %s parent = %u pos_x = %f pos_y = %f pos_z = %f rot_x = %f rot_y = %f rot_z = %f rot_w = %f ); callback = %p\n", node_id, bone_id, name, parent, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, rot_w, v_fs_get_user_func(64));
+		printf("receive: verse_send_g_bone_create(node_id = %u bone_id = %u weight = %s reference = %s parent = %u pos_x = %f pos_y = %f pos_z = %f rot_x = %f rot_y = %f rot_z = %f rot_w = %f ); callback = %p\n", node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, rot_w, v_fs_get_user_func(64));
 #endif
-	if(name[0] == 0)
+	if(weight[0] == 0)
 	{
 		void (* alias_g_bone_destroy)(void *user_data, VNodeID node_id, uint16 bone_id);
 		alias_g_bone_destroy = v_fs_get_alias_user_func(64);
@@ -1069,7 +1144,7 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_g_bone_create != NULL)
-		func_g_bone_create(v_fs_get_user_data(64), node_id, bone_id, name, parent, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, rot_w);
+		func_g_bone_create(v_fs_get_user_data(64), node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, rot_w);
 
 	return buffer_pos;
 }
