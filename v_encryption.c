@@ -140,6 +140,7 @@ void v_e_create_key(uint8 *private_key, uint8 *public_key, uint8 *n)
 {
 	static unsigned int random = 6;
 	unsigned int i;
+
 	random++;
 	for(i = 0; i < V_BIGNUM_BITS / 8; i++)
 	{
