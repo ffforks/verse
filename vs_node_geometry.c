@@ -96,6 +96,7 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 	node->layer[1].subscribers = NULL;/*vs_create_subscription_list();*/
 	node->layer[1].subscribersd = NULL;
 	node->layer[1].def.integer = 0;
+	node->layer[1].def.real = 0.0;
 
 	for(i = 2; i < 16; i++)
 	{
@@ -104,7 +105,7 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 		node->layer[i].layer = NULL;
 		node->layer[i].subscribers = NULL;
 		node->layer[i].subscribersd = NULL;
-		node->layer[i].def.integer = 0;
+		node->layer[i].def.real = 0;
 	}
 	node->crease_vertex = 0;
 	node->crease_vertex_layer[0] = 0;
@@ -125,7 +126,8 @@ void vs_g_subscribe(VSNodeGeometry *node)
 	unsigned int i;
 	for(i = 0; i < node->layer_count; i++)
 		if(node->layer[i].layer != NULL)	
-			verse_send_g_layer_create(node->head.id, (uint16)i, node->layer[i].name, node->layer[i].type, node->layer[i].def.integer, node->layer[i].def.real);
+			verse_send_g_layer_create(node->head.id, (uint16)i, node->layer[i].name, node->layer[i].type,
+						  node->layer[i].def.integer, node->layer[i].def.real);
 	verse_send_g_crease_set_vertex(node->head.id, node->crease_vertex_layer, node->crease_vertex);
 	verse_send_g_crease_set_edge(node->head.id, node->crease_edge_layer, node->crease_edge);
 	for(i = 0; i < node->bone_count; i++)
