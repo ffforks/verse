@@ -25,7 +25,10 @@ extern VBigNum	v_bignum_new_one(void);
 extern VBigNum	v_bignum_new_ushort(unsigned short a);
 extern VBigNum	v_bignum_new_bignum(VBigNum a, unsigned int msb, unsigned int bits);
 extern VBigNum	v_bignum_new_string(const char *hex);
+extern VBigNum	v_bignum_new_bits(const unsigned char *bits);	/* Copy raw bits from <bits>. */
 extern VBigNum	v_bignum_new_random(unsigned int num_bits);
+
+extern void	v_bignum_dump(VBigNum a, unsigned char *bits);	/* Copy raw bits to <bits>. */
 
 /* Handy during debugging. Prints in hexadecimal, with 0x prefix and linefeed. */
 extern void	v_bignum_print_hex(VBigNum a);
