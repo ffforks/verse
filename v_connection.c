@@ -37,7 +37,7 @@ struct{
 	uint16			connect_port;
 }VConData;
 
-boolean v_con_initialized = FALSE;
+static boolean v_con_initialized = FALSE;
 
 void v_con_init(void)
 {
