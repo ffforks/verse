@@ -174,8 +174,8 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 		in_balance++;
 		
 
-	if(delta * queue->send_rate < 1500)
-		return FALSE;
+	/*if(delta * queue->send_rate < 1500)
+		return FALSE;*/
 
 	{
 /*		static unsigned int s, new_sec, count;

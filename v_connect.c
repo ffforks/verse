@@ -178,6 +178,8 @@ void v_update_connection_pending()
 		if(func_connect_termanate != 0)
 			func_connect_termanate(v_fs_get_user_data(2), address_string, "no message");
 		break;
+	default:
+		;
 	}	
 }
 

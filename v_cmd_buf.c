@@ -25,7 +25,7 @@ static void cmd_buf_init(void)
 	for(i = 0; i < VCMDBS_COUNT; i++)
 	{
 		for(j = 0; j < VCMDBUF_CHUNK_SIZE; j++)
-		VCMDBufData.buffers[i][j] = NULL;
+			VCMDBufData.buffers[i][j] = NULL;
 		VCMDBufData.available[i] = 0;
 	}
 	v_cmd_buf_initialized = TRUE;

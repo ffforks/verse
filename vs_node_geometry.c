@@ -414,20 +414,21 @@ static void callback_send_g_layer_unsubscribe(void *user, VNodeID node_id, VNMFr
 		vs_remove_subscriptor(node->layer[layer_id].subscribersd);
 }
 
-boolean vs_b_extend_arrays(VSNodeGeometry *node, boolean vertex, unsigned int id)
+static boolean vs_g_extend_arrays(VSNodeGeometry *node, boolean vertex, unsigned int id)
 {
 	unsigned int i, j;
+
 	if(vertex)
 	{
-		if(node->vertex_size + 256 < id)
+/*		if(node->vertex_size + 256 < id)
 			return FALSE;
-		if(node->vertex_size > id)
+*/		if(node->vertex_size > id)
 			return TRUE;
 	}else
 	{
-		if(node->poly_size + 256 < id)
+/*		if(node->poly_size + 256 < id)
 			return FALSE;
-		if(node->poly_size > id)
+*/		if(node->poly_size > id)
 			return TRUE;
 	}
 
@@ -496,7 +497,7 @@ static void callback_send_g_vertex_set_real32_xyz(void *user, VNodeID node_id, V
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_VERTEX_XYZ)
 		return;
-	if(!vs_b_extend_arrays(node, TRUE, vertex_id))
+	if(!vs_g_extend_arrays(node, TRUE, vertex_id))
 		return;
 	if(((double *)node->layer[0].layer)[vertex_id * 3] == V_REAL64_MAX)
 	{
@@ -540,7 +541,7 @@ static void callback_send_g_vertex_set_real64_xyz(void *user, VNodeID node_id, V
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_VERTEX_XYZ)
 		return;
-	if(!vs_b_extend_arrays(node, TRUE, vertex_id))
+	if(!vs_g_extend_arrays(node, TRUE, vertex_id))
 		return;
 	if(((double *)node->layer[0].layer)[vertex_id * 3] == V_REAL64_MAX)
 	{
@@ -611,7 +612,7 @@ static void callback_send_g_vertex_set_uint32(void *user, VNodeID node_id, VLaye
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_VERTEX_UINT32)
 		return;
-	if(!vs_b_extend_arrays(node, TRUE, vertex_id))
+	if(!vs_g_extend_arrays(node, TRUE, vertex_id))
 		return;
 	((uint32 *)node->layer[layer_id].layer)[vertex_id] = value;
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribers);
@@ -632,7 +633,7 @@ static void callback_send_g_vertex_set_real64(void *user, VNodeID node_id, VLaye
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_VERTEX_REAL)
 		return;
-	if(!vs_b_extend_arrays(node, TRUE, vertex_id))
+	if(!vs_g_extend_arrays(node, TRUE, vertex_id))
 		return;
 	((double *)node->layer[layer_id].layer)[vertex_id] = value;
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribers);
@@ -659,7 +660,7 @@ static void callback_send_g_vertex_set_real32(void *user, VNodeID node_id, VLaye
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_VERTEX_REAL)
 		return;
-	if(!vs_b_extend_arrays(node, TRUE, vertex_id))
+	if(!vs_g_extend_arrays(node, TRUE, vertex_id))
 		return;
 	((double *)node->layer[layer_id].layer)[vertex_id] = (double)value;
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribers);
@@ -688,7 +689,7 @@ static void callback_send_g_polygon_set_corner_uint32(void *user, VNodeID node_i
 		return;
 	if(layer_id == 1 && (v0 == v1 || v1 == v2 || v2 == v3 || v3 == v0 || v0 == v2 || v1 == v3))
 		return;
-	if(!vs_b_extend_arrays(node, FALSE, polygon_id))
+	if(!vs_g_extend_arrays(node, FALSE, polygon_id))
 		return;
 	((uint32 *)node->layer[layer_id].layer)[polygon_id * 4] = v0;
 	((uint32 *)node->layer[layer_id].layer)[polygon_id * 4 + 1] = v1;
@@ -712,7 +713,7 @@ static void callback_send_g_polygon_set_corner_real64(void *user, VNodeID node_i
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_CORNER_REAL)
 		return;
-	if(!vs_b_extend_arrays(node, TRUE, polygon_id))
+	if(!vs_g_extend_arrays(node, TRUE, polygon_id))
 		return;
 	((double *)node->layer[layer_id].layer)[polygon_id * 4] = v0;
 	((double *)node->layer[layer_id].layer)[polygon_id * 4 + 1] = v1;
@@ -737,17 +738,18 @@ static void callback_send_g_polygon_set_corner_real32(void *user, VNodeID node_i
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
+
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
 	if(node == NULL)
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_CORNER_REAL)
 		return;
-	if(!vs_b_extend_arrays(node, TRUE, polygon_id))
+	if(!vs_g_extend_arrays(node, FALSE, polygon_id))
 		return;
-	((double *)node->layer[layer_id].layer)[polygon_id * 4] = (double)v0;
-	((double *)node->layer[layer_id].layer)[polygon_id * 4 + 1] = (double)v1;
-	((double *)node->layer[layer_id].layer)[polygon_id * 4 + 2] = (double)v2;
-	((double *)node->layer[layer_id].layer)[polygon_id * 4 + 3] = (double)v3;
+	((double *)node->layer[layer_id].layer)[polygon_id * 4] = v0;
+	((double *)node->layer[layer_id].layer)[polygon_id * 4 + 1] = v1;
+	((double *)node->layer[layer_id].layer)[polygon_id * 4 + 2] = v2;
+	((double *)node->layer[layer_id].layer)[polygon_id * 4 + 3] = v3;
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
@@ -772,7 +774,7 @@ static void callback_send_g_polygon_set_face_uint8(void *user, VNodeID node_id, 
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_FACE_UINT8)
 		return;
-	if(!vs_b_extend_arrays(node, FALSE, polygon_id))
+	if(!vs_g_extend_arrays(node, FALSE, polygon_id))
 		return;
 	((uint8 *)node->layer[layer_id].layer)[polygon_id] = value;
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribers);
@@ -793,7 +795,7 @@ static void callback_send_g_polygon_set_face_uint32(void *user, VNodeID node_id,
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_FACE_UINT8)
 		return;
-	if(!vs_b_extend_arrays(node, FALSE, polygon_id))
+	if(!vs_g_extend_arrays(node, FALSE, polygon_id))
 		return;
 	((uint32 *)node->layer[layer_id].layer)[polygon_id] = value;
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribers);
@@ -814,7 +816,7 @@ static void callback_send_g_polygon_set_face_real64(void *user, VNodeID node_id,
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_FACE_REAL)
 		return;
-	if(!vs_b_extend_arrays(node, FALSE, polygon_id))
+	if(!vs_g_extend_arrays(node, FALSE, polygon_id))
 		return;
 	((double *)node->layer[layer_id].layer)[polygon_id] = value;
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribers);
@@ -841,7 +843,7 @@ static void callback_send_g_polygon_set_face_real32(void *user, VNodeID node_id,
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_FACE_REAL)
 		return;
-	if(!vs_b_extend_arrays(node, FALSE, polygon_id))
+	if(!vs_g_extend_arrays(node, FALSE, polygon_id))
 		return;
 	((double *)node->layer[layer_id].layer)[polygon_id] = (double)value;
 	count =	vs_get_subscript_count(node->layer[layer_id].subscribers);
@@ -866,7 +868,7 @@ static void callback_send_g_polygon_delete(void *user, VNodeID node_id, uint32 p
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
 	if(node == NULL)
 		return;
-	if(!vs_b_extend_arrays(node, FALSE, polygon_id))
+	if(!vs_g_extend_arrays(node, FALSE, polygon_id))
 		return;
 	((uint32 *)node->layer[1].layer)[polygon_id * 4] = -1;
 	count =	vs_get_subscript_count(node->layer[1].subscribers);

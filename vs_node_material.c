@@ -78,8 +78,6 @@ static void callback_send_m_fragment_create(void *user, VNodeID node_id, VNMFrag
 	}
 	node->frag[frag_id].type = type;
 	node->frag[frag_id].frag = *fragment;
-	if(type == VN_M_FT_RAMP)
-		printf("Ramp count == %u\n", fragment->ramp.point_count);
 
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)

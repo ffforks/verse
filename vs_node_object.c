@@ -181,7 +181,6 @@ static void callback_send_o_transform_rot_real32(void *user, VNodeID node_id, ui
 	{
 		vs_set_subscript_session(node->trans_sub64, i);
 		verse_send_o_transform_rot_real64(node_id, time_s, time_f, node->transform.rotation, NULL, NULL, NULL, 0);
-
 	}
 	count =	vs_get_subscript_count(node->trans_sub32);
 	for(i = 0; i < count; i++)
@@ -317,18 +316,19 @@ static void callback_send_o_transform_subscribe(void *user, VNodeID node_id, VNR
 	if(type == VN_FORMAT_REAL32)
 	{
 		vs_add_new_subscriptor(node->trans_sub32);
-		temp[0] = (real32)node->transform.position[0];
-		temp[1] = (real32)node->transform.position[1];
-		temp[2] = (real32)node->transform.position[2];
+		temp[0] = node->transform.position[0];
+		temp[1] = node->transform.position[1];
+		temp[2] = node->transform.position[2];
 		verse_session_get_time(&time_s, &time_f);
 		verse_send_o_transform_pos_real32(node_id, time_s, time_f, temp, NULL, NULL, NULL, 0);
-		temp[0] = (real32)node->transform.rotation[0];
-		temp[1] = (real32)node->transform.rotation[1];
-		temp[2] = (real32)node->transform.rotation[2];
-		temp[3] = (real32)node->transform.rotation[3];
+		temp[0] = node->transform.rotation[0];
+		temp[1] = node->transform.rotation[1];
+		temp[2] = node->transform.rotation[2];
+		temp[3] = node->transform.rotation[3];
 		verse_send_o_transform_rot_real32(node_id, time_s, time_f, temp, NULL, NULL, NULL, 0);
 		verse_send_o_transform_scale_real32(node_id, (real32)node->transform.scale[0], (real32)node->transform.scale[1], (real32)node->transform.scale[2]);
-	}else
+	}
+	else
 	{
 		vs_add_new_subscriptor(node->trans_sub64);
 		verse_send_o_transform_pos_real64(node_id, time_s, time_f, node->transform.position, NULL, NULL, NULL, 0);
@@ -340,11 +340,9 @@ static void callback_send_o_transform_subscribe(void *user, VNodeID node_id, VNR
 static void callback_send_o_transform_unsubscribe(void *user, VNodeID node_id, VNRealFormat type)
 {
 	VSNodeObject *node;
-	printf("callback_send_o_transform_unsubscribe\n");
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL)
 		return;
-	printf("callback_send_o_transform_unsubscribe\n");
 	if(type == VN_FORMAT_REAL32)
 		vs_remove_subscriptor(node->trans_sub32);
 	else

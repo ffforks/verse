@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "v_cmd_gen.h"
 
@@ -421,10 +422,12 @@ static void callback_send_b_layer_unsubscribe(void *user, VNodeID node_id, VLaye
 	vs_remove_subscriptor(node->layers[layer_id].subscribers);
 }
 
-static void callback_send_b_tile_set(void *user, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 tile_z, uint8 type, VNBTile *data)
+static void callback_send_b_tile_set(void *user, VNodeID node_id, VLayerID layer_id,
+				     uint16 tile_x, uint16 tile_y, uint16 tile_z, uint8 type, VNBTile *data)
 {
 	VSNodeBitmap *node;
 	unsigned int i, count, tile[3];
+
 	if((node = (VSNodeBitmap *)vs_get_node(node_id, V_NT_BITMAP)) == NULL)
 		return;
 	if(layer_id >= node->layer_count || node->layers[layer_id].layer == NULL || node->layers[layer_id].type != type)
@@ -434,6 +437,8 @@ static void callback_send_b_tile_set(void *user, VNodeID node_id, VLayerID layer
 	tile[0] = ((node->size[0] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[1] = ((node->size[1] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[2] = node->size[2];
+
+/*	printf("set tile: %u.%u.(%u,%u,%u)\n", node_id, layer_id, tile_x, tile_y, tile_z);*/
 
 	switch(node->layers[layer_id].type)
 	{
