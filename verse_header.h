@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 /* Release information. */
-#define	V_RELEASE_NUMBER	1
+#define	V_RELEASE_NUMBER	2
 #define	V_RELEASE_PATCH		0
 #define	V_RELEASE_LABEL		"(none)"
 
@@ -146,7 +146,7 @@ typedef enum {
 typedef enum {
 	VN_FORMAT_REAL32,
 	VN_FORMAT_REAL64
-} VNORealFormat;
+} VNRealFormat;
 
 typedef enum {
 	VN_O_METHOD_GROUP_NAME_SIZE = 16,
@@ -157,12 +157,12 @@ typedef enum {
 typedef enum {
 	VN_G_LAYER_VERTEX_XYZ = 0,
 	VN_G_LAYER_VERTEX_UINT32,
-	VN_G_LAYER_VERTEX_REAL64,
+	VN_G_LAYER_VERTEX_REAL,
 	VN_G_LAYER_POLYGON_CORNER_UINT32 = 128,
-	VN_G_LAYER_POLYGON_CORNER_REAL64,
+	VN_G_LAYER_POLYGON_CORNER_REAL,
 	VN_G_LAYER_POLYGON_FACE_UINT8,
 	VN_G_LAYER_POLYGON_FACE_UINT32,
-	VN_G_LAYER_POLYGON_FACE_REAL64
+	VN_G_LAYER_POLYGON_FACE_REAL
 } VNGLayerType;
 
 typedef enum {
@@ -175,12 +175,14 @@ typedef enum {
 } VNMLightType;
 
 typedef enum {
-	VN_M_NOISE_PERLIN = 0
+	VN_M_NOISE_PERLIN_ZERO_TO_ONE = 0,
+	VN_M_NOISE_PERLIN_MINUS_ONE_TO_ONE
 } VNMNoiseType;
 
 typedef enum {
 	VN_M_RAMP_SQUARE = 0,
-	VN_M_RAMP_LINEAR
+	VN_M_RAMP_LINEAR,
+	VN_M_RAMP_SMOOTH
 } VNMRampType;
 
 typedef enum {
@@ -266,7 +268,7 @@ typedef union {
 		uint8 type;
 		VNMFragmentID data_a;
 		VNMFragmentID data_b; 
-		VNMFragmentID mapping;
+		VNMFragmentID control;
 	} blender;
 	struct {
 		real64 matrix[16];
@@ -299,6 +301,14 @@ typedef enum {
 } VNBLayerType;
 
 #define VN_B_TILE_SIZE 4
+
+typedef union{
+	uint16 vuint1;
+	uint8  vuint8[16];
+	uint16 vuint16[16];
+	real32 vreal32[16];
+	real64 vreal64[16];
+} VNBTile;
 
 typedef enum {
 	VN_C_CONTENT_LANGUAGE_SIZE = 32,
@@ -347,8 +357,9 @@ extern size_t verse_session_get_size(void);
 extern void *verse_method_call_pack(uint32 param_count, const VNOParam *params, const VNOParamType *param_type);
 extern boolean verse_method_call_unpack(const void *data, uint32 param_count, VNOParam *params, const VNOParamType *param_type);
 
-extern void *verse_audio_compress(uint32 length, VNALayerType type, void *data);
-extern void *verse_audio_uncompress(uint32 length, VNALayerType type, void *data);
+extern void *verse_audio_compress(uint32 length, VNALayerType type, const void *data);
+extern void *verse_audio_uncompress(uint32 length, VNALayerType type, const void *data);
+
 /*
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECEIVE_COMMANDS
