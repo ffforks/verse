@@ -7,15 +7,15 @@
 
 #include "v_cmd_gen.h"
 
-#if !defined(V_GENERATE_FUNC_MODE)
+#if !defined V_GENERATE_FUNC_MODE
 
 #include "verse.h"
 #include "vs_server.h"
 
 /*
-typedef struct{
+typedef struct {
 	VSNodeHead head;
-}VSNodeObject;
+} VSNodeObject;
 
 VSNodeObject *vs_o_create_node(unsigned int owner)
 {
@@ -36,7 +36,7 @@ void vs_o_subscribe(VSNodeObject *node)
 {
 }
 
-void callback_send_o_unsubscribe(void *user, VNodeID node_id)
+static void callback_send_o_unsubscribe(void *user, VNodeID node_id)
 {
 	VSNodeObject *node;
 	node = (VSNodeObject *)vs_get_node(node_id);
