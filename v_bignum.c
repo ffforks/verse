@@ -103,16 +103,24 @@ VBigNum v_bignum_new_string(const char *string)
 	return x;
 }
 
+VBigNum v_bignum_new_bits(const unsigned char *bits)
+{
+	VBigNum	a;
+
+	memcpy(a.x, bits, sizeof a.x);
+	return a;
+}
+
 VBigNum v_bignum_new_random(unsigned int num_bits)
 {
 	VBigNum	a;
 	int	i;
 
-	if(bits > V_BIGNUM_BITS)
+	if(num_bits > V_BIGNUM_BITS)
 		return v_bignum_new_zero();
 
 	memset(a.x, 0, sizeof a.x);
-	for(i = 0; i < (bits + CHAR_BIT * sizeof *a.x - 1) / (CHAR_BIT * sizeof *a.x); i++)
+	for(i = 0; i < (num_bits + CHAR_BIT * sizeof *a.x - 1) / (CHAR_BIT * sizeof *a.x); i++)
 		a.x[i] = rand();
 	/* NOTE: Happily assumes that <bits> is always a multiple of the bits-per-a.x[] value, i.e. 16. */
 
