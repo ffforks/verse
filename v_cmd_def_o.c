@@ -457,7 +457,6 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_REAL64,		"accel");
 	v_cg_add_param(VCGP_REAL64,		"scale");
 	v_cg_add_param(VCGP_REAL64,		"scale_speed");
-	v_cg_alias(TRUE, "o_anim_stop", NULL, 2, NULL);
 	v_cg_end_cmd();
 }
 
