@@ -112,7 +112,7 @@ void verse_callback_set(void *command, void *callback, void *user)
 }
 
 /* Do we accept incoming connections, i.e. are we a host implementation? */
-boolean v_fs_func_accept_connections()
+boolean v_fs_func_accept_connections(void)
 {
 	return VCmdData.user_func[0] != NULL;
 }
