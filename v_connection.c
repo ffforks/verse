@@ -168,7 +168,7 @@ void v_con_network_listen(void)
 	{
 		VConData.current_connection = v_co_find_connection(address.ip, address.port);
 		if(VConData.current_connection < VConData.con_count)
-		{			
+		{
 			if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
 			{
 				vnp_raw_unpack_uint32(buf, &packet_id);
