@@ -50,14 +50,6 @@ typedef struct{
 static VSocket	my_socket = -1;
 static uint16	my_port = 0;
 
-/*
-struct VNetworkAddress {
-	VSocket	socket;
-	uint32	their_ip;
-	uint16	their_port;
-	uint16	my_port;
-};*/
-
 void v_n_set_port(unsigned short port)
 {
 	my_port = port;
@@ -115,29 +107,6 @@ void v_n_socket_destroy(void)
 #endif
 	my_socket = -1;
 }
-/*
-void v_n_destroy_network_address(VNetworkAddress *address)
-{
-	v_n_socket_destroy(address->socket);
-	free(address);
-}
-*/
-/* A strdup() implementation, since we can't depend on it being available in e.g. Windows. 
-static char * v_n_strdup(const char *str)
-{
-	size_t	len;
-	char	*buf;
-
-	if(str == NULL)
-		return NULL;
-	len = strlen(str);
-	if((buf = malloc(len + 1)) != NULL)
-	{
-		strcpy(buf, str);
-		return buf;
-	}
-	return NULL;
-}*/
 
 boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 {
@@ -254,7 +223,6 @@ void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 }
 
 #endif
-
 
 void v_n_get_address_string(const VNetworkAddress *address, char *string)
 {
