@@ -89,6 +89,9 @@ VBigNum v_bignum_new_string(const char *string)
 		len -= 2;
 	}
 	x = v_bignum_new_zero();
+	for(i = len - 1; i >= 0 && !isxdigit(string[i]); i--)
+		;
+	len = i + 1;
 	for(i = len - 1, d = 0; i >= 0; i--, d++)
 	{
 		here = toupper(string[i]);
@@ -402,7 +405,8 @@ VBigNum v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder)
 				work.x[0] |= 1;
 		}
 	}
-	*remainder = work;
+	if(remainder != NULL)
+		*remainder = work;
 	return q;
 }
 
