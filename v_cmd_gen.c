@@ -109,7 +109,7 @@ static void v_cg_close(void)
 	fprintf(VCGData.verse_h, "\n#endif\t\t/* VERSE_H */\n");
 }
 
-void v_cg_new_cmd(unsigned int type, const char *name, unsigned int cmd_id, VCGCommandType command)
+void v_cg_new_cmd(VCGCommandType type, const char *name, unsigned int cmd_id, VCGCommandType command)
 {
 	VCGData.param_count = 0;
 	VCGData.func_name = name;
