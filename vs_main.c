@@ -15,33 +15,38 @@
 extern VNodeID	vs_node_create(VNodeID owner_id, unsigned int type);
 extern void	callback_send_node_destroy(void *user_data, VNodeID node_id);
 
-static void callback_send_connect(void *user, char *name, char *pass, void *address)
+
+
+static void callback_send_connect(void *user, char *name, char *pass, void *address, uint8 *host_id)
 {
-	VNodeID id;
+	VNodeID avatar;
 	VSession *session;
-
-	id = vs_node_create(0, V_NT_OBJECT);
-	session = verse_send_connect_accept(id, address);
-	vs_add_new_connection(session, id);
+	if(TRUE)
+	{
+		avatar = vs_node_create(0, V_NT_OBJECT);
+		session = verse_send_connect_accept(avatar, address, NULL);
+		vs_add_new_connection(session, name, pass, avatar);
+	}else
+	{
+		verse_send_connect_terminate(address, "Im sorry but you are not wellcome here.");
+	}
 }
-
-static void callback_send_connect_terminate(void *user, char *bye)
+static void callback_send_connect_terminate(void *user, char *address, char *bye)
 {
 	callback_send_node_destroy(NULL, vs_get_avatar());
 	vs_remove_connection();
+	verse_session_destroy(vs_get_session());
 }
 
 static void callback_send_ping(void *user, char *address, char *text)
 {
-	printf("Someone at address %s sent a ping message ", address);
 	verse_send_ping(address, "You have reached a Verse server, I'm not home at the moment, but please leave a message.");
 }
 
 int main(int argc, char **argv)
 {
-	printf("Verse Server r%up%u By Eskil Steenberg <http://www.blender.org/modules/verse/>\n",
-	       V_RELEASE_NUMBER, V_RELEASE_PATCH);
-	verse_set_connect_port(4950); /* this is the standard port */
+	printf("Verse Server r%up%u By Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH);
+	verse_set_port(4950); /* this is the standard port */
 	vs_init_node_storage();
 	vs_o_callback_init();
 	vs_g_callback_init();
@@ -58,7 +63,7 @@ int main(int argc, char **argv)
 	while(TRUE)
 	{
 		vs_set_next_session();
-		verse_callback_update(10);
+		verse_callback_update(1000000);
 	}
 	return EXIT_SUCCESS;
 }
