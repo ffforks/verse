@@ -300,7 +300,7 @@ VSession * verse_send_connect_accept(VNodeID avatar, const char *address, uint8 
 
 void v_callback_connect_terminate(const char *bye)
 {
-	void (* func_connect_terminate)(void *user_data, char *address, char *bye);
+	void (* func_connect_terminate)(void *user_data, char *address, const char *bye);
 	char address_string[32];
 	printf("terminate\n");
 	func_connect_terminate = v_fs_get_user_func(2);
