@@ -80,7 +80,10 @@ VNetOutQueue * v_noq_create_network_queue(void)
 
 unsigned int v_noq_get_next_out_packet_id(VNetOutQueue *queue)
 {
-	return queue->packet_id++;
+	queue->packet_id++;
+	if(queue->packet_id == 0)
+		queue->packet_id++;
+	return queue->packet_id;
 }
 
 void v_noq_destroy_network_queue(VNetOutQueue *queue)
@@ -102,7 +105,7 @@ static unsigned int out_balance = 1;
 boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 {
 	VCMDBufHead *buf;
-	unsigned int i, size;
+	unsigned int size;
 	char data[1500];
 	uint32 seconds, fractions;
 	double delta;
