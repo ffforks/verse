@@ -346,13 +346,15 @@ typedef enum {
 	VN_T_MAX_TEXT_CMD_SIZE = 1450
 } VNTConstants;
 
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8 1024
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16 512
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24 384
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32 256
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32 256
-#define VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64 128
-
+/* This is how many *samples* are included in a block of the given type. Not bytes. */
+typedef enum {
+	VN_A_BLOCK_SIZE_INT8 = 1024,
+	VN_A_BLOCK_SIZE_INT16 = 512,
+	VN_A_BLOCK_SIZE_INT24 = 384,
+	VN_A_BLOCK_SIZE_INT32 = 256,
+	VN_A_BLOCK_SIZE_REAL32 = 256,
+	VN_A_BLOCK_SIZE_REAL64 = 128,
+} VNAConstants;
 
 typedef enum {
 	VN_A_LAYER_INT8,
@@ -363,18 +365,6 @@ typedef enum {
 	VN_A_LAYER_REAL64,
 } VNALayerType;
 
-/*
-typedef enum {
-	VN_P_FORCE_RADIAL = 0,
-	VN_P_FORCE_DIRECTIONAL
-} VNPForceType;
-
-typedef enum {
-	VN_P_SPACE_LOCAL = 0,
-	VN_P_SPACE_GLOBAL,
-	VN_P_SPACE_PARTICLE
-} VNPSpace;
-*/
 extern void		verse_set_port(uint16 port);
 extern void		verse_host_id_create(uint8 *id);
 extern void		verse_host_id_set(uint8 *id);
@@ -386,11 +376,11 @@ extern size_t	verse_session_get_size(void);
 extern VNodeID	verse_session_get_avatar(void);
 extern void		verse_session_get_time(uint32 *seconds, uint32 *fractions);
 
-extern void		*verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
+extern void *		verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
 extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
 
-extern void		*verse_audio_compress(uint32 length, VNALayerType type, const void *data);
-extern void		*verse_audio_uncompress(uint32 length, VNALayerType type, const void *data);
+extern void *		verse_audio_compress(uint32 length, VNALayerType type, const void *data);
+extern void *		verse_audio_uncompress(uint32 length, VNALayerType type, const void *data);
 
 /*
 #define V_PRINT_SEND_COMMANDS
