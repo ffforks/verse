@@ -95,6 +95,7 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 	unsigned int count, i;
 	VSNodeHead *node;
 	VNodeID node_id;
+
 	printf("vs_node_create(%u, %u)\n", owner_id, type);
 	switch(type)
 	{
@@ -119,9 +120,11 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 		case V_NT_AUDIO :
 			node = vs_a_create_node(owner_id);
 		break;
+		default:
+			fprintf(stderr, "Can't create node of unknown type %u\n", type);
+			return 0U;
 	}
 	node_id = node->id;
-
 
 	count =	vs_get_subscript_count(VSNodeStorage.list[type]);
 	for(i = 0; i < count; i++)
