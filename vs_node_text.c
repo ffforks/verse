@@ -203,6 +203,7 @@ static void callback_send_t_buffer_unsubscribe(void *user, VNodeID node_id, VNMB
 static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text)
 {
 	VSNodeText *node;
+	VSTextBuffer *tb;
 	unsigned int i, count, text_length;
 	char *buf;
 
@@ -211,21 +212,22 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 		return;
 	if(buffer_id >= node->buffer_count || node->buffer[buffer_id].name[0] == 0)
 		return;
+	tb = &node->buffer[buffer_id];
 
 	text_length = strlen(text);
 
-	if(pos > node->buffer[buffer_id].length)
-		pos = node->buffer[buffer_id].length;
+	if(pos > tb->length)
+		pos = tb->length;
 
-	if(pos + length > node->buffer[buffer_id].length)
-		length = node->buffer[buffer_id].length - pos;
+	if(pos + length > tb->length)
+		length = tb->length - pos;
 
-	buf = node->buffer[buffer_id].text;
+	buf = tb->text;
 
-	if(node->buffer[buffer_id].length + text_length - length > node->buffer[buffer_id].allocated)
+	if(tb->length + text_length - length > tb->allocated)
 	{
-		buf = realloc(buf, node->buffer[buffer_id].length + text_length - length + VS_TEXT_CHUNK_SIZE);
-		node->buffer[buffer_id].allocated = node->buffer[buffer_id].length + text_length - length + VS_TEXT_CHUNK_SIZE;
+		buf = realloc(buf, tb->length + text_length - length + VS_TEXT_CHUNK_SIZE);
+		tb->allocated = tb->length + text_length - length + VS_TEXT_CHUNK_SIZE;
 	}
 
 	if(text_length < length)
@@ -237,7 +239,7 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 			buf[pos + i] = text[i];
 	}else
 	{
-		for(i = node->buffer[buffer_id].length; i != pos + text_length; i--)
+		for(i = tb->length; i != pos + text_length; i--)
 			buf[i + text_length - length] = buf[i];
 		buf[i + text_length - length] = buf[i];
 
@@ -245,20 +247,20 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 			buf[pos + i] = text[i];
 	}
 
-	node->buffer[buffer_id].length += text_length - length;
+	tb->length += text_length - length;
 
-	if(node->buffer[buffer_id].allocated > VS_TEXT_CHUNK_SIZE * 8 && node->buffer[buffer_id].allocated * 2 > node->buffer[buffer_id].length)
+	if(tb->allocated > VS_TEXT_CHUNK_SIZE * 8 && tb->allocated * 2 > tb->length)
 	{
-		buf = realloc(buf, node->buffer[buffer_id].length + VS_TEXT_CHUNK_SIZE);
-		node->buffer[buffer_id].allocated = node->buffer[buffer_id].length + VS_TEXT_CHUNK_SIZE;
+		buf = realloc(buf, tb->length + VS_TEXT_CHUNK_SIZE);
+		tb->allocated = tb->length + VS_TEXT_CHUNK_SIZE;
 	}
 
-	node->buffer[buffer_id].text = buf;
+	tb->text = buf;
 
-	count =	vs_get_subscript_count(node->buffer[buffer_id].subscribers);
+	count =	vs_get_subscript_count(tb->subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->buffer[buffer_id].subscribers, i);
+		vs_set_subscript_session(tb->subscribers, i);
 		verse_send_t_text_set(node_id, buffer_id, pos, length, text);
 	}
 	vs_reset_subscript_session();
