@@ -6,7 +6,7 @@
 
 typedef struct VNetworkAddress VNetworkAddress;
 
-extern void		v_n_wait_for_inncoming(unsigned int milliseconds);
+extern void		v_n_wait_for_incoming(unsigned int milliseconds);
 extern VNetworkAddress*	v_n_create_network_address(int my_port, const char *host_name);
 extern void		v_n_destroy_network_address(VNetworkAddress *address);
 extern unsigned int	v_n_send_data(VNetworkAddress *address, const char *data, unsigned int length);
