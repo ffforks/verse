@@ -88,13 +88,14 @@ VSNodeObject * vs_o_create_node(unsigned int owner)
 		node->groups[i].subscribers = NULL;
 	}
 
-	node->links = malloc((sizeof *node->links) * 16);
 	node->link_count = 16;
-	for(i = 0; i < 16; i++)
+	node->links = malloc((sizeof *node->links) * node->link_count);
+	for(i = 0; i < node->link_count; i++)
 	{
 		node->links[i].link = -1;
 		node->links[i].name[0] = 0;
 		node->links[i].target_id = -1;
+		node->links[i].scale = 0.0;
 	}
 	return node;
 }
@@ -128,10 +129,17 @@ void vs_o_subscribe(VSNodeObject *node)
 	unsigned int i;
 	for(i = 0; i < node->link_count; i++)
 	{
-		if(node->links[i].name[0] != 0)
+		const VSLink	*lnk = node->links + i;
+
+		if(lnk->name[0] != 0)
 		{
-			verse_send_o_link_set(node->head.id, i, node->links[i].link, node->links[i].name, node->links[i].target_id);
-			/* FIXME: I think here, we should also describe animation if any exists on this link. */
+			verse_send_o_link_set(node->head.id, i, lnk->link, lnk->name, lnk->target_id);
+			if(lnk->scale != 0.0)
+			{
+				verse_send_o_anim_run(node->head.id, i, lnk->time_s, lnk->time_f,
+						      lnk->pos, lnk->speed, lnk->accel,
+						      lnk->scale, lnk->scale_speed);
+			}
 		}
 	}
 	if(node->light[0] != V_REAL64_MAX || node->light[1] != V_REAL64_MAX || node->light[2] != V_REAL64_MAX)
