@@ -40,9 +40,8 @@ static struct {
 
 static void v_cg_init(void)
 {
-	unsigned int i;
-	char c;
-	FILE *f;
+	int	i;
+	FILE	*f;
 
 /*	v_cg_gen_spec_init();*/
 	VCGData.nodes[V_NT_OBJECT] = fopen("v_gen_pack_o_node.c", "wt");
@@ -82,8 +81,8 @@ static void v_cg_init(void)
 	fprintf(VCGData.verse_h, "#if !defined(VERSE_H)\n");
 	fprintf(VCGData.verse_h, "#define VERSE_H\n");
 	f = fopen("verse_header.h", "rt");
-	while((c = getc(f)) != EOF)
-		putc(c, VCGData.verse_h);
+	while((i = getc(f)) != EOF)
+		putc(i, VCGData.verse_h);
 }
 
 static void v_cg_close(void)
