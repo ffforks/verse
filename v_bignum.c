@@ -35,10 +35,11 @@
 
 VBigNum v_bignum_new_zero(void)
 {
-	VBigNum	a;
+	static VBigNum	zero = { { 1 } };
 
-	memset(&a.x, 0, sizeof a.x);
-	return a;
+	if(zero.x[0])
+		memset(&zero.x, 0, sizeof zero.x);
+	return zero;
 }
 
 VBigNum v_bignum_new_one(void)
@@ -102,13 +103,19 @@ VBigNum v_bignum_new_string(const char *string)
 	return x;
 }
 
-VBigNum v_bignum_new_random(void)
+VBigNum v_bignum_new_random(unsigned int num_bits)
 {
 	VBigNum	a;
 	int	i;
 
-	for(i = 0; i < sizeof a.x / sizeof *a.x; i++)
+	if(bits > V_BIGNUM_BITS)
+		return v_bignum_new_zero();
+
+	memset(a.x, 0, sizeof a.x);
+	for(i = 0; i < (bits + CHAR_BIT * sizeof *a.x - 1) / (CHAR_BIT * sizeof *a.x); i++)
 		a.x[i] = rand();
+	/* NOTE: Happily assumes that <bits> is always a multiple of the bits-per-a.x[] value, i.e. 16. */
+
 	return a;
 }
 
@@ -119,9 +126,26 @@ void v_bignum_print_hex(VBigNum a)
 	int	i;
 
 	printf("0x");
-	for(i = 0; i < sizeof a.x / sizeof *a.x; i++)
-		printf("%04X", a.x[sizeof a.x / sizeof *a.x - i - 1]);
+	for(i = sizeof a.x / sizeof *a.x - 1; i >= 0; i--)
+		if(a.x[i])
+			break;
+	if(i < 0)
+		i = 0;
+	for(; i >= 0; i--)
+		printf("%04X", a.x[i]);
 	printf("\n");
+}
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* Return bitwise inversion of <a>, i.e. ~a in C. */
+VBigNum v_bignum_not(VBigNum a)
+{
+	int	i;
+
+	for(i = 0; i < sizeof a.x / sizeof *a.x; i++)
+		a.x[i] = ~a.x[i];
+	return a;
 }
 
 /* ----------------------------------------------------------------------------------------- */
@@ -219,6 +243,28 @@ VBigNum v_bignum_bit_shift_right(VBigNum a, unsigned int count)
 
 /* ----------------------------------------------------------------------------------------- */
 
+int v_bignum_eq_zero(VBigNum a)
+{
+	int	i;
+
+	for(i = 0; i < sizeof a.x / sizeof *a.x; i++)
+		if(a.x[i])
+			return 0;
+	return 1;
+}
+
+int v_bignum_eq_one(VBigNum a)
+{
+	int	i;
+
+	if(a.x[0] != 1)
+		return 0;
+	for(i = 1; i < sizeof a.x / sizeof *a.x; i++)
+		if(a.x[i])
+			return 0;
+	return 1;
+}
+
 /* Computes a == b. Fairly simple. */
 int v_bignum_eq(VBigNum a, VBigNum b)
 {
@@ -314,10 +360,10 @@ VBigNum v_bignum_mul_ushort(VBigNum a, unsigned short b)
 /* Return a + b. */
 VBigNum v_bignum_add(VBigNum a, VBigNum b)
 {
-	unsigned int	i, carry = 0, s;
+	unsigned int	i, carry, s;
 	VBigNum		sum;
 
-	for(i = 0; i < sizeof a.x / sizeof *a.x; i++)
+	for(i = carry = 0; i < sizeof a.x / sizeof *a.x; i++)
 	{
 		s = a.x[i] + b.x[i] + carry;
 		sum.x[i] = s;
@@ -327,18 +373,27 @@ VBigNum v_bignum_add(VBigNum a, VBigNum b)
 }
 
 /* Compute a - b. */
+#if 0
 VBigNum v_bignum_sub(VBigNum a, VBigNum b)
 {
-	unsigned int	i, carry = 0, d;
+	unsigned int	i, carry, d;
 	VBigNum		diff;
 
-	for(i = 0; i < sizeof a.x / sizeof *a.x; i++)
+	for(i = carry = 0; i < sizeof a.x / sizeof *a.x; i++)
 	{
 		d = a.x[i] - b.x[i] - carry;
 		diff.x[i] = d;
 		carry = d > 0xffff;
 	}
 	return diff;
+}
+#endif
+
+VBigNum v_bignum_sub(VBigNum a, VBigNum b)
+{
+	b = v_bignum_not(b);
+	b = v_bignum_add_ushort(b, 1);
+	return v_bignum_add(a, b);
 }
 
 /* Return a * BASE ^ places, i.e. shift <a> <places> "digits" to the left, padding with zeros. */
@@ -418,6 +473,32 @@ VBigNum v_bignum_mod(VBigNum a, VBigNum b)
 	v_bignum_div(a, b, &rem);
 	return rem;
 }
+
+/* ----------------------------------------------------------------------------------------- */
+
+/* Compute (a raised to ex) modulo mod. From "Implementation of Fast RSA Key Generation
+ * on Smart Cards" by Lu, dos Santos, and Pimentel.
+*/
+VBigNum v_bignum_pow_mod(VBigNum a, VBigNum ex, VBigNum mod)
+{
+	int	i, k;
+	VBigNum	b = a;
+
+	k = v_bignum_bit_msb(ex);
+	for(i = k - 1; i >= 0; i--)
+	{
+		b = v_bignum_mul(b, b);
+		b = v_bignum_mod(b, mod);
+		if(v_bignum_bit_test(ex, i))
+		{
+			b = v_bignum_mul(b, a);
+			b = v_bignum_mod(b, mod);
+		}
+	}
+	return b;
+}
+
+/* ----------------------------------------------------------------------------------------- */
 
 /* Division, returns a / b and sets <remainder> to any remainder. For a >> b, this is *glacial*. */
 VBigNum v_bignum_div_slow(VBigNum a, VBigNum b, VBigNum *remainder)

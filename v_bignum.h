@@ -25,10 +25,12 @@ extern VBigNum	v_bignum_new_one(void);
 extern VBigNum	v_bignum_new_ushort(unsigned short a);
 extern VBigNum	v_bignum_new_bignum(VBigNum a, unsigned int msb, unsigned int bits);
 extern VBigNum	v_bignum_new_string(const char *hex);
-extern VBigNum	v_bignum_new_random(void);
+extern VBigNum	v_bignum_new_random(unsigned int num_bits);
 
 /* Handy during debugging. Prints in hexadecimal, with 0x prefix and linefeed. */
 extern void	v_bignum_print_hex(VBigNum a);
+
+extern VBigNum	v_bignum_not(VBigNum a);
 
 /* Bit manipulation functions. */
 extern int	v_bignum_bit_test(VBigNum a, unsigned int bit);
@@ -36,6 +38,10 @@ extern int	v_bignum_bit_msb(VBigNum a);
 extern VBigNum	v_bignum_bit_shift_left(VBigNum a, unsigned int count);
 extern VBigNum	v_bignum_bit_shift_right(VBigNum a, unsigned int count);
 
+/* Returns a == 0. */
+extern int	v_bignum_eq_zero(VBigNum a);
+/* Returns a == 1. */
+extern int	v_bignum_eq_one(VBigNum a);
 /* Returns a == b. */
 extern int	v_bignum_eq(VBigNum a, VBigNum b);
 /* Comparison, returns a >= b. */
@@ -54,3 +60,6 @@ extern VBigNum	v_bignum_mul(VBigNum a, VBigNum b);
 extern VBigNum	v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder);
 
 extern VBigNum	v_bignum_mod(VBigNum a, VBigNum b);
+
+/* Computes (a ** ex) % mod. where ** denotes exponentiation. */
+extern VBigNum	v_bignum_pow_mod(VBigNum a, VBigNum ex, VBigNum mod);
