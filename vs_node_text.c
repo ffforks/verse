@@ -242,6 +242,7 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 	}
 
 	tb->length += (int) text_length - length;
+	buf[tb->length] = '\0';
 
 	/* Buffer very much larger than content? Then shrink it. */
 	if(tb->allocated > VS_TEXT_CHUNK_SIZE * 8 && tb->allocated * 2 > tb->length)
