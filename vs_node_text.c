@@ -114,9 +114,10 @@ static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBuffer
 	if(node == NULL)
 		return;
 
-	if(buffer_id < node->buffer_count && node->buffer[buffer_id].name[0] != 0)
+	if(buffer_id >= node->buffer_count || node->buffer[buffer_id].name[0] != 0)
 	{
 		for(buffer_id = 0; buffer_id < node->buffer_count && node->buffer[buffer_id].name[0] != 0; buffer_id++)
+			;
 		if(buffer_id == node->buffer_count)
 		{
 			node->buffer = realloc(node->buffer, (sizeof *node->buffer) * node->buffer_count);
@@ -124,7 +125,7 @@ static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBuffer
 				node->buffer[i].name[0] = 0;
 			node->buffer_count = i; 
 		}
-	}	
+	}
 
 	if(node->buffer[buffer_id].name[0] == 0)
 	{
