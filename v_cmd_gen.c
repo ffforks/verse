@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void v_cg_init(void)
+static void v_cg_init(void)
 {
 	unsigned int i;
 	char c;
@@ -121,7 +121,7 @@ void v_cg_init(void)
 		putc(c, VCGData.verse_h);
 }
 
-void v_cg_close(void)
+static void v_cg_close(void)
 {
 	unsigned int i;
 	for(i = 0; i < V_NT_NUM_TYPES_NETPACK; i++)
@@ -132,7 +132,7 @@ void v_cg_close(void)
 	fprintf(VCGData.verse_h, "\n#endif\n\n");
 }
 
-void v_cg_new_cmd(unsigned int type, const char *name, unsigned int cmd_id, VCGCommandType command)
+static void v_cg_new_cmd(unsigned int type, const char *name, unsigned int cmd_id, VCGCommandType command)
 {
 	VCGData.param_count = 0;
 	VCGData.func_name = name;
@@ -141,7 +141,7 @@ void v_cg_new_cmd(unsigned int type, const char *name, unsigned int cmd_id, VCGC
 	VCGData.command = command;
 }
 
-void v_cg_alias(char bool_switch, const char *name, const char *qualifier, unsigned int param, unsigned int *param_array)
+static void v_cg_alias(char bool_switch, const char *name, const char *qualifier, unsigned int param, unsigned int *param_array)
 {
 	VCGData.alias_name = name;
 	VCGData.alias_qualifier = qualifier;
@@ -150,7 +150,7 @@ void v_cg_alias(char bool_switch, const char *name, const char *qualifier, unsig
 	VCGData.alias_bool_switch = bool_switch;
 }
 
-void v_cg_add_param(VCGParam type, const char *name)
+static void v_cg_add_param(VCGParam type, const char *name)
 {
 	if(VCGData.param_count == MAX_PARAMS_PER_CMD)
 		exit(1);
@@ -159,7 +159,7 @@ void v_cg_add_param(VCGParam type, const char *name)
 	VCGData.param_count++;
 }
 
-void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
+static void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 {
 	unsigned int i;
 	unsigned int length, active;
@@ -246,8 +246,7 @@ void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 	}
 }
 
-
-void v_cg_create_print(FILE *f, boolean send, boolean alias)
+static void v_cg_create_print(FILE *f, boolean send, boolean alias)
 {
 	unsigned int i, length, active;
 	const char *name;
@@ -385,7 +384,7 @@ unsigned int v_cg_compute_command_size(unsigned int start, boolean end)
 	return size;
 }
 
-char *v_cg_compute_buffer_size(void)
+static char * v_cg_compute_buffer_size(void)
 {
 	unsigned int size; 
 	size = v_cg_compute_command_size(0, FALSE) + 1;
@@ -401,7 +400,7 @@ char *v_cg_compute_buffer_size(void)
 		return "VCMDBS_1500";
 }
 
-void v_cg_gen_pack(boolean alias)
+static void v_cg_gen_pack(boolean alias)
 {
 	unsigned int i, j, size = 0, ad_size = 0;
 	boolean printed = FALSE;
@@ -549,7 +548,7 @@ void v_cg_gen_pack(boolean alias)
 	fprintf(f, "}\n\n");
 }
 
-void v_cg_gen_unpack(void)
+static void v_cg_gen_unpack(void)
 {
 	FILE *f;
 	unsigned int i;
@@ -679,7 +678,7 @@ void v_cg_gen_unpack(void)
 	fprintf(f, "}\n");
 }
 
-void v_cg_gen_alias(void)
+static void v_cg_gen_alias(void)
 {
 	FILE *f;
 	unsigned int i;
@@ -694,7 +693,7 @@ void v_cg_gen_alias(void)
 	fprintf(f, "}\n\n");
 }
 
-void v_cg_gen_init(void)
+static void v_cg_gen_init(void)
 {
 	FILE *f;
 	f = VCGData.init;
@@ -705,7 +704,7 @@ void v_cg_gen_init(void)
 		fprintf(f, "NULL);\n");
 }
 
-void v_cg_gen_verse_h(void)
+static void v_cg_gen_verse_h(void)
 {
 	FILE *f;
 	if(VCGData.command == VCGCT_INVISIBLE_SYSTEM)
@@ -723,12 +722,12 @@ void v_cg_gen_verse_h(void)
 	}
 }
 
-void v_cg_gen_unpack_h(void)
+static void v_cg_gen_unpack_h(void)
 {
 	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(char *data, unsigned int length, void *user_func, void *user_data);\n", VCGData.func_name);
 }
 
-void v_cg_end_cmd(void)
+static void v_cg_end_cmd(void)
 {
 	v_cg_gen_pack(FALSE);
 	if(VCGData.alias_name != NULL)
@@ -741,7 +740,7 @@ void v_cg_end_cmd(void)
 	VCGData.alias_name = NULL;
 }
 
-void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def, const char *alias_name, const char *alias_def)
+static void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def, const char *alias_name, const char *alias_def)
 {
 	fprintf(VCGData.verse_h, "extern %s;\n", def);
 	if(alias_def != NULL)
@@ -756,12 +755,12 @@ void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def,
 /*
 FILE *spec;
 
-void v_cg_gen_spec_init(void)
+static void v_cg_gen_spec_init(void)
 {
 	spec = fopen("verse_cmd_spec.txt", "w"); 
 }
 
-void v_cg_gen_spec(voidx)
+static void v_cg_gen_spec(voidx)
 {
 	unsigned int i, size = 0;
 	fprintf(spec, "\tverse_send_%s\n\n", VCGData.func_name);
