@@ -46,14 +46,18 @@ static void callback_send_connect_terminate(void *user, char *address, char *bye
 
 static void vs_load_host_id(const char *file_name)
 {
-	uint8	id[V_HOST_ID_SIZE], got = 0;
 	FILE	*f;
+	uint8	id[V_HOST_ID_SIZE];
+	size_t	got;
 
 	/* Attempt to read key from given filename. Fails silently. */
 	if((f = fopen(file_name, "rb")) != NULL)
 	{
-		if((got = (fread(id, sizeof id, 1, f) == 1)))
+		if((got = fread(id, 1, sizeof id, f)) > 0)
+		{
+			printf("Loaded %u-bit host ID key successfully\n", 8 * (got / 3));
 			verse_host_id_set(id);
+		}
 		fclose(f);
 		if(got)
 			return;
@@ -81,13 +85,8 @@ int main(int argc, char **argv)
 	/* Seed the random number generator. Still rather too weak for crypto, I guess. */
 	v_n_get_current_time(&seconds, &fraction);
 	srand(seconds ^ fraction);
-	srand(0);
 
-/*	{
-		v_encrypt_test();
-		exit(1);
-	}
-*/	vs_load_host_id("host_id.rsa");
+	vs_load_host_id("host_id.rsa");
 	vs_init_node_storage();
 	vs_o_callback_init();
 	vs_g_callback_init();
