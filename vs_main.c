@@ -78,7 +78,7 @@ static void vs_load_host_id(const char *file_name)
 int main(int argc, char **argv)
 {
 	printf("Verse Server r%up%u%s By Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
-	verse_set_port(4950);	/* This Verse standard port. */
+	verse_set_port(4950);	/* The Verse standard port. */
 	vs_load_host_id("host_id.rsa");
 	vs_init_node_storage();
 	vs_o_callback_init();
