@@ -220,7 +220,7 @@ void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 	if(seconds != NULL)
 	    *seconds = tv.tv_sec;
 	if(fractions != NULL)
-		*fractions = (uint32)((double)tv.tv_usec / (double)1000000 * (double)((uint32)-1));
+		*fractions = tv.tv_usec * 1E-6 * (double) (uint32)~0;
 }
 
 #endif
