@@ -1,5 +1,5 @@
-extern unsigned int v_unpack_connect(char *data, unsigned int length, void *user_func, void *user_data);
-extern unsigned int v_unpack_connect_accept(char *data, unsigned int length, void *user_func, void *user_data);
+extern unsigned int v_unpack_connect(const char *data, size_t length, void *user_func, void *user_data);
+extern unsigned int v_unpack_connect_accept(const char *data, size_t length, void *user_func, void *user_data);
 extern unsigned int v_unpack_connect_deny(const char *data, size_t length, void *user_func, void *user_data);
 extern unsigned int v_unpack_connect_terminate(const char *data, size_t length, void *user_func, void *user_data);
 extern unsigned int v_unpack_get_time(const char *data, size_t length, void *user_func, void *user_data);

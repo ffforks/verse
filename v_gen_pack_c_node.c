@@ -1,5 +1,13 @@
+/*
+** This is automatically generated source code -- do not edit.
+** Changes are affected either by editing the corresponding protocol
+** definition file (v_cmd_def_X.c where X=node type), or by editing
+** the code generator itself, in v_cmd_gen.c.
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "v_cmd_gen.h"
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
@@ -17,9 +25,9 @@ void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *n
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 128);/* Packing the command */
-	#if defined(V_PRINT_SEND_COMMANDS)
-	printf("send: verse_send_c_curve_create(node_id = %u curve_id = %u name = %s );\n", node_id, curve_id, name);
-	#endif
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: c_curve_create(node_id = %u curve_id = %u name = %s );\n", node_id, curve_id, name);
+#endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
 	address_size = buffer_pos;
@@ -37,9 +45,9 @@ void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id)
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 128);/* Packing the command */
-	#if defined(V_PRINT_SEND_COMMANDS)
-	printf("send: verse_send_c_curve_destroy(node_id = %u curve_id = %u );\n", node_id, curve_id);
-	#endif
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: c_curve_destroy(node_id = %u curve_id = %u );\n", node_id, curve_id);
+#endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
 	address_size = buffer_pos;
@@ -62,9 +70,9 @@ unsigned int v_unpack_c_curve_create(const char *buf, size_t buffer_length, void
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &curve_id);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
-	#if defined(V_PRINT_RECIVE_COMMANDS)
-	printf("receive: verse_send_c_curve_create(node_id = %u curve_id = %u name = %s ); callback = %p\n", node_id, curve_id, name, user_func);
-	#endif
+#if defined V_PRINT_RECEIVE_COMMANDS
+	printf("receive: c_curve_create(node_id = %u curve_id = %u name = %s ); callback = %p\n", node_id, curve_id, name, user_func);
+#endif
 	if(name[0] == 0)
 	{
 		void (* alias_c_curve_destroy)(void *user_data, VNodeID node_id, VLayerID curve_id);
@@ -78,6 +86,7 @@ unsigned int v_unpack_c_curve_create(const char *buf, size_t buffer_length, void
 
 	return buffer_pos;
 }
+
 void verse_send_c_curve_subscribe(VNodeID node_id, VLayerID curve_id)
 {
 	uint8 *buf;
@@ -87,9 +96,9 @@ void verse_send_c_curve_subscribe(VNodeID node_id, VLayerID curve_id)
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 129);/* Packing the command */
-	#if defined(V_PRINT_SEND_COMMANDS)
-	printf("send: verse_send_c_curve_subscribe(node_id = %u curve_id = %u );\n", node_id, curve_id);
-	#endif
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: c_curve_subscribe(node_id = %u curve_id = %u );\n", node_id, curve_id);
+#endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
 	address_size = buffer_pos;
@@ -107,9 +116,9 @@ void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id)
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 129);/* Packing the command */
-	#if defined(V_PRINT_SEND_COMMANDS)
-	printf("send: verse_send_c_curve_unsubscribe(node_id = %u curve_id = %u );\n", node_id, curve_id);
-	#endif
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: c_curve_unsubscribe(node_id = %u curve_id = %u );\n", node_id, curve_id);
+#endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
 	address_size = buffer_pos;
@@ -131,9 +140,9 @@ unsigned int v_unpack_c_curve_subscribe(const char *buf, size_t buffer_length, v
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &curve_id);
-	#if defined(V_PRINT_RECIVE_COMMANDS)
-	printf("receive: verse_send_c_curve_subscribe(node_id = %u curve_id = %u ); callback = %p\n", node_id, curve_id, user_func);
-	#endif
+#if defined V_PRINT_RECEIVE_COMMANDS
+	printf("receive: c_curve_subscribe(node_id = %u curve_id = %u ); callback = %p\n", node_id, curve_id, user_func);
+#endif
 	if(buffer_length < buffer_pos + 1)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
@@ -150,6 +159,7 @@ unsigned int v_unpack_c_curve_subscribe(const char *buf, size_t buffer_length, v
 
 	return buffer_pos;
 }
+
 void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, real64 pre_value, uint32 pre_pos, real64 value, real64 post_value, uint32 post_pos)
 {
 	uint8 *buf;
@@ -159,9 +169,9 @@ void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_i
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 130);/* Packing the command */
-	#if defined(V_PRINT_SEND_COMMANDS)
-	printf("send: verse_send_c_curve_key_set(node_id = %u curve_id = %u key_id = %u pre_value = %f pre_pos = %u value = %f post_value = %f post_pos = %u );\n", node_id, curve_id, key_id, pre_value, pre_pos, value, post_value, post_pos);
-	#endif
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: c_curve_key_set(node_id = %u curve_id = %u key_id = %u pre_value = %f pre_pos = %u value = %f post_value = %f post_pos = %u );\n", node_id, curve_id, key_id, pre_value, pre_pos, value, post_value, post_pos);
+#endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], key_id);
@@ -184,9 +194,9 @@ void verse_send_c_curve_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 k
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 130);/* Packing the command */
-	#if defined(V_PRINT_SEND_COMMANDS)
-	printf("send: verse_send_c_curve_key_destroy(node_id = %u curve_id = %u key_id = %u );\n", node_id, curve_id, key_id);
-	#endif
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: c_curve_key_destroy(node_id = %u curve_id = %u key_id = %u );\n", node_id, curve_id, key_id);
+#endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], key_id);
@@ -224,9 +234,9 @@ unsigned int v_unpack_c_curve_key_set(const char *buf, size_t buffer_length, voi
 	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &value);
 	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &post_value);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &post_pos);
-	#if defined(V_PRINT_RECIVE_COMMANDS)
-	printf("receive: verse_send_c_curve_key_set(node_id = %u curve_id = %u key_id = %u pre_value = %f pre_pos = %u value = %f post_value = %f post_pos = %u ); callback = %p\n", node_id, curve_id, key_id, pre_value, pre_pos, value, post_value, post_pos, user_func);
-	#endif
+#if defined V_PRINT_RECEIVE_COMMANDS
+	printf("receive: c_curve_key_set(node_id = %u curve_id = %u key_id = %u pre_value = %f pre_pos = %u value = %f post_value = %f post_pos = %u ); callback = %p\n", node_id, curve_id, key_id, pre_value, pre_pos, value, post_value, post_pos, user_func);
+#endif
 	if(pre_value == 0)
 	{
 		void (* alias_c_curve_key_destroy)(void *user_data, VNodeID node_id, VLayerID curve_id, uint32 key_id);
@@ -240,5 +250,6 @@ unsigned int v_unpack_c_curve_key_set(const char *buf, size_t buffer_length, voi
 
 	return buffer_pos;
 }
+
 #endif
 
