@@ -56,6 +56,3 @@ extern void		v_cmd_buf_free(VCMDBufHead *head);
 extern void		v_cmd_buf_set_address_size(VCMDBufHead *head, unsigned int address_size, unsigned int size);
 extern void		v_cmd_buf_set_unique_size(VCMDBufHead *head, unsigned int size);
 extern boolean		v_cmd_buf_compare(VCMDBufHead *a, VCMDBufHead *b);
-
-/* Stupid work-around for spelling fix; only until I know how to refresh automatically generated code. */
-#define v_cmd_buf_set_uniqe_size	v_cmd_buf_set_unique_size
