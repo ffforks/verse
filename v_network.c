@@ -59,7 +59,7 @@ VSocket v_n_socket_create(void)
 
 	if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
 		return -1;
-#if defined(_WIN32)
+#if defined _WIN32
 	{
 		unsigned long	one = 1UL;
 
@@ -75,7 +75,7 @@ VSocket v_n_socket_create(void)
 
 void v_n_socket_destroy(VSocket s)
 {
-#if defined(_WIN32)
+#if defined _WIN32
 	closesocket(s);
 #else
 	close(s);
@@ -88,9 +88,11 @@ void v_n_destroy_network_address(VNetworkAddress *address)
 	free(address);
 }
 
-void v_n_print_address(VNetworkAddress *address)
+static void v_n_print_address(const VNetworkAddress *address)
 {
-	printf("%u.%u.%u.%u:%u", address->their_ip / (256 * 256 * 256), (address->their_ip / (256 * 256)) % 256, (address->their_ip / 256) % 256, address->their_ip % 256, address->their_port);
+	const uint32 ip = address->their_ip;
+
+	printf("%u.%u.%u.%u:%u", (ip >> 24) & 255, (ip >> 16) & 255, (ip >> 8) & 255, ip % 255, address->their_port);
 }
 
 /* A strdup() implementation, since we can't depend on it being available in e.g. Windows. */
@@ -115,12 +117,12 @@ VNetworkAddress * v_n_create_network_address(int my_port, const char *addr)
 	VNetworkAddress *address;
 	struct sockaddr_in address_in;
 
-#if defined(_WIN32)
+#if defined _WIN32
 	static boolean initialized = FALSE;
 	if(!initialized)
 	{
-
 		WSADATA wsaData;
+
 		if(WSAStartup(MAKEWORD(1, 1), &wsaData) != 0)
 		{
 			fprintf(stderr, "WSAStartup failed.\n");
@@ -181,7 +183,7 @@ unsigned int v_n_send_data(VNetworkAddress *address, const char *data, unsigned 
 	return size;
 }
 
-#if !defined(V_GENERATE_FUNC_MODE)
+#if !defined V_GENERATE_FUNC_MODE
 
 extern void *v_con_get_network_address_id(unsigned int id);
 extern unsigned int v_con_get_network_address_count();
