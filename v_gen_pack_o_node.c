@@ -16,7 +16,7 @@
 #include "v_network.h"
 #include "v_connection.h"
 
-void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time_s, uint32 time_f, real32 *pos, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag)
+void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time_s, uint32 time_f, const real32 *pos, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -78,14 +78,14 @@ void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time_s, uint32 ti
 unsigned int v_unpack_o_transform_pos_real32(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_transform_pos_real32)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, real32 *pos, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag);
+	void (* func_o_transform_pos_real32)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, const real32 *pos, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag);
 	VNodeID node_id;
 	uint32 time_s;
 	uint32 time_f;
-	real32 *pos;
-	real32 *speed;
-	real32 *accelerate;
-	real32 *drag_normal;
+	const real32 *pos;
+	const real32 *speed;
+	const real32 *accelerate;
+	const real32 *drag_normal;
 	real32 drag;
 	
 	func_o_transform_pos_real32 = v_fs_get_user_func(32);
@@ -127,7 +127,7 @@ unsigned int v_unpack_o_transform_pos_real32(const char *buf, size_t buffer_leng
 	return buffer_pos;
 }
 
-void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 time_f, real32 *rot, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag)
+void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 time_f, const real32 *rot, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -193,14 +193,14 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 ti
 unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_transform_rot_real32)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, real32 *rot, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag);
+	void (* func_o_transform_rot_real32)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, const real32 *rot, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag);
 	VNodeID node_id;
 	uint32 time_s;
 	uint32 time_f;
-	real32 *rot;
-	real32 *speed;
-	real32 *accelerate;
-	real32 *drag_normal;
+	const real32 *rot;
+	const real32 *speed;
+	const real32 *accelerate;
+	const real32 *drag_normal;
 	real32 drag;
 	
 	func_o_transform_rot_real32 = v_fs_get_user_func(33);
@@ -291,7 +291,7 @@ unsigned int v_unpack_o_transform_scale_real32(const char *buf, size_t buffer_le
 	return buffer_pos;
 }
 
-void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time_s, uint32 time_f, real64 *pos, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag)
+void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time_s, uint32 time_f, const real64 *pos, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -353,14 +353,14 @@ void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time_s, uint32 ti
 unsigned int v_unpack_o_transform_pos_real64(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_transform_pos_real64)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, real64 *pos, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag);
+	void (* func_o_transform_pos_real64)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, const real64 *pos, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag);
 	VNodeID node_id;
 	uint32 time_s;
 	uint32 time_f;
-	real64 *pos;
-	real64 *speed;
-	real64 *accelerate;
-	real64 *drag_normal;
+	const real64 *pos;
+	const real64 *speed;
+	const real64 *accelerate;
+	const real64 *drag_normal;
 	real64 drag;
 	
 	func_o_transform_pos_real64 = v_fs_get_user_func(35);
@@ -402,7 +402,7 @@ unsigned int v_unpack_o_transform_pos_real64(const char *buf, size_t buffer_leng
 	return buffer_pos;
 }
 
-void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 time_f, real64 *rot, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag)
+void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 time_f, const real64 *rot, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -468,14 +468,14 @@ void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 ti
 unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_transform_rot_real64)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, real64 *rot, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag);
+	void (* func_o_transform_rot_real64)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, const real64 *rot, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag);
 	VNodeID node_id;
 	uint32 time_s;
 	uint32 time_f;
-	real64 *rot;
-	real64 *speed;
-	real64 *accelerate;
-	real64 *drag_normal;
+	const real64 *rot;
+	const real64 *speed;
+	const real64 *accelerate;
+	const real64 *drag_normal;
 	real64 drag;
 	
 	func_o_transform_rot_real64 = v_fs_get_user_func(36);
@@ -957,7 +957,7 @@ unsigned int v_unpack_o_method_group_subscribe(const char *buf, size_t buffer_le
 	return buffer_pos;
 }
 
-void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_id, const char *name, uint8 param_count, VNOParamType *param_types, char * *param_names)
+void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_id, const char *name, uint8 param_count, const VNOParamType *param_types, const char * *param_names)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -1025,14 +1025,14 @@ void verse_send_o_method_destroy(VNodeID node_id, uint16 group_id, uint16 method
 unsigned int v_unpack_o_method_create(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_method_create)(void *user_data, VNodeID node_id, uint16 group_id, uint16 method_id, const char *name, uint8 param_count, VNOParamType *param_types, char * *param_names);
+	void (* func_o_method_create)(void *user_data, VNodeID node_id, uint16 group_id, uint16 method_id, const char *name, uint8 param_count, const VNOParamType *param_types, const char * *param_names);
 	VNodeID node_id;
 	uint16 group_id;
 	uint16 method_id;
 	char name[512];
 	uint8 param_count;
-	VNOParamType *param_types;
-	char * *param_names;
+	const VNOParamType *param_types;
+	const char * *param_names;
 	
 	func_o_method_create = v_fs_get_user_func(43);
 	if(buffer_length < 8)
@@ -1084,7 +1084,7 @@ unsigned int v_unpack_o_method_create(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params)
+void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const void *params)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -1115,12 +1115,12 @@ void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id
 unsigned int v_unpack_o_method_call(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_method_call)(void *user_data, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params);
+	void (* func_o_method_call)(void *user_data, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const void *params);
 	VNodeID node_id;
 	uint16 group_id;
 	uint16 method_id;
 	VNodeID sender;
-	void *params;
+	const void *params;
 	
 	func_o_method_call = v_fs_get_user_func(44);
 	if(buffer_length < 12)

@@ -16,7 +16,7 @@
 #include "v_network.h"
 #include "v_connection.h"
 
-void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment)
+void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, const VMatFrag *fragment)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -159,11 +159,11 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_m_fragment_create)(void *user_data, VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment);
+	void (* func_m_fragment_create)(void *user_data, VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, const VMatFrag *fragment);
 	VNodeID node_id;
 	VNMFragmentID frag_id;
 	VNMFragmentType type;
-	VMatFrag *fragment;
+	const VMatFrag *fragment;
 	
 	func_m_fragment_create = v_fs_get_user_func(68);
 	if(buffer_length < 6)

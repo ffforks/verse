@@ -532,7 +532,7 @@ unsigned int v_unpack_tag_group_subscribe(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_tag_create(VNodeID node_id, uint16 group_id, uint16 tag_id, const char *name, VNTagType type, VNTag *tag)
+void verse_send_tag_create(VNodeID node_id, uint16 group_id, uint16 tag_id, const char *name, VNTagType type, const VNTag *tag)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -640,13 +640,13 @@ unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_tag_create)(void *user_data, VNodeID node_id, uint16 group_id, uint16 tag_id, const char *name, VNTagType type, VNTag *tag);
+	void (* func_tag_create)(void *user_data, VNodeID node_id, uint16 group_id, uint16 tag_id, const char *name, VNTagType type, const VNTag *tag);
 	VNodeID node_id;
 	uint16 group_id;
 	uint16 tag_id;
 	char name[16];
 	VNTagType type;
-	VNTag *tag;
+	const VNTag *tag;
 	
 	func_tag_create = v_fs_get_user_func(18);
 	if(buffer_length < 8)

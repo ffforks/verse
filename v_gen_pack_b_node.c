@@ -233,7 +233,7 @@ unsigned int v_unpack_b_layer_subscribe(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile)
+void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, const VNBTile *tile)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -289,14 +289,14 @@ unsigned int v_unpack_b_tile_set(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_b_tile_set)(void *user_data, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile);
+	void (* func_b_tile_set)(void *user_data, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, const VNBTile *tile);
 	VNodeID node_id;
 	VLayerID layer_id;
 	uint16 tile_x;
 	uint16 tile_y;
 	uint16 z;
 	VNBLayerType type;
-	VNBTile *tile;
+	const VNBTile *tile;
 	
 	func_b_tile_set = v_fs_get_user_func(83);
 	if(buffer_length < 12)
