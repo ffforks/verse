@@ -16,7 +16,7 @@ void v_e_encrypt_data_key_generate(uint8 *to) /* possibly the worst key gen ever
 	}
 }
 
-void v_e_encrypt_command(uint8 *packet, unsigned int packet_length, uint8 *command, unsigned int command_length, uint8 *key)
+void v_e_encrypt_command(uint8 *packet, unsigned int packet_length, const uint8 *command, unsigned int command_length, uint8 *key)
 {
 	unsigned int i, pos;
 	vnp_raw_unpack_uint32(packet, &pos);
@@ -25,7 +25,7 @@ void v_e_encrypt_command(uint8 *packet, unsigned int packet_length, uint8 *comma
 		packet[packet_length + i] = command[i] ^ key[(i + pos) % V_ENCRYPTION_DATA_KEY_SIZE];
 }
 
-void v_e_dencrypt_data_packet(uint8 *from, uint8 *to, unsigned int data_length, uint8 *key)
+void v_e_dencrypt_data_packet(const uint8 *from, uint8 *to, unsigned int data_length, uint8 *key)
 {
 	unsigned int i, pos;
 	vnp_raw_unpack_uint32(from, &pos);
