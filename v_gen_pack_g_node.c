@@ -966,7 +966,7 @@ unsigned int v_unpack_g_crease_set_edge(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_g_bone_create(VNodeID node_id, uint32 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w)
+void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -979,7 +979,7 @@ void verse_send_g_bone_create(VNodeID node_id, uint32 bone_id, const char *name,
 	printf("send: verse_send_g_bone_create(node_id = %u bone_id = %u name = %s parent = %u pos_x = %f pos_y = %f pos_z = %f rot_x = %f rot_y = %f rot_z = %f rot_w = %f );\n", node_id, bone_id, name, parent, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, rot_w);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], bone_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], bone_id);
 	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], parent);
@@ -994,7 +994,7 @@ void verse_send_g_bone_create(VNodeID node_id, uint32 bone_id, const char *name,
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
 
-void verse_send_g_bone_destroy(VNodeID node_id, uint32 bone_id)
+void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -1007,7 +1007,7 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint32 bone_id)
 	printf("send: verse_send_g_bone_destroy(node_id = %u bone_id = %u );\n", node_id, bone_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], bone_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], bone_id);
 	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
@@ -1025,9 +1025,9 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint32 bone_id)
 unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_g_bone_create)(void *user_data, VNodeID node_id, uint32 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w);
+	void (* func_g_bone_create)(void *user_data, VNodeID node_id, uint16 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w);
 	VNodeID node_id;
-	uint32 bone_id;
+	uint16 bone_id;
 	char name[16];
 	uint32 parent;
 	real64 pos_x;
@@ -1039,10 +1039,10 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 	real64 rot_w;
 	
 	func_g_bone_create = v_fs_get_user_func(64);
-	if(buffer_length < 8)
+	if(buffer_length < 6)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
-	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &bone_id);
+	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &bone_id);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
 	if(buffer_length < 60 + buffer_pos)
 		return -1;
@@ -1062,7 +1062,7 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 #endif
 	if(name[0] == 0)
 	{
-		void (* alias_g_bone_destroy)(void *user_data, VNodeID node_id, uint32 bone_id);
+		void (* alias_g_bone_destroy)(void *user_data, VNodeID node_id, uint16 bone_id);
 		alias_g_bone_destroy = v_fs_get_alias_user_func(64);
 		if(alias_g_bone_destroy != NULL)
 			alias_g_bone_destroy(v_fs_get_alias_user_data(64), node_id, bone_id);
