@@ -40,21 +40,12 @@ static struct {
 	char		alias_bool_switch;
 } VCGData;
 
-/*
-extern void v_gen_system_cmd_def(void);
-extern void v_gen_object_cmd_def(void);
-extern void v_gen_geometry_cmd_def(void);
-extern void v_gen_material_cmd_def(void);
-extern void v_gen_bitmap_cmd_def(void);
-extern void v_gen_text_cmd_def(void);
-extern void v_gen_curve_cmd_def(void);
-*/
-
 static void v_cg_init(void)
 {
 	unsigned int i;
 	char c;
 	FILE *f;
+
 /*	v_cg_gen_spec_init();*/
 	VCGData.nodes[V_NT_OBJECT] = fopen("v_gen_pack_o_node.c", "w"); 
 	VCGData.nodes[V_NT_GEOMETRY] = fopen("v_gen_pack_g_node.c", "w");  
@@ -700,7 +691,7 @@ void v_cg_gen_verse_h(void)
 
 void v_cg_gen_unpack_h(void)
 {
-	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(char *data, unsigned int length, void *user_func, void *user_data);\n", VCGData.func_name);
+	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length, void *user_func, void *user_data);\n", VCGData.func_name);
 }
 
 void v_cg_end_cmd(void)
