@@ -137,6 +137,12 @@ void verse_session_set(VSession session) /* find a session and make it the curre
 		VConData.current_connection = i;
 }
 
+VSession verse_session_get(void)
+{
+	if(VConData.current_connection < VConData.con_count)
+		return VConData.con[VConData.current_connection].out_queue;
+	return NULL;
+}
 
 uint32 v_co_find_connection(uint32 ip, uint16 port) /* if a packet comes form a ip address what connection does it belong to? */
 {
