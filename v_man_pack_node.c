@@ -88,6 +88,7 @@ VSession * verse_send_connect_accept(VNodeID avatar, const char *address)
 		v_cmd_buf_free(head);
 	return con;
 }
+
 unsigned int v_unpack_connect_accept(const char *buf, unsigned int buffer_length, void *user_func, void *user_data)
 {
 	unsigned int buffer_pos = 0;
