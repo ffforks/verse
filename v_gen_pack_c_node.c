@@ -12,14 +12,14 @@
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
 #include "v_cmd_buf.h"
-#include "v_network_que.h"
+#include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
 
 void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *name)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -30,16 +30,19 @@ void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *n
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || curve_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -50,10 +53,13 @@ void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || curve_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_c_curve_create(const char *buf, size_t buffer_length)
@@ -93,7 +99,7 @@ unsigned int v_unpack_c_curve_create(const char *buf, size_t buffer_length)
 void verse_send_c_curve_subscribe(VNodeID node_id, VLayerID curve_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -104,16 +110,19 @@ void verse_send_c_curve_subscribe(VNodeID node_id, VLayerID curve_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], TRUE);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || curve_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -124,10 +133,13 @@ void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], FALSE);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || curve_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_c_curve_subscribe(const char *buf, size_t buffer_length)
@@ -169,7 +181,7 @@ unsigned int v_unpack_c_curve_subscribe(const char *buf, size_t buffer_length)
 void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, real64 pre_value, uint32 pre_pos, real64 value, real64 pos, real64 post_value, uint32 post_pos)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -181,21 +193,24 @@ void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_i
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], key_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pre_value);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], pre_pos);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], value);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], post_value);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], post_pos);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || curve_id == (uint16)(-1) || key_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_c_curve_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 key_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -207,15 +222,18 @@ void verse_send_c_curve_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 k
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], key_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || curve_id == (uint16)(-1) || key_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 11);
+	else
+		v_cmd_buf_set_address_size(head, 11);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_c_curve_key_set(const char *buf, size_t buffer_length)
@@ -233,7 +251,7 @@ unsigned int v_unpack_c_curve_key_set(const char *buf, size_t buffer_length)
 	uint32 post_pos;
 	
 	func_c_curve_key_set = v_fs_get_user_func(130);
-	if(buffer_length < 50)
+	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &curve_id);

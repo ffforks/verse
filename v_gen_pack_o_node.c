@@ -12,25 +12,25 @@
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
 #include "v_cmd_buf.h"
-#include "v_network_que.h"
+#include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
 
-void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time, real32 *pos, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag)
+void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time_s, uint32 time_f, real32 *pos, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 32);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_o_transform_pos_real32(node_id = %u time = %u pos = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time, pos, speed, accelerate, drag_normal, drag);
+	printf("send: verse_send_o_transform_pos_real32(node_id = %u time_s = %u time_f = %u pos = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, pos, speed, accelerate, drag_normal, drag);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_s);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_f);
 	{
 		unsigned char mask = 0;
 		unsigned int cmd;
@@ -67,16 +67,21 @@ void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time, real32 *pos
 		vnp_raw_pack_uint8(&buf[cmd], mask);
 	}if(FALSE)
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], drag);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_transform_pos_real32(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_transform_pos_real32)(void *user_data, VNodeID node_id, uint32 time, real32 *pos, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag);
+	void (* func_o_transform_pos_real32)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, real32 *pos, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag);
 	VNodeID node_id;
-	uint32 time;
+	uint32 time_s;
+	uint32 time_f;
 	real32 *pos;
 	real32 *speed;
 	real32 *accelerate;
@@ -84,12 +89,13 @@ unsigned int v_unpack_o_transform_pos_real32(const char *buf, size_t buffer_leng
 	real32 drag;
 	
 	func_o_transform_pos_real32 = v_fs_get_user_func(32);
-	if(buffer_length < 8)
+	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
-	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_s);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_f);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_o_transform_pos_real32(node_id = %u time = %u drag = %f ); callback = %p\n", node_id, time, drag, v_fs_get_user_func(32));
+	printf("receive: verse_send_o_transform_pos_real32(node_id = %u time_s = %u time_f = %u drag = %f ); callback = %p\n", node_id, time_s, time_f, drag, v_fs_get_user_func(32));
 #endif
 	{
 		float output[4][3];
@@ -111,31 +117,31 @@ unsigned int v_unpack_o_transform_pos_real32(const char *buf, size_t buffer_leng
 		if((mask & pow) != 0)
 			buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &drag);
 		if(func_o_transform_pos_real32 != NULL)
-			func_o_transform_pos_real32(v_fs_get_user_data(32), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);
+			func_o_transform_pos_real32(v_fs_get_user_data(32), node_id, time_s, time_f, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);
 		return buffer_pos;
 	}
 
 	if(func_o_transform_pos_real32 != NULL)
-		func_o_transform_pos_real32(v_fs_get_user_data(32), node_id, time, pos, speed, accelerate, drag_normal, drag);
+		func_o_transform_pos_real32(v_fs_get_user_data(32), node_id, time_s, time_f, pos, speed, accelerate, drag_normal, drag);
 
 	return buffer_pos;
 }
 
-void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time, real32 *rot, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag)
+void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 time_f, real32 *rot, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 33);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_o_transform_rot_real32(node_id = %u time = %u rot = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time, rot, speed, accelerate, drag_normal, drag);
+	printf("send: verse_send_o_transform_rot_real32(node_id = %u time_s = %u time_f = %u rot = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, rot, speed, accelerate, drag_normal, drag);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_s);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_f);
 	{
 		unsigned char mask = 0;
 		unsigned int cmd;
@@ -176,16 +182,21 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time, real32 *rot
 		vnp_raw_pack_uint8(&buf[cmd], mask);
 	}if(FALSE)
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], drag);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_transform_rot_real32)(void *user_data, VNodeID node_id, uint32 time, real32 *rot, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag);
+	void (* func_o_transform_rot_real32)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, real32 *rot, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag);
 	VNodeID node_id;
-	uint32 time;
+	uint32 time_s;
+	uint32 time_f;
 	real32 *rot;
 	real32 *speed;
 	real32 *accelerate;
@@ -193,12 +204,13 @@ unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_leng
 	real32 drag;
 	
 	func_o_transform_rot_real32 = v_fs_get_user_func(33);
-	if(buffer_length < 8)
+	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
-	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_s);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_f);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_o_transform_rot_real32(node_id = %u time = %u drag = %f ); callback = %p\n", node_id, time, drag, v_fs_get_user_func(33));
+	printf("receive: verse_send_o_transform_rot_real32(node_id = %u time_s = %u time_f = %u drag = %f ); callback = %p\n", node_id, time_s, time_f, drag, v_fs_get_user_func(33));
 #endif
 	{
 		float output[4][4];
@@ -220,12 +232,12 @@ unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_leng
 		if((mask & pow) != 0)
 			buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &drag);
 		if(func_o_transform_rot_real32 != NULL)
-			func_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);
+			func_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time_s, time_f, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);
 		return buffer_pos;
 	}
 
 	if(func_o_transform_rot_real32 != NULL)
-		func_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time, rot, speed, accelerate, drag_normal, drag);
+		func_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time_s, time_f, rot, speed, accelerate, drag_normal, drag);
 
 	return buffer_pos;
 }
@@ -233,7 +245,7 @@ unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_leng
 void verse_send_o_transform_scale_real32(VNodeID node_id, real32 scale_x, real32 scale_y, real32 scale_z)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -243,12 +255,15 @@ void verse_send_o_transform_scale_real32(VNodeID node_id, real32 scale_x, real32
 	printf("send: verse_send_o_transform_scale_real32(node_id = %u scale_x = %f scale_y = %f scale_z = %f );\n", node_id, scale_x, scale_y, scale_z);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], scale_x);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], scale_y);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], scale_z);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_transform_scale_real32(const char *buf, size_t buffer_length)
@@ -261,7 +276,7 @@ unsigned int v_unpack_o_transform_scale_real32(const char *buf, size_t buffer_le
 	real32 scale_z;
 	
 	func_o_transform_scale_real32 = v_fs_get_user_func(34);
-	if(buffer_length < 16)
+	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &scale_x);
@@ -276,21 +291,21 @@ unsigned int v_unpack_o_transform_scale_real32(const char *buf, size_t buffer_le
 	return buffer_pos;
 }
 
-void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time, real64 *pos, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag)
+void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time_s, uint32 time_f, real64 *pos, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 35);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_o_transform_pos_real64(node_id = %u time = %u pos = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time, pos, speed, accelerate, drag_normal, drag);
+	printf("send: verse_send_o_transform_pos_real64(node_id = %u time_s = %u time_f = %u pos = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, pos, speed, accelerate, drag_normal, drag);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_s);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_f);
 	{
 		unsigned char mask = 0;
 		unsigned int cmd;
@@ -327,16 +342,21 @@ void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time, real64 *pos
 		vnp_raw_pack_uint8(&buf[cmd], mask);
 	}if(FALSE)
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], drag);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_transform_pos_real64(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_transform_pos_real64)(void *user_data, VNodeID node_id, uint32 time, real64 *pos, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag);
+	void (* func_o_transform_pos_real64)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, real64 *pos, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag);
 	VNodeID node_id;
-	uint32 time;
+	uint32 time_s;
+	uint32 time_f;
 	real64 *pos;
 	real64 *speed;
 	real64 *accelerate;
@@ -344,12 +364,13 @@ unsigned int v_unpack_o_transform_pos_real64(const char *buf, size_t buffer_leng
 	real64 drag;
 	
 	func_o_transform_pos_real64 = v_fs_get_user_func(35);
-	if(buffer_length < 8)
+	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
-	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_s);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_f);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_o_transform_pos_real64(node_id = %u time = %u drag = %f ); callback = %p\n", node_id, time, drag, v_fs_get_user_func(35));
+	printf("receive: verse_send_o_transform_pos_real64(node_id = %u time_s = %u time_f = %u drag = %f ); callback = %p\n", node_id, time_s, time_f, drag, v_fs_get_user_func(35));
 #endif
 	{
 		double output[4][3];
@@ -371,31 +392,31 @@ unsigned int v_unpack_o_transform_pos_real64(const char *buf, size_t buffer_leng
 		if((mask & pow) != 0)
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &drag);
 		if(func_o_transform_pos_real64 != NULL)
-			func_o_transform_pos_real64(v_fs_get_user_data(35), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);
+			func_o_transform_pos_real64(v_fs_get_user_data(35), node_id, time_s, time_f, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);
 		return buffer_pos;
 	}
 
 	if(func_o_transform_pos_real64 != NULL)
-		func_o_transform_pos_real64(v_fs_get_user_data(35), node_id, time, pos, speed, accelerate, drag_normal, drag);
+		func_o_transform_pos_real64(v_fs_get_user_data(35), node_id, time_s, time_f, pos, speed, accelerate, drag_normal, drag);
 
 	return buffer_pos;
 }
 
-void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time, real64 *rot, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag)
+void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 time_f, real64 *rot, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 36);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_o_transform_rot_real64(node_id = %u time = %u rot = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time, rot, speed, accelerate, drag_normal, drag);
+	printf("send: verse_send_o_transform_rot_real64(node_id = %u time_s = %u time_f = %u rot = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, rot, speed, accelerate, drag_normal, drag);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_s);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_f);
 	{
 		char bitfeald = 0;
 		unsigned int cmd;
@@ -436,16 +457,21 @@ void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time, real64 *rot
 		vnp_raw_pack_uint8(&buf[cmd], bitfeald);
 	}if(FALSE)
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], drag);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_transform_rot_real64)(void *user_data, VNodeID node_id, uint32 time, real64 *rot, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag);
+	void (* func_o_transform_rot_real64)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, real64 *rot, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag);
 	VNodeID node_id;
-	uint32 time;
+	uint32 time_s;
+	uint32 time_f;
 	real64 *rot;
 	real64 *speed;
 	real64 *accelerate;
@@ -453,12 +479,13 @@ unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_leng
 	real64 drag;
 	
 	func_o_transform_rot_real64 = v_fs_get_user_func(36);
-	if(buffer_length < 8)
+	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
-	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_s);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_f);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_o_transform_rot_real64(node_id = %u time = %u drag = %f ); callback = %p\n", node_id, time, drag, v_fs_get_user_func(36));
+	printf("receive: verse_send_o_transform_rot_real64(node_id = %u time_s = %u time_f = %u drag = %f ); callback = %p\n", node_id, time_s, time_f, drag, v_fs_get_user_func(36));
 #endif
 	{
 		double output[4][4];
@@ -480,12 +507,12 @@ unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_leng
 		if((mask & pow) != 0)
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &drag);
 		if(func_o_transform_rot_real64 != NULL)
-			func_o_transform_rot_real64(v_fs_get_user_data(36), node_id, time, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);
+			func_o_transform_rot_real64(v_fs_get_user_data(36), node_id, time_s, time_f, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);
 		return buffer_pos;
 	}
 
 	if(func_o_transform_rot_real64 != NULL)
-		func_o_transform_rot_real64(v_fs_get_user_data(36), node_id, time, rot, speed, accelerate, drag_normal, drag);
+		func_o_transform_rot_real64(v_fs_get_user_data(36), node_id, time_s, time_f, rot, speed, accelerate, drag_normal, drag);
 
 	return buffer_pos;
 }
@@ -493,7 +520,7 @@ unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_leng
 void verse_send_o_transform_scale_real64(VNodeID node_id, real64 scale_x, real64 scale_y, real64 scale_z)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -503,12 +530,15 @@ void verse_send_o_transform_scale_real64(VNodeID node_id, real64 scale_x, real64
 	printf("send: verse_send_o_transform_scale_real64(node_id = %u scale_x = %f scale_y = %f scale_z = %f );\n", node_id, scale_x, scale_y, scale_z);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], scale_x);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], scale_y);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], scale_z);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_transform_scale_real64(const char *buf, size_t buffer_length)
@@ -521,7 +551,7 @@ unsigned int v_unpack_o_transform_scale_real64(const char *buf, size_t buffer_le
 	real64 scale_z;
 	
 	func_o_transform_scale_real64 = v_fs_get_user_func(37);
-	if(buffer_length < 28)
+	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &scale_x);
@@ -539,7 +569,7 @@ unsigned int v_unpack_o_transform_scale_real64(const char *buf, size_t buffer_le
 void verse_send_o_transform_subscribe(VNodeID node_id, VNRealFormat type)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -549,17 +579,20 @@ void verse_send_o_transform_subscribe(VNodeID node_id, VNRealFormat type)
 	printf("send: verse_send_o_transform_subscribe(node_id = %u type = %u );\n", node_id, type);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)type);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], TRUE);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_o_transform_unsubscribe(VNodeID node_id, VNRealFormat type)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -569,11 +602,14 @@ void verse_send_o_transform_unsubscribe(VNodeID node_id, VNRealFormat type)
 	printf("send: verse_send_o_transform_unsubscribe(node_id = %u type = %u );\n", node_id, type);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)type);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], FALSE);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_transform_subscribe(const char *buf, size_t buffer_length)
@@ -586,7 +622,7 @@ unsigned int v_unpack_o_transform_subscribe(const char *buf, size_t buffer_lengt
 	char alias_bool;
 
 	func_o_transform_subscribe = v_fs_get_user_func(38);
-	if(buffer_length < 5)
+	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
@@ -617,7 +653,7 @@ unsigned int v_unpack_o_transform_subscribe(const char *buf, size_t buffer_lengt
 void verse_send_o_light_set(VNodeID node_id, real64 light_r, real64 light_g, real64 light_b)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -627,12 +663,15 @@ void verse_send_o_light_set(VNodeID node_id, real64 light_r, real64 light_g, rea
 	printf("send: verse_send_o_light_set(node_id = %u light_r = %f light_g = %f light_b = %f );\n", node_id, light_r, light_g, light_b);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], light_r);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], light_g);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], light_b);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 5);
+	else
+		v_cmd_buf_set_address_size(head, 5);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_light_set(const char *buf, size_t buffer_length)
@@ -645,7 +684,7 @@ unsigned int v_unpack_o_light_set(const char *buf, size_t buffer_length)
 	real64 light_b;
 	
 	func_o_light_set = v_fs_get_user_func(39);
-	if(buffer_length < 28)
+	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &light_r);
@@ -660,33 +699,36 @@ unsigned int v_unpack_o_light_set(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_o_link_set(VNodeID node_id, uint16 link_id, VNodeID link, const char *name, uint32 target_id)
+void verse_send_o_link_set(VNodeID node_id, uint16 link_id, VNodeID link, const char *label, uint32 target_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 40);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_o_link_set(node_id = %u link_id = %u link = %u name = %s target_id = %u );\n", node_id, link_id, link, name, target_id);
+	printf("send: verse_send_o_link_set(node_id = %u link_id = %u link = %u label = %s target_id = %u );\n", node_id, link_id, link, label, target_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], link_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], link);
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], label, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], target_id);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], TRUE);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || link_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_o_link_destroy(VNodeID node_id, uint16 link_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -697,33 +739,36 @@ void verse_send_o_link_destroy(VNodeID node_id, uint16 link_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], link_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 0);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], FALSE);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || link_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_link_set(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_link_set)(void *user_data, VNodeID node_id, uint16 link_id, VNodeID link, const char *name, uint32 target_id);
+	void (* func_o_link_set)(void *user_data, VNodeID node_id, uint16 link_id, VNodeID link, const char *label, uint32 target_id);
 	VNodeID node_id;
 	uint16 link_id;
 	VNodeID link;
-	char name[16];
+	char label[16];
 	uint32 target_id;
 	char alias_bool;
 
 	func_o_link_set = v_fs_get_user_func(40);
-	if(buffer_length < 10)
+	if(buffer_length < 6)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &link_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &link);
-	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], label, 16, buffer_length - buffer_pos);
 	if(buffer_length < 4 + buffer_pos)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &target_id);
@@ -734,7 +779,7 @@ unsigned int v_unpack_o_link_set(const char *buf, size_t buffer_length)
 	if(!alias_bool)
 		printf("receive: verse_send_o_link_destroy(node_id = %u link_id = %u ); callback = %p\n", node_id, link_id, v_fs_get_alias_user_func(40));
 	else
-		printf("receive: verse_send_o_link_set(node_id = %u link_id = %u link = %u name = %s target_id = %u ); callback = %p\n", node_id, link_id, link, name, target_id, v_fs_get_user_func(40));
+		printf("receive: verse_send_o_link_set(node_id = %u link_id = %u link = %u label = %s target_id = %u ); callback = %p\n", node_id, link_id, link, label, target_id, v_fs_get_user_func(40));
 #endif
 	if(!alias_bool)
 	{
@@ -745,7 +790,7 @@ unsigned int v_unpack_o_link_set(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_o_link_set != NULL)
-		func_o_link_set(v_fs_get_user_data(40), node_id, link_id, link, name, target_id);
+		func_o_link_set(v_fs_get_user_data(40), node_id, link_id, link, label, target_id);
 
 	return buffer_pos;
 }
@@ -753,7 +798,7 @@ unsigned int v_unpack_o_link_set(const char *buf, size_t buffer_length)
 void verse_send_o_method_group_create(VNodeID node_id, uint8 group_id, const char *name)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -764,16 +809,19 @@ void verse_send_o_method_group_create(VNodeID node_id, uint8 group_id, const cha
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], group_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 6);
+	else
+		v_cmd_buf_set_address_size(head, 6);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_o_method_group_destroy(VNodeID node_id, uint8 group_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -784,10 +832,13 @@ void verse_send_o_method_group_destroy(VNodeID node_id, uint8 group_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], group_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1))
+		v_cmd_buf_set_unique_address_size(head, 6);
+	else
+		v_cmd_buf_set_address_size(head, 6);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_method_group_create(const char *buf, size_t buffer_length)
@@ -827,7 +878,7 @@ unsigned int v_unpack_o_method_group_create(const char *buf, size_t buffer_lengt
 void verse_send_o_method_group_subscribe(VNodeID node_id, uint16 group_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -838,16 +889,19 @@ void verse_send_o_method_group_subscribe(VNodeID node_id, uint16 group_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], group_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], TRUE);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || group_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_o_method_group_unsubscribe(VNodeID node_id, uint16 group_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -858,10 +912,13 @@ void verse_send_o_method_group_unsubscribe(VNodeID node_id, uint16 group_id)
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], group_id);
-	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], FALSE);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || group_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_method_group_subscribe(const char *buf, size_t buffer_length)
@@ -903,7 +960,7 @@ unsigned int v_unpack_o_method_group_subscribe(const char *buf, size_t buffer_le
 void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_id, const char *name, uint8 param_count, VNOParamType *param_types, char * *param_names)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -915,8 +972,7 @@ void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], group_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], method_id);
-	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 512);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], param_count);
 	{
 		unsigned int i, j, sum = 1;
@@ -933,14 +989,18 @@ void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_
 			buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], param_names[i], 1500 - buffer_pos);
 		}
 	}
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || group_id == (uint16)(-1) || method_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 9);
+	else
+		v_cmd_buf_set_address_size(head, 9);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 void verse_send_o_method_destroy(VNodeID node_id, uint16 group_id, uint16 method_id)
 {
 	uint8 *buf;
-	unsigned int buffer_pos = 0, address_size = 0;
+	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
@@ -952,11 +1012,14 @@ void verse_send_o_method_destroy(VNodeID node_id, uint16 group_id, uint16 method
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], group_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], method_id);
-	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 512);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], -1);
-	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	if(node_id == (uint32)(-1) || group_id == (uint16)(-1) || method_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 9);
+	else
+		v_cmd_buf_set_address_size(head, 9);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_method_create(const char *buf, size_t buffer_length)
@@ -966,7 +1029,7 @@ unsigned int v_unpack_o_method_create(const char *buf, size_t buffer_length)
 	VNodeID node_id;
 	uint16 group_id;
 	uint16 method_id;
-	char name[16];
+	char name[512];
 	uint8 param_count;
 	VNOParamType *param_types;
 	char * *param_names;
@@ -977,7 +1040,7 @@ unsigned int v_unpack_o_method_create(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &group_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &method_id);
-	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 512, buffer_length - buffer_pos);
 	if(buffer_length < 1 + buffer_pos)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &param_count);
@@ -1045,8 +1108,8 @@ void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)params)[i]);
 		free(params);
 	}
-	v_cmd_buf_set_unique_size(head, buffer_pos);
-	v_nq_send_buf(v_con_get_network_queue(), head);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
 unsigned int v_unpack_o_method_call(const char *buf, size_t buffer_length)
@@ -1083,6 +1146,120 @@ unsigned int v_unpack_o_method_call(const char *buf, size_t buffer_length)
 
 	if(func_o_method_call != NULL)
 		func_o_method_call(v_fs_get_user_data(44), node_id, group_id, method_id, sender, params);
+
+	return buffer_pos;
+}
+
+void verse_send_o_anim_run(VNodeID node_id, uint16 anim_id, uint16 link_id, uint32 time_s, uint32 time_f, real64 start, real64 speed, real64 speed_ramp, real64 factor, real64 factor_ramp)
+{
+	uint8 *buf;
+	unsigned int buffer_pos = 0;
+	VCMDBufHead *head;
+	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
+	buf = ((VCMDBuffer10 *)head)->buf;
+
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 45);/* Packing the command */
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: verse_send_o_anim_run(node_id = %u anim_id = %u link_id = %u time_s = %u time_f = %u start = %f speed = %f speed_ramp = %f factor = %f factor_ramp = %f );\n", node_id, anim_id, link_id, time_s, time_f, start, speed, speed_ramp, factor, factor_ramp);
+#endif
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], anim_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], link_id);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_s);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_f);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], start);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], speed);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], speed_ramp);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], factor);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], factor_ramp);
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], TRUE);
+	if(node_id == (uint32)(-1) || anim_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
+}
+
+void verse_send_o_anim_stop(VNodeID node_id, uint16 anim_id)
+{
+	uint8 *buf;
+	unsigned int buffer_pos = 0;
+	VCMDBufHead *head;
+	head = v_cmd_buf_allocate(VCMDBS_100);/* Allocating the buffer */
+	buf = ((VCMDBuffer10 *)head)->buf;
+
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 45);/* Packing the command */
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: verse_send_o_anim_stop(node_id = %u anim_id = %u );\n", node_id, anim_id);
+#endif
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], anim_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], -1);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], FALSE);
+	if(node_id == (uint32)(-1) || anim_id == (uint16)(-1))
+		v_cmd_buf_set_unique_address_size(head, 7);
+	else
+		v_cmd_buf_set_address_size(head, 7);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
+}
+
+unsigned int v_unpack_o_anim_run(const char *buf, size_t buffer_length)
+{
+	unsigned int buffer_pos = 0;
+	void (* func_o_anim_run)(void *user_data, VNodeID node_id, uint16 anim_id, uint16 link_id, uint32 time_s, uint32 time_f, real64 start, real64 speed, real64 speed_ramp, real64 factor, real64 factor_ramp);
+	VNodeID node_id;
+	uint16 anim_id;
+	uint16 link_id;
+	uint32 time_s;
+	uint32 time_f;
+	real64 start;
+	real64 speed;
+	real64 speed_ramp;
+	real64 factor;
+	real64 factor_ramp;
+	char alias_bool;
+
+	func_o_anim_run = v_fs_get_user_func(45);
+	if(buffer_length < 6)
+		return -1;
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
+	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &anim_id);
+	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &link_id);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_s);
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_f);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &start);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &speed);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &speed_ramp);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &factor);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &factor_ramp);
+	if(buffer_length < buffer_pos + 1)
+		return -1;
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
+#if defined V_PRINT_RECEIVE_COMMANDS
+	if(!alias_bool)
+		printf("receive: verse_send_o_anim_stop(node_id = %u anim_id = %u ); callback = %p\n", node_id, anim_id, v_fs_get_alias_user_func(45));
+	else
+		printf("receive: verse_send_o_anim_run(node_id = %u anim_id = %u link_id = %u time_s = %u time_f = %u start = %f speed = %f speed_ramp = %f factor = %f factor_ramp = %f ); callback = %p\n", node_id, anim_id, link_id, time_s, time_f, start, speed, speed_ramp, factor, factor_ramp, v_fs_get_user_func(45));
+#endif
+	if(!alias_bool)
+	{
+		void (* alias_o_anim_stop)(void *user_data, VNodeID node_id, uint16 anim_id);
+		alias_o_anim_stop = v_fs_get_alias_user_func(45);
+		if(alias_o_anim_stop != NULL)
+			alias_o_anim_stop(v_fs_get_alias_user_data(45), node_id, anim_id);
+		return buffer_pos;
+	}
+	if(func_o_anim_run != NULL)
+		func_o_anim_run(v_fs_get_user_data(45), node_id, anim_id, link_id, time_s, time_f, start, speed, speed_ramp, factor, factor_ramp);
 
 	return buffer_pos;
 }

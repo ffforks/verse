@@ -1,6 +1,5 @@
 extern unsigned int v_unpack_connect(const char *data, size_t length);
 extern unsigned int v_unpack_connect_accept(const char *data, size_t length);
-extern unsigned int v_unpack_connect_deny(const char *data, size_t length);
 extern unsigned int v_unpack_connect_terminate(const char *data, size_t length);
 extern unsigned int v_unpack_get_time(const char *data, size_t length);
 extern unsigned int v_unpack_ping(const char *data, size_t length);
@@ -26,6 +25,7 @@ extern unsigned int v_unpack_o_method_group_create(const char *data, size_t leng
 extern unsigned int v_unpack_o_method_group_subscribe(const char *data, size_t length);
 extern unsigned int v_unpack_o_method_create(const char *data, size_t length);
 extern unsigned int v_unpack_o_method_call(const char *data, size_t length);
+extern unsigned int v_unpack_o_anim_run(const char *data, size_t length);
 extern unsigned int v_unpack_g_layer_create(const char *data, size_t length);
 extern unsigned int v_unpack_g_layer_subscribe(const char *data, size_t length);
 extern unsigned int v_unpack_g_vertex_set_real32_xyz(const char *data, size_t length);
@@ -57,4 +57,7 @@ extern unsigned int v_unpack_c_curve_subscribe(const char *data, size_t length);
 extern unsigned int v_unpack_c_curve_key_set(const char *data, size_t length);
 extern unsigned int v_unpack_a_layer_create(const char *data, size_t length);
 extern unsigned int v_unpack_a_layer_subscribe(const char *data, size_t length);
-extern unsigned int v_unpack_a_audio(const char *data, size_t length);
+extern unsigned int v_unpack_a_block(const char *data, size_t length);
+extern unsigned int v_unpack_a_stream_create(const char *data, size_t length);
+extern unsigned int v_unpack_a_stream_subscribe(const char *data, size_t length);
+extern unsigned int v_unpack_a_stream(const char *data, size_t length);
