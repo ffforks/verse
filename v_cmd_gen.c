@@ -134,7 +134,7 @@ void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def,
 	if(alias_def != NULL)
 		fprintf(VCGData.verse_h, "extern %s;\n", alias_def);
 	fprintf(VCGData.init, "\tv_fs_add_func(%i, v_unpack_%s, verse_send_%s, ", cmd_id, name, name);
-	if(VCGData.alias_name != NULL)
+	if(alias_name != NULL)
 		fprintf(VCGData.init, "verse_send_%s);\n", alias_name);
 	else
 		fprintf(VCGData.init, "NULL);\n");
