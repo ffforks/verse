@@ -115,6 +115,19 @@ void v_cg_new_cmd(unsigned int type, const char *name, unsigned int cmd_id, VCGC
 	VCGData.command = command;
 }
 
+void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def, const char *alias_name, const char *alias_def)
+{
+	fprintf(VCGData.verse_h, "extern %s;\n", def);
+	if(alias_def != NULL)
+		fprintf(VCGData.verse_h, "extern %s;\n", alias_def);
+	fprintf(VCGData.init, "\tv_fs_add_func(%i, v_unpack_%s, verse_send_%s, ", cmd_id, name, name);
+	if(VCGData.alias_name != NULL)
+		fprintf(VCGData.init, "verse_send_%s);\n", alias_name);
+	else
+		fprintf(VCGData.init, "NULL);\n");
+	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length, void *user_func, void *user_data);\n", name);
+}
+
 void v_cg_alias(char bool_switch, const char *name, const char *qualifier, unsigned int param, unsigned int *param_array)
 {
 	VCGData.alias_name = name;
@@ -711,19 +724,6 @@ void v_cg_end_cmd(void)
 	v_cg_gen_verse_h();
 	v_cg_gen_unpack_h();
 	VCGData.alias_name = NULL;
-}
-
-void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def, const char *alias_name, const char *alias_def)
-{
-	fprintf(VCGData.verse_h, "extern %s;\n", def);
-	if(alias_def != NULL)
-		fprintf(VCGData.verse_h, "extern %s;\n", alias_def);
-	fprintf(VCGData.init, "\tv_fs_add_func(%i, v_unpack_%s, verse_send_%s, ", cmd_id, name, name);
-	if(VCGData.alias_name != NULL)
-		fprintf(VCGData.init, "verse_send_%s);\n", alias_name);
-	else
-		fprintf(VCGData.init, "NULL);\n");
-	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length, void *user_func, void *user_data);\n", name);
 }
 
 int main(int argc, char *argv[])
