@@ -18,11 +18,11 @@ extern size_t vnp_raw_unpack_uint16(const void *buffer, uint16 *data);
 extern size_t vnp_raw_pack_uint32(void *buffer, uint32 data);
 extern size_t vnp_raw_unpack_uint32(const void *buffer, uint32 *data);
 
-extern size_t vnp_raw_pack_float(void *buffer, float data);
-extern size_t vnp_raw_unpack_float(const void *buffer, float *data);
+extern size_t vnp_raw_pack_real32(void *buffer, real32 data);
+extern size_t vnp_raw_unpack_real32(const void *buffer, real32 *data);
 
-extern size_t vnp_raw_pack_double(void *buffer, double data);
-extern size_t vnp_raw_unpack_double(const void *buffer, double *data);
+extern size_t vnp_raw_pack_real64(void *buffer, real64 data);
+extern size_t vnp_raw_unpack_real64(const void *buffer, real64 *data);
 
 extern size_t vnp_raw_pack_string(void *buffer, const char *string, size_t max_size);
 extern size_t vnp_raw_unpack_string(const void *buffer, char *string, size_t max_size, size_t max_size2);

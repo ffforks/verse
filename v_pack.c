@@ -71,19 +71,19 @@ size_t vnp_raw_unpack_uint32(const void *buffer, uint32 *data)
 	return sizeof *data;
 }
 
-size_t vnp_raw_pack_float(void *buffer, float data)
+size_t vnp_raw_pack_real32(void *buffer, real32 data)
 {
 	uint32	tmp;
 	tmp = *((uint32 *) &data);
 	return vnp_raw_pack_uint32(buffer, tmp);
 }
 
-size_t vnp_raw_unpack_float(const void *buffer, float *data)
+size_t vnp_raw_unpack_real32(const void *buffer, real32 *data)
 {
 	return vnp_raw_unpack_uint32(buffer, (uint32 *) data);
 }
 
-size_t vnp_raw_pack_double(void *buffer, double data)
+size_t vnp_raw_pack_real64(void *buffer, real64 data)
 {
 	uint32 size;
 	void *p = &data;
@@ -93,7 +93,7 @@ size_t vnp_raw_pack_double(void *buffer, double data)
 	return size;
 }
 
-size_t vnp_raw_unpack_double(const void *buffer, double *data)
+size_t vnp_raw_unpack_real64(const void *buffer, real64 *data)
 {
 	uint32 size;
 	void *p = data;
