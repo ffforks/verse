@@ -5,7 +5,7 @@
 
 /* Release information. */
 #define	V_RELEASE_NUMBER	2
-#define	V_RELEASE_PATCH		4
+#define	V_RELEASE_PATCH		5
 #define	V_RELEASE_LABEL		"(none)"
 
 typedef unsigned char boolean;
