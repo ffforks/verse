@@ -3,15 +3,17 @@
 ** This is automatically generated code; do not edit.
 */
 
+
 #if !defined VERSE_H
+
+#if defined __cplusplus		/* Declare as C symbols for C++ users. */
+extern "C" {
+#endif
+
 #define	VERSE_H
 
 #if !defined VERSE_TYPES
 #define	VERSE_TYPES
-
-#if defined __cplusplus
-extern "C" {
-#endif
 
 #include <stdlib.h>
 
@@ -398,10 +400,6 @@ extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, co
 #define V_PRINT_RECEIVE_COMMANDS
 */
 
-#if defined __cplusplus
-}
-#endif
-
 #endif		/* VERSE_TYPES */
 
 /* Command sending functions begin. ----------------------------------------- */
@@ -503,5 +501,9 @@ extern void verse_send_a_stream_subscribe(VNodeID node_id, VLayerID stream_id);
 extern void verse_send_a_stream_unsubscribe(VNodeID node_id, VLayerID stream_id);
 extern void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNALayerType type, real64 frequency, const VNASample *data);
 
+
+#if defined __cplusplus
+}
+#endif
 
 #endif		/* VERSE_H */
