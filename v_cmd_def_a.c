@@ -12,7 +12,7 @@ void v_gen_audio_cmd_def(void)
 {
 	v_cg_new_cmd(V_NT_CURVE,		"a_layer_create", 160, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
-	v_cg_add_param(VCGP_LAYER_ID,	"curve_id");
+	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_NAME,		"name");
 	v_cg_alias(FALSE, "a_layer_destroy", "if(name[0] == 0)", 2, NULL);
@@ -20,7 +20,7 @@ void v_gen_audio_cmd_def(void)
 
 	v_cg_new_cmd(V_NT_CURVE,		"a_layer_subscribe", 161, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
-	v_cg_add_param(VCGP_LAYER_ID,	"curve_id");
+	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_ENUM_NAME,	"VNATransferType");
 	v_cg_add_param(VCGP_ENUM,		"transfer");
