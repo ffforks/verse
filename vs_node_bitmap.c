@@ -12,24 +12,24 @@
 #include "verse.h"
 #include "vs_server.h"
 
-unsigned int number_of_tiles = 0;
-unsigned int got_number_of_tiles = 0;
+static unsigned int number_of_tiles = 0;
+static unsigned int got_number_of_tiles = 0;
 
 typedef struct{
 	VNBLayerType		type;
-	char				name[16];
-	void				*layer;
+	char			name[16];
+	void			*layer;
 	VSSubscriptionList	*subscribers;
-}VSNBLayers;
+} VSNBLayers;
 
 typedef struct{
-	VSNodeHead		head;
-	uint16			size[3];
-	VSNBLayers		*layers;
+	VSNodeHead	head;
+	uint16		size[3];
+	VSNBLayers	*layers;
 	unsigned int	layer_count;
-}VSNodeBitmap;
+} VSNodeBitmap;
 
-VSNodeBitmap *vs_b_create_node(unsigned int owner)
+VSNodeBitmap * vs_b_create_node(unsigned int owner)
 {
 	VSNodeBitmap *node;
 	char name[48];
@@ -43,6 +43,7 @@ VSNodeBitmap *vs_b_create_node(unsigned int owner)
 	node->size[2] = 0;
 	node->layers = NULL;
 	node->layer_count = 0;
+
 	return node;
 }
 
@@ -77,7 +78,6 @@ void callback_send_b_unsubscribe(void *user, VNodeID node_id)
 		return;
 	vs_remove_subscriptor(node->head.subscribers);
 }
-
 
 static void callback_send_b_init_dimensions(void *user, VNodeID node_id, uint16 width, uint16 height, uint16 depth)
 {
