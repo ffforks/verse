@@ -141,10 +141,10 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 			queue->packet_id++;
 /*			printf("balance %u %u %f\n", ack_balance, nak_balance, (float)nak_balance / ((float)ack_balance + (float)nak_balance) * 100);
 			printf("in balance %u %u %f\n", in_balance, out_balance, (float)out_balance / ((float)in_balance + (float)out_balance) * 100);
-*/			{
+			{
 				static uint32 send_seconds, send_fractions;
 				FILE *f;
-/*				printf("timer %f\n",(double)(seconds - send_seconds) + ((double)fractions - (double)send_fractions) / (double)(0xffffffff));*/
+				printf("timer %f\n",(double)(seconds - send_seconds) + ((double)fractions - (double)send_fractions) / (double)(0xffffffff));
 				send_seconds = seconds; 
 				send_fractions = fractions;
 				f = fopen("performance.txt", "wt");
@@ -152,7 +152,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 					fprintf(f, "%f %f %f %f\n", save[i * 4], save[i * 4 + 1], save[i * 4 + 2], save[i * 4 + 3]);
 				fclose(f);
 			}
-			return TRUE;
+*/			return TRUE;
 		}
 		return FALSE;
 	}
@@ -178,7 +178,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 		return FALSE;
 
 	{
-		static unsigned int s, new_sec, count;
+/*		static unsigned int s, new_sec, count;
 		v_n_get_current_time(&new_sec, NULL);
 		if(s != new_sec)
 		{
@@ -187,7 +187,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 			ack_balance = 0;
 			nak_balance = 0;
 			count = 0;
-		}
+		}*/
 		count++;
 	}
 
