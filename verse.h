@@ -66,11 +66,6 @@ typedef enum {
 	VN_O_METHOD_PTYPE_REAL32,
 	VN_O_METHOD_PTYPE_REAL64,
 
-	VN_O_METHOD_PTYPE_STRING,
-
-	VN_O_METHOD_PTYPE_NODE,
-	VN_O_METHOD_PTYPE_LAYER,
-
 	VN_O_METHOD_PTYPE_REAL32_VEC2,
 	VN_O_METHOD_PTYPE_REAL32_VEC3,
 	VN_O_METHOD_PTYPE_REAL32_VEC4,
@@ -85,7 +80,12 @@ typedef enum {
 
 	VN_O_METHOD_PTYPE_REAL64_MAT4,
 	VN_O_METHOD_PTYPE_REAL64_MAT9,
-	VN_O_METHOD_PTYPE_REAL64_MAT16
+	VN_O_METHOD_PTYPE_REAL64_MAT16,
+
+	VN_O_METHOD_PTYPE_STRING,
+
+	VN_O_METHOD_PTYPE_NODE,
+	VN_O_METHOD_PTYPE_LAYER
 } VNOParamType;
 
 typedef	union {
@@ -97,13 +97,13 @@ typedef	union {
 	uint32		vuint32;
 	real32		vreal32;
 	real64		vreal64;
-	char		*vstring;
-	VNodeID		vnode;
-	VLayerID	vlayer;
 	real32		vreal32_vec[4];
 	real32		vreal32_mat[16];
 	real64		vreal64_vec[4];
 	real64		vreal64_mat[16];
+	char		*vstring;
+	VNodeID		vnode;
+	VLayerID	vlayer;
 } VNOParam;
 
 #define VN_TAG_MAX_BLOB_SIZE 500
@@ -319,11 +319,11 @@ typedef union{
 } VNBTile;
 
 typedef enum {
-	VN_C_CONTENT_LANGUAGE_SIZE = 32,
-	VN_C_CONTENT_INFO_SIZE = 256,
-	VN_C_BUFFER_NAME_SIZE = 32,
-	VN_C_TEXT_SIZE = 256
-} VNCConstants;
+	VN_T_CONTENT_LANGUAGE_SIZE = 32,
+	VN_T_CONTENT_INFO_SIZE = 256,
+	VN_T_BUFFER_NAME_SIZE = 16,
+	VN_T_MAX_TEXT_CMD_SIZE = 1450
+} VNTConstants;
 
 #define VN_AUDIO_MAX_SAMPLE_SIZE_UNCOMPRESSED 1400
 #define VN_AUDIO_MAX_SAMPLE_SIZE_COMPRESSED 5000
@@ -436,8 +436,8 @@ extern void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer
 extern void verse_send_g_polygon_set_face_real32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real32 value);
 extern void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 def_crease);
 extern void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def_crease);
-extern void verse_send_g_bone_create(VNodeID node_id, uint32 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w);
-extern void verse_send_g_bone_destroy(VNodeID node_id, uint32 bone_id);
+extern void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w);
+extern void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id);
 
 extern void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment);
 extern void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id);
@@ -454,7 +454,7 @@ extern void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, u
 extern void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id);
 extern void verse_send_t_buffer_subscribe(VNodeID node_id, VNMBufferID buffer_id);
 extern void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id);
-extern void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint16 length, const char *text);
+extern void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text);
 
 extern void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *name);
 extern void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id);
