@@ -232,15 +232,12 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 
 	if(text_length < length)
 	{
-		for(i = 0; text[i] != 0; i++)
-			buf[pos + text_length + i] = buf[pos + length + i];
+		memmove(buf + pos + text_length, buf + pos + length, tb->length - (pos + length));
 		memcpy(buf + pos, text, text_length);
 	}
 	else
 	{
-		for(i = tb->length; i != pos + text_length; i--)
-			buf[i + text_length - length] = buf[i];
-		buf[i + text_length - length] = buf[i];
+		memmove(buf + pos + text_length, buf + pos + length, tb->length - pos);
 		memcpy(buf + pos, text, text_length);
 	}
 
