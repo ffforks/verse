@@ -4,18 +4,22 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "verse_header.h"
-#include "v_cmd_gen.h"
 #include "v_cmd_buf.h"
+
+#include "v_cmd_gen.h"
 
 #if defined V_GENERATE_FUNC_MODE
 
 #define MAX_PARAMS_PER_CMD	16
+
 /**/
-FILE *spec;
+static FILE *spec;
 extern void v_cg_gen_spec_init(void);
 extern void v_cg_gen_spec(void);
 /**/
+
 static struct {
 	FILE		*nodes[V_NT_NUM_TYPES_NETPACK];
 	FILE		*init;
