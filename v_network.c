@@ -155,19 +155,24 @@ int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 extern void *v_con_get_network_address_id(unsigned int id);
 extern unsigned int v_con_get_network_address_count();
 
-void v_n_wait_for_incoming(unsigned int microseconds) 
+unsigned int v_n_wait_for_incoming(unsigned int microseconds) 
 {
 	struct timeval tv;
 	fd_set fd_select;
+	unsigned int	s1, f1, s2, f2;
+
 	if(microseconds == 0)
-		return;
+		return 0;
 	v_n_socket_create();
 	tv.tv_sec = microseconds / 1000000;
 	tv.tv_usec = microseconds % 1000000;
 	FD_ZERO(&fd_select);
 /*	address = v_con_get_network_address_id(i);*/
 	FD_SET(my_socket, &fd_select);
+	v_n_get_current_time(&s1, &f1);
 	select(1, &fd_select, NULL, NULL, &tv);
+	v_n_get_current_time(&s2, &f2);
+	return 1000000 * (s2 - s1) + (f2 - f1) * (1E6 / 0xffffffffU);
 }
 
 #endif
