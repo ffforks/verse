@@ -53,127 +53,7 @@ void v_e_encrypt_login(uint8 *data, unsigned int data_length, uint8 *key)
 
 #endif
 
-
-VBigNum v_e_math_inv_pontus(VBigNum a, VBigNum b)
-{
-	VBigNum t, t_null, a_null, q, r, temp;
-
-	a_null = a;
-	t_null = v_bignum_new_zero();
-	t = v_bignum_new_one();
-	q = v_bignum_div(a, b, NULL);
-	r = v_bignum_sub(a, b);
-	while(!v_bignum_eq(r, v_bignum_new_zero()))
-	{
-		temp = v_bignum_mod(v_bignum_sub(t_null, v_bignum_mul(q, t)), a);
-		t_null = t;
-		t = temp;
-		a_null = b;
-		b = r;
-		q = v_bignum_div(a_null, b, NULL);
-		q = v_bignum_sub(r, v_bignum_mul(q, b));
-		printf("inv-step, r=");
-		v_bignum_print_hex(r);
-	}
-	return t;
-}
-
-struct inv_state
-{
-	VBigNum	d, x, y;
-};
-
-static struct inv_state inv_step(VBigNum a, VBigNum b)
-{
-	struct inv_state	prim, next;
-	VBigNum			q, r;
-
-	if(v_bignum_eq_zero(b))
-	{
-		struct inv_state	r = { a, v_bignum_new_one(), v_bignum_new_zero() };
-		return r;
-	}
-	q      = v_bignum_div(a, b, &r);
-	prim   = inv_step(b, r);
-	printf("q=");
-	v_bignum_print_hex(q);
-	next.d = prim.d;
-	next.x = prim.y;
-/*	printf("subtracting from: ");
-	v_bignum_print_hex(prim.x);
-	printf("subtracting: ");
-	v_bignum_print_hex(q);
-	printf("times: ");
-	v_bignum_print_hex(prim.y);
-*/	printf("q*yp: ");
-	v_bignum_print_hex(v_bignum_mul(q, prim.y));
-	next.y = v_bignum_sub(prim.x, v_bignum_mul(q, prim.y));
-	printf("step: ");
-	v_bignum_print_hex(next.x);
-	printf("and: ");
-	v_bignum_print_hex(next.y);
-
-	return next;
-}
-
-VBigNum v_e_math_inv3(VBigNum a, VBigNum b)
-{
-	struct inv_state s = inv_step(a, b);
-
-#if 0
-	if(v_bignum_bit_test(s.x, V_BIGNUM_BITS - 1))
-	{
-		printf("Sign-inverting inverse\n");
-		s.x = v_bignum_add(a, b);
-/*		s.x = v_bignum_add_ushort(v_bignum_not(s.x), 1);*/
-	}
-#endif
-	return s.x;
-}
-
-/* Compute multiplicative inverse of a modulo b. This is the Extended Euclidian algorithm. */
-VBigNum v_e_math_inv4(VBigNum a, VBigNum b)
-{
-	VBigNum	uprev = a, u = b, xprev = v_bignum_new_zero(), x = v_bignum_new_one(),
-		yprev = v_bignum_new_one(), y = v_bignum_new_zero();
-
-	while(!v_bignum_eq_zero(u))
-	{
-		VBigNum	q = v_bignum_div(uprev, u, NULL), tmp;
-
-		printf("q=");
-		v_bignum_print_hex(q);
-		tmp = v_bignum_sub(uprev, v_bignum_mul(u, q)); uprev = u; u = tmp;
-		tmp = v_bignum_sub(xprev, v_bignum_mul(x, q)); xprev = x; x = tmp;
-		printf("xprev=");
-		v_bignum_print_hex(xprev);
-/*		tmp = v_bignum_sub(yprev, v_bignum_mul(y, q)); yprev = y; y = tmp;*/
-	}
-	return xprev;
-}
-
-VBigNum v_e_math_inv5(VBigNum a, VBigNum b)
-{
-	VBigNum	p = v_bignum_new_one(), q = v_bignum_new_zero(), r = q, s = p, k, c, new_r, new_s;
-
-	while(!v_bignum_eq_zero(b))
-	{
-		k = v_bignum_div(a, b, &c);
-		v_bignum_print_hex(k);
-		a = b;
-		b = c;
-		new_r = v_bignum_sub(p, v_bignum_mul(k, r));
-		new_s = v_bignum_sub(q, v_bignum_mul(k, s));
-		p = r;
-		q = s;
-		r = new_r;
-		s = new_s;
-		v_bignum_print_hex(p);
-	}
-	return p;
-}
-
-/* From Knuth, via BigDigits. */
+/* From Knuth. */
 VBigNum v_e_math_inv(VBigNum u, VBigNum v)
 {
 	VBigNum	u1, u3, v1, v3, t1, t3, q, w, inv;
@@ -203,63 +83,6 @@ VBigNum v_e_math_inv(VBigNum u, VBigNum v)
 	return inv;
 }
 
-/* Wikipedia. */
-VBigNum v_e_math_inv2(VBigNum a, VBigNum b)
-{
-	VBigNum	p, q, r, s, c, quot, new_r, new_s;
-
-	p = v_bignum_new_one();
-	q = v_bignum_new_zero();
-	r = q;
-	s = p;
-
-	while(!v_bignum_eq_zero(b))
-	{
-		quot = v_bignum_div(a, b, &c);
-
-		a = b;
-		b = c;
-		new_r = v_bignum_sub(p, v_bignum_mul(quot, r));
-		new_s = v_bignum_sub(q, v_bignum_mul(quot, s));
-		p = r;
-		q = s;
-		r = new_r;
-		s = new_s;
-		printf("inv-step, r=");
-		v_bignum_print_hex(r);
-	}
-	return p;	/* Whatever ;/ */
-}
-
-VBigNum v_e_math_compute_gcd_pontus(VBigNum a, VBigNum b)
-{
-	VBigNum a_null, b_null, t_null, s_null, s, t, q, r, temp;
-
-	printf("GCD begin\n");
-	a_null = a;	
-	b_null = b;
-	t_null = v_bignum_new_one();
-	s_null = v_bignum_new_one();
-	s = v_bignum_new_zero();
-	q = v_bignum_div(a_null, b_null, NULL);
-	r = v_bignum_sub(a_null, v_bignum_mul(q, b_null));
-	t = v_bignum_new_one();
-	while(!v_bignum_eq_zero(r))
-	{
-		temp = v_bignum_sub(t_null, v_bignum_mul(q, t));
-		t_null = t;
-		t = temp;
-		temp = v_bignum_sub(s_null, v_bignum_mul(q, s));
-		s_null = s;
-		s = temp;
-		a_null = b_null;
-		b_null = r;
-		q = v_bignum_div(a_null, b_null, NULL);
-		r = v_bignum_sub(a_null, v_bignum_mul(q, b_null));
-	}
-	printf(" done\n");
-	return r;
-}
 
 VBigNum v_e_math_compute_gcd(VBigNum u, VBigNum v)
 {
@@ -296,70 +119,11 @@ VBigNum v_e_math_compute_gcd(VBigNum u, VBigNum v)
 }
 
 extern VBigNum v_get_prime();
-/*
-VBigNum v_e_math_gen_large_prime(unsigned int a)
-{
-	return v_get_prime();
-}*/
-
-/* Comparison, returns a >= b. !(a < b) */
-/*
-void v_e_create_key(uint sead_a, uint sead_b, uint sead_c, VEValue *public_key,
-VEValue *private_key, VEValue *n)
-{
-        VEValue p, q, n, phi;
-        p = v_e_math_gen_large_prime(sead_a);
-        q = v_e_math_gen_large_prime(sead_b);
-        n = v_e_math_mult(p, q);
-        phi = v_e_math_mult(v_e_math_subtract_int(p, 1), v_e_math_subtract_int(q, 1));
-
-        b = v_e_math_rand(VEValue sead_c, phi);
-        while(v_e_math_set(1) != v_e_math_compute_gcd(b, phi))
-        {
-                b = v_e_math_add_int(b, 1);
-                b = v_e_math_mod(b, phi);
-        }
-        a = v_e_math_inv(b, phi);
-        public_key[0] = n;
-        public_key[1] = b;
-        private_key[0] = a;
-}
-*/
 
 void v_e_create_key_real(VBigNum *public_key, VBigNum *private_key, VBigNum *n)
 {
 	VBigNum p, q, phi, e, d;
 
-/*	{
-		VBigNum	a, b, inv;
-
-		a = v_bignum_new_string("0x10001");
-		b = v_bignum_new_string("0x6918EF903A166FFD2FD41617671D229A9BB131C9A3C9F68FEB1"
-					 "A2D424126FCC3417A43AEC8BD31EF4BA6CB3293B1E8FE8BB45A9B7"
-					 "965B716CEDE116F7610334209170AD9CA9963676FFC908403428DF"
-					 "7572DE9E04455FFF901CB8D7C03EB5963BB735F898B40B9DBD56C8"
-					 "9DEA573D779242817D9E9EADC8DDE1E13708E3F98BDFB2865C284B"
-					 "9A5EF910F227A99BD8B17CC602D22D6A8C2DD866CB75C83F03ADFE"
-					 "1C74DDE276DF94CB06136E76DF3F456E446A7153B3B80D2C5866FA"
-					 "0552BD099A39AD2355FC0A32D40C592CCF199C444C2A06662097D1"
-					 "D48819FEDC4242E49636869B045DAB9336F06CE3FF7F4FE94028CE"
-					 "5068DEEC5900AF5F7FB558BFF4658");
-		printf("a=");
-		v_bignum_print_hex(a);
-		printf("b=");
-		v_bignum_print_hex(b);
-		inv = v_e_math_inv(a, b);
-		printf("inv=");
-		v_bignum_print_hex(inv);
-		printf("TEST: ");
-		v_bignum_print_hex(v_bignum_mod(v_bignum_mul(inv, a), b));
-		
-		inv = v_e_math_inv2(a, b);
-		printf("inv2=");
-		v_bignum_print_hex(inv);
-		exit(1);
-	}
-*/
 	printf("find prime p\n");
 	p = v_prime_new_random();
 	printf("find prime q\n");
@@ -407,18 +171,6 @@ void v_e_create_key(uint8 *private_key, uint8 *public_key, uint8 *n)
 	printf("generating key\n");
 	v_e_create_key_real(private_key, public_key, n);
 	printf(" done!\n");
-
-#if 0
-	static unsigned int random = 6;
-	unsigned int i;
-	random++;
-	for(i = 0; i < V_BIGNUM_BITS / 8; i++)
-	{
-		public_key[i] = ((i + random) % 256); 
-		private_key[i] = 256 - public_key[i];
-		n[i] = random;
-	}
-#endif
 }
 
 void v_e_encrypt(uint8 *output, uint8 *data, uint8 *key, uint8 *n)
