@@ -412,7 +412,7 @@ void v_gen_object_cmd_def(void)
 	"\t\t\ttext += size;\n"
 	"\t\t}\n"
 	"\t\tif(func_o_method_create != NULL)\n"
-	"\t\t\tfunc_o_method_create(v_fs_get_user_data(43), node_id, group_id, method_id, name, param_count, types, names);\n"
+	"\t\t\tfunc_o_method_create(v_fs_get_user_data(43), node_id, group_id, method_id, name, param_count, types, (const char **) names);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_alias(FALSE, "o_method_destroy", "if(name[0] == 0)", 3, NULL);
@@ -430,7 +430,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tvnp_raw_unpack_uint16(params, &size);\n"
 	"\t\tfor(i = 0; i < size; i++)\n"
 	"\t\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)params)[i]);\n"
-	"\t\tfree(params);\n"
+	"\t\tfree((void *) params);\t/* Drop the const. */\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_UNPACK_INLINE, "\t{\n"
 	"\t\tunsigned int i;\n"
