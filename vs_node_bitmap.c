@@ -79,7 +79,7 @@ void callback_send_b_unsubscribe(void *user, VNodeID node_id)
 }
 
 
-void callback_send_b_init_dimensions(void *user, VNodeID node_id, uint16 width, uint16 height, uint16 depth)
+static void callback_send_b_init_dimensions(void *user, VNodeID node_id, uint16 width, uint16 height, uint16 depth)
 {
 	VSNodeBitmap *node;
 	unsigned int i, count;
@@ -101,7 +101,7 @@ void callback_send_b_init_dimensions(void *user, VNodeID node_id, uint16 width, 
 	got_number_of_tiles = 0;
 }
 
-void callback_send_b_layer_create(void *user, VNodeID node_id, VLayerID layer_id, char *name, uint8 type)
+static void callback_send_b_layer_create(void *user, VNodeID node_id, VLayerID layer_id, char *name, uint8 type)
 {
 	VSNodeBitmap *node;
 	unsigned int i, count;
@@ -173,8 +173,7 @@ void callback_send_b_layer_create(void *user, VNodeID node_id, VLayerID layer_id
 	vs_reset_subscript_session();
 }
 
-
-void callback_send_b_layer_destroy(void *user, VNodeID node_id, VLayerID layer_id)
+static void callback_send_b_layer_destroy(void *user, VNodeID node_id, VLayerID layer_id)
 {
 	VSNodeBitmap *node;
 	unsigned int i, count;
@@ -198,7 +197,7 @@ void callback_send_b_layer_destroy(void *user, VNodeID node_id, VLayerID layer_i
 	vs_reset_subscript_session();
 }
 
-void callback_send_b_layer_subscribe(void *user, VNodeID node_id, VLayerID layer_id, uint8 level)
+static void callback_send_b_layer_subscribe(void *user, VNodeID node_id, VLayerID layer_id, uint8 level)
 {
 	VSNodeBitmap *node;
 	unsigned int i, j, k, tile[3];
@@ -244,7 +243,7 @@ void callback_send_b_layer_subscribe(void *user, VNodeID node_id, VLayerID layer
 	}
 }
 
-void callback_send_b_layer_unsubscribe(void *user, VNodeID node_id, VLayerID layer_id)
+static void callback_send_b_layer_unsubscribe(void *user, VNodeID node_id, VLayerID layer_id)
 {
 	VSNodeBitmap *node;
 	if((node = (VSNodeBitmap *)vs_get_node(node_id, V_NT_BITMAP)) == NULL)
@@ -254,7 +253,7 @@ void callback_send_b_layer_unsubscribe(void *user, VNodeID node_id, VLayerID lay
 	vs_remove_subscriptor(node->layers[layer_id].subscribers);
 }
 
-void callback_send_b_layer_set_tile(void *user, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 tile_z, uint8 type, void *data)
+static void callback_send_b_layer_set_tile(void *user, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 tile_z, uint8 type, void *data)
 {
 	VSNodeBitmap *node;
 	unsigned int i, count, tile[3];
@@ -332,6 +331,4 @@ void vs_b_callback_init()
 	verse_callback_set(verse_send_b_layer_set_tile, callback_send_b_layer_set_tile, NULL);
 }
 
-
 #endif
-
