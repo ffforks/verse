@@ -340,11 +340,9 @@ static void callback_send_o_transform_subscribe(void *user, VNodeID node_id, VNR
 static void callback_send_o_transform_unsubscribe(void *user, VNodeID node_id, VNRealFormat type)
 {
 	VSNodeObject *node;
-	printf("callback_send_o_transform_unsubscribe\n");
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL)
 		return;
-	printf("callback_send_o_transform_unsubscribe\n");
 	if(type == VN_FORMAT_REAL32)
 		vs_remove_subscriptor(node->trans_sub32);
 	else
