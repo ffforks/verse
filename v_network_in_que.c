@@ -18,14 +18,7 @@
 
 #include "v_network_in_que.h"
 
-typedef struct{
-	void	*newer;
-	void	*older;
-	char	data[1500];
-	size_t	size;
-}NetPacked;
-
-static NetPacked *v_niq_temp = NULL;
+static VNetInPacked *v_niq_temp = NULL;
 
 void v_niq_clear(VNetInQueue *queue)
 {
@@ -42,35 +35,44 @@ boolean v_niq_time_out(const VNetInQueue *queue)
 	return queue->seconds + V_CONNECTON_TIME_OUT < seconds;
 }
 
-char *v_niq_get(VNetInQueue *queue, size_t *length)
+VNetInPacked *v_niq_get(VNetInQueue *queue, size_t *length)
 {
-	NetPacked	*p;
+	VNetInPacked *p;
+
 	if(queue->oldest == NULL)
 	{
 		*length = 0;
 		return NULL;
 	}
+
+	/* pop oldest package */
 	p = queue->oldest;
 	queue->oldest = p->newer;
 	if(queue->oldest == NULL)
 		queue->newest = NULL;
 	else
-		((NetPacked *)queue->oldest)->older = NULL;
+		((VNetInPacked *)queue->oldest)->older = NULL;
 
 	*length = p->size;
 
+	return p;
+}
+
+void v_niq_release(VNetInQueue *queue, VNetInPacked *p)
+{
+	/* push on v_niq_temp for re-use */
 	p->older = v_niq_temp;
 	v_niq_temp = p;
-	return p->data;
 }
 
 char *v_niq_store(VNetInQueue *queue, size_t length, unsigned int packet_id)
 {
-	NetPacked	*p;
+	VNetInPacked	*p;
 	v_n_get_current_time(&queue->seconds, NULL);
 
 	if(packet_id < queue->packet_id)
 		return NULL;
+	
 	while(queue->packet_id < packet_id)
 		verse_send_packet_nak(queue->packet_id++);
 	queue->packet_id++;
@@ -80,18 +82,22 @@ char *v_niq_store(VNetInQueue *queue, size_t length, unsigned int packet_id)
 		p = malloc(sizeof *p);
 	else
 	{
+		/* pop off v_niq_temp */
 		p = v_niq_temp;
 		v_niq_temp = p->older;
 	}
+	/* push as newest */
 	p->older = queue->newest;
 	p->newer = NULL;
 
 	if(queue->newest == NULL)
 		queue->oldest = p;
 	else
-		((NetPacked *)queue->newest)->newer = p;
+		((VNetInPacked *)queue->newest)->newer = p;
 	queue->newest = p;
+
 	p->size = length;
+
 	return p->data;
 }
 
