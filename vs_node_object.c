@@ -658,6 +658,7 @@ static void callback_send_o_method_call(void *user, VNodeID node_id, uint16 grou
 	void *data;
 	VSNodeObject *node;
 	unsigned int i, count;
+
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL || vs_get_node(node_id, V_NT_OBJECT) == NULL)
 		return;
