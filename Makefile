@@ -24,10 +24,11 @@ PROT_OUT  = v_gen_pack_init.c v_gen_unpack_func.h verse.h \
 		$(patsubst v_cmd_def_%.c,v_gen_pack_%_node.c, $(PROT_DEF))
 
 # The API implementation is the protocol code plus a few bits.
-LIBVERSE_SRC =  $(PROT_OUT) v_cmd_buf.c v_connection.c v_connection.h \
+LIBVERSE_SRC =  $(PROT_OUT) v_cmd_buf.c v_connect.c v_connection.c v_connection.h \
+		v_encryption.c \
 		v_func_storage.c v_internal_verse.h v_man_pack_node.c \
-		v_network.c v_network.h v_network_que.c \
-		v_network_que.h v_pack.c v_pack.h v_pack_method.c
+		v_network.c v_network.h v_network_in_que.c v_network_out_que.c \
+		v_pack.c v_pack.h v_pack_method.c
 
 LIBVERSE_OBJ = $(patsubst %h,, $(LIBVERSE_SRC:%.c=%.o))
 
@@ -62,7 +63,7 @@ mkprot:		$(PROT_TOOL)
 
 # Clean away all the generated parts of the protocol implementation.
 cleanprot:	clean
-		rm -f mkprot $(AUTOGEN_OUT)
+		rm -f mkprot $(PROT_OUT)
 
 # -----------------------------------------------------
 
@@ -73,6 +74,10 @@ clean:
 
 # Utter ugliness to create release archives. Needs to improve, but should work for a while.
 dist:
+	RELEASE=$$( \
+	R=`grep V_RELEASE_NUMBER verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; \
+	P=`grep V_RELEASE_PATCH verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; \
+	L=`grep V_RELEASE_LABEL verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; echo r$${R}p$$P$$L ) ; \
 	if [ $$RELEASE ]; then ( \
 	 rm -rf  /tmp/verse; \
 	 mkdir -p /tmp/verse; \
@@ -80,5 +85,5 @@ dist:
 	 cd /tmp && zip verse-$$RELEASE.zip -r verse -x 'verse/*CVS*' -x 'verse/.*' ; \
 	 ); mv /tmp/verse-$$RELEASE.zip . \
 	;else \
-	  echo "Please set RELEASE to the desired release name, e.g. 'RELEASE=r1p1 make dist'" \
+	  echo "Couldn't auto-set RELEASE from verse.h, something is fishy" \
 	;fi
