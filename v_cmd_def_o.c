@@ -423,21 +423,17 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
 	"\t\tunsigned int i;\n"
 	"\t\tuint16 size;\n"
-	"\t\tvnp_raw_unpack_uint16(&params, &size);\n"
-	"\t\tfor(i = 0; i < size; i++)\n"
-	"\t\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)params)[i]);\n"
+	"\t\tvnp_raw_unpack_uint16(params, &size);\n"
+	"\t\tmemcpy(buf + buffer_pos, params, size);\n"
+	"\t\tbuffer_pos += size;\n"
 	"\t\tfree(params);\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_UNPACK_INLINE, "\t{\n"
-	"\t\tunsigned int i;\n"
-	"\t\tuint8 par[1500];\n"
 	"\t\tuint16 size;\n"
 	"\t\tvnp_raw_unpack_uint16(&buf[buffer_pos], &size);\n"
-	"\t\tfor(i = 0; i < size; i++)\n"
-	"\t\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &par[i]);\n"
 	"\t\tif(func_o_method_call != NULL)\n"
-	"\t\t\tfunc_o_method_call(v_fs_get_user_data(44), node_id, group_id, method_id, sender, par);\n"
-	"\t\treturn buffer_pos;\n"
+	"\t\t\tfunc_o_method_call(v_fs_get_user_data(44), node_id, group_id, method_id, sender, buf + buffer_pos);\n"
+	"\t\treturn buffer_pos + size;\n"
 	"\t}\n");
 
 	v_cg_end_cmd();
