@@ -1040,9 +1040,9 @@ void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id
 	{
 		unsigned int i;
 		uint16 size;
-		vnp_raw_unpack_uint16(&params, &size);
-		for(i = 0; i < size; i++)
-			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)params)[i]);
+		vnp_raw_unpack_uint16(params, &size);
+		memcpy(buf + buffer_pos, params, size);
+		buffer_pos += size;
 		free(params);
 	}
 	v_cmd_buf_set_unique_size(head, buffer_pos);
@@ -1070,15 +1070,11 @@ unsigned int v_unpack_o_method_call(const char *buf, size_t buffer_length)
 	printf("receive: verse_send_o_method_call(node_id = %u group_id = %u method_id = %u sender = %u ); callback = %p\n", node_id, group_id, method_id, sender, v_fs_get_user_func(44));
 #endif
 	{
-		unsigned int i;
-		uint8 par[1500];
 		uint16 size;
 		vnp_raw_unpack_uint16(&buf[buffer_pos], &size);
-		for(i = 0; i < size; i++)
-			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &par[i]);
 		if(func_o_method_call != NULL)
-			func_o_method_call(v_fs_get_user_data(44), node_id, group_id, method_id, sender, par);
-		return buffer_pos;
+			func_o_method_call(v_fs_get_user_data(44), node_id, group_id, method_id, sender, buf + buffer_pos);
+		return buffer_pos + size;
 	}
 
 	if(func_o_method_call != NULL)
