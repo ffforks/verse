@@ -12,7 +12,7 @@
 #include "v_network.h"
 #include "v_pack.h"
 
-#define V_CONNECTON_TIME_OUT 20
+#define V_CONNECTON_TIME_OUT 5
 
 #if !defined(V_GENERATE_FUNC_MODE)
 
