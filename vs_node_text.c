@@ -253,7 +253,6 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 		node->buffer[buffer_id].allocated = node->buffer[buffer_id].length + VS_TEXT_CHUNK_SIZE;
 	}
 
-	node->buffer[buffer_id].length += text_length - length;
 	node->buffer[buffer_id].text = buf;
 
 	count =	vs_get_subscript_count(node->buffer[buffer_id].subscribers);
