@@ -6,7 +6,7 @@
 #if !defined(V_GENERATE_FUNC_MODE)
 #include "verse.h"
 #include "v_cmd_buf.h"
-#include "v_network_que.h"
+#include "v_network_out_que.h"
 
 #define V_FS_MAX_CMDS 256
 
@@ -23,7 +23,7 @@ static struct {
 	boolean		call;
 } VCmdData;
 
-boolean v_fs_initialized = FALSE;
+static boolean v_fs_initialized = FALSE;
 
 extern void verse_send_packet_ack(uint32 packet_id);
 extern void callback_send_packet_ack(void *user, uint32 packet_id);
@@ -66,7 +66,7 @@ void v_fs_add_func(unsigned int cmd_id, unsigned int (*unpack_func)(const char *
 
 void *v_fs_get_user_func(unsigned int cmd_id)
 {
-	if(VCmdData.call)
+/*	if(VCmdData.call)*/
 		return VCmdData.user_func[cmd_id];
 	return NULL;
 }
@@ -78,7 +78,7 @@ void *v_fs_get_user_data(unsigned int cmd_id)
 
 void *v_fs_get_alias_user_func(unsigned int cmd_id)
 {
-	if(VCmdData.call)
+/*	if(VCmdData.call)*/
 		return VCmdData.alias_user_func[cmd_id];
 	return NULL;
 }
@@ -112,61 +112,66 @@ void verse_callback_set(void *command, void *callback, void *user)
 }
 
 /* Do we accept incoming connections, i.e. are we a host implementation? */
-boolean v_fs_func_accept_connections()
+boolean v_fs_func_accept_connections(void)
 {
 	return VCmdData.user_func[0] != NULL;
 }
 
-void v_fs_buf_unpack(const uint8 *data, unsigned int length)
+void v_fs_unpack(uint8 *data, unsigned int length)
 {
-	uint32 i = 0, output, pack_id, *expected;
+	uint32 i = 0, output, pack_id;
 	uint8 cmd_id;
-	VCmdData.call = TRUE;
-	expected = v_con_get_network_expected_packet();
-	i = vnp_raw_unpack_uint32(&data[i], &pack_id); /* each pack starts with a 32 bit id */
-	if(pack_id < *expected)
-		return;
-	for(; *expected < pack_id; (*expected)++)
-		verse_send_packet_nak(*expected);
-	(*expected)++;
+	i = vnp_raw_unpack_uint32(data, &pack_id); /* each pack starts with a 32 bit id */
+/*	printf("unpak %u %u %u\n", length, i, *expected);
+	if(expected != NULL)
+	{
+		if(pack_id < *expected)
+			return;
+		for(; *expected < pack_id; (*expected)++)
+			verse_send_packet_nak(*expected);
+		(*expected)++;
+	}*/
 	while(i < length)
 	{
 		i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
-
 		if(VCmdData.unpack_func[cmd_id] != NULL)
 		{
+			VCmdData.call = TRUE;
 			output = VCmdData.unpack_func[cmd_id](&data[i], length - i);
-			if(output == (unsigned int) -1)	/* FIXME: Can this happen? Should be size_t or int, depending. */
+			if(output == (unsigned int) -1)	/* Can this happen? Should be size_t or int, depending. */
 			{
-				verse_send_packet_nak(pack_id);
+		/*		verse_send_packet_nak(pack_id);*/
 				return;
 			}
 			i += output;
 		}
 	}
-	verse_send_packet_ack(pack_id);
+/*	if(expected != NULL)
+		verse_send_packet_ack(pack_id);*/
 }
 
-void v_fs_buf_store_pack(uint8 *data, unsigned int length)
+void v_fs_unpack_old(uint8 *data, unsigned int length, uint32 *expected)
 {
-	uint32 i = 0, output, pack_id, *expected;
+	uint32 i = 0, output, pack_id;
 	uint8 cmd_id;
-	expected = v_con_get_network_expected_packet();
-	i = vnp_raw_unpack_uint32(&data[i], &pack_id); /* each pack starts with a 32 bit id */
-	if(pack_id < *expected)
-		return;
-	for(; *expected < pack_id; (*expected)++)
-		verse_send_packet_nak(*expected);
-	(*expected)++;
+	i = vnp_raw_unpack_uint32(data, &pack_id); /* each pack starts with a 32 bit id */
+	if(expected != NULL)
+	{
+		if(pack_id < *expected)
+			return;
+		for(; *expected < pack_id; (*expected)++)
+			verse_send_packet_nak(*expected);
+		(*expected)++;
+	}
 	while(i < length)
 	{
 		i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
 		if(VCmdData.unpack_func[cmd_id] != NULL)
 		{
 			if(cmd_id == 7 || cmd_id == 8)
-				VCmdData.call = TRUE;
+				VCmdData.call = (expected == NULL);
 			else
-				VCmdData.call = FALSE;
+				VCmdData.call = !(expected == NULL);
 			output = VCmdData.unpack_func[cmd_id](&data[i], length - i);
 			if(output == (unsigned int) -1)	/* Can this happen? Should be size_t or int, depending. */
 			{
@@ -176,43 +181,26 @@ void v_fs_buf_store_pack(uint8 *data, unsigned int length)
 			i += output;
 		}
 	}
-	v_nq_store_packed(v_con_get_network_queue(), &data[4], length - 4);
-	verse_send_packet_ack(pack_id);
+	if(expected != NULL)
+		verse_send_packet_ack(pack_id);
 }
 
-boolean v_fs_buf_unpack_stored()
+extern unsigned int v_unpack_connection(const char *data, size_t length);
+/*
+void v_fs_unpack_connect(uint8 *data, unsigned int length, uint32 *expected)
 {
-	unsigned int i = 0, length;
+	uint32 i = 0, output, pack_id;
 	uint8 cmd_id;
-	char *data;
-	while((data = v_nq_get_packed(v_con_get_network_queue(), &length)) != NULL)
-	{
-		i = 0;
-		while(i < length)
-		{
-			i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
-			if(VCmdData.unpack_func[cmd_id] != NULL)
-			{
-				if(cmd_id == 7 || cmd_id == 8)
-					VCmdData.call = FALSE;
-				else
-					VCmdData.call = TRUE;
-				i += VCmdData.unpack_func[cmd_id](&data[i], length - i);
-			}
-		}
-		free(data);
-	}
-	return i != 0;
+	i = vnp_raw_unpack_uint32(data, &pack_id);
+	if(pack_id != *expected)
+		return;
+	VCmdData.call = TRUE;
+	if(v_unpack_connection(data, length))
+		(*expected)++;
 }
-
+*/
+/*
 static char *connect_address = NULL;
-
-char * v_fs_connect_get_address(void)
-{
-	return connect_address;
-}
-
-extern unsigned int v_unpack_connect(const char *data, size_t length);
 
 void v_fs_connect_unpack(uint8 *data, unsigned int length, char *address)
 {
@@ -225,6 +213,6 @@ void v_fs_connect_unpack(uint8 *data, unsigned int length, char *address)
 	if(cmd_id == 0 || cmd_id == 4)
 		i += v_unpack_connect(&data[i], length);	
 	connect_address = NULL;
-}
+}*/
 
 #endif

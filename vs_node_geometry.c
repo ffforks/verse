@@ -27,6 +27,19 @@ typedef struct {
 } VSNGLayer;
 
 typedef struct {
+	char weight[16];
+	char reference[16];
+	uint16 parent;
+	real64 pos_x;
+	real64 pos_y;
+	real64 pos_z;
+	real64 rot_x;
+	real64 rot_y;
+	real64 rot_z;
+	real64 rot_w;
+} VSNGBone;
+
+typedef struct {
 	VSNodeHead	head;
 	VSNGLayer	*layer;
 	uint16		layer_count;
@@ -36,6 +49,8 @@ typedef struct {
 	char		crease_vertex_layer[16];
 	uint32		crease_edge;
 	char		crease_edge_layer[16];
+	VSNGBone	*bones;
+	uint32		bone_count;
 } VSNodeGeometry;
 
 VSNodeGeometry * vs_g_create_node(unsigned int owner)
@@ -49,6 +64,12 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 	vs_add_new_node(&node->head, V_NT_GEOMETRY);
 	sprintf(name, "Geometry_Node_%u", node->head.id);
 	create_node_head(&node->head, name, owner);
+
+	node->bones = malloc((sizeof *node->bones) * 16);
+	node->bone_count = 16;
+	for(i = 0; i < 16; i++)
+		node->bones[i].weight[0] = 0;
+
 	node->layer = malloc((sizeof *node->layer) * 16);
 	node->layer_count = 16;
 	node->vertex_size = VS_G_LAYER_CHUNK;
@@ -75,6 +96,7 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 	node->layer[1].subscribers = NULL;/*vs_create_subscription_list();*/
 	node->layer[1].subscribersd = NULL;
 	node->layer[1].def.integer = 0;
+	node->layer[1].def.real = 0.0;
 
 	for(i = 2; i < 16; i++)
 	{
@@ -83,12 +105,13 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 		node->layer[i].layer = NULL;
 		node->layer[i].subscribers = NULL;
 		node->layer[i].subscribersd = NULL;
-		node->layer[i].def.integer = 0;
+		node->layer[i].def.real = 0;
 	}
 	node->crease_vertex = 0;
 	node->crease_vertex_layer[0] = 0;
 	node->crease_edge = 0;
 	node->crease_edge_layer[0] = 0;
+
 	return node;
 }
 
@@ -103,22 +126,27 @@ void vs_g_subscribe(VSNodeGeometry *node)
 	unsigned int i;
 	for(i = 0; i < node->layer_count; i++)
 		if(node->layer[i].layer != NULL)	
-			verse_send_g_layer_create(node->head.id, (uint16)i, node->layer[i].name, node->layer[i].type, node->layer[i].def.integer, node->layer[i].def.real);
+			verse_send_g_layer_create(node->head.id, (uint16)i, node->layer[i].name, node->layer[i].type,
+						  node->layer[i].def.integer, node->layer[i].def.real);
 	verse_send_g_crease_set_vertex(node->head.id, node->crease_vertex_layer, node->crease_vertex);
 	verse_send_g_crease_set_edge(node->head.id, node->crease_edge_layer, node->crease_edge);
+	for(i = 0; i < node->bone_count; i++)
+		if(node->bones[i].weight[0] != 0)	
+			verse_send_g_bone_create(node->head.id, (uint16)i, node->bones[i].weight, node->bones[i].reference, node->bones[i].parent, node->bones[i].pos_x, node->bones[i].pos_y, node->bones[i].pos_z, node->bones[i].rot_x, node->bones[i].rot_y, node->bones[i].rot_z, node->bones[i].rot_w);
 }
 
-void callback_send_g_unsubscribe(void *user, VNodeID node_id)
+
+void vs_g_unsubscribe(VSNodeGeometry *node)
 {
-	VSNodeGeometry *node;
 	unsigned int i;
-	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
-	if(node == NULL)
-		return;
-	for(i = 0; i < node->layer_count; i++)
-		if(node->layer[i].layer != NULL)	
-			vs_remove_subscriptor(node->layer[i].subscribers);
-	vs_remove_subscriptor(node->head.subscribers);
+	for(i = 0; i < node->layer_count; i++) {
+		if(node->layer[i].layer != NULL) {
+			if(node->layer[i].subscribers)
+				vs_remove_subscriptor(node->layer[i].subscribers);
+			if(node->layer[i].subscribersd)
+				vs_remove_subscriptor(node->layer[i].subscribersd);
+		}
+	}
 }
 
 static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID layer_id, char *name, uint8 type, uint32 def_uint, double def_real)
@@ -157,15 +185,20 @@ static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID l
 				node->layer[i].subscribersd = NULL;			
 			}
 		}
-		node->layer[layer_id].subscribers = vs_create_subscription_list();
 	}
 	for(i = 0; i < 16; i++)
 		node->layer[layer_id].name[i] = name[i];
 
 	if(node->layer[layer_id].type != type)
 	{
-		if(node->layer[layer_id].type == VN_G_LAYER_VERTEX_XYZ)
+		if(node->layer[layer_id].subscribers) {
+			vs_destroy_subscription_list(node->layer[layer_id].subscribers);
+			node->layer[layer_id].subscribers = NULL;
+		}
+		if(node->layer[layer_id].subscribersd) {
 			vs_destroy_subscription_list(node->layer[layer_id].subscribersd);
+			node->layer[layer_id].subscribersd = NULL;
+		}
 		node->layer[layer_id].type = type;
 		free(node->layer[layer_id].layer);
 		switch(type)
@@ -242,9 +275,14 @@ static void callback_send_g_layer_destroy(void *user, VNodeID node_id, VLayerID 
 	node->layer[layer_id].layer = NULL;
 	node->layer[layer_id].name[0] = 0;
 	node->layer[layer_id].type = -1;
-	vs_destroy_subscription_list(node->layer[layer_id].subscribers);
-	if(node->layer[layer_id].type == VN_G_LAYER_VERTEX_XYZ)
+	if(node->layer[layer_id].subscribers) {
+		vs_destroy_subscription_list(node->layer[layer_id].subscribers);
+		node->layer[layer_id].subscribers = NULL;
+	}
+	if(node->layer[layer_id].subscribersd) {
 		vs_destroy_subscription_list(node->layer[layer_id].subscribersd);
+		node->layer[layer_id].subscribersd = NULL;
+	}
 
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
@@ -370,8 +408,9 @@ static void callback_send_g_layer_unsubscribe(void *user, VNodeID node_id, VNMFr
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL)
 		return;
-	vs_remove_subscriptor(node->layer[layer_id].subscribers);
-	if(node->layer[layer_id].type == VN_G_LAYER_VERTEX_XYZ)
+	if(node->layer[layer_id].subscribers)
+		vs_remove_subscriptor(node->layer[layer_id].subscribers);
+	if(node->layer[layer_id].subscribersd)
 		vs_remove_subscriptor(node->layer[layer_id].subscribersd);
 }
 
@@ -877,6 +916,76 @@ static void callback_send_g_crease_set_edge(void *user, VNodeID node_id, char *l
 	vs_reset_subscript_session();
 }
 
+void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, const char *weight,
+				 const char *reference, uint16 parent,
+				 real64 pos_x, real64 pos_y, real64 pos_z,
+				 real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w)
+{
+	VSNodeGeometry *node;
+	unsigned int i, count;
+
+	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
+	if(node == NULL)
+		return;
+	if(bone_id >= node->bone_count || node->bones[bone_id].weight[0] == '\0')
+	{
+		/* Find free bone to re-use, if any. */
+		for(bone_id = 0; bone_id < node->bone_count && node->bones[bone_id].weight[0] == '\0'; bone_id++)
+			;
+		if(bone_id == node->bone_count)
+		{
+			bone_id = node->bone_count;
+			node->bone_count += 16;
+			node->bones = realloc(node->bones, (sizeof *node->bones) * node->bone_count);
+			for(i = bone_id; i < node->bone_count; i++)
+				node->bones[i].weight[0] = '\0';
+		}
+	}
+	for(i = 0; i < 16 - 1 && weight[i] != '\0'; i++)
+		node->bones[bone_id].weight[i] = weight[i];
+	node->bones[bone_id].weight[i] = '\0';
+	for(i = 0; i < 16 - 1 && reference[i] != '\0'; i++)
+		node->bones[bone_id].reference[i] = reference[i];
+	node->bones[bone_id].reference[i] = '\0';
+
+	node->bones[bone_id].parent = parent;
+	node->bones[bone_id].pos_x = pos_x;
+	node->bones[bone_id].pos_y = pos_y;
+	node->bones[bone_id].pos_z = pos_z;
+	node->bones[bone_id].rot_x = rot_x;
+	node->bones[bone_id].rot_y = rot_y;
+	node->bones[bone_id].rot_z = rot_z;
+	node->bones[bone_id].rot_w = rot_w;
+
+	count =	vs_get_subscript_count(node->head.subscribers);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->head.subscribers, i);
+		verse_send_g_bone_create(node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, rot_w);
+	}
+	vs_reset_subscript_session();
+}
+
+void callback_send_g_bone_destroy(void *user, VNodeID node_id, uint32 bone_id)
+{
+	VSNodeGeometry *node;
+	unsigned int i, count;
+	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
+	if(node == NULL)
+		return;
+	if(bone_id >= node->bone_count || node->bones[bone_id].weight[0] == 0)
+		return;
+	node->bones[bone_id].weight[0] = 0;
+
+	count =	vs_get_subscript_count(node->head.subscribers);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->head.subscribers, i);
+		verse_send_g_bone_destroy(node_id, bone_id);
+	}
+	vs_reset_subscript_session();
+}
+
 void vs_g_callback_init(void)
 {
 	verse_callback_set(verse_send_g_layer_create, callback_send_g_layer_create, NULL);
@@ -900,6 +1009,8 @@ void vs_g_callback_init(void)
 	verse_callback_set(verse_send_g_polygon_delete, callback_send_g_polygon_delete, NULL);
 	verse_callback_set(verse_send_g_crease_set_vertex, callback_send_g_crease_set_vertex, NULL);
 	verse_callback_set(verse_send_g_crease_set_edge, callback_send_g_crease_set_edge, NULL);
+	verse_callback_set(verse_send_g_bone_create, callback_send_g_bone_create, NULL);
+	verse_callback_set(verse_send_g_bone_destroy, callback_send_g_bone_destroy, NULL);
 }
 
 #endif

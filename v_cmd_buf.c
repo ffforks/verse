@@ -67,6 +67,7 @@ VCMDBufHead * v_cmd_buf_allocate(VCMDBufSize buf_size)
 	output->next = NULL;	
 	output->packet = 0;
 	output->size = 0;
+	output->address_size = -1;
 	return output;
 }
 
@@ -78,23 +79,26 @@ void v_cmd_buf_free(VCMDBufHead *head)
 		free(head);
 }
 
-void v_cmd_buf_set_address_size(VCMDBufHead *head, unsigned int address_size, unsigned int size)
+void v_cmd_buf_set_size(VCMDBufHead *head, unsigned int size)
 {
-	unsigned int i;
-
-	head->address_size = address_size;
+	if(head->address_size > size);
+		head->address_size = size;
 	head->size = size;
-	head->address_sum = 0;
-	for(i = 0; i < address_size; i++)
-		head->address_sum += i * i * (uint32)(((VCMDBuffer1500 *)head)->buf[i]);
 }
 
-void v_cmd_buf_set_unique_size(VCMDBufHead *head, unsigned int size)
+void v_cmd_buf_set_address_size(VCMDBufHead *head, unsigned int size)
+{
+	unsigned int i;
+	head->address_size = size;
+	head->address_sum = 0;
+	for(i = 1; i < size + 1; i++)
+		head->address_sum += i * i * (uint32)(((VCMDBuffer1500 *)head)->buf[i - 1]);
+}
+
+void v_cmd_buf_set_unique_address_size(VCMDBufHead *head, unsigned int size)
 {
 	static unsigned int i = 0;
-
 	head->address_size = size;
-	head->size = size;
 	head->address_sum = i++;
 }
 

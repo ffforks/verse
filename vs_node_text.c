@@ -52,7 +52,6 @@ void vs_t_destroy_node(VSNodeText *node)
 {
 	unsigned int i;
 	destroy_node_head(&node->head);
-	free(node);
 	for(i = 0; i < node->buffer_count; i++)
 	{
 		if(node->buffer[i].name[0] != 0)
@@ -62,6 +61,7 @@ void vs_t_destroy_node(VSNodeText *node)
 		}
 	}
 	free(node->buffer);
+	free(node);
 }
 
 void vs_t_subscribe(VSNodeText *node)
@@ -73,14 +73,9 @@ void vs_t_subscribe(VSNodeText *node)
 			verse_send_t_buffer_create(node->head.id, i, 0, node->buffer[i].name);
 }
 
-static void callback_send_t_unsubscribe(void *user, VNodeID node_id)
+void vs_t_unsubscribe(VSNodeText *node)
 {
-	VSNodeText *node;
 	unsigned int i;
-	node = (VSNodeText *)vs_get_node(node_id, V_NT_TEXT);
-	if(node == NULL)
-		return;
-	vs_remove_subscriptor(node->head.subscribers);
 	for(i = 0; i < node->buffer_count; i++)
 		if(node->buffer[i].name[0] != 0)
 			vs_remove_subscriptor(node->buffer[i].subscribers);
@@ -114,9 +109,10 @@ static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBuffer
 	if(node == NULL)
 		return;
 
-	if(buffer_id < node->buffer_count && node->buffer[buffer_id].name[0] != 0)
+	if(buffer_id >= node->buffer_count || node->buffer[buffer_id].name[0] != 0)
 	{
 		for(buffer_id = 0; buffer_id < node->buffer_count && node->buffer[buffer_id].name[0] != 0; buffer_id++)
+			;
 		if(buffer_id == node->buffer_count)
 		{
 			node->buffer = realloc(node->buffer, (sizeof *node->buffer) * node->buffer_count);
@@ -124,7 +120,7 @@ static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBuffer
 				node->buffer[i].name[0] = 0;
 			node->buffer_count = i; 
 		}
-	}	
+	}
 
 	if(node->buffer[buffer_id].name[0] == 0)
 	{

@@ -62,11 +62,11 @@ void destroy_node_head(VSNodeHead *node)
 				if(((VSTagGroup *)node->tag_groups)[i].tags[j].type == VN_TAG_BLOB)
 					free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag.vblob.blob);
 			}
-			if(((VSTagGroup *)node->tag_groups)[i].tags == NULL)
+			if(((VSTagGroup *)node->tag_groups)[i].tags != NULL)
 				free(((VSTagGroup *)node->tag_groups)[i].tags);
 		}
-		if(node->tag_groups == NULL)
-		free(node->tag_groups);
+		if(node->tag_groups != NULL)
+			free(node->tag_groups);
 	}
 }
 
@@ -315,6 +315,7 @@ extern void vs_g_subscribe(VSNodeHead *node);
 extern void vs_m_subscribe(VSNodeHead *node);
 extern void vs_b_subscribe(VSNodeHead *node);
 extern void vs_t_subscribe(VSNodeHead *node);
+extern void vs_c_subscribe(VSNodeHead *node);
 
 static void callback_send_node_subscribe(void *user, VNodeID node_id)
 {
@@ -340,8 +341,9 @@ static void callback_send_node_subscribe(void *user, VNodeID node_id)
 		case V_NT_TEXT:
 			vs_t_subscribe(node);
 			break;
-		default:
-			fprintf(stderr, "Can't subscribe to node type %d, not implemented\n", node->type);
+		case V_NT_CURVE:
+			vs_c_subscribe(node);
+			break;
 	}
 	verse_send_node_name_set(node->id, node->name);
 	for(i = 0; i < node->group_count; i++)
@@ -350,12 +352,41 @@ static void callback_send_node_subscribe(void *user, VNodeID node_id)
 	vs_add_new_subscriptor(node->subscribers);
 }
 
+extern void vs_o_unsubscribe(VSNodeHead *node);
+extern void vs_g_unsubscribe(VSNodeHead *node);
+extern void vs_m_unsubscribe(VSNodeHead *node);
+extern void vs_b_unsubscribe(VSNodeHead *node);
+extern void vs_t_unsubscribe(VSNodeHead *node);
+extern void vs_c_unsubscribe(VSNodeHead *node);
+
 static void callback_send_node_unsubscribe(VNodeID node_id)
 {
 	VSNodeHead *node;
 	if((node = vs_get_node_head(node_id)) == 0)
 		return;
 	vs_remove_subscriptor(node->subscribers);
+
+	switch(node->type)
+	{
+		case V_NT_OBJECT :
+			vs_o_unsubscribe(node);
+			break;
+		case V_NT_GEOMETRY :
+			vs_g_unsubscribe(node);
+			break;
+		case V_NT_MATERIAL :
+			vs_m_unsubscribe(node);
+			break;
+		case V_NT_BITMAP :
+			vs_b_unsubscribe(node);
+			break;
+		case V_NT_TEXT:
+			vs_t_unsubscribe(node);
+			break;
+		case V_NT_CURVE:
+			vs_c_unsubscribe(node);
+			break;
+	}
 }
 
 void vs_h_callback_init(void)

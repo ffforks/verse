@@ -34,6 +34,15 @@ static struct {
 	char		alias_bool_switch;
 } VCGData;
 
+extern void v_gen_system_cmd_def(void);
+extern void v_gen_object_cmd_def(void);
+extern void v_gen_geometry_cmd_def(void);
+extern void v_gen_material_cmd_def(void);
+extern void v_gen_bitmap_cmd_def(void);
+extern void v_gen_text_cmd_def(void);
+extern void v_gen_curve_cmd_def(void);
+extern void v_gen_audio_cmd_def(void);
+
 static void v_cg_init(void)
 {
 	int	i;
@@ -44,7 +53,7 @@ static void v_cg_init(void)
 	VCGData.nodes[V_NT_MATERIAL] = fopen("v_gen_pack_m_node.c", "wt");  
 	VCGData.nodes[V_NT_BITMAP] = fopen("v_gen_pack_b_node.c", "wt");  
 	VCGData.nodes[V_NT_TEXT] = fopen("v_gen_pack_t_node.c", "wt");  
-	VCGData.nodes[V_NT_PARTICLE] = fopen("v_gen_pack_p_node.c", "wt"); 
+/*	VCGData.nodes[V_NT_PARTICLE] = fopen("v_gen_pack_p_node.c", "wt"); */
 	VCGData.nodes[V_NT_CURVE] = fopen("v_gen_pack_c_node.c", "wt");  
 	VCGData.nodes[V_NT_AUDIO] = fopen("v_gen_pack_a_node.c", "wt");  
 	VCGData.nodes[V_NT_SYSTEM] = fopen("v_gen_pack_s_node.c", "wt"); 
@@ -71,7 +80,7 @@ static void v_cg_init(void)
 		fprintf(f, "#if !defined(V_GENERATE_FUNC_MODE)\n");
 		fprintf(f, "#include \"verse.h\"\n");
 		fprintf(f, "#include \"v_cmd_buf.h\"\n");
-		fprintf(f, "#include \"v_network_que.h\"\n");
+		fprintf(f, "#include \"v_network_out_que.h\"\n");
 		fprintf(f, "#include \"v_network.h\"\n");
 		fprintf(f, "#include \"v_connection.h\"\n\n");
 	}
@@ -92,8 +101,8 @@ static void v_cg_init(void)
 		"#define\tVERSE_H\n\n");
 	/* Copy contents of "verse_header.h" into output "verse.h". */
 	f = fopen("verse_header.h", "rt");
-	while((i = getc(f)) != EOF)
-		putc(i, VCGData.verse_h);
+	while((i = fgetc(f)) != EOF)
+		fputc(i, VCGData.verse_h);
 	fclose(f);
 	fprintf(VCGData.verse_h, "\n/* Command sending functions begin. ----------------------------------------- */\n\n");
 }
@@ -125,7 +134,7 @@ void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def,
 	if(alias_def != NULL)
 		fprintf(VCGData.verse_h, "extern %s;\n", alias_def);
 	fprintf(VCGData.init, "\tv_fs_add_func(%i, v_unpack_%s, verse_send_%s, ", cmd_id, name, name);
-	if(VCGData.alias_name != NULL)
+	if(alias_name != NULL)
 		fprintf(VCGData.init, "verse_send_%s);\n", alias_name);
 	else
 		fprintf(VCGData.init, "NULL);\n");
@@ -374,9 +383,74 @@ static unsigned int v_cg_compute_command_size(unsigned int start, boolean end)
 				if(end)
 					return size;
 				size += 1500;
+				break;
+			case VCGP_END_ADDRESS :
+				if(end)
+					return size;
 		}
 	}
 	return size;
+}
+
+void v_cg_set_command_address(FILE *f, boolean alias)
+{
+	unsigned int i, count = 0, length, size = 1, *param, def[] ={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+	for(i = 0; i < VCGData.param_count; i++)
+		if(VCGData.param_type[i] == VCGP_END_ADDRESS)
+			break;
+	if(i == VCGData.param_count)
+		return;
+	if(alias)
+		length = VCGData.alias_param;
+	else
+		length = VCGData.param_count;
+
+	if(alias && VCGData.alias_param_array != 0)
+		param = VCGData.alias_param_array;
+	else
+		param = def;
+
+	if(i == VCGData.param_count)
+		return;
+	fprintf(f, "\tif(");
+	for(i = 0; i < length; i++)
+	{
+		switch(VCGData.param_type[param[i]])
+		{
+			case  VCGP_UINT8 :
+			case  VCGP_ENUM :
+				size++;
+				break;
+			case  VCGP_UINT16 :
+			case  VCGP_LAYER_ID :
+			case  VCGP_BUFFER_ID :
+			case  VCGP_FRAGMENT_ID :
+				if(count++ != 0)
+					fprintf(f, " || ");
+				fprintf(f, "%s == (uint16)(-1)", VCGData.param_name[param[i]]);
+				size += 2;
+				break;
+			case  VCGP_NODE_ID : 
+			case  VCGP_UINT32 :
+			case  VCGP_REAL32 :
+				if(count++ != 0)
+					fprintf(f, " || ");
+				fprintf(f, "%s == (uint32)(-1)", VCGData.param_name[param[i]]);
+				size += 4;
+				break;
+			case VCGP_END_ADDRESS :
+				fprintf(f, ")\n");
+				fprintf(f, "\t\tv_cmd_buf_set_unique_address_size(head, %u);\n", size);
+				fprintf(f, "\telse\n");
+				fprintf(f, "\t\tv_cmd_buf_set_address_size(head, %u);\n", size);
+				return;
+		}
+	}
+	fprintf(f, ")\n");
+	fprintf(f, "\t\tv_cmd_buf_set_unique_address_size(head, %u);\n", size);
+	fprintf(f, "\telse\n");
+	fprintf(f, "\t\tv_cmd_buf_set_address_size(head, %u);\n", size);
+	return;
 }
 
 static const char * v_cg_compute_buffer_size(void)
@@ -409,14 +483,8 @@ static void v_cg_gen_pack(boolean alias)
 	else
 		fprintf(f, "void verse_send_%s(", VCGData.func_name);
 	v_cg_gen_func_params(f, FALSE, alias);
-	for(i = 0; i < VCGData.param_count && VCGData.param_type[i] != VCGP_END_ADDRESS; i++);
-	if(VCGData.param_type[i] == VCGP_END_ADDRESS)
-		address = TRUE;
 	fprintf(f, ")\n{\n\tuint8 *buf;\n");
-	if(address == TRUE)
-		fprintf(f, "\tunsigned int buffer_pos = 0, address_size = 0;\n");
-	else
-		fprintf(f, "\tunsigned int buffer_pos = 0;\n");
+	fprintf(f, "\tunsigned int buffer_pos = 0;\n");
 	fprintf(f, "\tVCMDBufHead *head;\n");
 	fprintf(f, "\thead = v_cmd_buf_allocate(%s);/* Allocating the buffer */\n", v_cg_compute_buffer_size());
 	fprintf(f, "\tbuf = ((VCMDBuffer10 *)head)->buf;\n\n");
@@ -505,10 +573,6 @@ static void v_cg_gen_pack(boolean alias)
 		}
 		if(!alias && VCGData.param_type[i] == VCGP_PACK_INLINE)
 				fprintf(f, "%s", VCGData.param_name[i]);
-
-		if(VCGData.param_type[i] == VCGP_END_ADDRESS)
-			fprintf(f, "\taddress_size = buffer_pos;\n");
-
 	}
 	if(VCGData.alias_name != NULL && VCGData.alias_bool_switch)
 	{
@@ -517,30 +581,10 @@ static void v_cg_gen_pack(boolean alias)
 		else
 			fprintf(f, "\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], TRUE);\n");
 	}
-	switch(VCGData.command)
-	{
-		case VCGCT_NORMAL :
-			if(address)
-				fprintf(f, "\tv_cmd_buf_set_address_size(head, address_size, buffer_pos);\n");
-			else
-				fprintf(f, "\tv_cmd_buf_set_address_size(head, buffer_pos, buffer_pos);\n");
-			break;
-		case VCGCT_UNIQUE :
-			fprintf(f, "\tv_cmd_buf_set_unique_size(head, buffer_pos);\n");
-		break;
-		case VCGCT_ONCE :
-			fprintf(f, "\tv_cmd_buf_set_unique_size(head, buffer_pos);\n");
-		break;
-		case VCGCT_INVISIBLE_SYSTEM :
-			fprintf(f, "\tv_cmd_buf_set_unique_size(head, buffer_pos);\n");
-		break;
-		case VCGCT_ORDERED :
-			fprintf(f, "\tv_cmd_buf_set_unique_size(head, buffer_pos);\n");
-		break;
-	}
+	v_cg_set_command_address(f, alias);
+	fprintf(f, "\tv_cmd_buf_set_size(head, buffer_pos);\n");
 	
-
-	fprintf(f, "\tv_nq_send_buf(v_con_get_network_queue(), head);\n");
+	fprintf(f, "\tv_noq_send_buf(v_con_get_network_queue(), head);\n");
 	fprintf(f, "}\n\n");
 }
 
