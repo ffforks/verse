@@ -77,14 +77,14 @@ static void vs_load_host_id(const char *file_name)
 
 int main(int argc, char **argv)
 {
-	uint32	seconds, fraction;
+	uint32	seconds, fractions;
 
-	printf("Verse Server r%up%u%s By Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
+	printf("Verse Server r%up%u%s by Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
 	verse_set_port(4950);	/* The Verse standard port. */
 
 	/* Seed the random number generator. Still rather too weak for crypto, I guess. */
-	v_n_get_current_time(&seconds, &fraction);
-	srand(seconds ^ fraction);
+	v_n_get_current_time(&seconds, &fractions);
+	srand(seconds ^ fractions);
 
 	vs_load_host_id("host_id.rsa");
 	vs_init_node_storage();
