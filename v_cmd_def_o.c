@@ -415,7 +415,7 @@ void v_gen_object_cmd_def(void)
 	v_cg_alias(FALSE, "o_method_destroy", "if(name[0] == 0)", 3, NULL);
 	v_cg_end_cmd();
 
-	v_cg_new_cmd(V_NT_OBJECT,		"o_method_send", 44, VCGCT_UNIQUE);
+	v_cg_new_cmd(V_NT_OBJECT,		"o_method_call", 44, VCGCT_UNIQUE);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_UINT16,		"group_id");
 	v_cg_add_param(VCGP_UINT16,		"method_id");
@@ -436,8 +436,8 @@ void v_gen_object_cmd_def(void)
 	"\t\tvnp_raw_unpack_uint16(&buf[buffer_pos], &size);\n"
 	"\t\tfor(i = 0; i < size; i++)\n"
 	"\t\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &par[i]);\n"
-	"\t\tif(func_o_method_send != NULL)\n"
-	"\t\t\tfunc_o_method_send(user_data, node_id, group_id, method_id, sender, par);\n"
+	"\t\tif(func_o_method_call != NULL)\n"
+	"\t\t\tfunc_o_method_call(user_data, node_id, group_id, method_id, sender, par);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 

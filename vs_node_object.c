@@ -387,7 +387,7 @@ static void callback_send_o_method_destroy(void *user, VNodeID node_id, uint16 g
 	vs_reset_subscript_session();
 }
 
-static void callback_send_o_method_send(void *user, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params)
+static void callback_send_o_method_call(void *user, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params)
 {
 	VNOParam unpacked_params[255];
 	void *data;
@@ -407,7 +407,7 @@ static void callback_send_o_method_send(void *user, VNodeID node_id, uint16 grou
 		vs_set_subscript_session(node->groups[group_id].subscribers, i);
 		data = verse_pack_method_call(node->groups[group_id].methods[method_id].param_count, unpacked_params, node->groups[group_id].methods[method_id].param_types);
 		if(data != NULL)
-			verse_send_o_method_send(node_id, group_id, method_id, sender, data);
+			verse_send_o_method_call(node_id, group_id, method_id, sender, data);
 	}
 	vs_reset_subscript_session();
 
@@ -426,7 +426,7 @@ void vs_o_callback_init(void)
 	verse_callback_set(verse_send_o_method_group_unsubscribe, callback_send_o_method_group_unsubscribe, NULL);
 	verse_callback_set(verse_send_o_method_create, callback_send_o_method_create, NULL);
 	verse_callback_set(verse_send_o_method_destroy, callback_send_o_method_destroy, NULL);
-	verse_callback_set(verse_send_o_method_send, callback_send_o_method_send, NULL);
+	verse_callback_set(verse_send_o_method_call, callback_send_o_method_call, NULL);
 }
 
 #endif
