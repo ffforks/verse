@@ -60,8 +60,12 @@ VSocket v_n_socket_create(void)
 	if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
 		return -1;
 #if defined(_WIN32)
-	if(ioctlsocket(sock, FIONBIO, &one) != 0)
-		return -1;
+	{
+		unsigned long	one = 1UL;
+
+		if(ioctlsocket(sock, FIONBIO, &one) != 0)
+			return -1;
+	}
 #else
 	if(fcntl(sock, F_SETFL, O_NONBLOCK) != 0)
 		return -1;
