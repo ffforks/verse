@@ -98,9 +98,13 @@ size_t vnp_raw_unpack_uint32(const void *buffer, uint32 *data)
 
 size_t vnp_raw_pack_real32(void *buffer, real32 data)
 {
-	uint32	tmp;
+	union { uint32 uint; real32 real; } punt;
+	punt.real = data;
+	return vnp_raw_pack_uint32(buffer, punt.uint);
+/*	uint32	tmp;
 	tmp = *((uint32 *) &data);
 	return vnp_raw_pack_uint32(buffer, tmp);
+*/
 }
 
 size_t vnp_raw_unpack_real32(const void *buffer, real32 *data)
@@ -110,21 +114,24 @@ size_t vnp_raw_unpack_real32(const void *buffer, real32 *data)
 
 size_t vnp_raw_pack_real64(void *buffer, real64 data)
 {
-	uint32 size;
-	void *p = &data;
+	union { uint32 uint[2]; real64 real; } punt;
+	uint32	size;
 
-	size = vnp_raw_pack_uint32(buffer, ((uint32 *)p)[0]);
-	size += vnp_raw_pack_uint32(&((uint8 *)buffer)[4], ((uint32 *)p)[1]);
+	punt.real = data;
+	size = vnp_raw_pack_uint32(buffer, punt.uint[0]);
+	buffer += size;
+	size += vnp_raw_pack_uint32(buffer, punt.uint[1]);
 	return size;
 }
 
 size_t vnp_raw_unpack_real64(const void *buffer, real64 *data)
 {
-	uint32 size;
-	void *p = data;
+	union { uint32 uint[2]; real64 real; } punt;
+	uint32	size;
 
-	size = vnp_raw_unpack_uint32(buffer, &((uint32 *)p)[0]);
-	size += vnp_raw_unpack_uint32(&((uint8 *)buffer)[4], &((uint32 *)p)[1]);
+	size =  vnp_raw_unpack_uint32(buffer, &punt.uint[0]);
+	size += vnp_raw_unpack_uint32(buffer + size, &punt.uint[1]);
+	*data = punt.real;
 	return size;
 }
 
