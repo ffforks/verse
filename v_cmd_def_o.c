@@ -333,7 +333,7 @@ void v_gen_object_cmd_def(void)
 	v_cg_alias(TRUE, "o_transform_unsubscribe", NULL, 4, NULL);
 	v_cg_end_cmd();
 
-	v_cg_new_cmd(V_NT_OBJECT,		"o_set_light", 39, VCGCT_NORMAL);
+	v_cg_new_cmd(V_NT_OBJECT,		"o_light_set", 39, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_REAL64,		"light_r");	
