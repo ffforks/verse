@@ -247,7 +247,7 @@ static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID bu
 			buf[pos + i] = text[i];
 	}
 
-	tb->length += text_length - length;
+	tb->length += (int) text_length - length;
 
 	if(tb->allocated > VS_TEXT_CHUNK_SIZE * 8 && tb->allocated * 2 > tb->length)
 	{
