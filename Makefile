@@ -11,7 +11,9 @@ CC	?= gcc
 CFLAGS	?= -I$(shell pwd) -Wall -ansi
 
 AR	?= ar
-ARFLAGS	?= rus
+ARFLAGS ?= rvu
+
+RANLIB  ?= ranlib
 
 TARGETS = libverse.a verse
 
@@ -43,7 +45,11 @@ all:		$(TARGETS)
 verse:		$(VERSE_OBJ) libverse.a
 		$(CC) -o $@ $^
 
-libverse.a:	libverse.a($(LIBVERSE_OBJ))
+libverse.a:     $(LIBVERSE_OBJ)
+		rm -f $@
+		echo "building using" $(ARFLAGS)
+		$(AR) $(ARFLAGS) $@ $(LIBVERSE_OBJ)
+		$(RANLIB) $@
 
 # -----------------------------------------------------
 
