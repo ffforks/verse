@@ -587,11 +587,7 @@ static void v_cg_gen_pack(boolean alias)
 	fprintf(f, "\tv_noq_send_buf(v_con_get_network_queue(), head);\n");
 	fprintf(f, "}\n\n");
 }
-/*
-void v_cmd_buf_set_address_size(VCMDBufHead *head, unsigned int size)
-void v_cmd_buf_set_unique_address_size(VCMDBufHead *head, unsigned int size)
-boolean	v_cmd_buf_compare(VCMDBufHead *a, VCMDBufHead *b)
-  */
+
 static void v_cg_gen_unpack(void)
 {
 	FILE *f;
