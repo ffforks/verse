@@ -86,7 +86,10 @@ VSocket v_n_socket_create(void)
 	}
 #else
 	if(fcntl(my_socket, F_SETFL, O_NONBLOCK) != 0)
+	{
+		fprintf(stderr, "v_network: Couldn't make socket non-blocking\n");
 		return -1;
+	}
 #endif
 	address.sin_family = AF_INET;     /* host byte order */
 	address.sin_port = htons(my_port); /* short, network byte order */
@@ -143,6 +146,7 @@ int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 	address_in.sin_port = htons(address->port); /* short, network byte order */
 	address_in.sin_addr.s_addr = htonl(address->ip);
 	memset(&address_in.sin_zero, 0, sizeof address_in.sin_zero);
+	
 /*	{
 		char string[32];
 		v_n_get_address_string(address, string);
