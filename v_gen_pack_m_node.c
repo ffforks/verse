@@ -35,24 +35,24 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 	switch(type)
 	{
 	case VN_M_FT_COLOR :
-		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->color.red);
-		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->color.green);
-		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->color.blue);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->color.red);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->color.green);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->color.blue);
 		break;
 	case VN_M_FT_LIGHT :
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->light.type);
-		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->light.normal_falloff);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->light.normal_falloff);
 		buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], fragment->light.brdf);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->light.brdf_r, 16);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->light.brdf_g, 16);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->light.brdf_b, 16);
 		break;
 	case VN_M_FT_REFLECTION :
-		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->reflection.normal_falloff);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->reflection.normal_falloff);
 		break;
 	case VN_M_FT_TRANSPARENCY :
-		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->transparency.normal_falloff);
-		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->transparency.refraction_index);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->transparency.normal_falloff);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->transparency.refraction_index);
 		break;
 	case VN_M_FT_GEOMETRY :
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->geometry.layer_r, 16);
@@ -84,7 +84,7 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		{
 			unsigned int i;
 			for(i = 0; i < 16; i++)
-				buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->matrix.matrix[i]);
+				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->matrix.matrix[i]);
 			buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->matrix.data);
 		}
 		break;
@@ -100,11 +100,11 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 			last = fragment->ramp.ramp[0].pos - 1;
 			for(i = 0; i < fragment->ramp.point_count && fragment->ramp.ramp[i].pos > last && i < 48; i++)
 			{
-				buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->ramp.ramp[i].pos);
+				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->ramp.ramp[i].pos);
 				last = fragment->ramp.ramp[i].pos;
-				buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->ramp.ramp[i].red);
-				buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->ramp.ramp[i].green);
-				buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], fragment->ramp.ramp[i].blue);
+				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->ramp.ramp[i].red);
+				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->ramp.ramp[i].green);
+				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->ramp.ramp[i].blue);
 			}if(i != fragment->ramp.point_count)
 				vnp_raw_pack_uint8(&buf[pos], i);
 		}
@@ -172,15 +172,15 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 		case VN_M_FT_COLOR :
 			if(buffer_pos + 3 * 8 > buffer_length)
 				return -1;
-			buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.color.red);
-			buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.color.green);
-			buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.color.blue);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.color.red);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.color.green);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.color.blue);
 			break;
 		case VN_M_FT_LIGHT :
 			if(buffer_pos + 13 > buffer_length)
 				return -1;
 			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.light.type);
-			buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.light.normal_falloff);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.light.normal_falloff);
 			buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &frag.light.brdf);
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.light.brdf_r, 16, buffer_length - buffer_pos);
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.light.brdf_g, 16, buffer_length - buffer_pos);
@@ -189,13 +189,13 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 		case VN_M_FT_REFLECTION :
 			if(buffer_pos + 8 > buffer_length)
 				return -1;
-			buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.reflection.normal_falloff);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.reflection.normal_falloff);
 			break;
 		case VN_M_FT_TRANSPARENCY :
 			if(buffer_pos + 16 > buffer_length)
 				return -1;
-			buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.transparency.normal_falloff);
-			buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.transparency.refraction_index);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.transparency.normal_falloff);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.transparency.refraction_index);
 			break;
 		case VN_M_FT_GEOMETRY :
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.geometry.layer_r, 16, buffer_length - buffer_pos);
@@ -236,7 +236,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			{
 				unsigned int i;
 				for(i = 0; i < 16; i++)
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.matrix.matrix[i]);
+					buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.matrix.matrix[i]);
 				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.matrix.data);
 			}
 			break;
@@ -254,10 +254,10 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.ramp.point_count);
 				for(i = 0; i < frag.ramp.point_count && buffer_pos + 8 * 4 <= buffer_length && i < 48; i++)
 				{
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.ramp.ramp[i].pos);
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.ramp.ramp[i].red);
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.ramp.ramp[i].green);
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &frag.ramp.ramp[i].blue);
+					buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.ramp.ramp[i].pos);
+					buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.ramp.ramp[i].red);
+					buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.ramp.ramp[i].green);
+					buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.ramp.ramp[i].blue);
 				}if(i != frag.ramp.point_count)
 					frag.ramp.point_count = i;
 			}

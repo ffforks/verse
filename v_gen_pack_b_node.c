@@ -253,11 +253,11 @@ void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile
 			break;
 			case VN_B_LAYER_REAL32 :
 				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-					buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], ((float *)data)[i]);
+					buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], ((real32 *)data)[i]);
 			break;
 			case VN_B_LAYER_REAL64 :
 				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-					buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], ((double *)data)[i]);
+					buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], ((real64 *)data)[i]);
 			break;
 		}
 	}
@@ -326,9 +326,9 @@ unsigned int v_unpack_b_layer_set_tile(const char *buf, size_t buffer_length)
 		case VN_B_LAYER_REAL32 :
 		{
 			unsigned int i;
-			float tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];
+			real32 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];
 			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-				buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &tile[i]);
+				buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &tile[i]);
 			if(func_b_layer_set_tile != NULL)
 				func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);
 			return buffer_pos;
@@ -337,9 +337,9 @@ unsigned int v_unpack_b_layer_set_tile(const char *buf, size_t buffer_length)
 		case VN_B_LAYER_REAL64 :
 		{
 			unsigned int i;
-			double tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];
+			real64 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];
 			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-				buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &tile[i]);
+				buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tile[i]);
 			if(func_b_layer_set_tile != NULL)
 				func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);
 			return buffer_pos;

@@ -34,7 +34,7 @@ void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *n
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)type);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], def_uint);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], def_real);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], def_real);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -57,7 +57,7 @@ void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id)
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)-1);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -83,7 +83,7 @@ unsigned int v_unpack_g_layer_create(const char *buf, size_t buffer_length)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &type);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &def_uint);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &def_real);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &def_real);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(name[0] == 0)
 		printf("receive: verse_send_g_layer_destroy(node_id = %u layer_id = %u ); callback = %p\n", node_id, layer_id, v_fs_get_alias_user_func(48));
@@ -200,9 +200,9 @@ void verse_send_g_vertex_set_real32_xyz(VNodeID node_id, VLayerID layer_id, uint
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
 	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], x);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], y);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], z);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], x);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], y);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], z);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -223,9 +223,9 @@ void verse_send_g_vertex_delete_real32(VNodeID node_id, uint32 vertex_id)
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], 0);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
 	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL32_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL32_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL32_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL32_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL32_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL32_MAX);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -247,9 +247,9 @@ unsigned int v_unpack_g_vertex_set_real32_xyz(const char *buf, size_t buffer_len
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &vertex_id);
-	buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &x);
-	buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &y);
-	buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &z);
+	buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &x);
+	buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &y);
+	buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &z);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(x == V_REAL32_MAX || y == V_REAL32_MAX || z == V_REAL32_MAX)
 		printf("receive: verse_send_g_vertex_delete_real32(node_id = %u vertex_id = %u ); callback = %p\n", node_id, vertex_id, v_fs_get_alias_user_func(50));
@@ -286,9 +286,9 @@ void verse_send_g_vertex_set_real64_xyz(VNodeID node_id, VLayerID layer_id, uint
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
 	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], x);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], y);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], z);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], x);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], y);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], z);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -309,9 +309,9 @@ void verse_send_g_vertex_delete_real64(VNodeID node_id, uint32 vertex_id)
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], 0);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
 	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -333,9 +333,9 @@ unsigned int v_unpack_g_vertex_set_real64_xyz(const char *buf, size_t buffer_len
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &vertex_id);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &x);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &y);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &z);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &x);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &y);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &z);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(x == V_REAL64_MAX || y == V_REAL64_MAX || z == V_REAL64_MAX)
 		printf("receive: verse_send_g_vertex_delete_real64(node_id = %u vertex_id = %u ); callback = %p\n", node_id, vertex_id, v_fs_get_alias_user_func(51));
@@ -418,7 +418,7 @@ void verse_send_g_vertex_set_real64(VNodeID node_id, VLayerID layer_id, uint32 v
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
 	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], value);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], value);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -438,7 +438,7 @@ unsigned int v_unpack_g_vertex_set_real64(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &vertex_id);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &value);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &value);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	printf("receive: verse_send_g_vertex_set_real64(node_id = %u layer_id = %u vertex_id = %u value = %f ); callback = %p\n", node_id, layer_id, vertex_id, value, v_fs_get_user_func(53));
 #endif
@@ -554,10 +554,10 @@ void verse_send_g_polygon_set_corner_real64(VNodeID node_id, VLayerID layer_id, 
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
 	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], v0);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], v1);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], v2);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], v3);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], v0);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], v1);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], v2);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], v3);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -580,10 +580,10 @@ unsigned int v_unpack_g_polygon_set_corner_real64(const char *buf, size_t buffer
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &polygon_id);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &v0);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &v1);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &v2);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &v3);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &v0);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &v1);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &v2);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &v3);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	printf("receive: verse_send_g_polygon_set_corner_real64(node_id = %u layer_id = %u polygon_id = %u v0 = %f v1 = %f v2 = %f v3 = %f ); callback = %p\n", node_id, layer_id, polygon_id, v0, v1, v2, v3, v_fs_get_user_func(55));
 #endif
@@ -701,7 +701,7 @@ void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer_id, ui
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
 	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], value);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], value);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -721,7 +721,7 @@ unsigned int v_unpack_g_polygon_set_face_real64(const char *buf, size_t buffer_l
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &polygon_id);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &value);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &value);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	printf("receive: verse_send_g_polygon_set_face_real64(node_id = %u layer_id = %u polygon_id = %u value = %f ); callback = %p\n", node_id, layer_id, polygon_id, value, v_fs_get_user_func(58));
 #endif
@@ -838,13 +838,13 @@ void verse_send_g_bone_create(VNodeID node_id, uint32 bone_id, const char *name,
 	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], parent);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], pos_x);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], pos_y);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], pos_z);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], rot_x);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], rot_y);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], rot_z);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], rot_w);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos_x);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos_y);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos_z);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot_x);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot_y);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot_z);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot_w);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -866,13 +866,13 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint32 bone_id)
 	address_size = buffer_pos;
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
 }
@@ -902,13 +902,13 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 	if(buffer_length < 60 + buffer_pos)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &parent);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &pos_x);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &pos_y);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &pos_z);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &rot_x);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &rot_y);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &rot_z);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &rot_w);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &pos_x);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &pos_y);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &pos_z);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &rot_x);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &rot_y);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &rot_z);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &rot_w);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(name[0] == 0)
 		printf("receive: verse_send_g_bone_destroy(node_id = %u bone_id = %u ); callback = %p\n", node_id, bone_id, v_fs_get_alias_user_func(61));

@@ -182,11 +182,11 @@ void verse_send_c_curve_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_i
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], key_id);
 	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], pre_value);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pre_value);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], pre_pos);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], value);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], pos);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], post_value);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], value);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], post_value);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], post_pos);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
@@ -208,11 +208,11 @@ void verse_send_c_curve_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 k
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], curve_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], key_id);
 	address_size = buffer_pos;
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
-	buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
+	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	v_cmd_buf_set_address_size(head, address_size, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
@@ -238,11 +238,11 @@ unsigned int v_unpack_c_curve_key_set(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &curve_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &key_id);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &pre_value);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &pre_value);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &pre_pos);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &value);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &pos);
-	buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &post_value);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &value);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &pos);
+	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &post_value);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &post_pos);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(pre_value == 0)
