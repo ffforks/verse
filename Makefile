@@ -74,6 +74,10 @@ clean:
 
 # Utter ugliness to create release archives. Needs to improve, but should work for a while.
 dist:
+	RELEASE=$$( \
+	R=`grep V_RELEASE_NUMBER verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; \
+	P=`grep V_RELEASE_PATCH verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; \
+	L=`grep V_RELEASE_LABEL verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; echo r$${R}p$$P$$L ) ; \
 	if [ $$RELEASE ]; then ( \
 	 rm -rf  /tmp/verse; \
 	 mkdir -p /tmp/verse; \
@@ -81,5 +85,5 @@ dist:
 	 cd /tmp && zip verse-$$RELEASE.zip -r verse -x 'verse/*CVS*' -x 'verse/.*' ; \
 	 ); mv /tmp/verse-$$RELEASE.zip . \
 	;else \
-	  echo "Please set RELEASE to the desired release name, e.g. 'RELEASE=r1p1 make dist'" \
+	  echo "Couldn't auto-set RELEASE from verse.h, something is fishy" \
 	;fi
