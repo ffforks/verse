@@ -18,7 +18,7 @@ static struct {
 
 static boolean v_cmd_buf_initialized = FALSE;
 
-void v_cmd_buf_init(void)
+static void cmd_buf_init(void)
 {
 	unsigned int i, j;
 
@@ -36,7 +36,7 @@ VCMDBufHead * v_cmd_buf_allocate(VCMDBufSize buf_size)
 	VCMDBufHead	*output;
 
 	if(!v_cmd_buf_initialized)
-		v_cmd_buf_init();
+		cmd_buf_init();
 	if(VCMDBufData.available[buf_size] > 0)
 		output = VCMDBufData.buffers[buf_size][--VCMDBufData.available[buf_size]];
 	else
