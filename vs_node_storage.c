@@ -73,6 +73,7 @@ extern VSNodeHead *vs_b_create_node(unsigned int owner);
 extern VSNodeHead *vs_t_create_node(unsigned int owner);
 extern VSNodeHead *vs_c_create_node(unsigned int owner);
 extern VSNodeHead *vs_p_create_node(unsigned int owner);
+extern VSNodeHead *vs_a_create_node(unsigned int owner);
 
 extern void vs_o_destroy_node(VSNodeHead *node);
 extern void vs_g_destroy_node(VSNodeHead *node);
@@ -81,6 +82,8 @@ extern void vs_b_destroy_node(VSNodeHead *node);
 extern void vs_t_destroy_node(VSNodeHead *node);
 extern void vs_c_destroy_node(VSNodeHead *node);
 extern void vs_p_destroy_node(VSNodeHead *node);
+extern void vs_a_destroy_node(VSNodeHead *node);
+
 
 VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 {
@@ -112,9 +115,9 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 		case V_NT_CURVE :
 			node = vs_c_create_node(owner_id);
 		break;
-		default:
-			fprintf(stderr, "**Can't create node of type %u--code missing\n", type);
-			return 0;
+		case V_NT_AUDIO :
+			node = vs_c_create_node(owner_id);
+		break;
 	}
 	node_id = node->id;
 
@@ -179,6 +182,9 @@ void callback_send_node_destroy(void *user_data, VNodeID node_id)
 			vs_p_destroy_node(node);
 		break;*/
 		case V_NT_CURVE :
+			vs_c_destroy_node(node);
+		break;
+		case V_NT_AUDIO :
 			vs_c_destroy_node(node);
 		break;
 	default:
