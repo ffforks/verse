@@ -139,9 +139,14 @@ void vs_g_subscribe(VSNodeGeometry *node)
 void vs_g_unsubscribe(VSNodeGeometry *node)
 {
 	unsigned int i;
-	for(i = 0; i < node->layer_count; i++)
-		if(node->layer[i].layer != NULL)	
-			vs_remove_subscriptor(node->layer[i].subscribers);
+	for(i = 0; i < node->layer_count; i++) {
+		if(node->layer[i].layer != NULL) {
+			if(node->layer[i].subscribers)
+				vs_remove_subscriptor(node->layer[i].subscribers);
+			if(node->layer[i].subscribersd)
+				vs_remove_subscriptor(node->layer[i].subscribersd);
+		}
+	}
 }
 
 static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID layer_id, char *name, uint8 type, uint32 def_uint, double def_real)
@@ -180,15 +185,20 @@ static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID l
 				node->layer[i].subscribersd = NULL;			
 			}
 		}
-		node->layer[layer_id].subscribers = vs_create_subscription_list();
 	}
 	for(i = 0; i < 16; i++)
 		node->layer[layer_id].name[i] = name[i];
 
 	if(node->layer[layer_id].type != type)
 	{
-		if(node->layer[layer_id].type == VN_G_LAYER_VERTEX_XYZ)
+		if(node->layer[layer_id].subscribers) {
+			vs_destroy_subscription_list(node->layer[layer_id].subscribers);
+			node->layer[layer_id].subscribers = NULL;
+		}
+		if(node->layer[layer_id].subscribersd) {
 			vs_destroy_subscription_list(node->layer[layer_id].subscribersd);
+			node->layer[layer_id].subscribersd = NULL;
+		}
 		node->layer[layer_id].type = type;
 		free(node->layer[layer_id].layer);
 		switch(type)
@@ -241,8 +251,6 @@ static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID l
 				node->layer[layer_id].def.real = def_real;
 			break;
 		}
-		vs_destroy_subscription_list(node->layer[layer_id].subscribers);
-		node->layer[layer_id].subscribers = vs_create_subscription_list();
 	}
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
@@ -267,9 +275,14 @@ static void callback_send_g_layer_destroy(void *user, VNodeID node_id, VLayerID 
 	node->layer[layer_id].layer = NULL;
 	node->layer[layer_id].name[0] = 0;
 	node->layer[layer_id].type = -1;
-	vs_destroy_subscription_list(node->layer[layer_id].subscribers);
-	if(node->layer[layer_id].type == VN_G_LAYER_VERTEX_XYZ)
+	if(node->layer[layer_id].subscribers) {
+		vs_destroy_subscription_list(node->layer[layer_id].subscribers);
+		node->layer[layer_id].subscribers = NULL;
+	}
+	if(node->layer[layer_id].subscribersd) {
 		vs_destroy_subscription_list(node->layer[layer_id].subscribersd);
+		node->layer[layer_id].subscribersd = NULL;
+	}
 
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
@@ -395,8 +408,9 @@ static void callback_send_g_layer_unsubscribe(void *user, VNodeID node_id, VNMFr
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL)
 		return;
-	vs_remove_subscriptor(node->layer[layer_id].subscribers);
-	if(node->layer[layer_id].type == VN_G_LAYER_VERTEX_XYZ)
+	if(node->layer[layer_id].subscribers)
+		vs_remove_subscriptor(node->layer[layer_id].subscribers);
+	if(node->layer[layer_id].subscribersd)
 		vs_remove_subscriptor(node->layer[layer_id].subscribersd);
 }
 
