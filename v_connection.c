@@ -172,7 +172,7 @@ void verse_callback_update(unsigned int milliseconds)
 	{
 		if(VConData.connect_address == NULL)
 			VConData.connect_address = v_n_create_network_address(VERSE_STD_CONNECT_PORT/*v_connect_port*/, "localhost");
-		v_n_wait_for_inncoming(milliseconds);
+		v_n_wait_for_incoming(milliseconds);
 		size = v_n_receive_data(VConData.connect_address, buf, V_MAX_CONNCECT_PACKET_SIZE, FALSE);
 		if(size != -1)
 		{
@@ -188,7 +188,7 @@ void verse_callback_update(unsigned int milliseconds)
 		if(address != NULL)
 		{
 			if(!v_fs_buf_unpack_stored() || !v_fs_func_accept_connections())
-				v_n_wait_for_inncoming(milliseconds);
+				v_n_wait_for_incoming(milliseconds);
 			size = v_n_receive_data(address, buf, V_MAX_CONNCECT_PACKET_SIZE, TRUE);
 			if(size != -1 || size != 0)
 				VConData.con[VConData.current_connection].ping_timeout += milliseconds;

@@ -188,7 +188,7 @@ unsigned int v_n_send_data(VNetworkAddress *address, const char *data, unsigned 
 extern void *v_con_get_network_address_id(unsigned int id);
 extern unsigned int v_con_get_network_address_count();
 
-void v_n_wait_for_inncoming(unsigned int milliseconds) 
+void v_n_wait_for_incoming(unsigned int milliseconds) 
 {
 	struct timeval tv;
 	unsigned int count, i;
