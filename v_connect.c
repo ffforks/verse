@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "v_cmd_gen.h"
 
@@ -60,6 +61,7 @@ static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypte
 {
 	uint8 buf[1500], *name, *pass, *my_key, name_pass[V_ENCRYPTION_LOGIN_KEY_SIZE], encrypted_key[V_ENCRYPTION_LOGIN_KEY_SIZE];
 	unsigned int buffer_pos = 0, i, j;
+
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 1);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);/* Packing the command */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 2);/* Stage 2 */
@@ -330,9 +332,9 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 VSession * verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id)
 {
 	VNetworkAddress a;
-	#if defined(V_PRINT_SEND_COMMANDS)
+#if defined(V_PRINT_SEND_COMMANDS)
 	printf("send: verse_send_connect_accept(avatar = %u, address = %s, host_id = NULL);\n", avatar, address);
-	#endif
+#endif
 
 	if(!v_n_set_network_address(&a, address))
 		return NULL;
@@ -356,9 +358,9 @@ void v_callback_connect_terminate(const char *bye)
 	printf("terminate (%s)\n", bye);
 	func_connect_terminate = v_fs_get_user_func(2);
 	v_n_get_address_string(v_con_get_network_address(), address_string);
-	#if defined(V_PRINT_RECEIVE_COMMANDS)
+#if defined(V_PRINT_RECEIVE_COMMANDS)
 	printf("receive: verse_send_connect_terminate(address = %s, bye = %s); callback = %p\n", address_string, bye, func_connect_terminate);
-	#endif
+#endif
 	if(func_connect_terminate != 0)
 		func_connect_terminate(v_fs_get_user_data(2), address_string, bye);
 }
@@ -366,9 +368,9 @@ void v_callback_connect_terminate(const char *bye)
 void verse_send_connect_terminate(const char *address, const char *bye)
 {
 	VNetworkAddress a;
-	#if defined(V_PRINT_RECEIVE_COMMANDS)
+#if defined(V_PRINT_RECEIVE_COMMANDS)
 	printf("send: verse_send_connect_terminate(address = %s, bye = %s);\n", address, bye);
-	#endif
+#endif
 
 	if(address == NULL)
 		v_send_hidden_connect_terminate(v_con_get_network_address(), v_noq_get_next_out_packet_id(v_con_get_network_queue()), bye);
@@ -471,9 +473,9 @@ void v_ping_update(void)
 		a.ip = v_ping_commands->ip;
 		a.port = v_ping_commands->port;
 		v_n_get_address_string(&a, address);	
-	#if defined V_PRINT_RECEIVE_COMMANDS
+#if defined V_PRINT_RECEIVE_COMMANDS
 		printf("receive: verse_send_ping(address = %s message = %s ); callback = %p\n", address, v_ping_commands->message, v_fs_get_user_func(5));
-	#endif
+#endif
 		if(func_ping != NULL)
 			func_ping(v_fs_get_user_data(5), address, v_ping_commands->message);
 		free(v_ping_commands);
