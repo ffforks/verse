@@ -32,7 +32,7 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_alias(FALSE, "g_layer_unsubscribe", "if(type > VN_FORMAT_REAL64)", 2, NULL);
 	v_cg_end_cmd();
 
-	v_cg_new_cmd(V_NT_GEOMETRY,		"g_vertex_set_real32_xyz", 50, VCGCT_NORMAL); 
+	v_cg_new_cmd(V_NT_GEOMETRY,		"g_vertex_set_xyz_real32", 50, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
 	v_cg_add_param(VCGP_UINT32,		"vertex_id");
@@ -43,7 +43,7 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_alias(FALSE, "g_vertex_delete_real32", "if(x == V_REAL32_MAX || y == V_REAL32_MAX || z == V_REAL32_MAX)", 2, order);
 	v_cg_end_cmd();
 
-	v_cg_new_cmd(V_NT_GEOMETRY,		"g_vertex_set_real64_xyz", 51, VCGCT_NORMAL); 
+	v_cg_new_cmd(V_NT_GEOMETRY,		"g_vertex_set_xyz_real64", 51, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
 	v_cg_add_param(VCGP_UINT32,		"vertex_id");
