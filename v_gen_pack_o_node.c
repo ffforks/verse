@@ -98,14 +98,14 @@ unsigned int v_unpack_o_transform_pos_real32(const char *buf, size_t buffer_leng
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);
 		for(j = 0; j < 3; j++)
 			buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &output[0][j]);
-		for(i = 1; i < 3; i++)
+		for(i = 1; i < 4; i++)
 		{
 			if((mask & pow) != 0)
 				for(j = 0; j < 3; j++)
 					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &output[i][j]);
 			else
 				for(j = 0; j < 3; j++)
-					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &output[i][j]);
+					output[i][j] = 0;
 			pow *= 2;
 		}
 		if((mask & pow) != 0)
@@ -143,26 +143,30 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time, real32 *rot
 		buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], rot[0]);
 		buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], rot[1]);
 		buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], rot[2]);
-		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001)
+		buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], rot[3]);
+		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[3] < -0.0000001 || speed[3] < -0.0000001)
 		{
 			mask |= 1;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], speed[0]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], speed[1]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], speed[2]);
+			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], speed[3]);
 		}
-		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001)
+		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001 || accelerate[3] > 0.0000001 || accelerate[3] < -0.0000001)
 		{
 			mask |= 2;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], accelerate[0]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], accelerate[1]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], accelerate[2]);
+			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], accelerate[3]);
 		}
-		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001)
+		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001 || drag_normal[3] > 0.0000001 || drag_normal[3] < -0.0000001)
 		{
 			mask |= 4;
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag_normal[0]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag_normal[1]);
 			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag_normal[2]);
+			buffer_pos += vnp_raw_pack_float(&buf[buffer_pos], drag_normal[3]);
 		}
 		if(drag > 0.0000001 || drag < -0.0000001)
 		{
@@ -197,20 +201,20 @@ unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_leng
 	printf("receive: o_transform_rot_real32(node_id = %u time = %u drag = %f ); callback = %p\n", node_id, time, drag, user_func);
 #endif
 	{
-		float output[4][3];
+		float output[4][4];
 		unsigned int i, j;
 		char mask, pow = 1;
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);
-		for(j = 0; j < 3; j++)
+		for(j = 0; j < 4; j++)
 			buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &output[0][j]);
-		for(i = 1; i < 3; i++)
+		for(i = 1; i < 4; i++)
 		{
 			if((mask & pow) != 0)
-				for(j = 0; j < 3; j++)
+				for(j = 0; j < 4; j++)
 					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &output[i][j]);
 			else
-				for(j = 0; j < 3; j++)
-					buffer_pos += vnp_raw_unpack_float(&buf[buffer_pos], &output[i][j]);
+				for(j = 0; j < 4; j++)
+					output[i][j] = 0;
 			pow *= 2;
 		}
 		if((mask & pow) != 0)
@@ -354,14 +358,14 @@ unsigned int v_unpack_o_transform_pos_real64(const char *buf, size_t buffer_leng
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);
 		for(j = 0; j < 3; j++)
 			buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &output[0][j]);
-		for(i = 1; i < 3; i++)
+		for(i = 1; i < 4; i++)
 		{
 			if((mask & pow) != 0)
 				for(j = 0; j < 3; j++)
 					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &output[i][j]);
 			else
 				for(j = 0; j < 3; j++)
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &output[i][j]);
+					output[i][j] = 0;
 			pow *= 2;
 		}
 		if((mask & pow) != 0)
@@ -399,26 +403,30 @@ void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time, real64 *rot
 		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], rot[0]);
 		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], rot[1]);
 		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], rot[2]);
-		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001)
+		buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], rot[3]);
+		if(speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001 || speed[3] > 0.0000001 || speed[3] < -0.0000001)
 		{
 			bitfeald += 1;
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], speed[0]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], speed[1]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], speed[2]);
+			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], speed[3]);
 		}
-		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001)
+		if(accelerate[0] > 0.0000001 || accelerate[0] < -0.0000001 || accelerate[1] > 0.0000001 || accelerate[1] < -0.0000001 || accelerate[2] > 0.0000001 || accelerate[2] < -0.0000001 || accelerate[3] > 0.0000001 || accelerate[3] < -0.0000001)
 		{
 			bitfeald += 2;
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], accelerate[0]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], accelerate[1]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], accelerate[2]);
+			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], accelerate[3]);
 		}
-		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001)
+		if(drag_normal[0] > 0.0000001 || drag_normal[0] < -0.0000001 || drag_normal[1] > 0.0000001 || drag_normal[1] < -0.0000001 || drag_normal[2] > 0.0000001 || drag_normal[2] < -0.0000001 || drag_normal[3] > 0.0000001 || drag_normal[3] < -0.0000001)
 		{
 			bitfeald += 4;
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag_normal[0]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag_normal[1]);
 			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag_normal[2]);
+			buffer_pos += vnp_raw_pack_double(&buf[buffer_pos], drag_normal[3]);
 		}
 		if(drag > 0.0000001 || drag < -0.0000001)
 		{
@@ -453,20 +461,20 @@ unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_leng
 	printf("receive: o_transform_rot_real64(node_id = %u time = %u drag = %f ); callback = %p\n", node_id, time, drag, user_func);
 #endif
 	{
-		double output[4][3];
+		double output[4][4];
 		unsigned int i, j;
 		char mask, pow = 1;
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);
-		for(j = 0; j < 3; j++)
+		for(j = 0; j < 4; j++)
 			buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &output[0][j]);
-		for(i = 1; i < 3; i++)
+		for(i = 1; i < 4; i++)
 		{
 			if((mask & pow) != 0)
-				for(j = 0; j < 3; j++)
+				for(j = 0; j < 4; j++)
 					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &output[i][j]);
 			else
-				for(j = 0; j < 3; j++)
-					buffer_pos += vnp_raw_unpack_double(&buf[buffer_pos], &output[i][j]);
+				for(j = 0; j < 4; j++)
+					output[i][j] = 0;
 			pow *= 2;
 		}
 		if((mask & pow) != 0)

@@ -52,3 +52,6 @@ extern unsigned int v_unpack_t_insert_line(const char *data, size_t length, void
 extern unsigned int v_unpack_c_curve_create(const char *data, size_t length, void *user_func, void *user_data);
 extern unsigned int v_unpack_c_curve_subscribe(const char *data, size_t length, void *user_func, void *user_data);
 extern unsigned int v_unpack_c_curve_key_set(const char *data, size_t length, void *user_func, void *user_data);
+extern unsigned int v_unpack_a_layer_create(const char *data, size_t length, void *user_func, void *user_data);
+extern unsigned int v_unpack_a_layer_subscribe(const char *data, size_t length, void *user_func, void *user_data);
+extern unsigned int v_unpack_a_audio(const char *data, size_t length, void *user_func, void *user_data);
