@@ -13,7 +13,7 @@
 
 /* Release information. */
 #define	V_RELEASE_NUMBER	4
-#define	V_RELEASE_PATCH		0
+#define	V_RELEASE_PATCH		1
 #define	V_RELEASE_LABEL		""
 
 typedef unsigned char boolean;
