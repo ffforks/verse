@@ -209,27 +209,27 @@ void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 id, VNALa
 		switch(type)
 		{
 			case VN_A_LAYER_INT8 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT8; i++)
 					buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8*)data)[i]);
 			break;
 			case VN_A_LAYER_INT16 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT16; i++)
 					buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], ((uint16*)data)[i]);
 			break;
 			case VN_A_LAYER_INT24 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT24; i++)
 					buffer_pos += vnp_raw_pack_uint24(&buf[buffer_pos], ((uint32*)data)[i]);
 			break;
 			case VN_A_LAYER_INT32 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT32; i++)
 					buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((uint32*)data)[i]);
 			break;
 			case VN_A_LAYER_REAL32 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_REAL32; i++)
 					buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], ((real32*)data)[i]);
 			break;
 			case VN_A_LAYER_REAL64 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_REAL64; i++)
 					buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], ((real64*)data)[i]);
 			break;
 		}
@@ -298,7 +298,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 			case VN_A_LAYER_INT8 :
 			{
 				uint8 data[1500];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT8; i++)
 					buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &data[i]);
 				if(func_a_block_set != NULL)
 					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, (VNALayerType)type, data);
@@ -307,7 +307,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 			case VN_A_LAYER_INT16 :
 			{
 				uint16 data[750];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT16; i++)
 					buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &data[i]);
 				if(func_a_block_set != NULL)
 					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, (VNALayerType)type, data);
@@ -316,7 +316,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 			case VN_A_LAYER_INT24 :
 			{
 				uint32 data[325];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT24; i++)
 					buffer_pos += vnp_raw_unpack_uint24(&buf[buffer_pos], &data[i]);
 				if(func_a_block_set != NULL)
 					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, (VNALayerType)type, data);
@@ -325,7 +325,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 			case VN_A_LAYER_INT32 :
 			{
 				uint32 data[325];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT32; i++)
 					buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &data[i]);
 				if(func_a_block_set != NULL)
 					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, (VNALayerType)type, data);
@@ -334,7 +334,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 			case VN_A_LAYER_REAL32 :
 			{
 				real32 data[1500];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_REAL32; i++)
 					buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &data[i]);
 				if(func_a_block_set != NULL)
 					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, (VNALayerType)type, data);
@@ -343,7 +343,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 			case VN_A_LAYER_REAL64 :
 			{
 				real64 data[162];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_REAL64; i++)
 					buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &data[i]);
 				if(func_a_block_set != NULL)
 					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, id, (VNALayerType)type, data);
@@ -552,27 +552,27 @@ void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint16 id, uint32 
 		switch(type)
 		{
 			case VN_A_LAYER_INT8 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT8; i++)
 					buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8*)data)[i]);
 			break;
 			case VN_A_LAYER_INT16 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT16; i++)
 					buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], ((uint16*)data)[i]);
 			break;
 			case VN_A_LAYER_INT24 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT24; i++)
 					buffer_pos += vnp_raw_pack_uint24(&buf[buffer_pos], ((uint32*)data)[i]);
 			break;
 			case VN_A_LAYER_INT32 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT32; i++)
 					buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], ((uint32*)data)[i]);
 			break;
 			case VN_A_LAYER_REAL32 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_REAL32; i++)
 					buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], ((real32*)data)[i]);
 			break;
 			case VN_A_LAYER_REAL64 :
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64; i++)
+				for(i = 0; i < VN_A_BLOCK_SIZE_REAL64; i++)
 					buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], ((real64*)data)[i]);
 			break;
 		}
@@ -619,8 +619,8 @@ unsigned int v_unpack_a_stream(const char *buf, size_t buffer_length)
 		{
 			case VN_A_LAYER_INT8 :
 			{
-				uint8 data[VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8; i++)
+				uint8 data[VN_A_BLOCK_SIZE_INT8];
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT8; i++)
 					buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &data[i]);
 				if(func_a_stream != NULL)
 					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, id, time_s, time_f, (VNALayerType)type, frequency, data);
@@ -628,8 +628,8 @@ unsigned int v_unpack_a_stream(const char *buf, size_t buffer_length)
 			}
 			case VN_A_LAYER_INT16 :
 			{
-				uint16 data[VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16; i++)
+				uint16 data[VN_A_BLOCK_SIZE_INT16];
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT16; i++)
 					buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &data[i]);
 				if(func_a_stream != NULL)
 					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, id, time_s, time_f, (VNALayerType)type, frequency, data);
@@ -637,8 +637,8 @@ unsigned int v_unpack_a_stream(const char *buf, size_t buffer_length)
 			}
 			case VN_A_LAYER_INT24 :
 			{
-				uint32 data[VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24; i++)
+				uint32 data[VN_A_BLOCK_SIZE_INT24];
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT24; i++)
 					buffer_pos += vnp_raw_unpack_uint24(&buf[buffer_pos], &data[i]);
 				if(func_a_stream != NULL)
 					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, id, time_s, time_f, (VNALayerType)type, frequency, data);
@@ -646,8 +646,8 @@ unsigned int v_unpack_a_stream(const char *buf, size_t buffer_length)
 			}
 			case VN_A_LAYER_INT32 :
 			{
-				uint32 data[VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32; i++)
+				uint32 data[VN_A_BLOCK_SIZE_INT32];
+				for(i = 0; i < VN_A_BLOCK_SIZE_INT32; i++)
 					buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &data[i]);
 				if(func_a_stream != NULL)
 					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, id, time_s, time_f, (VNALayerType)type, frequency, data);
@@ -655,8 +655,8 @@ unsigned int v_unpack_a_stream(const char *buf, size_t buffer_length)
 			}
 			case VN_A_LAYER_REAL32 :
 			{
-				real32 data[VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32; i++)
+				real32 data[VN_A_BLOCK_SIZE_REAL32];
+				for(i = 0; i < VN_A_BLOCK_SIZE_REAL32; i++)
 					buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &data[i]);
 				if(func_a_stream != NULL)
 					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, id, time_s, time_f, (VNALayerType)type, frequency, data);
@@ -664,8 +664,8 @@ unsigned int v_unpack_a_stream(const char *buf, size_t buffer_length)
 			}
 			case VN_A_LAYER_REAL64 :
 			{
-				real64 data[VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64];
-				for(i = 0; i < VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64; i++)
+				real64 data[VN_A_BLOCK_SIZE_REAL64];
+				for(i = 0; i < VN_A_BLOCK_SIZE_REAL64; i++)
 					buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &data[i]);
 				if(func_a_stream != NULL)
 					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, id, time_s, time_f, (VNALayerType)type, frequency, data);
