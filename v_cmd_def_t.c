@@ -7,7 +7,7 @@
 
 #if defined(V_GENERATE_FUNC_MODE)
 
-void v_gen_text_cmd_def()
+void v_gen_text_cmd_def(void)
 {
 	v_cg_new_cmd(V_NT_TEXT,			"t_set_language", 96, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
@@ -38,6 +38,7 @@ void v_gen_text_cmd_def()
 	v_cg_add_param(VCGP_UINT16,		"index");
 	v_cg_add_param(VCGP_LONG_NAME,	"text");
 	v_cg_alias(FALSE, "t_delete_line", "if(text[0] == 0)", 3, NULL);
+
 	v_cg_end_cmd();
 }
 

@@ -5,10 +5,9 @@
 #include "v_cmd_gen.h"
 #include "v_cmd_buf.h"
 
-
 #if defined(V_GENERATE_FUNC_MODE)
 
-void v_gen_curve_cmd_def()
+void v_gen_curve_cmd_def(void)
 {
 	v_cg_new_cmd(V_NT_CURVE,		"c_curve_create", 128, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
@@ -37,8 +36,6 @@ void v_gen_curve_cmd_def()
 	v_cg_add_param(VCGP_UINT32,		"post_pos");
 	v_cg_alias(FALSE, "c_curve_key_destroy", "if(pre_value == 0)", 3, NULL);
 	v_cg_end_cmd();
-
 }
-
 
 #endif

@@ -7,9 +7,9 @@
 
 #if defined(V_GENERATE_FUNC_MODE)
 
-void v_gen_geometry_cmd_def()
+void v_gen_geometry_cmd_def(void)
 {
-	unsigned int order[2] = {0, 2};
+	unsigned int order[] = { 0, 2 };
 
 	v_cg_new_cmd(V_NT_GEOMETRY,		"g_layer_create", 48, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
@@ -148,6 +148,7 @@ void v_gen_geometry_cmd_def()
 	v_cg_add_param(VCGP_REAL64,		"rot_y");
 	v_cg_add_param(VCGP_REAL64,		"rot_z");
 	v_cg_alias(FALSE, "g_bone_destroy", "if(name[0] == 0)", 2, NULL);
+
 	v_cg_end_cmd();
 }
 
