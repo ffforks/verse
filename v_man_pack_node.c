@@ -295,14 +295,12 @@ unsigned int v_unpack_c_key_set(const char *buf, size_t buffer_length)
 	real64 pre_value[4], value[4], pos, post_value[4];
 	uint32 post_pos[4], pre_pos[4];
 	
-	printf("got send %u\n", buffer_length);
 	if(buffer_length < 11)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &curve_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &key_id);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &dimensions);
-	printf("got send %u\n", dimensions);
 	if(dimensions != 0 && dimensions < 5)
 	{
 		void (* func_c_key_set)(void *user_data, VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, real64 *pre_value, uint32 *pre_pos, real64 *value, real64 pos, real64 *post_value, uint32 *post_pos);
