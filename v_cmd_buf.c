@@ -9,18 +9,19 @@
 #include "v_pack.h"
 #include "v_cmd_buf.h"
 
-#define VCMDBUF_CHUNK_SIZE 256 /* If you think memory is cheap set this to a high value */
+#define VCMDBUF_CHUNK_SIZE	256	/* If you think memory is cheap, set this to a high value. */
 
-struct{
+static struct {
 	VCMDBufHead	*buffers[VCMDBS_COUNT][VCMDBUF_CHUNK_SIZE];
 	unsigned int available[VCMDBS_COUNT];
-}VCMDBufData;
+} VCMDBufData;
 
-boolean v_cmd_buf_initialized = FALSE;
+static boolean v_cmd_buf_initialized = FALSE;
 
 void v_cmd_buf_init()
 {
 	unsigned int i, j;
+
 	for(i = 0; i < VCMDBS_COUNT; i++)
 	{
 		for(j = 0; j < VCMDBUF_CHUNK_SIZE; j++)
@@ -33,6 +34,7 @@ void v_cmd_buf_init()
 VCMDBufHead * v_cmd_buf_allocate(VCMDBufSize buf_size)
 {
 	VCMDBufHead	*output;
+
 	if(!v_cmd_buf_initialized)
 		v_cmd_buf_init();
 	if(VCMDBufData.available[buf_size] > 0)
@@ -79,6 +81,7 @@ void v_cmd_buf_free(VCMDBufHead *head)
 void v_cmd_buf_set_address_size(VCMDBufHead *head, unsigned int address_size, unsigned int size)
 {
 	unsigned int i;
+
 	head->address_size = address_size;
 	head->size = size;
 	head->address_sum = 0;
@@ -86,10 +89,10 @@ void v_cmd_buf_set_address_size(VCMDBufHead *head, unsigned int address_size, un
 		head->address_sum += i * i * (uint32)(((VCMDBuffer1500 *)head)->buf[i]);
 }
 
-
 void v_cmd_buf_set_uniqe_size(VCMDBufHead *head, unsigned int size)
 {
-	static unsigned int i;
+	static unsigned int i = 0;
+
 	head->address_size = size;
 	head->size = size;
 	head->address_sum = i++;
@@ -98,6 +101,7 @@ void v_cmd_buf_set_uniqe_size(VCMDBufHead *head, unsigned int size)
 boolean	v_cmd_buf_compare(VCMDBufHead *a, VCMDBufHead *b)
 {
 	unsigned int i;
+
 	if(a->address_sum != b->address_sum)
 		return FALSE;
 	if(a->address_size != b->address_size)
