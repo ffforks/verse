@@ -355,18 +355,6 @@ typedef enum {
 	VN_A_LAYER_REAL64,
 } VNALayerType;
 
-/*
-typedef enum {
-	VN_P_FORCE_RADIAL = 0,
-	VN_P_FORCE_DIRECTIONAL
-} VNPForceType;
-
-typedef enum {
-	VN_P_SPACE_LOCAL = 0,
-	VN_P_SPACE_GLOBAL,
-	VN_P_SPACE_PARTICLE
-} VNPSpace;
-*/
 extern void		verse_set_port(uint16 port);
 extern void		verse_host_id_create(uint8 *id);
 extern void		verse_host_id_set(uint8 *id);
