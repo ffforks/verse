@@ -64,7 +64,7 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->texture.layer_r, 16);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->texture.layer_g, 16);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->texture.layer_b, 16);
-		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->texture.control);
+		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->texture.mapping);
 		break;
 	case VN_M_FT_TAG :
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->tag.name, 16);
@@ -78,7 +78,7 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->blender.type);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.data_a);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.data_b);
-		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.control);
+		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.mapping);
 		break;
 	case VN_M_FT_MATRIX :
 		{
@@ -94,7 +94,7 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 			double last;
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->ramp.type);
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->ramp.channel);
-			buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->ramp.control);
+			buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->ramp.mapping);
 			pos = buffer_pos;
 			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->ramp.point_count);
 			last = fragment->ramp.ramp[0].pos - 1;
@@ -209,7 +209,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.texture.layer_r, 16, buffer_length - buffer_pos);
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.texture.layer_g, 16, buffer_length - buffer_pos);
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.texture.layer_b, 16, buffer_length - buffer_pos);
-			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.texture.control);
+			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.texture.mapping);
 			break;
 		case VN_M_FT_TAG :
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.tag.name, 16, buffer_length - buffer_pos);
@@ -227,7 +227,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.blender.type);
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.data_a);
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.data_b);
-			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.control);
+			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.mapping);
 			break;
 		case VN_M_FT_MATRIX :
 			if(buffer_pos + 8 * 16 + 2 > buffer_length)
@@ -249,7 +249,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 				double last;
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.ramp.type);
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.ramp.channel);
-				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.ramp.control);
+				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.ramp.mapping);
 				pos = buffer_pos;
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.ramp.point_count);
 				for(i = 0; i < frag.ramp.point_count && buffer_pos + 8 * 4 <= buffer_length && i < 48; i++)

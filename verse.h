@@ -11,6 +11,11 @@
 
 #include <stdlib.h>
 
+/* Release information. */
+#define	V_RELEASE_NUMBER	1
+#define	V_RELEASE_PATCH		0
+#define	V_RELEASE_LABEL		"(none)"
+
 typedef unsigned char boolean;
 typedef unsigned int uint32;
 typedef int int32;
@@ -24,7 +29,7 @@ typedef double real64;
 #define V_REAL64_MAX         1.7976931348623158e+308 /* max value */
 #define V_REAL32_MAX         3.40282347e+38F
 
-#define TRUE 1
+#define TRUE  1
 #define FALSE 0
 
 typedef enum {
@@ -50,87 +55,94 @@ typedef uint16		VNPEffectID;
 typedef void *		VSession;
 
 typedef enum {
-	VN_O_METHOD_PTYPE_INTEGER8 = 0,
-	VN_O_METHOD_PTYPE_INTEGER16,
-	VN_O_METHOD_PTYPE_INTEGER32,
+	VN_O_METHOD_PTYPE_INT8 = 0,
+	VN_O_METHOD_PTYPE_INT16,
+	VN_O_METHOD_PTYPE_INT32,
 
-	VN_O_METHOD_PTYPE_UINTEGER8,
-	VN_O_METHOD_PTYPE_UINTEGER16,
-	VN_O_METHOD_PTYPE_UINTEGER32,
+	VN_O_METHOD_PTYPE_UINT8,
+	VN_O_METHOD_PTYPE_UINT16,
+	VN_O_METHOD_PTYPE_UINT32,
 
 	VN_O_METHOD_PTYPE_REAL32,
 	VN_O_METHOD_PTYPE_REAL64,
 
 	VN_O_METHOD_PTYPE_STRING,
 
-	VN_O_METHOD_PTYPE_VNODE,
-	VN_O_METHOD_PTYPE_VLAYER,
+	VN_O_METHOD_PTYPE_NODE,
+	VN_O_METHOD_PTYPE_LAYER,
 
-	VN_O_METHOD_PTYPE_2_VECTOR32,
-	VN_O_METHOD_PTYPE_3_VECTOR32,
-	VN_O_METHOD_PTYPE_4_VECTOR32,
+	VN_O_METHOD_PTYPE_REAL32_VEC2,
+	VN_O_METHOD_PTYPE_REAL32_VEC3,
+	VN_O_METHOD_PTYPE_REAL32_VEC4,
 
-	VN_O_METHOD_PTYPE_2_VECTOR64,
-	VN_O_METHOD_PTYPE_3_VECTOR64,
-	VN_O_METHOD_PTYPE_4_VECTOR64,
+	VN_O_METHOD_PTYPE_REAL64_VEC2,
+	VN_O_METHOD_PTYPE_REAL64_VEC3,
+	VN_O_METHOD_PTYPE_REAL64_VEC4,
 
-	VN_O_METHOD_PTYPE_4_MATRIX32,
-	VN_O_METHOD_PTYPE_9_MATRIX32,
-	VN_O_METHOD_PTYPE_16_MATRIX32,
+	VN_O_METHOD_PTYPE_REAL32_MAT4,
+	VN_O_METHOD_PTYPE_REAL32_MAT9,
+	VN_O_METHOD_PTYPE_REAL32_MAT16,
 
-	VN_O_METHOD_PTYPE_4_MATRIX64,
-	VN_O_METHOD_PTYPE_9_MATRIX64,
-	VN_O_METHOD_PTYPE_16_MATRIX64
+	VN_O_METHOD_PTYPE_REAL64_MAT4,
+	VN_O_METHOD_PTYPE_REAL64_MAT9,
+	VN_O_METHOD_PTYPE_REAL64_MAT16
 } VNOParamType;
 
-typedef	union{
-	int8		integer8;
-	int16		integer16;
-	int32		integer32;
-	uint8		uinteger8;
-	uint16		uinteger16;
-	uint32		uinteger32;
-	real32		real32;
-	real64		real64;
-	char		*string;
+typedef	union {
+	int8		vint8;
+	int16		vint16;
+	int32		vint32;
+	uint8		vuint8;
+	uint16		vuint16;
+	uint32		vuint32;
+	real32		vreal32;
+	real64		vreal64;
+	char		*vstring;
 	VNodeID		vnode;
 	VLayerID	vlayer;
-	real32		vector32[4];
-	real64		vector64[4];
-	real32		matrix32[16];
-	real64		matrix64[16];
+	real32		vreal32_vec[4];
+	real32		vreal32_mat[16];
+	real64		vreal64_vec[4];
+	real64		vreal64_mat[16];
 } VNOParam;
 
 #define VN_TAG_MAX_BLOB_SIZE 500
 
 typedef enum {
 	VN_TAG_BOOLEAN = 0,
-	VN_TAG_INTEGER,
-	VN_TAG_REAL,
+	VN_TAG_UINT32,
+	VN_TAG_REAL64,
 	VN_TAG_STRING,
-	VN_TAG_VECTOR,
+	VN_TAG_REAL64_VEC3,
 	VN_TAG_LINK,
 	VN_TAG_ANIMATION,
 	VN_TAG_BLOB,
 	VN_TAG_TYPE_COUNT
 } VNTagType;
 
-typedef union{
-	boolean active;
-	uint32	integer;
-	real64	real;
-	char	*string;
-	real64	vector[3];
-	VNodeID	link;
-	struct{
+typedef enum {
+	VN_TAG_GROUP_SIZE = 16,
+	VN_TAG_NAME_SIZE = 16,
+	VN_TAG_FULL_NAME_SIZE = 64,
+	VN_TAG_STRING_SIZE = 128
+} VNTagConstants;
+
+typedef union {
+	boolean vboolean;
+	uint32	vuint32;
+	real64	vreal64;
+	char	*vstring;
+	real64	vreal64_vec3[3];
+	VNodeID	vlink;
+	struct {
 		VNodeID curve;
 		uint32 start;
 		uint32 end;
-	}animation;
-	struct{
-		uint16	blob_size;
+	} vanimation;
+	struct {
+		uint16	size;
 		void	*blob;
-	}blob;
+	} vblob;
 } VNTag;
 
 typedef enum {
@@ -145,14 +157,6 @@ typedef enum {
 } VNORealFormat;
 
 typedef enum {
-	VN_O_TAG_GROUP_SIZE = 16,
-	VN_O_TAG_NAME_SIZE = 16,
-	VN_O_TAG_FULL_NAME_SIZE = 64,
-	VN_O_TAG_STRING_SIZE = 128
-} VNOTagConstants;
-
-
-typedef enum {
 	VN_O_METHOD_GROUP_NAME_SIZE = 16,
 	VN_O_METHOD_NAME_SIZE = 16,
 	VN_O_METHOD_SIG_SIZE = 256
@@ -160,12 +164,12 @@ typedef enum {
 
 typedef enum {
 	VN_G_LAYER_VERTEX_XYZ = 0,
-	VN_G_LAYER_VERTEX_UINTEGER32,
+	VN_G_LAYER_VERTEX_UINT32,
 	VN_G_LAYER_VERTEX_REAL64,
-	VN_G_LAYER_POLYGON_CORNER_UINTEGER32 = 128,
+	VN_G_LAYER_POLYGON_CORNER_UINT32 = 128,
 	VN_G_LAYER_POLYGON_CORNER_REAL64,
-	VN_G_LAYER_POLYGON_FACE_UINTEGER8,
-	VN_G_LAYER_POLYGON_FACE_UINTEGER32,
+	VN_G_LAYER_POLYGON_FACE_UINT8,
+	VN_G_LAYER_POLYGON_FACE_UINT32,
 	VN_G_LAYER_POLYGON_FACE_REAL64
 } VNGLayerType;
 
@@ -173,7 +177,9 @@ typedef enum {
 	VN_M_LIGHT_DIRECT = 0,
 	VN_M_LIGHT_AMBIENT,
 	VN_M_LIGHT_DIRECT_AND_AMBIENT,
-	VN_M_LIGHT_BACK
+	VN_M_LIGHT_BACK_DIRECT,
+	VN_M_LIGHT_BACK_AMBIENT,
+	VN_M_LIGHT_BACK_DIRECT_AND_AMBIENT
 } VNMLightType;
 
 typedef enum {
@@ -192,10 +198,10 @@ typedef enum {
 } VNMRampChannel;
 
 typedef struct {
-	double	pos;
-	double	red;
-	double	green;
-	double	blue;
+	real64	pos;
+	real64	red;
+	real64	green;
+	real64	blue;
 } VNMRampPoint;
 
 typedef enum {
@@ -223,79 +229,79 @@ typedef enum {
 	VN_M_FT_OUTPUT
 } VNMFragmentType;
 
-typedef union{
-	struct{
+typedef union {
+	struct {
 		real64 red;
 		real64 green;
 		real64 blue;
-	}color;
-	struct{
+	} color;
+	struct {
 		uint8 type;
 		real64 normal_falloff; 
 		VNodeID brdf;
 		char brdf_r[16];
 		char brdf_g[16];
 		char brdf_b[16];
-	}light;
-	struct{
+	} light;
+	struct {
 		real64 normal_falloff;
-	}reflection;
-	struct{
+	} reflection;
+	struct {
 		real64 normal_falloff;
 		real64 refraction_index;
-	}transparency;
-	struct{
+	} transparency;
+	struct {
 		char layer_r[16];
 		char layer_g[16];
 		char layer_b[16];
-	}geometry;
+	} geometry;
 	struct{
 		VNodeID bitmap;
 		char layer_r[16];
 		char layer_g[16];
 		char layer_b[16];
-		VNMFragmentID control;
-	}texture;
-	struct{
+		VNMFragmentID mapping;
+	} texture;
+	struct {
 		char name[16];
 		char group[16];
-	}tag;
-	struct{
+	} tag;
+	struct {
 		uint8 type;
 		VNMFragmentID mapping;
-	}noise;
-	struct{
+	} noise;
+	struct {
 		uint8 type;
 		VNMFragmentID data_a;
 		VNMFragmentID data_b; 
-		VNMFragmentID control;
-	}blender;
-	struct{
+		VNMFragmentID mapping;
+	} blender;
+	struct {
 		real64 matrix[16];
 		VNMFragmentID data;
-	}matrix;
-	struct{
+	} matrix;
+	struct {
 		uint8 type;
 		uint8 channel;
-		VNMFragmentID control; 
-		uint8 point_count; 
+		VNMFragmentID mapping; 
+		uint8 point_count;
 		VNMRampPoint ramp[48];
-	}ramp;
-	struct{
+	} ramp;
+	struct {
 		VNMFragmentID alt_a;
 		VNMFragmentID alt_b;
-	}alternative;
-	struct{
+	} alternative;
+	struct {
 		char type[16];
 		VNMFragmentID front;
 		VNMFragmentID back;
-	}output;
+	} output;
 } VMatFrag;
 
 typedef enum {
-	VN_B_LAYER_INTEGER1 = 0,
-	VN_B_LAYER_INTEGER8,
-	VN_B_LAYER_INTEGER16,
+	VN_B_LAYER_UINT1 = 0,
+	VN_B_LAYER_UINT8,
+	VN_B_LAYER_UINT16,
 	VN_B_LAYER_REAL32,
 	VN_B_LAYER_REAL64
 } VNBLayerType;
@@ -398,7 +404,7 @@ extern void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 
 extern void verse_send_o_method_destroy(VNodeID node_id, uint16 group_id, uint16 method_id);
 extern void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, void *params);
 
-extern void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_integer, real64 def_real);
+extern void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_uint, real64 def_real);
 extern void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_g_layer_subscribe(VNodeID node_id, VLayerID layer_id, VNORealFormat type);
 extern void verse_send_g_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);
@@ -406,13 +412,13 @@ extern void verse_send_g_vertex_set_real32_xyz(VNodeID node_id, VLayerID layer_i
 extern void verse_send_g_vertex_delete_real32(VNodeID node_id, uint32 vertex_id);
 extern void verse_send_g_vertex_set_real64_xyz(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 x, real64 y, real64 z);
 extern void verse_send_g_vertex_delete_real64(VNodeID node_id, uint32 vertex_id);
-extern void verse_send_g_vertex_set_uinteger32(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, uint32 value);
+extern void verse_send_g_vertex_set_uint32(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, uint32 value);
 extern void verse_send_g_vertex_set_real64(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 value);
-extern void verse_send_g_polygon_set_corner_uinteger32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3);
+extern void verse_send_g_polygon_set_corner_uint32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3);
 extern void verse_send_g_polygon_delete(VNodeID node_id, uint32 polygon_id);
 extern void verse_send_g_polygon_set_corner_real64(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real64 v0, real64 v1, real64 v2, real64 v3);
-extern void verse_send_g_polygon_set_face_uinteger8(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint8 value);
-extern void verse_send_g_polygon_set_face_uinteger32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 value);
+extern void verse_send_g_polygon_set_face_uint8(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint8 value);
+extern void verse_send_g_polygon_set_face_uint32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 value);
 extern void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real64 value);
 extern void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 def_crease);
 extern void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def_crease);
