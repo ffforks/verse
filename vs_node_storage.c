@@ -20,7 +20,7 @@ static struct {
 	VSSubscriptionList *list[V_NT_NUM_TYPES];
 } VSNodeStorage;
 
-void vs_init_node_storage()
+void vs_init_node_storage(void)
 {
 	unsigned int i;
 	VSNodeStorage.nodes = malloc((sizeof *VSNodeStorage.nodes) * VS_NODE_STORAGE_CHUNK_SIZE);
@@ -194,7 +194,7 @@ static void callback_send_node_list(void *user_data, uint32 mask)
 	}
 }
 
-void init_callback_node_storage()
+void init_callback_node_storage(void)
 {
 	verse_callback_set(verse_send_node_list, callback_send_node_list,  NULL);
 	verse_callback_set(verse_send_node_create, callback_send_node_create,  NULL);
