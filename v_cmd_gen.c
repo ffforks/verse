@@ -133,7 +133,7 @@ void v_cg_add_param(VCGParam type, const char *name)
 	VCGData.param_count++;
 }
 
-void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
+static void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 {
 	unsigned int i;
 	unsigned int length, active;
@@ -220,7 +220,7 @@ void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 	}
 }
 
-void v_cg_create_print(FILE *f, boolean send, boolean alias)
+static void v_cg_create_print(FILE *f, boolean send, boolean alias)
 {
 	unsigned int i, length, active;
 	const char *name;
@@ -312,7 +312,7 @@ void v_cg_create_print(FILE *f, boolean send, boolean alias)
 		fprintf(f, ", user_func);\n#endif\n");
 }
 
-unsigned int v_cg_compute_command_size(unsigned int start, boolean end)
+static unsigned int v_cg_compute_command_size(unsigned int start, boolean end)
 {
 	unsigned int size = 0;
 	for(; start < VCGData.param_count; start++)
@@ -358,7 +358,7 @@ unsigned int v_cg_compute_command_size(unsigned int start, boolean end)
 	return size;
 }
 
-const char * v_cg_compute_buffer_size(void)
+static const char * v_cg_compute_buffer_size(void)
 {
 	unsigned int size; 
 	size = v_cg_compute_command_size(0, FALSE) + 1;
@@ -373,7 +373,7 @@ const char * v_cg_compute_buffer_size(void)
 	return "VCMDBS_1500";
 }
 
-void v_cg_gen_pack(boolean alias)
+static void v_cg_gen_pack(boolean alias)
 {
 	unsigned int i, j, size = 0, ad_size = 0;
 	boolean printed = FALSE;
@@ -521,7 +521,7 @@ void v_cg_gen_pack(boolean alias)
 	fprintf(f, "}\n\n");
 }
 
-void v_cg_gen_unpack(void)
+static void v_cg_gen_unpack(void)
 {
 	FILE *f;
 	unsigned int i;
@@ -651,7 +651,7 @@ void v_cg_gen_unpack(void)
 	fprintf(f, "}\n\n");
 }
 
-void v_cg_gen_alias(void)
+static void v_cg_gen_alias(void)
 {
 	FILE *f;
 	unsigned int i;
@@ -666,7 +666,7 @@ void v_cg_gen_alias(void)
 	fprintf(f, "}\n\n");
 }
 
-void v_cg_gen_init(void)
+static void v_cg_gen_init(void)
 {
 	FILE *f;
 	f = VCGData.init;
@@ -677,7 +677,7 @@ void v_cg_gen_init(void)
 		fprintf(f, "NULL);\n");
 }
 
-void v_cg_gen_verse_h(void)
+static void v_cg_gen_verse_h(void)
 {
 	FILE *f;
 	if(VCGData.command == VCGCT_INVISIBLE_SYSTEM)
@@ -695,7 +695,7 @@ void v_cg_gen_verse_h(void)
 	}
 }
 
-void v_cg_gen_unpack_h(void)
+static void v_cg_gen_unpack_h(void)
 {
 	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length, void *user_func, void *user_data);\n",
 		VCGData.func_name);
