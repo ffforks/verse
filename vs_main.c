@@ -18,7 +18,7 @@ extern VNodeID	vs_node_create(VNodeID owner_id, unsigned int type);
 extern void	callback_send_node_destroy(void *user_data, VNodeID node_id);
 extern void	vs_reset_owner(VNodeID owner_id);
 
-static void callback_send_connect(void *user, char *name, char *pass, void *address, uint8 *host_id)
+static void callback_send_connect(void *user, const char *name, const char *pass, const char *address, const uint8 *host_id)
 {
 	VNodeID avatar;
 	VSession *session;
