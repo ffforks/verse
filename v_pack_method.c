@@ -11,7 +11,7 @@
 #include "verse.h"
 #include "v_pack.h"
 
-void * verse_pack_method_call(unsigned int param_count, const VNOParam *params, const VNOParamType *param_type)
+void * verse_method_call_pack(unsigned int param_count, const VNOParam *params, const VNOParamType *param_type)
 {
 	unsigned int i, j, buffer_pos;
 	uint8 *buf;
@@ -113,7 +113,7 @@ void * verse_pack_method_call(unsigned int param_count, const VNOParam *params, 
 	return buf;
 }
 
-boolean verse_unpack_method_call(void *data, unsigned int param_count, VNOParam *params, const VNOParamType *param_type)
+boolean verse_method_call_unpack(const void *data, unsigned int param_count, VNOParam *params, const VNOParamType *param_type)
 {
 	unsigned int i, j, buffer_pos, size;
 	uint8 *buf;

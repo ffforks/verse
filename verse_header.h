@@ -338,8 +338,8 @@ extern void verse_session_set(VSession session);
 extern void verse_session_destroy(VSession session);
 extern size_t verse_session_get_size(void);
 
-extern void *verse_pack_method_call(uint32 param_count, const VNOParam *params, const VNOParamType *param_type);
-extern boolean verse_unpack_method_call(void *data, uint32 param_count, VNOParam *params, const VNOParamType *param_type);
+extern void *verse_method_call_pack(uint32 param_count, const VNOParam *params, const VNOParamType *param_type);
+extern boolean verse_method_call_unpack(const void *data, uint32 param_count, VNOParam *params, const VNOParamType *param_type);
 
 extern void *verse_audio_compress(uint32 length, VNALayerType type, void *data);
 extern void *verse_audio_uncompress(uint32 length, VNALayerType type, void *data);
