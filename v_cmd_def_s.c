@@ -15,14 +15,7 @@ void v_gen_system_cmd_def(void)
 
 	v_cg_new_manual_cmd(2, "connect_terminate", "void verse_send_connect_terminate(const char *address, const char *bye)", NULL, NULL);
 	
-	v_cg_new_cmd(V_NT_SYSTEM,		"get_time", 4, VCGCT_UNIQUE);
-	v_cg_add_param(VCGP_UINT32,		"time");
-	v_cg_end_cmd();
-
-	v_cg_new_cmd(V_NT_SYSTEM,		"ping", 5, VCGCT_UNIQUE);
-	v_cg_add_param(VCGP_LONG_NAME,	"address");
-	v_cg_add_param(VCGP_LONG_NAME,	"text");
-	v_cg_end_cmd();
+	v_cg_new_manual_cmd(5, "ping", "void verse_send_ping(const char *address, const char *message)", NULL, NULL);
 
 	v_cg_new_cmd(V_NT_SYSTEM,		"error_message", 6, VCGCT_UNIQUE);
 	v_cg_add_param(VCGP_LONG_NAME, "message");
