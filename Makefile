@@ -15,6 +15,8 @@ ARFLAGS	= rus
 
 TARGETS = libverse.a verse
 
+.PHONY:	all clean cleanprot
+
 # Automatically generated protocol things.
 PROT_DEF  = $(wildcard v_cmd_def_*.c)
 PROT_TOOL = v_cmd_gen.c $(PROT_DEF)
@@ -59,7 +61,7 @@ mkprot:		$(PROT_TOOL)
 		$(CC) -DV_GENERATE_FUNC_MODE -o $@ $^
 
 # Clean away all the generated parts of the protocol implementation.
-cleanprot:
+cleanprot:	clean
 		rm -f mkprot $(AUTOGEN_OUT)
 
 # -----------------------------------------------------
