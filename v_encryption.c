@@ -140,10 +140,21 @@ void v_e_connect_create_key(uint8 *private_key, uint8 *public_key, uint8 *n)
 	VBigDig	VBIGNUM(p, BITS / 2), VBIGNUM(q, BITS / 2), VBIGNUM(qmo, BITS / 2), VBIGNUM(phi, BITS),
 		VBIGNUM(pub, BITS), VBIGNUM(priv, BITS), VBIGNUM(mod, BITS);
 
+#if !defined _WIN32
+	/* FIXME: This is a security backdoor. Intent is simply to save time during testing. */
+	if(getenv("VERSE_NORSA") != NULL)
+	{
+		printf("VERSE: Found the NORSA envvar, using constant keys\n");
+		v_prime_set_table(p, 0);
+		v_prime_set_table(q, 1);
+		goto compute_phi;
+	}
+#endif
 /*	printf("find prime p\n");*/
 	v_prime_set_random(p);
 /*	printf("find prime q\n");*/
 	v_prime_set_random(q);
+compute_phi:
 /*	printf("done, computing key\n");*/
 /*	printf("p=");
 	v_bignum_print_hex_lf(p);
