@@ -103,17 +103,17 @@ void verse_session_set(void *session)
 		VConData.current_connection = i;
 }
 
-void *v_con_get_network_queue()
+void * v_con_get_network_queue(void)
 {
 	return VConData.con[VConData.current_connection].network_queue;
 }
 
-void *v_con_get_network_address()
+void * v_con_get_network_address(void)
 {
 	return VConData.con[VConData.current_connection].network_address;
 }
 
-unsigned int *v_con_get_network_expected_packet()
+unsigned int * v_con_get_network_expected_packet(void)
 {
 	return &VConData.con[VConData.current_connection].packet_id;
 }
@@ -140,7 +140,7 @@ unsigned int v_con_get_network_address_count(void)
 
 }
 
-void v_con_network_listen()
+void v_con_network_listen(void)
 {
 	void *address;
 	char buf[V_MAX_CONNECT_PACKET_SIZE];
