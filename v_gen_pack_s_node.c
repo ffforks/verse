@@ -339,17 +339,19 @@ void verse_send_node_destroy(VNodeID node_id)
 
 unsigned int v_unpack_node_create(const char *buf, size_t buffer_length)
 {
+	char enum_temp;
 	unsigned int buffer_pos = 0;
 	void (* func_node_create)(void *user_data, VNodeID node_id, VNodeType type, VNodeID owner_id);
 	VNodeID node_id;
-	uint8 type;
+	VNodeType type;
 	VNodeID owner_id;
 	
 	func_node_create = v_fs_get_user_func(10);
 	if(buffer_length < 9)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &type);
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
+	type = (VNodeType)enum_temp;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &owner_id);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(owner_id == -1 || type >= V_NT_NUM_TYPES)
@@ -420,15 +422,15 @@ unsigned int v_unpack_node_subscribe(const char *buf, size_t buffer_length)
 	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
+	if(buffer_length < buffer_pos + 1)
+		return -1;
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(alias_bool)
 		printf("receive: verse_send_node_unsubscribe(node_id = %u ); callback = %p\n", node_id, v_fs_get_alias_user_func(11));
 	else
 		printf("receive: verse_send_node_subscribe(node_id = %u ); callback = %p\n", node_id, v_fs_get_user_func(11));
 #endif
-	if(buffer_length < buffer_pos + 1)
-		return -1;
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 	if(!alias_bool)
 	{
 		void (* alias_node_unsubscribe)(void *user_data, VNodeID node_id);
@@ -570,15 +572,15 @@ unsigned int v_unpack_tag_group_subscribe(const char *buf, size_t buffer_length)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &group_id);
+	if(buffer_length < buffer_pos + 1)
+		return -1;
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(alias_bool)
 		printf("receive: verse_send_tag_group_unsubscribe(node_id = %u group_id = %u ); callback = %p\n", node_id, group_id, v_fs_get_alias_user_func(17));
 	else
 		printf("receive: verse_send_tag_group_subscribe(node_id = %u group_id = %u ); callback = %p\n", node_id, group_id, v_fs_get_user_func(17));
 #endif
-	if(buffer_length < buffer_pos + 1)
-		return -1;
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 	if(!alias_bool)
 	{
 		void (* alias_tag_group_unsubscribe)(void *user_data, VNodeID node_id, uint16 group_id);
@@ -693,13 +695,14 @@ void verse_send_tag_destroy(VNodeID node_id, uint16 group_id, uint16 tag_id)
 
 unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length)
 {
+	char enum_temp;
 	unsigned int buffer_pos = 0;
 	void (* func_tag_create)(void *user_data, VNodeID node_id, uint16 group_id, uint16 tag_id, const char *name, VNTagType type, VNTag *tag);
 	VNodeID node_id;
 	uint16 group_id;
 	uint16 tag_id;
 	char name[16];
-	uint8 type;
+	VNTagType type;
 	VNTag *tag;
 	
 	func_tag_create = v_fs_get_user_func(18);
@@ -711,7 +714,8 @@ unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
 	if(buffer_length < 1 + buffer_pos)
 		return -1;
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &type);
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
+	type = (VNTagType)enum_temp;
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(type >= VN_TAG_TYPE_COUNT)
 		printf("receive: verse_send_tag_destroy(node_id = %u group_id = %u tag_id = %u ); callback = %p\n", node_id, group_id, tag_id, v_fs_get_alias_user_func(18));

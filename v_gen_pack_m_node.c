@@ -24,7 +24,7 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 68);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_m_fragment_create(node_id = %u frag_id = %u type = %u fragment = %p );\n", node_id, frag_id, type, fragment);
 #endif
@@ -78,7 +78,7 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], fragment->blender.type);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.data_a);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.data_b);
-		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.mapping);
+		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.control);
 		break;
 	case VN_M_FT_MATRIX :
 		{
@@ -131,7 +131,7 @@ void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id)
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 68);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_m_fragment_destroy(node_id = %u frag_id = %u );\n", node_id, frag_id);
 #endif
@@ -145,24 +145,26 @@ void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id)
 
 unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 {
+	char enum_temp;
 	unsigned int buffer_pos = 0;
 	void (* func_m_fragment_create)(void *user_data, VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment);
 	VNodeID node_id;
 	VNMFragmentID frag_id;
-	uint8 type;
+	VNMFragmentType type;
 	VMatFrag *fragment;
 	
-	func_m_fragment_create = v_fs_get_user_func(64);
+	func_m_fragment_create = v_fs_get_user_func(68);
 	if(buffer_length < 7)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag_id);
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &type);
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
+	type = (VNMFragmentType)enum_temp;
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(type > VN_M_FT_OUTPUT)
-		printf("receive: verse_send_m_fragment_destroy(node_id = %u frag_id = %u ); callback = %p\n", node_id, frag_id, v_fs_get_alias_user_func(64));
+		printf("receive: verse_send_m_fragment_destroy(node_id = %u frag_id = %u ); callback = %p\n", node_id, frag_id, v_fs_get_alias_user_func(68));
 	else
-		printf("receive: verse_send_m_fragment_create(node_id = %u frag_id = %u type = %u ); callback = %p\n", node_id, frag_id, type, v_fs_get_user_func(64));
+		printf("receive: verse_send_m_fragment_create(node_id = %u frag_id = %u type = %u ); callback = %p\n", node_id, frag_id, type, v_fs_get_user_func(68));
 #endif
 	if(type <= VN_M_FT_OUTPUT)
 	{
@@ -227,7 +229,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &frag.blender.type);
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.data_a);
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.data_b);
-			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.mapping);
+			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.control);
 			break;
 		case VN_M_FT_MATRIX :
 			if(buffer_pos + 8 * 16 + 2 > buffer_length)
@@ -284,13 +286,13 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 	if(type > VN_M_FT_OUTPUT)
 	{
 		void (* alias_m_fragment_destroy)(void *user_data, VNodeID node_id, VNMFragmentID frag_id);
-		alias_m_fragment_destroy = v_fs_get_alias_user_func(64);
+		alias_m_fragment_destroy = v_fs_get_alias_user_func(68);
 		if(alias_m_fragment_destroy != NULL)
-			alias_m_fragment_destroy(v_fs_get_alias_user_data(64), node_id, frag_id);
+			alias_m_fragment_destroy(v_fs_get_alias_user_data(68), node_id, frag_id);
 		return buffer_pos;
 	}
 	if(func_m_fragment_create != NULL)
-		func_m_fragment_create(v_fs_get_user_data(64), node_id, frag_id, (VNMFragmentType)type, fragment);
+		func_m_fragment_create(v_fs_get_user_data(68), node_id, frag_id, (VNMFragmentType)type, fragment);
 
 	return buffer_pos;
 }

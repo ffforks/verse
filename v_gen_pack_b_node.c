@@ -106,12 +106,13 @@ void verse_send_b_layer_destroy(VNodeID node_id, VLayerID layer_id)
 
 unsigned int v_unpack_b_layer_create(const char *buf, size_t buffer_length)
 {
+	char enum_temp;
 	unsigned int buffer_pos = 0;
 	void (* func_b_layer_create)(void *user_data, VNodeID node_id, VLayerID layer_id, const char *name, VNBLayerType type);
 	VNodeID node_id;
 	VLayerID layer_id;
 	char name[16];
-	uint8 type;
+	VNBLayerType type;
 	
 	func_b_layer_create = v_fs_get_user_func(81);
 	if(buffer_length < 6)
@@ -121,7 +122,8 @@ unsigned int v_unpack_b_layer_create(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
 	if(buffer_length < 1 + buffer_pos)
 		return -1;
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &type);
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
+	type = (VNBLayerType)enum_temp;
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(name[0] == 0)
 		printf("receive: verse_send_b_layer_destroy(node_id = %u layer_id = %u ); callback = %p\n", node_id, layer_id, v_fs_get_alias_user_func(81));
@@ -216,7 +218,7 @@ unsigned int v_unpack_b_layer_subscribe(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, void *data)
+void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0, address_size = 0;
@@ -226,7 +228,7 @@ void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 83);/* Packing the command */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_b_layer_set_tile(node_id = %u layer_id = %u tile_x = %u tile_y = %u z = %u type = %u data = %p );\n", node_id, layer_id, tile_x, tile_y, z, type, data);
+	printf("send: verse_send_b_layer_set_tile(node_id = %u layer_id = %u tile_x = %u tile_y = %u z = %u type = %u tile = %p );\n", node_id, layer_id, tile_x, tile_y, z, type, tile);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -240,24 +242,23 @@ void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile
 		switch(type)
 		{
 			case VN_B_LAYER_UINT1 :
-				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8; i++)
-					buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)data)[i]);
+				buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], tile->vuint1);
 			break;
 			case VN_B_LAYER_UINT8 :
 				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-					buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)data)[i]);
+					buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], tile->vuint8[i]);
 			break;
 			case VN_B_LAYER_UINT16 :
 				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-					buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], ((uint16 *)data)[i]);
+					buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], tile->vuint16[i]);
 			break;
 			case VN_B_LAYER_REAL32 :
 				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-					buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], ((real32 *)data)[i]);
+					buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], tile->vreal32[i]);
 			break;
 			case VN_B_LAYER_REAL64 :
 				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-					buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], ((real64 *)data)[i]);
+					buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], tile->vreal64[i]);
 			break;
 		}
 	}
@@ -267,15 +268,16 @@ void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile
 
 unsigned int v_unpack_b_layer_set_tile(const char *buf, size_t buffer_length)
 {
+	char enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_b_layer_set_tile)(void *user_data, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, void *data);
+	void (* func_b_layer_set_tile)(void *user_data, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile);
 	VNodeID node_id;
 	VLayerID layer_id;
 	uint16 tile_x;
 	uint16 tile_y;
 	uint16 z;
-	uint8 type;
-	void *data;
+	VNBLayerType type;
+	VNBTile *tile;
 	
 	func_b_layer_set_tile = v_fs_get_user_func(83);
 	if(buffer_length < 13)
@@ -285,72 +287,43 @@ unsigned int v_unpack_b_layer_set_tile(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile_x);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile_y);
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &z);
-	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &type);
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
+	type = (VNBLayerType)enum_temp;
 #if defined V_PRINT_RECEIVE_COMMANDS
 	printf("receive: verse_send_b_layer_set_tile(node_id = %u layer_id = %u tile_x = %u tile_y = %u z = %u type = %u ); callback = %p\n", node_id, layer_id, tile_x, tile_y, z, type, v_fs_get_user_func(83));
 #endif
-	switch(type)
 	{
-		case VN_B_LAYER_UINT1 :
+	unsigned int i;
+		VNBTile tile;
+		switch(type)
 		{
-			unsigned int i;
-			uint8 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8];
-			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8; i++)
-				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &tile[i]);
-			if(func_b_layer_set_tile != NULL)
-				func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);
-			return buffer_pos;
+			case VN_B_LAYER_UINT1 :
+				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile.vuint1);
+			break;
+			case VN_B_LAYER_UINT8 :
+				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
+					buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &tile.vuint8[i]);
+			break;
+			case VN_B_LAYER_UINT16 :
+				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
+					buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile.vuint16[i]);
+			break;
+			case VN_B_LAYER_REAL32 :
+				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
+					buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &tile.vreal32[i]);
+			break;
+			case VN_B_LAYER_REAL64 :
+				for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
+					buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tile.vreal64[i]);
+			break;
 		}
-		case VN_B_LAYER_UINT8 :
-		{
-			unsigned int i;
-			uint8 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];
-			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &tile[i]);
-			if(func_b_layer_set_tile != NULL)
-				func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);
-			return buffer_pos;
-		}
-		break;
-		case VN_B_LAYER_UINT16 :
-		{
-			unsigned int i;
-			uint16 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];
-			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-				buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile[i]);
-			if(func_b_layer_set_tile != NULL)
-				func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);
-			return buffer_pos;
-		}
-		break;
-		case VN_B_LAYER_REAL32 :
-		{
-			unsigned int i;
-			real32 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];
-			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-				buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &tile[i]);
-			if(func_b_layer_set_tile != NULL)
-				func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);
-			return buffer_pos;
-		}
-		break;
-		case VN_B_LAYER_REAL64 :
-		{
-			unsigned int i;
-			real64 tile[VN_B_TILE_SIZE * VN_B_TILE_SIZE];
-			for(i = 0; i < VN_B_TILE_SIZE * VN_B_TILE_SIZE; i++)
-				buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tile[i]);
-			if(func_b_layer_set_tile != NULL)
-				func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, tile);
-			return buffer_pos;
-		}
-		break;
-		func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, data);
+		if(func_b_layer_set_tile != NULL && type <= VN_B_LAYER_REAL64)
+			func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, &tile);
 		return buffer_pos;
 	}
 
 	if(func_b_layer_set_tile != NULL)
-		func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, (VNBLayerType)type, data);
+		func_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, (VNBLayerType)type, tile);
 
 	return buffer_pos;
 }

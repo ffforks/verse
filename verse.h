@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 /* Release information. */
-#define	V_RELEASE_NUMBER	1
+#define	V_RELEASE_NUMBER	2
 #define	V_RELEASE_PATCH		0
 #define	V_RELEASE_LABEL		"(none)"
 
@@ -154,7 +154,7 @@ typedef enum {
 typedef enum {
 	VN_FORMAT_REAL32,
 	VN_FORMAT_REAL64
-} VNORealFormat;
+} VNRealFormat;
 
 typedef enum {
 	VN_O_METHOD_GROUP_NAME_SIZE = 16,
@@ -165,12 +165,12 @@ typedef enum {
 typedef enum {
 	VN_G_LAYER_VERTEX_XYZ = 0,
 	VN_G_LAYER_VERTEX_UINT32,
-	VN_G_LAYER_VERTEX_REAL64,
+	VN_G_LAYER_VERTEX_REAL,
 	VN_G_LAYER_POLYGON_CORNER_UINT32 = 128,
-	VN_G_LAYER_POLYGON_CORNER_REAL64,
+	VN_G_LAYER_POLYGON_CORNER_REAL,
 	VN_G_LAYER_POLYGON_FACE_UINT8,
 	VN_G_LAYER_POLYGON_FACE_UINT32,
-	VN_G_LAYER_POLYGON_FACE_REAL64
+	VN_G_LAYER_POLYGON_FACE_REAL
 } VNGLayerType;
 
 typedef enum {
@@ -183,12 +183,14 @@ typedef enum {
 } VNMLightType;
 
 typedef enum {
-	VN_M_NOISE_PERLIN = 0
+	VN_M_NOISE_PERLIN_ZERO_TO_ONE = 0,
+	VN_M_NOISE_PERLIN_MINUS_ONE_TO_ONE
 } VNMNoiseType;
 
 typedef enum {
 	VN_M_RAMP_SQUARE = 0,
-	VN_M_RAMP_LINEAR
+	VN_M_RAMP_LINEAR,
+	VN_M_RAMP_SMOOTH
 } VNMRampType;
 
 typedef enum {
@@ -274,7 +276,7 @@ typedef union {
 		uint8 type;
 		VNMFragmentID data_a;
 		VNMFragmentID data_b; 
-		VNMFragmentID mapping;
+		VNMFragmentID control;
 	} blender;
 	struct {
 		real64 matrix[16];
@@ -307,6 +309,14 @@ typedef enum {
 } VNBLayerType;
 
 #define VN_B_TILE_SIZE 4
+
+typedef union{
+	uint16 vuint1;
+	uint8  vuint8[16];
+	uint16 vuint16[16];
+	real32 vreal32[16];
+	real64 vreal64[16];
+} VNBTile;
 
 typedef enum {
 	VN_C_CONTENT_LANGUAGE_SIZE = 32,
@@ -355,8 +365,9 @@ extern size_t verse_session_get_size(void);
 extern void *verse_method_call_pack(uint32 param_count, const VNOParam *params, const VNOParamType *param_type);
 extern boolean verse_method_call_unpack(const void *data, uint32 param_count, VNOParam *params, const VNOParamType *param_type);
 
-extern void *verse_audio_compress(uint32 length, VNALayerType type, void *data);
-extern void *verse_audio_uncompress(uint32 length, VNALayerType type, void *data);
+extern void *verse_audio_compress(uint32 length, VNALayerType type, const void *data);
+extern void *verse_audio_uncompress(uint32 length, VNALayerType type, const void *data);
+
 /*
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECEIVE_COMMANDS
@@ -391,8 +402,8 @@ extern void verse_send_o_transform_scale_real32(VNodeID node_id, real32 scale_x,
 extern void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time, real64 *pos, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag);
 extern void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time, real64 *rot, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag);
 extern void verse_send_o_transform_scale_real64(VNodeID node_id, real64 scale_x, real64 scale_y, real64 scale_z);
-extern void verse_send_o_transform_subscribe(VNodeID node_id, VNORealFormat type);
-extern void verse_send_o_transform_unsubscribe(VNodeID node_id, VNORealFormat type);
+extern void verse_send_o_transform_subscribe(VNodeID node_id, VNRealFormat type);
+extern void verse_send_o_transform_unsubscribe(VNodeID node_id, VNRealFormat type);
 extern void verse_send_o_light_set(VNodeID node_id, real64 light_r, real64 light_g, real64 light_b);
 extern void verse_send_o_link_set(VNodeID node_id, uint16 link_id, VNodeID link, const char *name, uint32 target_id);
 extern void verse_send_o_link_destroy(VNodeID node_id, uint16 link_id);
@@ -406,7 +417,7 @@ extern void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 me
 
 extern void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_uint, real64 def_real);
 extern void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id);
-extern void verse_send_g_layer_subscribe(VNodeID node_id, VLayerID layer_id, VNORealFormat type);
+extern void verse_send_g_layer_subscribe(VNodeID node_id, VLayerID layer_id, VNRealFormat type);
 extern void verse_send_g_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_g_vertex_set_real32_xyz(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real32 x, real32 y, real32 z);
 extern void verse_send_g_vertex_delete_real32(VNodeID node_id, uint32 vertex_id);
@@ -414,12 +425,15 @@ extern void verse_send_g_vertex_set_real64_xyz(VNodeID node_id, VLayerID layer_i
 extern void verse_send_g_vertex_delete_real64(VNodeID node_id, uint32 vertex_id);
 extern void verse_send_g_vertex_set_uint32(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, uint32 value);
 extern void verse_send_g_vertex_set_real64(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real64 value);
+extern void verse_send_g_vertex_set_real32(VNodeID node_id, VLayerID layer_id, uint32 vertex_id, real32 value);
 extern void verse_send_g_polygon_set_corner_uint32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 v0, uint32 v1, uint32 v2, uint32 v3);
 extern void verse_send_g_polygon_delete(VNodeID node_id, uint32 polygon_id);
 extern void verse_send_g_polygon_set_corner_real64(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real64 v0, real64 v1, real64 v2, real64 v3);
+extern void verse_send_g_polygon_set_corner_real32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real32 v0, real32 v1, real32 v2, real32 v3);
 extern void verse_send_g_polygon_set_face_uint8(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint8 value);
 extern void verse_send_g_polygon_set_face_uint32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, uint32 value);
 extern void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real64 value);
+extern void verse_send_g_polygon_set_face_real32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real32 value);
 extern void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 def_crease);
 extern void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def_crease);
 extern void verse_send_g_bone_create(VNodeID node_id, uint32 bone_id, const char *name, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w);
@@ -433,15 +447,14 @@ extern void verse_send_b_layer_create(VNodeID node_id, VLayerID layer_id, const 
 extern void verse_send_b_layer_destroy(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_b_layer_subscribe(VNodeID node_id, VLayerID layer_id, uint8 level);
 extern void verse_send_b_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);
-extern void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, void *data);
+extern void verse_send_b_layer_set_tile(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, VNBTile *tile);
 
 extern void verse_send_t_set_language(VNodeID node_id, const char *language);
 extern void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, uint16 index, const char *name);
 extern void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id);
 extern void verse_send_t_buffer_subscribe(VNodeID node_id, VNMBufferID buffer_id);
 extern void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id);
-extern void verse_send_t_line_insert(VNodeID node_id, VNMBufferID buffer_id, uint32 line, uint16 index, const char *text);
-extern void verse_send_t_line_delete(VNodeID node_id, VNMBufferID buffer_id, uint32 line);
+extern void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint16 length, const char *text);
 
 extern void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *name);
 extern void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id);
