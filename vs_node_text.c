@@ -52,7 +52,6 @@ void vs_t_destroy_node(VSNodeText *node)
 {
 	unsigned int i;
 	destroy_node_head(&node->head);
-	free(node);
 	for(i = 0; i < node->buffer_count; i++)
 	{
 		if(node->buffer[i].name[0] != 0)
@@ -62,6 +61,7 @@ void vs_t_destroy_node(VSNodeText *node)
 		}
 	}
 	free(node->buffer);
+	free(node);
 }
 
 void vs_t_subscribe(VSNodeText *node)
