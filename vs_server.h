@@ -1,0 +1,45 @@
+
+extern void		vs_init_connection_storage();
+extern void		vs_add_new_connection(VSession session, unsigned int node_id);
+extern void		vs_remove_connection();
+extern void		vs_set_next_session(void);
+
+typedef void VSSubscriptionList;
+
+extern VSSubscriptionList *vs_create_subscription_list();
+extern void	vs_destroy_subscription_list(VSSubscriptionList *list);
+extern void	vs_add_new_subscriptor(VSSubscriptionList *list);
+extern void	vs_remove_subscriptor(VSSubscriptionList *list);
+extern unsigned int	vs_get_subscript_count(VSSubscriptionList *list);
+extern void	vs_set_subscript_session(VSSubscriptionList *list, unsigned int session);
+extern void	vs_reset_subscript_session(void);
+extern uint32 vs_get_avatar(void);
+
+typedef struct{
+	VNodeID				id;
+	VNodeType			type;
+	VNodeID				owner;
+	char				*name;
+	void				*tag_groups;
+	uint16				group_count;
+	VSSubscriptionList	*subscribers;
+}VSNodeHead;
+
+extern void			vs_init_node_storage();
+extern uint32		vs_add_new_node(VSNodeHead *node, VNodeType type);
+extern VSNodeHead *vs_get_node(unsigned int node_id, VNodeType type);
+extern VSNodeHead *vs_get_node_head(unsigned int node_id);
+
+extern void create_node_head(VSNodeHead *node, char *name, unsigned int owner);
+extern void destroy_node_head(VSNodeHead *node);
+extern void vs_send_node_head(VSNodeHead *node);
+
+extern void vs_o_callback_init(void);
+extern void vs_g_callback_init(void);
+extern void vs_m_callback_init(void);
+extern void vs_b_callback_init(void);
+extern void vs_t_callback_init(void);
+extern void vs_c_callback_init(void);
+extern void vs_h_callback_init(void);
+extern void init_callback_node_storage(void);
+
