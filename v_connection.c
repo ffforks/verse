@@ -84,6 +84,7 @@ VNetworkAddress * v_con_connect(const char *address)
 	VConData.current_connection = VConData.con_count;
 	++VConData.con_count;
 
+	/* FIXME: Without this buffering, clients create a new socket on callback_update(). Is this right? */
 	if(VConData.connect_address == NULL)
 		VConData.connect_address = net;
 
