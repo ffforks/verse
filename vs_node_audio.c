@@ -353,10 +353,10 @@ static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID laye
 			break;
 		}
 	}
-	count =	vs_get_subscript_count(node->head.subscribers);
+	count =	vs_get_subscript_count(node->layers[layer_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->head.subscribers, i);
+		vs_set_subscript_session(node->layers[layer_id].subscribers, i);
 		verse_send_a_block_set(node_id, layer_id, id, type, data);
 	}
 	vs_reset_subscript_session();
@@ -380,10 +380,10 @@ static void callback_send_a_block_clear(void *user, VNodeID node_id, VLayerID la
 		return;
 	free(node->layers[layer_id].data[id]);
 	node->layers[layer_id].data[id] = NULL;
-	count =	vs_get_subscript_count(node->head.subscribers);
+	count =	vs_get_subscript_count(node->layers[layer_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->head.subscribers, i);
+		vs_set_subscript_session(node->layers[layer_id].subscribers, i);
 		verse_send_a_block_clear(node_id, layer_id, id);
 	}
 	vs_reset_subscript_session();
