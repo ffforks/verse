@@ -29,3 +29,21 @@ extern size_t vnp_raw_unpack_real64(const void *buffer, real64 *data);
 
 extern size_t vnp_raw_pack_string(void *buffer, const char *string, size_t max_size);
 extern size_t vnp_raw_unpack_string(const void *buffer, char *string, size_t max_size, size_t max_size2);
+
+extern size_t vnp_raw_pack_uint8_vector(void *buffer, const uint8 *data, unsigned int length);
+extern size_t vnp_raw_unpack_uint8_vector(const void *buffer, uint8 *data, unsigned int length);
+
+extern size_t vnp_raw_pack_uint16_vector(void *buffer, const uint16 *data, unsigned int length);
+extern size_t vnp_raw_unpack_uint16_vector(const void *buffer, uint16 *data, unsigned int length);
+
+extern size_t vnp_raw_pack_uint24_vector(void *buffer, const uint32 *data, unsigned int length);
+extern size_t vnp_raw_unpack_uint24_vector(const void *buffer, uint32 *data, unsigned int length);
+
+extern size_t vnp_raw_pack_uint32_vector(void *buffer, const uint32 *data, unsigned int length);
+extern size_t vnp_raw_unpack_uint32_vector(const void *buffer, uint32 *data, unsigned int length);
+
+extern size_t vnp_raw_pack_real32_vector(void *buffer, const real32 *data, unsigned int length);
+extern size_t vnp_raw_unpack_real32_vector(const void *buffer, real32 *data, unsigned int length);
+
+extern size_t vnp_raw_pack_real64_vector(void *buffer, const real64 *data, unsigned int length);
+extern size_t vnp_raw_unpack_real64_vector(const void *buffer, real64 *data, unsigned int length);
