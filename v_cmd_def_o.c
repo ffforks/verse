@@ -357,7 +357,7 @@ void v_gen_object_cmd_def(void)
 
 	v_cg_new_cmd(V_NT_OBJECT,		"o_method_group_create", 41, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
-	v_cg_add_param(VCGP_UINT8,		"group_id");
+	v_cg_add_param(VCGP_UINT16,		"group_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_NAME,		"name");
 	v_cg_alias(FALSE, "o_method_group_destroy", "if(name[0] == 0)", 2, NULL);
