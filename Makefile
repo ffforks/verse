@@ -6,7 +6,7 @@ CC = gcc
 AR = ar
 ARFLAGS = ru
 
-CFLAGS = -I$(shell pwd) -Wall
+CFLAGS = -I$(shell pwd) -Wall -ansi
 
 #TUTORIALS = tut_enough tut_connect
 
