@@ -18,7 +18,7 @@ static struct {
 
 static boolean v_cmd_buf_initialized = FALSE;
 
-void v_cmd_buf_init()
+void v_cmd_buf_init(void)
 {
 	unsigned int i, j;
 

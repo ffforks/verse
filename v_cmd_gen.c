@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void v_cg_init()
+void v_cg_init(void)
 {
 	unsigned int i;
 	char c;
@@ -113,7 +113,7 @@ void v_cg_init()
 	fprintf(f, "#include %cv_internal_verse.h%c\n", 34, 34);
 	fprintf(f, "#include %cverse.h%c\n\n", 34, 34);
 
-	fprintf(VCGData.init, "void init_pack_and_unpack_fucs()\n{\n");
+	fprintf(VCGData.init, "void init_pack_and_unpack_fucs(void)\n{\n");
 	fprintf(VCGData.verse_h, "#if !defined(VERSE_H)\n");
 	fprintf(VCGData.verse_h, "#define	VERSE_H\n");
 	f = fopen("verse_header.h", "r");
@@ -121,7 +121,7 @@ void v_cg_init()
 		putc(c, VCGData.verse_h);
 }
 
-void v_cg_close()
+void v_cg_close(void)
 {
 	unsigned int i;
 	for(i = 0; i < V_NT_NUM_TYPES_NETPACK; i++)
@@ -549,7 +549,7 @@ void v_cg_gen_pack(boolean alias)
 	fprintf(f, "}\n\n");
 }
 
-void v_cg_gen_unpack()
+void v_cg_gen_unpack(void)
 {
 	FILE *f;
 	unsigned int i;
@@ -679,7 +679,7 @@ void v_cg_gen_unpack()
 	fprintf(f, "}\n");
 }
 
-void v_cg_gen_alias()
+void v_cg_gen_alias(void)
 {
 	FILE *f;
 	unsigned int i;
@@ -694,7 +694,7 @@ void v_cg_gen_alias()
 	fprintf(f, "}\n\n");
 }
 
-void v_cg_gen_init()
+void v_cg_gen_init(void)
 {
 	FILE *f;
 	f = VCGData.init;
@@ -705,7 +705,7 @@ void v_cg_gen_init()
 		fprintf(f, "NULL);\n");
 }
 
-void v_cg_gen_verse_h()
+void v_cg_gen_verse_h(void)
 {
 	FILE *f;
 	if(VCGData.command == VCGCT_INVISIBLE_SYSTEM)
@@ -723,7 +723,7 @@ void v_cg_gen_verse_h()
 	}
 }
 
-void v_cg_gen_unpack_h()
+void v_cg_gen_unpack_h(void)
 {
 	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(char *data, unsigned int length, void *user_func, void *user_data);\n", VCGData.func_name);
 }
@@ -756,12 +756,12 @@ void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def,
 /*
 FILE *spec;
 
-void v_cg_gen_spec_init()
+void v_cg_gen_spec_init(void)
 {
 	spec = fopen("verse_cmd_spec.txt", "w"); 
 }
 
-void v_cg_gen_spec()
+void v_cg_gen_spec(voidx)
 {
 	unsigned int i, size = 0;
 	fprintf(spec, "\tverse_send_%s\n\n", VCGData.func_name);

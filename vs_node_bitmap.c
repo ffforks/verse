@@ -321,7 +321,7 @@ static void callback_send_b_layer_set_tile(void *user, VNodeID node_id, VLayerID
 	vs_reset_subscript_session();
 }
 
-void vs_b_callback_init()
+void vs_b_callback_init(void)
 {
 	verse_callback_set(verse_send_b_init_dimensions, callback_send_b_init_dimensions, NULL);
 	verse_callback_set(verse_send_b_layer_create, callback_send_b_layer_create, NULL);

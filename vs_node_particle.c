@@ -45,7 +45,7 @@ static void callback_send_o_unsubscribe(void *user, VNodeID node_id)
 	vs_remove_subscriptor(node->head.subscribers);
 }
 
-void vs_o_callback_init()
+void vs_o_callback_init(void)
 {
 }
 */
