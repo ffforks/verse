@@ -26,7 +26,7 @@ static struct {
 	unsigned int	current_session;
 } VSConnectionStorage;
 
-void vs_init_connection_storage()
+void vs_init_connection_storage(void)
 {
 	VSConnectionStorage.connection = NULL;
 	VSConnectionStorage.connection_length = 0;
@@ -49,11 +49,12 @@ uint32 vs_get_avatar(void)
 	return VSConnectionStorage.connection[VSConnectionStorage.current_session].node_id;
 }
 
-void vs_remove_connection()
+void vs_remove_connection(void)
 {
-	unsigned int i, j;
+	unsigned int	i, j;
 	VSession	*session;
 	VSSubscriptionList *list;
+
 	session = VSConnectionStorage.connection[VSConnectionStorage.current_session].session;
 	for(i = 0; i < VSConnectionStorage.list_length; i++)
 	{
@@ -80,7 +81,7 @@ void vs_set_next_session(void)
 		verse_session_set(VSConnectionStorage.connection[VSConnectionStorage.current_session].session);
 }
 
-VSSubscriptionList *vs_create_subscription_list()
+VSSubscriptionList *vs_create_subscription_list(void)
 {
 	VSSubscriptionList *list;
 	list = malloc(sizeof *list);

@@ -2,21 +2,21 @@
 **
 */
 
-extern void	vs_init_connection_storage();
+extern void	vs_init_connection_storage(void);
 extern void	vs_add_new_connection(VSession session, unsigned int node_id);
-extern void	vs_remove_connection();
+extern void	vs_remove_connection(void);
 extern void	vs_set_next_session(void);
 
 typedef void VSSubscriptionList;
 
-extern VSSubscriptionList * vs_create_subscription_list();
+extern VSSubscriptionList * vs_create_subscription_list(void);
 extern void	vs_destroy_subscription_list(VSSubscriptionList *list);
 extern void	vs_add_new_subscriptor(VSSubscriptionList *list);
 extern void	vs_remove_subscriptor(VSSubscriptionList *list);
 extern unsigned int	vs_get_subscript_count(VSSubscriptionList *list);
 extern void	vs_set_subscript_session(VSSubscriptionList *list, unsigned int session);
 extern void	vs_reset_subscript_session(void);
-extern uint32 vs_get_avatar(void);
+extern uint32	vs_get_avatar(void);
 
 typedef struct {
 	VNodeID			id;
@@ -28,7 +28,7 @@ typedef struct {
 	VSSubscriptionList	*subscribers;
 } VSNodeHead;
 
-extern void		vs_init_node_storage();
+extern void		vs_init_node_storage(void);
 extern uint32		vs_add_new_node(VSNodeHead *node, VNodeType type);
 extern VSNodeHead *	vs_get_node(unsigned int node_id, VNodeType type);
 extern VSNodeHead *	vs_get_node_head(unsigned int node_id);
