@@ -280,90 +280,6 @@ void verse_host_id_set(uint8 *id)
 {
 }
 
-/*
-
-void verse_callback_update(unsigned int milliseconds)
-{
-	void *address;
-	char buf[V_MAX_CONNECT_PACKET_SIZE];
-	int size
-	uint i;
-
-	v_con_init();
-	if(v_fs_func_accept_connections())
-	{
-		v_n_wait_for_incoming(milliseconds);
-		size = v_n_receive_data(VConData.connect_address, buf, sizeof buf);
-
-		if(size != -1)
-		{
-			char string[200];
-			v_n_get_address_string(VConData.connect_address, string);
-			v_fs_connect_unpack(buf, size, string);
-		}
-	}
-
-	if(VConData.con_count > 0)
-	{
-		address = v_con_get_network_address();
-		if(address != NULL)
-		{
-			if(!v_fs_buf_unpack_stored() || !v_fs_func_accept_connections())
-				v_n_wait_for_incoming(milliseconds);
-			size = v_n_receive_data(address, buf, sizeof buf, TRUE);
-			if(size != -1 || size != 0)
-				VConData.con[VConData.current_connection].ping_timeout += milliseconds;
-			while(size != -1 && size != 0)
-			{
-				VConData.con[VConData.current_connection].ping_timeout = 0;
-				VConData.con[VConData.current_connection].connect_timeout = 0;
-				v_fs_buf_unpack(buf, size);
-				size = v_n_receive_data(address, buf, sizeof buf, TRUE);
-			}
-			if(VConData.con[VConData.current_connection].ping_timeout > PING_TIMEOUT)
-			{
-				verse_send_packet_nak(VConData.con[VConData.current_connection].packet_id++);
-				VConData.con[VConData.current_connection].ping_timeout = 0;
-				VConData.con[VConData.current_connection].connect_timeout++;
-			}
-			v_noq_send_queue(v_con_get_network_queue(), address);
-		}
-	}
-}
-
-void destroy_connection(unsigned int milliseconds)
-{
-	if(VConData.con_count > 0 && VConData.con[VConData.current_connection].connected && VConData.con[VConData.current_connection].connect_timeout >= CONNECTION_TIMEOUT)
-	{
-		void (*callback_connect_terminate_func)(void *user, char *bye);
-		callback_connect_terminate_func = v_fs_get_user_func(3);
-		#if defined(V_PRINT_RECIVE_COMMANDS)
-		printf("receive: verse_send_connect_terminate(connection timed out); callback = %p\n", callback_connect_terminate_func);
-		#endif
-		printf("receive: verse_send_connect_terminate(connection timed out); callback = %p\n", callback_connect_terminate_func);
-		if(callback_connect_terminate_func != NULL)
-			callback_connect_terminate_func(v_fs_get_user_data(3), "connection timed out");
-		v_noq_destroy_network_queue(VConData.con[VConData.current_connection].network_queue);
-		v_n_destroy_network_address(VConData.con[VConData.current_connection].network_address);
-		VConData.con_count--;		
-		VConData.con[VConData.current_connection].network_queue = VConData.con[VConData.con_count].network_queue;
-		VConData.con[VConData.current_connection].network_address = VConData.con[VConData.con_count].network_address;
-		VConData.con[VConData.current_connection].connected = VConData.con[VConData.con_count].connected;
-		VConData.con[VConData.current_connection].avatar = VConData.con[VConData.con_count].avatar;
-		VConData.con[VConData.current_connection].packet_id = VConData.con[VConData.con_count].packet_id;
-		VConData.con[VConData.current_connection].ping_timeout = VConData.con[VConData.con_count].ping_timeout;
-		VConData.con[VConData.current_connection].connect_timeout = VConData.con[VConData.con_count].connect_timeout;
-		VConData.con[VConData.con_count].network_queue = NULL;
-		VConData.con[VConData.con_count].network_address = NULL;
-		VConData.con[VConData.con_count].connected = FALSE;
-		VConData.con[VConData.con_count].avatar = 0;
-		VConData.con[VConData.con_count].packet_id = 0;
-		VConData.con[VConData.con_count].ping_timeout = 0;
-		VConData.con[VConData.con_count].connect_timeout = 0;
-		VConData.current_connection = 0;
-	}
-}*/
-
 void v_con_set_name_pass(const char *name, const char *pass)
 {
 	unsigned int i;
@@ -418,11 +334,11 @@ boolean v_con_set_other_public_key(uint8 *key)
 	}
 	return output;
 }
+
 uint8 * v_con_get_other_public_key(void)
 {
 	return VConData.con[VConData.current_connection].key_other_public;
 }
-
 
 void v_con_set_data_key(uint8 *key)
 {
@@ -460,7 +376,6 @@ uint32 verse_session_get_avatar(void)
 {
 	return VConData.con[VConData.current_connection].avatar;
 }
-
 
 void verse_session_get_time(uint32 *seconds, uint32 *fractions)
 {
