@@ -10,7 +10,7 @@
 
 void v_gen_bitmap_cmd_def(void)
 {
-	v_cg_new_cmd(V_NT_BITMAP,		"b_init_dimensions", 80, VCGCT_NORMAL);
+	v_cg_new_cmd(V_NT_BITMAP,		"b_dimensions_set", 80, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_UINT16,		"width");
@@ -35,17 +35,8 @@ void v_gen_bitmap_cmd_def(void)
 	v_cg_add_param(VCGP_UINT8,		"level");
 	v_cg_alias(FALSE, "b_layer_unsubscribe", "if(level == 255)", 2, NULL);
 	v_cg_end_cmd();
-/*
-typedef union{
-	uint8	onebit[2];
-	uint8	eightbit[16];
-	uint16	sixteenbit[16];
-	real32	thirtytwobit[16];
-	real64	sixtyfourbit[16];
-}VNBTile;	
-	*/
 
-	v_cg_new_cmd(V_NT_BITMAP,		"b_layer_set_tile", 83, VCGCT_NORMAL); 
+	v_cg_new_cmd(V_NT_BITMAP,		"b_tile_set", 83, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
 	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
 	v_cg_add_param(VCGP_UINT16,		"tile_x");
@@ -108,8 +99,8 @@ typedef union{
 	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &tile.vreal64[i]);\n"
 	"\t\t\tbreak;\n"
 	"\t\t}\n"
-	"\t\tif(func_b_layer_set_tile != NULL && type <= VN_B_LAYER_REAL64)\n"
-	"\t\t\tfunc_b_layer_set_tile(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, &tile);\n"
+	"\t\tif(func_b_tile_set != NULL && type <= VN_B_LAYER_REAL64)\n"
+	"\t\t\tfunc_b_tile_set(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, &tile);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_end_cmd();
