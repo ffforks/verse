@@ -128,7 +128,7 @@ void verse_session_destroy(VSession session) /* a session can not be destroyed r
 	}
 }
 
-void verse_session_set(void *session) /* find a session and make it the current*/
+void verse_session_set(VSession session) /* find a session and make it the current*/
 {
 	unsigned int i;
 	for(i = 0; i < VConData.con_count && session != VConData.con[i].out_queue; i++);
