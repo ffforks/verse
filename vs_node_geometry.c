@@ -927,12 +927,12 @@ void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, co
 				node->bones[i].weight[0] = 0;
 		}
 	}
-	for(i = 0; i < 16; i++)
+	for(i = 0; i < 16 - 1 && weight[i] != '\0'; i++)
 		node->bones[bone_id].weight[i] = weight[i];
-	node->bones[bone_id].weight[i] = 0;
-	for(i = 0; i < 16; i++)
+	node->bones[bone_id].weight[i] = '\0';
+	for(i = 0; i < 16 - 1 && reference[i] != '\0'; i++)
 		node->bones[bone_id].reference[i] = reference[i];
-	node->bones[bone_id].reference[i] = 0;
+	node->bones[bone_id].reference[i] = '\0';
 
 	node->bones[bone_id].parent = parent;
 	node->bones[bone_id].pos_x = pos_x;
