@@ -328,7 +328,7 @@ extern void verse_callback_set(void *send_func, void *callback, void *user_data)
 extern void verse_callback_update(uint32 milliseconds);
 extern void verse_session_set(VSession session);
 extern void verse_session_destroy(VSession session);
-extern unsigned int verse_session_get_size();
+extern size_t verse_session_get_size();
 
 extern void *verse_pack_method_call(uint32 param_count, VNOParam *params, VNOParamType *param_type);
 extern boolean verse_unpack_method_call(void *data, uint32 param_count, VNOParam *params, VNOParamType *param_type);
