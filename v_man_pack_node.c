@@ -32,33 +32,10 @@ unsigned int v_unpack_connect_terminate(const char *buf, unsigned int buffer_len
 {
 	unsigned int buffer_pos = 0;
 	char bye[512];
-	buffer_pos = vnp_raw_unpack_string(buf, bye, 512, buffer_length);
+	buffer_pos = vnp_raw_unpack_string(buf, bye, sizeof bye, buffer_length);
 	v_callback_connect_terminate(bye);
 	return buffer_pos;
 }
-/*
-unsigned int v_unpack_connect_accept(const char *buf, unsigned int buffer_length)
-{
-	unsigned int buffer_pos = 0;
-	VSession (* func_connect_accept)(void *user_data, VNodeID avatar, char *address, uint8 *host_id);
-	VNodeID avatar;
-	const VNetworkAddress *address;
-	char abuf[32] = "";
-
-	func_connect_accept = v_fs_get_user_func(1);
-	if(buffer_length < 4)
-		return -1;
-	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &avatar);
-	address = v_con_get_network_address();
-	if(address != NULL)
-		v_n_get_address_string(address, abuf);
-	#if defined(V_PRINT_RECIVE_COMMANDS)
-	printf("receive: verse_send_connect_accept(avatar = %u, adress = %s, host_id %p); callback = %p\n", avatar, abuf, v_con_get_other_public_key(), user_func);
-	#endif
-	if(func_connect_accept != NULL)
-		func_connect_accept(v_fs_get_user_data(1), avatar, abuf, v_con_get_other_public_key());
-	return buffer_pos;
-}*/
 
 typedef struct{
 	VNodeID		node_id;
@@ -160,7 +137,7 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &l.pos);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &l.length);	
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &l.index);
-	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], text, 512, buffer_length - buffer_pos);
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], text, sizeof text, buffer_length - buffer_pos);
 	if(text[0] == 0)
 		l.text = NULL;
 	else
@@ -193,7 +170,8 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 				line = line->next;
 			}
 		}
-	}else
+	}
+	else
 	{
 		line = malloc(sizeof *line);
 		*line = l;
@@ -209,7 +187,6 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 		}else
 			line->text = NULL;
 	}
-
 	return buffer_pos;
 }
 
