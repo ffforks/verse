@@ -38,27 +38,28 @@ unsigned int v_unpack_connect_terminate(const char *buf, unsigned int buffer_len
 	return buffer_pos;
 }
 
-typedef struct VTempLine	VTempLine;
+typedef struct VTempText	VTempText;
 
-struct VTempLine {
+struct VTempText {
 	VNodeID		node_id;
 	VNMBufferID buffer_id;
 	uint32		pos;
 	uint32		length;
 	uint16		index; 
 	char		*text;
-	VTempLine	*next;
+	VTempText	*next;
 };
 
-typedef struct{
-	VTempLine	*text_temp;
+typedef struct {
+	VTempText	*text_temp;
 	uint16		text_send_id;
 	uint16		text_receive_id;
-}VOrderedStorage;
+} VOrderedStorage;
 
-VOrderedStorage *v_create_ordered_storage(void)
+VOrderedStorage * v_create_ordered_storage(void)
 {
 	VOrderedStorage *s;
+
 	s = malloc(sizeof *s);
 	s->text_temp = NULL;
 	s->text_send_id = 0;
@@ -68,19 +69,17 @@ VOrderedStorage *v_create_ordered_storage(void)
 
 void v_destroy_ordered_storage(VOrderedStorage *s)
 {
-	VTempLine *line, *next;
-	line = s->text_temp;
-	while(line != NULL)
+	VTempText *line, *next;
+
+	for(line = s->text_temp; line != NULL; line = next)
 	{
 		next = line->next;
 		if(line->text != NULL)
 			free(line->text);
 		free(line);
-		line = next;
 	}
 	free(s);
 }
-
 
 void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text)
 {
@@ -110,11 +109,12 @@ void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, u
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-void v_call_line(VTempLine *line)
+static void call_text_set(VTempText *line)
 {
-	char *t;
-	void (* func_t_line_insert)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint16 length, char *text);
-	func_t_line_insert = v_fs_get_user_func(99);
+	const char *t;
+	void (* func_t_text_set)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint16 length, const char *text);
+
+	func_t_text_set = v_fs_get_user_func(99);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	printf("receive: verse_send_t_text_set(node_id = %u buffer_id = %u pos = %u length = %u text = %s ); callback = %p\n", line->node_id, line->buffer_id, line->pos, line->length, line->text, v_fs_get_user_func(99));
 #endif
@@ -122,15 +122,15 @@ void v_call_line(VTempLine *line)
 		t = "";
 	else
 		t = line->text;
-	if(func_t_line_insert != NULL)
-		func_t_line_insert(v_fs_get_user_data(99), line->node_id, line->buffer_id, line->pos, line->length, t);
+	if(func_t_text_set != NULL)
+		func_t_text_set(v_fs_get_user_data(99), line->node_id, line->buffer_id, line->pos, line->length, t);
 }
 
 unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 {
 	unsigned int i, buffer_pos = 0;
 	VOrderedStorage *s;
-	VTempLine l, *line, *past = NULL;
+	VTempText l, *line, *past = NULL;
 	char text[1500];
 
 	if(buffer_length < 12)
@@ -148,13 +148,14 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 	s = v_con_get_ordered_storage();
 	if(s->text_receive_id == l.index)
 	{
-		v_call_line(&l);
+		call_text_set(&l);
 		s->text_receive_id++;
 		line = s->text_temp;
 		while(line != NULL)
 		{
 			if(line->index == s->text_receive_id)
 			{
+				call_text_set(line);
 				if(past == NULL)
 					s->text_temp = line->next;
 				else
@@ -165,7 +166,8 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 				free(line);
 				line = s->text_temp;
 				s->text_receive_id++;
-			}else
+			}
+			else
 			{
 				past = line;
 				line = line->next;
