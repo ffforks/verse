@@ -18,10 +18,11 @@
 
 #include "v_gen_unpack_func.h"
 
-#include "v_internal_verse.h"
-
 #include "verse.h"
 
+
+extern void verse_send_packet_ack(uint32 packet_id);
+extern void verse_send_packet_nak(uint32 packet_id);
 
 void init_pack_and_unpack(void)
 {
