@@ -9,7 +9,6 @@
 
 void v_gen_system_cmd_def()
 {
-
 	v_cg_new_manual_cmd(0, "connect", "VSession *verse_send_connect(const char *name, const char *pass, const char *address)", NULL, NULL);
 
 /*	v_cg_new_cmd(V_NT_SYSTEM,		"connect", 0, VCGCT_ONCE);
