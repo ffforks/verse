@@ -70,7 +70,7 @@ void vs_t_subscribe(VSNodeText *node)
 	verse_send_t_set_language(node->head.id, node->language);
 	for(i = 0; i < node->buffer_count; i++)
 		if(node->buffer[i].name[0] != 0)
-			verse_send_t_buffer_create(node->head.id, i, 0, node->buffer[i].name);
+			verse_send_t_buffer_create(node->head.id, i, node->buffer[i].name);
 }
 
 void vs_t_unsubscribe(VSNodeText *node)
@@ -101,7 +101,7 @@ static void callback_send_t_set_language(void *user, VNodeID node_id, char *lang
 
 }
 
-static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBufferID buffer_id, uint16 index, char *name)
+static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBufferID buffer_id, const char *name)
 {
 	VSNodeText *node;
 	unsigned int i, count;
@@ -137,7 +137,7 @@ static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBuffer
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->head.subscribers, i);
-		verse_send_t_buffer_create(node_id, buffer_id, 0, name);
+		verse_send_t_buffer_create(node_id, buffer_id, name);
 	}
 	vs_reset_subscript_session();
 }
