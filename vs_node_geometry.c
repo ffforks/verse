@@ -743,7 +743,7 @@ static void callback_send_g_polygon_set_corner_real32(void *user, VNodeID node_i
 		return;
 	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_CORNER_REAL)
 		return;
-	if(!vs_g_extend_arrays(node, TRUE, polygon_id))
+	if(!vs_g_extend_arrays(node, FALSE, polygon_id))
 		return;
 	((double *)node->layer[layer_id].layer)[polygon_id * 4] = v0;
 	((double *)node->layer[layer_id].layer)[polygon_id * 4 + 1] = v1;
