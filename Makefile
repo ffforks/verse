@@ -12,7 +12,7 @@ CFLAGS	?= -I$(shell pwd) -Wall -ansi -g #-pg -O2 -finline-functions
 LDFLAGS	?= -pg
 
 AR	?= ar
-ARFLAGS	?= rus
+ARFLAGS	= rus
 RANLIB	?= ranlib
 
 TARGETS = libverse.a verse
@@ -46,9 +46,6 @@ verse:		$(VERSE_OBJ) libverse.a
 		$(CC) $(LDFLAGS) -o $@ $^
 
 libverse.a:	libverse.a($(LIBVERSE_OBJ))
-		rm -f $@
-		$(AR) $(ARFLAGS) $@ $(LIBVERSE_OBJ)
-		$(RANLIB) $@
 
 # -----------------------------------------------------
 
