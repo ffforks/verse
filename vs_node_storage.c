@@ -87,6 +87,7 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 	unsigned int count, i;
 	VSNodeHead *node;
 	VNodeID node_id;
+
 	switch(type)
 	{
 		case V_NT_OBJECT :
