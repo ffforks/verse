@@ -227,5 +227,6 @@ void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 
 void v_n_get_address_string(const VNetworkAddress *address, char *string)
 {
-	sprintf(string, "%u.%u.%u.%u:%u", address->ip / (256 * 256 * 256), (address->ip / (256 * 256)) % 256, (address->ip / 256) % 256, address->ip % 256, address->port);
+	sprintf(string, "%u.%u.%u.%u:%u", address->ip >> 24, (address->ip >> 16) & 0xff,
+		(address->ip >> 8) & 0xff, address->ip & 0xff, address->port);
 }
