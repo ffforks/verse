@@ -198,9 +198,9 @@ boolean v_fs_buf_unpack_stored()
 	return i != 0;
 }
 
-char *connect_address = NULL;
+static char *connect_address = NULL;
 
-char *v_fs_connect_get_address(void)
+char * v_fs_connect_get_address(void)
 {
 	return connect_address;
 }
@@ -211,14 +211,13 @@ void v_fs_connect_unpack(uint8 *data, unsigned int length, char *address)
 {
 	unsigned int i = 0, pack_id;
 	uint8 cmd_id;
+
 	i += vnp_raw_unpack_uint32(&data[i], &pack_id);
 	i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
 	connect_address = address;
 	if(cmd_id == 0 || cmd_id == 4)
-	i += v_unpack_connect(&data[i], length, VCmdData.user_func[cmd_id], VCmdData.user_data[cmd_id]);	
+		i += v_unpack_connect(&data[i], length, VCmdData.user_func[cmd_id], VCmdData.user_data[cmd_id]);	
 	connect_address = NULL;
 }
-
-
 
 #endif
