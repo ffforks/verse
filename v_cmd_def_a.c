@@ -159,7 +159,6 @@ void v_gen_audio_cmd_def(void)
 	v_cg_add_param(VCGP_POINTER,	"data");
 
 	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
-	"\t\tunsigned int i;\n"
 	"\t\tswitch(type)\n"
 	"\t\t{\n"
 	"\t\t\tcase VN_A_LAYER_INT8 :\n"
@@ -184,7 +183,6 @@ void v_gen_audio_cmd_def(void)
 	"\t}\n");
 
 	v_cg_add_param(VCGP_UNPACK_INLINE, "\t{\n"
-	"\t\tunsigned int i;\n"
 	"\t\tswitch(type)\n"
 	"\t\t{\n"
 	"\t\t\tcase VN_A_LAYER_INT8 :\n"
