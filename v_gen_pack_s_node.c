@@ -148,14 +148,16 @@ void verse_send_ping(const char *address, const char *text)
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, 512);
 	{
 		void *a;
-		a = v_n_create_network_address(0, address);
-		buffer_pos = vnp_raw_pack_uint16(&buf[buffer_pos], 1);/* a packet id */
-		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 5);/* Packing the command */
-		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, 500);
-		v_n_send_data(a, buf, buffer_pos);
-		v_n_destroy_network_address(a);
-		v_cmd_buf_free(head);
-		return;
+		if((a = v_n_create_network_address(0, address)) != NULL)
+		{
+			buffer_pos = vnp_raw_pack_uint16(&buf[buffer_pos], 1);/* a packet id */
+			buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 5);/* Packing the command */
+			buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], text, 500);
+			v_n_send_data(a, buf, buffer_pos);
+			v_n_destroy_network_address(a);
+			v_cmd_buf_free(head);
+			return;
+		}
 	}
 	v_cmd_buf_set_unique_size(head, buffer_pos);
 	v_nq_send_buf(v_con_get_network_queue(), head);
