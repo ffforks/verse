@@ -67,8 +67,8 @@ VSNodeGeometry * vs_g_create_node(unsigned int owner)
 
 	node->bones = malloc((sizeof *node->bones) * 16);
 	node->bone_count = 16;
-	for(i = 0; i < 16; i++)
-		node->bones[i].weight[0] = 0;
+	for(i = 0; i < node->bone_count; i++)
+		node->bones[i].weight[0] = '\0';
 
 	node->layer = malloc((sizeof *node->layer) * 16);
 	node->layer_count = 16;
@@ -790,10 +790,11 @@ static void callback_send_g_polygon_set_face_uint32(void *user, VNodeID node_id,
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
+
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
 	if(node == NULL)
 		return;
-	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_FACE_UINT8)
+	if(layer_id >= node->layer_count || node->layer[layer_id].layer == NULL || node->layer[layer_id].type != VN_G_LAYER_POLYGON_FACE_UINT32)
 		return;
 	if(!vs_g_extend_arrays(node, FALSE, polygon_id))
 		return;
@@ -932,7 +933,7 @@ void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, co
 	if(bone_id >= node->bone_count || node->bones[bone_id].weight[0] == '\0')
 	{
 		/* Find free bone to re-use, if any. */
-		for(bone_id = 0; bone_id < node->bone_count && node->bones[bone_id].weight[0] == '\0'; bone_id++)
+		for(bone_id = 0; bone_id < node->bone_count && node->bones[bone_id].weight[0] != '\0'; bone_id++)
 			;
 		if(bone_id == node->bone_count)
 		{
