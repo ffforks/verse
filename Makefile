@@ -11,7 +11,7 @@ CC	= gcc
 CFLAGS	= -I$(shell pwd) -Wall -ansi
 
 AR	= ar
-ARFLAGS	= ru
+ARFLAGS	= rus
 
 TARGETS = libverse.a verse
 
