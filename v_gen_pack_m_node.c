@@ -304,7 +304,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			break;
 		}
 		if(func_m_fragment_create != NULL)
-			func_m_fragment_create(v_fs_get_user_data(64), node_id, frag_id, type, &frag);
+			func_m_fragment_create(v_fs_get_user_data(68), node_id, frag_id, type, &frag);
 		return buffer_pos;
 	}
 
