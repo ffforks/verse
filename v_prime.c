@@ -98,11 +98,11 @@ VBigNum v_prime_new_random(void)
 {
 	VBigNum prime;
 
-	prime = v_bignum_new_random();
-	while(v_bignum_eq(prime, v_bignum_new_zero()))
+	do
 	{
 		prime = v_bignum_new_random();
-	}
+	} while(v_bignum_eq(prime, v_bignum_new_zero()));
+
 	while(!v_prime_test(prime))
 	{
 		printf("not a prime....\n");
