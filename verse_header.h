@@ -32,7 +32,6 @@ typedef enum {
 	V_NT_MATERIAL, 
 	V_NT_BITMAP, 
 	V_NT_TEXT, 
-/*	V_NT_PARTICLE,*/
 	V_NT_CURVE, 
 	V_NT_AUDIO, 
 	V_NT_NUM_TYPES, 
