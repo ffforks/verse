@@ -192,10 +192,10 @@ static void callback_send_c_key_set(void *user, VNodeID node_id, VLayerID curve_
 		node->curves[curve_id].keys[key_id].post_value[i] = post_value[i];
 	for(i = 0; i < dimensions; i++)
 		node->curves[curve_id].keys[key_id].post_pos[i] = post_pos[i];
-	count =	vs_get_subscript_count(node->head.subscribers);
+	count =	vs_get_subscript_count(node->curves[curve_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->head.subscribers, i);
+		vs_set_subscript_session(node->curves[curve_id].subscribers, i);
 		verse_send_c_key_set(node_id, curve_id, key_id, dimensions, pre_value, pre_pos, value, pos, post_value, post_pos);
 	}
 	vs_reset_subscript_session();
@@ -211,10 +211,10 @@ static void callback_send_c_key_destroy(void *user, VNodeID node_id, VLayerID cu
 	if(node->curves[curve_id].length <= key_id || node->curves[curve_id].keys[key_id].pos == V_REAL64_MAX)
 		return;
 	node->curves[curve_id].keys[key_id].pos = V_REAL64_MAX;
-	count =	vs_get_subscript_count(node->head.subscribers);
+	count =	vs_get_subscript_count(node->curves[curve_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->head.subscribers, i);
+		vs_set_subscript_session(node->curves[curve_id].subscribers, i);
 		verse_send_c_key_destroy(node_id, curve_id, key_id);
 	}
 	vs_reset_subscript_session();
