@@ -53,7 +53,6 @@ static void v_cg_init(void)
 	VCGData.nodes[V_NT_MATERIAL] = fopen("v_gen_pack_m_node.c", "w");  
 	VCGData.nodes[V_NT_BITMAP] = fopen("v_gen_pack_b_node.c", "w");  
 	VCGData.nodes[V_NT_TEXT] = fopen("v_gen_pack_t_node.c", "w");  
-/*	VCGData.nodes[V_NT_PARTICLE] = fopen("v_gen_pack_p_node.c", "w"); */
 	VCGData.nodes[V_NT_CURVE] = fopen("v_gen_pack_c_node.c", "w");  
 	VCGData.nodes[V_NT_AUDIO] = fopen("v_gen_pack_a_node.c", "w");  
 	VCGData.nodes[V_NT_SYSTEM] = fopen("v_gen_pack_s_node.c", "w"); 
