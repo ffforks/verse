@@ -212,6 +212,12 @@ VBigNum v_bignum_bit_shift_right(VBigNum a, unsigned int count)
 
 /* ----------------------------------------------------------------------------------------- */
 
+/* Computes a == b. Fairly simple. */
+int v_bignum_eq(VBigNum a, VBigNum b)
+{
+	return memcmp(a.x, b.x, sizeof a.x) == 0;
+}
+
 /* Computes a >= b. */
 int v_bignum_gte(VBigNum a, VBigNum b)
 {

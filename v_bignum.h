@@ -36,6 +36,8 @@ extern int	v_bignum_bit_msb(VBigNum a);
 extern VBigNum	v_bignum_bit_shift_left(VBigNum a, unsigned int count);
 extern VBigNum	v_bignum_bit_shift_right(VBigNum a, unsigned int count);
 
+/* Returns a == b. */
+extern int	v_bignum_eq(VBigNum a, VBigNum b);
 /* Comparison, returns a >= b. */
 extern int	v_bignum_gte(VBigNum a, VBigNum b);
 
