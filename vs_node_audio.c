@@ -84,8 +84,8 @@ void vs_a_subscribe(VSNodeAudio *node)
 		return;
 	for(i = 0; i < node->layer_count; i++)
 		if(node->layers[i].name[0] != 0)
-			verse_send_a_layer_create(node->head.id, i, node->layers[i].type,
-						  node->layers[i].frequency, node->layers[i].name);
+			verse_send_a_layer_create(node->head.id, i, node->layers[i].name, node->layers[i].type,
+						  node->layers[i].frequency);
 	for(i = 0; i < node->stream_count; i++)
 		if(node->streams[i].name[0] != 0)
 			verse_send_a_stream_create(node->head.id, i, node->streams[i].name);
@@ -220,7 +220,7 @@ static void callback_send_a_layer_create(void *user, VNodeID node_id, VLayerID l
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->head.subscribers, i);
-		verse_send_a_layer_create(node_id, layer_id, type, frequency, name);
+		verse_send_a_layer_create(node_id, layer_id, name, type, frequency);
 	}
 	vs_reset_subscript_session();
 }
