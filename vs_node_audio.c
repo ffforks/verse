@@ -231,8 +231,9 @@ static void callback_send_a_layer_destroy(void *user, VNodeID node_id, VLayerID 
 {
 	VSNodeAudio *node;
 	unsigned int i, count;
+
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
-	if(node == NULL || node->layer_count >= layer_id || node->layers[layer_id].name[0] == 0)
+	if(node == NULL || layer_id >= node->layer_count || node->layers[layer_id].name[0] == 0)
 		return;
 	vs_remove_subscriptor(node->layers[layer_id].subscribers);
 	node->layers[layer_id].name[0] = 0;
