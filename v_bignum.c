@@ -175,7 +175,7 @@ VBigNum v_bignum_bit_shift_left(VBigNum a, unsigned int count)
 		if(count == 0)
 			return a;
 	}
-	for(i = carry = 0; i < (sizeof a.x / sizeof *a.x) - 1; i++)
+	for(i = carry = 0; i < (sizeof a.x / sizeof *a.x); i++)
 	{
 		x = a.x[i];
 		x <<= count;
@@ -399,7 +399,7 @@ VBigNum v_bignum_div(VBigNum a, VBigNum b, VBigNum *remainder)
 			q.x[0] |= 1;
 			work = v_bignum_sub(work, b);
 		}
-		if(next >= 0)	/* This is kind of a trick to get use the etra iteration when next==-1. */
+		if(next >= 0)	/* This is kind of a trick to use the etra iteration when next==-1. */
 		{
 			work = v_bignum_bit_shift_left(work, 1);
 			if(v_bignum_bit_test(a, next))
