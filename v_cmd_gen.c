@@ -74,7 +74,6 @@ static void v_cg_init(void)
 	}
 	VCGData.cmd_id = 0;
 	fprintf(f, "#include \"v_gen_unpack_func.h\"\n\n");
-/*	fprintf(f, "#include \"v_internal_verse.h\"\n\n");*/
 	fprintf(f,
 		"#include \"verse.h\"\n\n\n"
 		"extern void verse_send_packet_ack(uint32 packet_id);\n"
@@ -88,9 +87,11 @@ static void v_cg_init(void)
 		"*/\n\n"
 		"#if !defined VERSE_H\n"
 		"#define\tVERSE_H\n\n");
+	/* Copy contents of "verse_header.h" into output "verse.h". */
 	f = fopen("verse_header.h", "rt");
 	while((i = getc(f)) != EOF)
 		putc(i, VCGData.verse_h);
+	fclose(f);
 	fprintf(VCGData.verse_h, "\n/* Command sending functions begin. ----------------------------------------- */\n\n");
 }
 
