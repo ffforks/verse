@@ -25,8 +25,6 @@
 
 #define V_NQ_OPTIMIZATION_SLOTS	4096
 
-unsigned int std_queue_size = STD_QUE_SIZE;
-
 typedef struct{
 	void	*next;
 	char	*data;
