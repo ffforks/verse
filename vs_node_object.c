@@ -216,7 +216,7 @@ static void callback_send_o_method_group_create(void *user, VNodeID node_id, uin
 		if(group_id == node->group_count)
 		{
 			node->groups = realloc(node->groups, sizeof(*node->groups) * (node->group_count + 16));
-			for(i = node->group_count; i < node->group_count + 16; i++)
+			for(i = node->group_count; i < node->group_count + 16U; i++)
 			{
 				node->groups[i].name[0] = 0;
 				node->groups[i].methods = NULL;
@@ -339,6 +339,7 @@ static void callback_send_o_method_create(void *user, VNodeID node_id, uint16 gr
 		}
 	}
 
+	/* FIXME: Is this correct? It looks rather weird to me... /Emil */
 	for(i = 0; i != name[i]; i++)
 		group->methods[method_id].name[i] = name[i];
 
