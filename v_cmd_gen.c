@@ -128,7 +128,7 @@ void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def,
 		fprintf(VCGData.init, "verse_send_%s);\n", alias_name);
 	else
 		fprintf(VCGData.init, "NULL);\n");
-	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length, void *user_func, void *user_data);\n", name);
+	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length);\n", name);
 }
 
 void v_cg_alias(char bool_switch, const char *name, const char *qualifier, unsigned int param, unsigned int *param_array)
@@ -246,9 +246,9 @@ static void v_cg_create_print(FILE *f, boolean send, boolean alias)
 	if(alias)
 		name = VCGData.alias_name;
 	if(send)
-		fprintf(f, "#if defined V_PRINT_SEND_COMMANDS\n\tprintf(\"send: %s(", name);
+		fprintf(f, "\tprintf(\"send: verse_send_%s(", name);
 	else
-		fprintf(f, "#if defined V_PRINT_RECEIVE_COMMANDS\n\tprintf(\"receive: %s(", name);
+		fprintf(f, "\tprintf(\"receive: verse_send_%s(", name);
 
 	length = VCGData.param_count;
 	if(alias)
@@ -323,9 +323,12 @@ static void v_cg_create_print(FILE *f, boolean send, boolean alias)
 		}
 	}
 	if(send)
-		fprintf(f, ");\n#endif\n");
+		fprintf(f, ");\n");
+	else if(alias)
+		fprintf(f, ", v_fs_get_alias_user_func(%u));\n", VCGData.cmd_id);
 	else
-		fprintf(f, ", user_func);\n#endif\n");
+		fprintf(f, ", v_fs_get_user_func(%u));\n", VCGData.cmd_id);
+
 }
 
 static unsigned int v_cg_compute_command_size(unsigned int start, boolean end)
@@ -418,7 +421,9 @@ static void v_cg_gen_pack(boolean alias)
 
 	fprintf(f, "\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], %u);/* Packing the command */\n", VCGData.cmd_id);
 
+	fprintf(f, "#if defined V_PRINT_SEND_COMMANDS\n");
 	v_cg_create_print(f, TRUE, alias);
+	fprintf(f, "#endif\n");
 
 	for(i = 0; i < VCGData.param_count; i++)
 	{
@@ -544,7 +549,7 @@ static void v_cg_gen_unpack(void)
 	boolean printed = FALSE;
 	f = VCGData.nodes[VCGData.type];
 	printf("generating function: v_unpack_%s\n", VCGData.func_name);
-	fprintf(f, "unsigned int v_unpack_%s(const char *buf, size_t buffer_length, void *user_func, void *user_data)\n", VCGData.func_name);
+	fprintf(f, "unsigned int v_unpack_%s(const char *buf, size_t buffer_length)\n", VCGData.func_name);
 	fprintf(f, "{\n");
 	fprintf(f, "\tunsigned int buffer_pos = 0;\n");
 	fprintf(f, "\tvoid (* func_%s)(void *user_data, ", VCGData.func_name);
@@ -553,7 +558,7 @@ static void v_cg_gen_unpack(void)
 	v_cg_gen_func_params(f, TRUE, FALSE);
 	if(VCGData.alias_name != NULL && VCGData.alias_bool_switch)
 		fprintf(f, "char alias_bool;\n");
-	fprintf(f, "\n\tfunc_%s = user_func;\n", VCGData.func_name);
+	fprintf(f, "\n\tfunc_%s = v_fs_get_user_func(%u);\n", VCGData.func_name, VCGData.cmd_id);
 	fprintf(f, "\tif(buffer_length < %u)\n\t\treturn -1;\n", v_cg_compute_command_size(0, TRUE));
 	for(i = 0; i < VCGData.param_count; i++)
 	{
@@ -605,14 +610,38 @@ static void v_cg_gen_unpack(void)
 			break;
 			case VCGP_UNPACK_INLINE :
 				if(!printed)
+				{
+					fprintf(f, "#if defined V_PRINT_RECEIVE_COMMANDS\n");
+					if(VCGData.alias_name != NULL)
+					{
+						fprintf(f, "\t%s\n\t", VCGData.alias_qualifier);
+						v_cg_create_print(f, FALSE, TRUE);
+						fprintf(f, "\telse\n\t");
+					}
 					v_cg_create_print(f, FALSE, FALSE);
-				printed = TRUE;
+					fprintf(f, "#endif\n");
+					printed = TRUE;
+				}
 				fprintf(f, "%s\n", VCGData.param_name[i++]);
 			break;
 		}
 	}
 	if(!printed)
+	{
+		fprintf(f, "#if defined V_PRINT_RECEIVE_COMMANDS\n");
+		if(VCGData.alias_name != NULL)
+		{
+			if(VCGData.alias_qualifier != NULL)
+				fprintf(f, "\t%s\n\t", VCGData.alias_qualifier);
+			else
+				fprintf(f, "\tif(alias_bool)\n\t");
+			v_cg_create_print(f, FALSE, TRUE);
+			fprintf(f, "\telse\n\t");
+		}
 		v_cg_create_print(f, FALSE, FALSE);
+		fprintf(f, "#endif\n");
+		printed = TRUE;
+	}
 
 	if(VCGData.alias_name != NULL)
 	{
@@ -648,7 +677,7 @@ static void v_cg_gen_unpack(void)
 	}
 	
 	fprintf(f, "\tif(func_%s != NULL)\n", VCGData.func_name);
-	fprintf(f, "\t\tfunc_%s(user_data", VCGData.func_name, VCGData.cmd_id);
+	fprintf(f, "\t\tfunc_%s(v_fs_get_user_data(%u)", VCGData.func_name, VCGData.cmd_id);
 	for(i = 0; i < VCGData.param_count; i++)
 	{
 		if(VCGData.param_type[i] != VCGP_PACK_INLINE && VCGData.param_type[i] != VCGP_UNPACK_INLINE && VCGData.param_type[i] != VCGP_END_ADDRESS && VCGData.param_type[i] != VCGP_POINTER_TYPE)
@@ -713,8 +742,7 @@ static void v_cg_gen_verse_h(void)
 
 static void v_cg_gen_unpack_h(void)
 {
-	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length, void *user_func, void *user_data);\n",
-		VCGData.func_name);
+	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length);\n", VCGData.func_name);
 }
 
 void v_cg_end_cmd(void)

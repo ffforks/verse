@@ -13,13 +13,14 @@
 extern void init_pack_and_unpack(void);
 
 static struct {
-	unsigned int	(*unpack_func[V_FS_MAX_CMDS])(const char *data, size_t length, void *user_func, void *user_data);
+	unsigned int	(*unpack_func[V_FS_MAX_CMDS])(const char *data, size_t length);
 	void		*pack_func[V_FS_MAX_CMDS];
 	void		*user_func[V_FS_MAX_CMDS];
 	void		*user_data[V_FS_MAX_CMDS];
 	void		*alias_pack_func[V_FS_MAX_CMDS];
 	void		*alias_user_func[V_FS_MAX_CMDS];
 	void		*alias_user_data[V_FS_MAX_CMDS];
+	boolean		call;
 } VCmdData;
 
 boolean v_fs_initialized = FALSE;
@@ -56,7 +57,7 @@ void v_fs_init(void)
 }
 
 
-void v_fs_add_func(unsigned int cmd_id, unsigned int (*unpack_func)(const char *data, size_t length, void *user_func, void *user_data), void *pack_func, void *alias_func)
+void v_fs_add_func(unsigned int cmd_id, unsigned int (*unpack_func)(const char *data, size_t length), void *pack_func, void *alias_func)
 {
 	VCmdData.unpack_func[cmd_id] = unpack_func;
 	VCmdData.pack_func[cmd_id] = pack_func;
@@ -65,7 +66,9 @@ void v_fs_add_func(unsigned int cmd_id, unsigned int (*unpack_func)(const char *
 
 void *v_fs_get_user_func(unsigned int cmd_id)
 {
-	return VCmdData.user_func[cmd_id];
+	if(VCmdData.call)
+		return VCmdData.user_func[cmd_id];
+	return NULL;
 }
 
 void *v_fs_get_user_data(unsigned int cmd_id)
@@ -75,7 +78,9 @@ void *v_fs_get_user_data(unsigned int cmd_id)
 
 void *v_fs_get_alias_user_func(unsigned int cmd_id)
 {
-	return VCmdData.alias_user_func[cmd_id];
+	if(VCmdData.call)
+		return VCmdData.alias_user_func[cmd_id];
+	return NULL;
 }
 
 void *v_fs_get_alias_user_data(unsigned int cmd_id)
@@ -117,8 +122,9 @@ void v_fs_buf_unpack(const uint8 *data, unsigned int length)
 {
 	uint32 i = 0, output, pack_id, *expected;
 	uint8 cmd_id;
+	VCmdData.call = TRUE;
 	expected = v_con_get_network_expected_packet();
-	i = vnp_raw_unpack_uint32(&data[i], &pack_id); /* each pack starts whit a 32 bit id */
+	i = vnp_raw_unpack_uint32(&data[i], &pack_id); /* each pack starts with a 32 bit id */
 	if(pack_id < *expected)
 		return;
 	for(; *expected < pack_id; (*expected)++)
@@ -130,7 +136,7 @@ void v_fs_buf_unpack(const uint8 *data, unsigned int length)
 
 		if(VCmdData.unpack_func[cmd_id] != NULL)
 		{
-			output = VCmdData.unpack_func[cmd_id](&data[i], length - i, VCmdData.user_func[cmd_id], VCmdData.user_data[cmd_id]);
+			output = VCmdData.unpack_func[cmd_id](&data[i], length - i);
 			if(output == (unsigned int) -1)	/* FIXME: Can this happen? Should be size_t or int, depending. */
 			{
 				verse_send_packet_nak(pack_id);
@@ -159,9 +165,10 @@ void v_fs_buf_store_pack(uint8 *data, unsigned int length)
 		if(VCmdData.unpack_func[cmd_id] != NULL)
 		{
 			if(cmd_id == 7 || cmd_id == 8)
-				output = VCmdData.unpack_func[cmd_id](&data[i], length - i, VCmdData.user_func[cmd_id], VCmdData.user_data[cmd_id]);
+				VCmdData.call = TRUE;
 			else
-				output = VCmdData.unpack_func[cmd_id](&data[i], length - i, NULL, NULL);
+				VCmdData.call = FALSE;
+			output = VCmdData.unpack_func[cmd_id](&data[i], length - i);
 			if(output == (unsigned int) -1)	/* Can this happen? Should be size_t or int, depending. */
 			{
 				verse_send_packet_nak(pack_id);
@@ -188,9 +195,10 @@ boolean v_fs_buf_unpack_stored()
 			if(VCmdData.unpack_func[cmd_id] != NULL)
 			{
 				if(cmd_id == 7 || cmd_id == 8)
-					i += VCmdData.unpack_func[cmd_id](&data[i], length - i, NULL, NULL);
+					VCmdData.call = FALSE;
 				else
-					i += VCmdData.unpack_func[cmd_id](&data[i], length - i, VCmdData.user_func[cmd_id], VCmdData.user_data[cmd_id]);
+					VCmdData.call = TRUE;
+				i += VCmdData.unpack_func[cmd_id](&data[i], length - i);
 			}
 		}
 		free(data);
@@ -205,18 +213,18 @@ char * v_fs_connect_get_address(void)
 	return connect_address;
 }
 
-extern unsigned int v_unpack_connect(const char *data, size_t length, void *user_func, void *user_data);
+extern unsigned int v_unpack_connect(const char *data, size_t length);
 
 void v_fs_connect_unpack(uint8 *data, unsigned int length, char *address)
 {
 	unsigned int i = 0, pack_id;
 	uint8 cmd_id;
-
+	VCmdData.call = TRUE;
 	i += vnp_raw_unpack_uint32(&data[i], &pack_id);
 	i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
 	connect_address = address;
 	if(cmd_id == 0 || cmd_id == 4)
-		i += v_unpack_connect(&data[i], length, VCmdData.user_func[cmd_id], VCmdData.user_data[cmd_id]);	
+		i += v_unpack_connect(&data[i], length);	
 	connect_address = NULL;
 }
 
