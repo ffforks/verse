@@ -7,11 +7,11 @@
 # and running other C files (this is the protocol definition).
 #
 
-CC	= gcc
-CFLAGS	= -I$(shell pwd) -Wall -ansi
+CC	?= gcc
+CFLAGS	?= -I$(shell pwd) -Wall -ansi
 
-AR	= ar
-ARFLAGS	= rus
+AR	?= ar
+ARFLAGS	?= rus
 
 TARGETS = libverse.a verse
 
