@@ -176,14 +176,14 @@ static void callback_send_o_transform_pos_real32(void *user, VNodeID node_id, ui
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub64, i);
-		verse_send_o_transform_pos_real64(node_id, time_s, time_f, node->transform.position, NULL, NULL, NULL, 0);
+		verse_send_o_transform_pos_real64(node_id, time_s, time_f, node->transform.position, speed, accelerate, drag_normal, drag);
 
 	}
 	count =	vs_get_subscript_count(node->trans_sub32);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub32, i);
-		verse_send_o_transform_pos_real32(node_id, time_s, time_f, pos, NULL, NULL, NULL, 0);
+		verse_send_o_transform_pos_real32(node_id, time_s, time_f, pos, speed, accelerate, drag_normal, drag);
 	}
 	vs_reset_subscript_session();
 }
@@ -203,13 +203,13 @@ static void callback_send_o_transform_rot_real32(void *user, VNodeID node_id, ui
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub64, i);
-		verse_send_o_transform_rot_real64(node_id, time_s, time_f, node->transform.rotation, NULL, NULL, NULL, 0);
+		verse_send_o_transform_rot_real64(node_id, time_s, time_f, node->transform.rotation, speed, accelerate, drag_normal, drag);
 	}
 	count =	vs_get_subscript_count(node->trans_sub32);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub32, i);
-		verse_send_o_transform_rot_real32(node_id, time_s, time_f, rot, NULL, NULL, NULL, 0);
+		verse_send_o_transform_rot_real32(node_id, time_s, time_f, rot, speed, accelerate, drag_normal, drag);
 	}
 	vs_reset_subscript_session();
 }
@@ -259,14 +259,13 @@ static void callback_send_o_transform_pos_real64(void *user, VNodeID node_id, ui
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub64, i);
-		verse_send_o_transform_pos_real64(node_id, time_s, time_f, node->transform.position, NULL, NULL, NULL, 0);
-
+		verse_send_o_transform_pos_real64(node_id, time_s, time_f, node->transform.position, speed, accelerate, drag_normal, drag);
 	}
 	count =	vs_get_subscript_count(node->trans_sub32);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub32, i);
-		verse_send_o_transform_pos_real32(node_id, time_s, time_f, fpos, NULL, NULL, NULL, 0);
+		verse_send_o_transform_pos_real32(node_id, time_s, time_f, fpos, speed, accelerate, drag_normal, drag);
 	}
 	vs_reset_subscript_session();
 }
@@ -291,13 +290,13 @@ static void callback_send_o_transform_rot_real64(void *user, VNodeID node_id, ui
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub64, i);
-		verse_send_o_transform_rot_real64(node_id, time_s, time_f, node->transform.rotation, NULL, NULL, NULL, 0);
+		verse_send_o_transform_rot_real64(node_id, time_s, time_f, node->transform.rotation, speed, accelerate, drag_normal, drag);
 	}
 	count =	vs_get_subscript_count(node->trans_sub32);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub32, i);
-		verse_send_o_transform_rot_real32(node_id, time_s, time_f, rot32, NULL, NULL, NULL, 0);
+		verse_send_o_transform_rot_real32(node_id, time_s, time_f, rot32, speed, accelerate, drag_normal, drag);
 	}
 	vs_reset_subscript_session();
 }
