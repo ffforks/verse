@@ -379,36 +379,36 @@ static void callback_send_b_layer_subscribe(void *user, VNodeID node_id, VLayerI
 	tile[2] = node->size[2];
 	switch(node->layers[layer_id].type)
 	{
-		case VN_B_LAYER_UINT1 :	
-			for(i = 0; i < tile[0]; i++)
-				for(j = 0; j < tile[1]; j++)
-					for(k = 0; k < tile[2]; k++)
-						verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_UINT1, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8]);
-		break;
-		case VN_B_LAYER_UINT8 :
-			for(i = 0; i < tile[0]; i++)
-				for(j = 0; j < tile[1]; j++)
-					for(k = 0; k < tile[2]; k++)
-						verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_UINT8, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
-		break;
-		case VN_B_LAYER_UINT16 :
-			for(i = 0; i < tile[0]; i++)
-				for(j = 0; j < tile[1]; j++)
-					for(k = 0; k < tile[2]; k++)
-						verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_UINT16, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
-		break;
-		case VN_B_LAYER_REAL32 :
-			for(i = 0; i < tile[0]; i++)
-				for(j = 0; j < tile[1]; j++)
-					for(k = 0; k < tile[2]; k++)
-						verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_REAL32, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
-		break;
-		case VN_B_LAYER_REAL64 :
-			for(i = 0; i < tile[0]; i++)
-				for(j = 0; j < tile[1]; j++)
-					for(k = 0; k < tile[2]; k++)
-						verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_REAL64, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
-		break;
+	case VN_B_LAYER_UINT1::
+		for(i = 0; i < tile[0]; i++)
+			for(j = 0; j < tile[1]; j++)
+				for(k = 0; k < tile[2]; k++)
+					verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_UINT1, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8]);
+	break;
+	case VN_B_LAYER_UINT8 :
+		for(i = 0; i < tile[0]; i++)
+			for(j = 0; j < tile[1]; j++)
+				for(k = 0; k < tile[2]; k++)
+					verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_UINT8, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+	break;
+	case VN_B_LAYER_UINT16 :
+		for(i = 0; i < tile[0]; i++)
+			for(j = 0; j < tile[1]; j++)
+				for(k = 0; k < tile[2]; k++)
+					verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_UINT16, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+	break;
+	case VN_B_LAYER_REAL32 :
+		for(i = 0; i < tile[0]; i++)
+			for(j = 0; j < tile[1]; j++)
+				for(k = 0; k < tile[2]; k++)
+					verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_REAL32, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+	break;
+	case VN_B_LAYER_REAL64 :
+		for(i = 0; i < tile[0]; i++)
+			for(j = 0; j < tile[1]; j++)
+				for(k = 0; k < tile[2]; k++)
+					verse_send_b_layer_set_tile(node_id, layer_id, (uint16)i, (uint16)j, (uint16)k, VN_B_LAYER_REAL64, &((VNBTile *)node->layers[layer_id].layer)[(tile[0] * tile[1] * k + j * tile[0] + i) * VN_B_TILE_SIZE * VN_B_TILE_SIZE]);
+	break;
 	}
 }
 
