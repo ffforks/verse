@@ -283,12 +283,12 @@ static void callback_send_a_layer_unsubscribe(void *user, VNodeID node_id, VLaye
 static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID layer_id, uint32 id, VNALayerType type, void *data)
 {
 	static const size_t	blocksize[] = {
-		VN_AUDIO_SAMPLE_BLOCK_SIZE_INT8   * sizeof (int8),
-		VN_AUDIO_SAMPLE_BLOCK_SIZE_INT16  * sizeof (int16),
-		VN_AUDIO_SAMPLE_BLOCK_SIZE_INT24  * 3 * sizeof (int8),
-		VN_AUDIO_SAMPLE_BLOCK_SIZE_INT32  * sizeof (int32),
-		VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL32 * sizeof (real32),
-		VN_AUDIO_SAMPLE_BLOCK_SIZE_REAL64 * sizeof (real64) 
+		VN_A_BLOCK_SIZE_INT8   * sizeof (int8),
+		VN_A_BLOCK_SIZE_INT16  * sizeof (int16),
+		VN_A_BLOCK_SIZE_INT24  * 3 * sizeof (int8),
+		VN_A_BLOCK_SIZE_INT32  * sizeof (int32),
+		VN_A_BLOCK_SIZE_REAL32 * sizeof (real32),
+		VN_A_BLOCK_SIZE_REAL64 * sizeof (real64) 
 	};
 	VSNodeAudio *node;
 	unsigned int i, count;
