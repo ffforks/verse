@@ -177,7 +177,7 @@ void v_update_connection_pending(void)
 		v_con_set_connect_stage(V_CS_CONNECTED);
 		func_connect_accept = v_fs_get_user_func(1);
 		v_n_get_address_string(v_con_get_network_address(), address_string);
-		#if defined(V_PRINT_RECIVE_COMMANDS)
+		#if defined(V_PRINT_RECEIVE_COMMANDS)
 		printf("receive: func_connect_accept(avatar = %u, address = %s, name = %s, pass = %s, key = NULL); callback = %p\n", verse_session_get_avatar(), address_string, name, pass, func_connect);
 		#endif
 		if(func_connect_accept != 0)
@@ -187,7 +187,7 @@ void v_update_connection_pending(void)
 		v_con_set_connect_stage(V_CS_CONNECTED);
 		func_connect_termanate = v_fs_get_user_func(2);
 		v_n_get_address_string(v_con_get_network_address(), address_string);
-		#if defined(V_PRINT_RECIVE_COMMANDS)
+		#if defined(V_PRINT_RECEIVE_COMMANDS)
 		printf("receive: func_connect_termanate(address = %s, bye = %s); callback = %p\n", address_string, "no message", func_connect);
 		#endif
 		if(func_connect_termanate != 0)
@@ -240,7 +240,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 			{
 			/*	char error_message[128];
 				func_connect_deny = v_fs_get_user_func(2);
-				#if defined(V_PRINT_RECIVE_COMMANDS)
+				#if defined(V_PRINT_RECEIVE_COMMANDS)
 				printf("receive: verse_send_connect_deny(Host is running version %u you are running version %u); callback = %p\n", (uint32)version, (uint32)V_RELEASE_NUMBER func_connect_deny);
 				#endif
 				if(func_connect_deny != NULL)
@@ -277,7 +277,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 				if(i < 0) /* Host is not who it appers top be */
 				{
 					func_connect_deny = v_fs_get_user_func(2);
-					#if defined(V_PRINT_RECIVE_COMMANDS)
+					#if defined(V_PRINT_RECEIVE_COMMANDS)
 					printf("receive: verse_send_connect_deny(Host failed identity check); callback = %p\n", func_connect_deny);
 					#endif
 					if(func_connect_deny != NULL)
@@ -331,7 +331,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 VSession * verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id)
 {
 	VNetworkAddress a;
-	#if defined(V_PRINT_RECIVE_COMMANDS)
+	#if defined(V_PRINT_SEND_COMMANDS)
 	printf("send: verse_send_connect_accept(avatar = %u, address = %s, host_id = NULL);\n", avatar, address);
 	#endif
 
@@ -357,7 +357,7 @@ void v_callback_connect_terminate(const char *bye)
 	printf("terminate (%s)\n", bye);
 	func_connect_terminate = v_fs_get_user_func(2);
 	v_n_get_address_string(v_con_get_network_address(), address_string);
-	#if defined(V_PRINT_RECIVE_COMMANDS)
+	#if defined(V_PRINT_RECEIVE_COMMANDS)
 	printf("receive: verse_send_connect_terminate(address = %s, bye = %s); callback = %p\n", address_string, bye, func_connect_terminate);
 	#endif
 	if(func_connect_terminate != 0)
@@ -367,7 +367,7 @@ void v_callback_connect_terminate(const char *bye)
 void verse_send_connect_terminate(const char *address, const char *bye)
 {
 	VNetworkAddress a;
-	#if defined(V_PRINT_RECIVE_COMMANDS)
+	#if defined(V_PRINT_RECEIVE_COMMANDS)
 	printf("send: verse_send_connect_terminate(address = %s, bye = %s);\n", address, bye);
 	#endif
 
