@@ -36,12 +36,22 @@ typedef struct {
 } VSMethodGroup;
 
 typedef struct {
-	VSNodeHead	head;
-	double		light[3];
-	VSMethodGroup	*groups;
-	uint16		group_count;
-	VSLink		*links;
-	uint16		link_count;
+	real64	position[3];
+	real64	rotation[4];
+	real64	scale[3];
+	VSSubscriptionList *subscribers;
+} VSTransform;
+
+typedef struct {
+	VSNodeHead			head;
+	VSTransform			transform;
+	VSSubscriptionList	*trans_sub64;
+	VSSubscriptionList	*trans_sub32;
+	real64				light[3];
+	VSMethodGroup		*groups;
+	uint16				group_count;
+	VSLink				*links;
+	uint16				link_count;
 } VSNodeObject;
 
 VSNodeObject * vs_o_create_node(unsigned int owner)
@@ -49,14 +59,17 @@ VSNodeObject * vs_o_create_node(unsigned int owner)
 	VSNodeObject *node;
 	unsigned int i;
 	char name[48];
-
 	node = malloc(sizeof *node);
 	vs_add_new_node(&node->head, V_NT_OBJECT);
 	sprintf(name, "Object_Node_%u", node->head.id);
 	create_node_head(&node->head, name, owner);
-
+	node->trans_sub64 = vs_create_subscription_list();
+	node->trans_sub32 = vs_create_subscription_list();
+	node->transform.position[0] = node->transform.position[1] = node->transform.position[2] = 0;
+	node->transform.rotation[0] = node->transform.rotation[1] = node->transform.rotation[2] = 0;
+	node->transform.rotation[3] = 1;
+	node->transform.scale[0] = node->transform.scale[1] = node->transform.scale[2] = 1;
 	node->light[0] = node->light[1] = node->light[2] = V_REAL64_MAX;
-
 	node->groups = malloc((sizeof *node->groups) * 16);
 	node->group_count = 16;
 	for(i = 0; i < 16; i++)
@@ -108,11 +121,221 @@ void vs_o_subscribe(VSNodeObject *node)
 	for(i = 0; i < node->link_count; i++)
 		if(node->links[i].name[0] != 0)
 			verse_send_o_link_set(node->head.id, i, node->links[i].link, node->links[i].name, node->links[i].target_id);
-	if(node->light[0] != V_REAL64_MAX && node->light[1] != V_REAL64_MAX && node->light[2] != V_REAL64_MAX)
+	if(node->light[0] == V_REAL64_MAX || node->light[1] == V_REAL64_MAX || node->light[2] == V_REAL64_MAX)
 		verse_send_o_light_set(node->head.id, node->light[0], node->light[1], node->light[2]);
 	for(i = 0; i < node->group_count; i++)
 		if(node->groups[i].name[0] != 0)
 			verse_send_o_method_group_create(node->head.id, i, node->groups[i].name);
+}
+
+static void callback_send_o_transform_pos_real32(void *user, VNodeID node_id, uint32 time, real32 *pos, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag)
+{
+	VSNodeObject *node;
+	unsigned int i, count;
+	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
+	if(node == NULL)
+		return;
+	node->transform.position[0] = pos[0];
+	node->transform.position[1] = pos[1];
+	node->transform.position[2] = pos[2];
+	count =	vs_get_subscript_count(node->trans_sub64);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub64, i);
+		verse_send_o_transform_pos_real64(node_id, 0, node->transform.position, NULL, NULL, NULL, 0);
+
+	}
+	count =	vs_get_subscript_count(node->trans_sub32);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub32, i);
+		verse_send_o_transform_pos_real32(node_id, 0, pos, NULL, NULL, NULL, 0);
+	}
+	vs_reset_subscript_session();
+}
+
+static void callback_send_o_transform_rot_real32(void *user, VNodeID node_id, uint32 time, real32 *rot, real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag)
+{
+	VSNodeObject *node;
+	unsigned int i, count;
+	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
+	if(node == NULL)
+		return;
+	node->transform.rotation[0] = rot[0];
+	node->transform.rotation[1] = rot[1];
+	node->transform.rotation[2] = rot[2];
+	node->transform.rotation[3] = rot[3];
+	count =	vs_get_subscript_count(node->trans_sub64);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub64, i);
+		verse_send_o_transform_rot_real64(node_id, 0, node->transform.rotation, NULL, NULL, NULL, 0);
+
+	}
+	count =	vs_get_subscript_count(node->trans_sub32);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub32, i);
+		verse_send_o_transform_rot_real32(node_id, 0, rot, NULL, NULL, NULL, 0);
+	}
+	vs_reset_subscript_session();
+}
+
+
+static void callback_send_o_transform_scale_real32(void *user, VNodeID node_id, real32 scale_x, real32 scale_y, real32 scale_z)
+{
+	VSNodeObject *node;
+	unsigned int i, count;
+	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
+	if(node == NULL)
+		return;
+	node->transform.scale[0] = scale_x;
+	node->transform.scale[1] = scale_y;
+	node->transform.scale[2] = scale_z;
+	count =	vs_get_subscript_count(node->trans_sub64);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub64, i);
+		verse_send_o_transform_scale_real64(node_id, (real64)scale_x, (real64)scale_y, (real64)scale_z);
+
+	}
+	count =	vs_get_subscript_count(node->trans_sub32);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub32, i);
+		verse_send_o_transform_scale_real32(node_id, scale_x, scale_y, scale_z);
+	}
+	vs_reset_subscript_session();
+}
+
+static void callback_send_o_transform_pos_real64(void *user, VNodeID node_id, uint32 time, real64 *pos, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag)
+{
+	VSNodeObject *node;
+	unsigned int i, count;
+	float fpos[3];
+	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
+	if(node == NULL)
+		return;
+	node->transform.position[0] = pos[0];
+	node->transform.position[1] = pos[1];
+	node->transform.position[2] = pos[2];
+	fpos[0] = (real32)pos[0];
+	fpos[1] = (real32)pos[1];
+	fpos[2] = (real32)pos[2];
+	count =	vs_get_subscript_count(node->trans_sub64);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub64, i);
+		verse_send_o_transform_pos_real64(node_id, 0, node->transform.position, NULL, NULL, NULL, 0);
+
+	}
+	count =	vs_get_subscript_count(node->trans_sub32);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub32, i);
+		verse_send_o_transform_pos_real32(node_id, 0, fpos, NULL, NULL, NULL, 0);
+	}
+	vs_reset_subscript_session();
+}
+
+static void callback_send_o_transform_rot_real64(void *user, VNodeID node_id, uint32 time, real64 *rot, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag)
+{
+	VSNodeObject *node;
+	unsigned int i, count;
+	float frot[4];
+	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
+	if(node == NULL)
+		return;
+	node->transform.position[0] = rot[0];
+	node->transform.position[1] = rot[1];
+	node->transform.position[2] = rot[2];
+	node->transform.position[3] = rot[3];
+	frot[0] = (real32)rot[0];
+	frot[1] = (real32)rot[1];
+	frot[2] = (real32)rot[2];
+	frot[3] = (real32)rot[3];
+	count =	vs_get_subscript_count(node->trans_sub64);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub64, i);
+		verse_send_o_transform_rot_real64(node_id, 0, node->transform.rotation, NULL, NULL, NULL, 0);
+
+	}
+	count =	vs_get_subscript_count(node->trans_sub32);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub32, i);
+		verse_send_o_transform_rot_real32(node_id, 0, frot, NULL, NULL, NULL, 0);
+	}
+	vs_reset_subscript_session();
+}
+
+static void callback_send_o_transform_scale_real64(void *user, VNodeID node_id, real64 scale_x, real64 scale_y, real64 scale_z)
+{
+	VSNodeObject *node;
+	unsigned int i, count;
+	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
+	if(node == NULL)
+		return;
+	node->transform.scale[0] = scale_x;
+	node->transform.scale[1] = scale_y;
+	node->transform.scale[2] = scale_z;
+	count =	vs_get_subscript_count(node->trans_sub64);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub64, i);
+		verse_send_o_transform_scale_real64(node_id, (real64)scale_x, (real64)scale_y, (real64)scale_z);
+	}
+	count =	vs_get_subscript_count(node->trans_sub32);
+	for(i = 0; i < count; i++)
+	{
+		vs_set_subscript_session(node->trans_sub32, i);
+		verse_send_o_transform_scale_real32(node_id, scale_x, scale_y, scale_z);
+	}
+	vs_reset_subscript_session();
+}
+
+static void callback_send_o_transform_subscribe(void *user, VNodeID node_id, VNORealFormat type)
+{
+	VSNodeObject *node;
+	real32 temp[4];
+	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
+	if(node == NULL)
+		return;
+	if(type == VN_FORMAT_REAL32)
+	{
+		vs_add_new_subscriptor(node->trans_sub32);
+		temp[0] = (real32)node->transform.position[0];
+		temp[1] = (real32)node->transform.position[1];
+		temp[2] = (real32)node->transform.position[2];
+		verse_send_o_transform_pos_real32(node_id, 0, temp, NULL, NULL, NULL, 0);
+		temp[0] = (real32)node->transform.rotation[0];
+		temp[1] = (real32)node->transform.rotation[1];
+		temp[2] = (real32)node->transform.rotation[2];
+		temp[3] = (real32)node->transform.rotation[3];
+		verse_send_o_transform_rot_real32(node_id, 0, temp, NULL, NULL, NULL, 0);
+		verse_send_o_transform_scale_real32(node_id, (real32)node->transform.scale[0], (real32)node->transform.scale[1], (real32)node->transform.scale[2]);
+	}else
+	{
+		vs_add_new_subscriptor(node->trans_sub64);
+		verse_send_o_transform_pos_real64(node_id, 0, node->transform.position, NULL, NULL, NULL, 0);
+		verse_send_o_transform_rot_real64(node_id, 0, node->transform.rotation, NULL, NULL, NULL, 0);
+		verse_send_o_transform_scale_real64(node_id, node->transform.scale[0], node->transform.scale[1], node->transform.scale[2]);
+	}
+}
+
+static void callback_send_o_transform_unsubscribe(void *user, VNodeID node_id, VNORealFormat type)
+{
+	VSNodeObject *node;
+	printf("callback_send_o_transform_unsubscribe\n");
+	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
+	if(node == NULL)
+		return;
+	printf("callback_send_o_transform_unsubscribe\n");
+	if(type == VN_FORMAT_REAL32)
+		vs_remove_subscriptor(node->trans_sub32);
+	else
+		vs_remove_subscriptor(node->trans_sub64);
 }
 
 static void callback_send_o_light_set(void *user, VNodeID node_id, real64 light_r, real64 light_g, real64 light_b)
@@ -163,7 +386,7 @@ static void callback_send_o_link_set(void *user, VNodeID node_id, uint16 link_id
 
 	node->links[link_id].link = link;
 	for(i = 0; i < 15 && name[i] != 0; i++)
-	    node->links[link_id].name[i] = name[i];
+		node->links[link_id].name[i] = name[i];
 	node->links[link_id].name[i] = 0;
 	node->links[link_id].target_id = target_id;
 
@@ -425,6 +648,15 @@ static void callback_send_o_method_call(void *user, VNodeID node_id, uint16 grou
 
 void vs_o_callback_init(void)
 {
+
+	verse_callback_set(verse_send_o_transform_pos_real32, callback_send_o_transform_pos_real32, NULL);
+	verse_callback_set(verse_send_o_transform_rot_real32, callback_send_o_transform_rot_real32, NULL);
+	verse_callback_set(verse_send_o_transform_scale_real32, callback_send_o_transform_scale_real32, NULL);
+	verse_callback_set(verse_send_o_transform_pos_real64, callback_send_o_transform_pos_real64, NULL);
+	verse_callback_set(verse_send_o_transform_rot_real64, callback_send_o_transform_rot_real64, NULL);
+	verse_callback_set(verse_send_o_transform_scale_real64, callback_send_o_transform_scale_real64, NULL);
+	verse_callback_set(verse_send_o_transform_subscribe, callback_send_o_transform_subscribe, NULL);
+	verse_callback_set(verse_send_o_transform_unsubscribe, callback_send_o_transform_unsubscribe, NULL);
 	verse_callback_set(verse_send_o_link_set, callback_send_o_link_set, NULL);
 	verse_callback_set(verse_send_o_light_set, callback_send_o_light_set, NULL);
 	verse_callback_set(verse_send_o_link_set, callback_send_o_link_set, NULL);
