@@ -13,7 +13,7 @@
 
 /* Release information. */
 #define	V_RELEASE_NUMBER	2
-#define	V_RELEASE_PATCH		0
+#define	V_RELEASE_PATCH		4
 #define	V_RELEASE_LABEL		"(none)"
 
 typedef unsigned char boolean;
@@ -362,8 +362,8 @@ extern void verse_session_set(VSession session);
 extern void verse_session_destroy(VSession session);
 extern size_t verse_session_get_size(void);
 
-extern void *verse_method_call_pack(uint32 param_count, const VNOParam *params, const VNOParamType *param_type);
-extern boolean verse_method_call_unpack(const void *data, uint32 param_count, VNOParam *params, const VNOParamType *param_type);
+extern void *verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
+extern boolean verse_method_call_unpack(const void *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
 
 extern void *verse_audio_compress(uint32 length, VNALayerType type, const void *data);
 extern void *verse_audio_uncompress(uint32 length, VNALayerType type, const void *data);
@@ -372,7 +372,7 @@ extern void *verse_audio_uncompress(uint32 length, VNALayerType type, const void
 #define V_PRINT_SEND_COMMANDS
 #define V_PRINT_RECEIVE_COMMANDS
 */
-
+ 
 #endif		/* VERSE_TYPES */
 
 /* Command sending functions begin. ----------------------------------------- */
