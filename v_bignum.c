@@ -668,31 +668,21 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	VBigDig	*q1, *q2, *q3, *r1, *r2, *r;
 	int	i, k;
 
-/*	printf("x=");
-	v_bignum_print_hex_lf(x);
-	printf("m=");
-	v_bignum_print_hex_lf(m);
-*/	for(k = *m; m[k] == 0; k--)
+	for(k = *m; m[k] == 0; k--)
 		;
 	/* Step 1, compute the q helpers. */
 	q1 = bignum_alloc(*x);
 	v_bignum_set_bignum(q1, x);
 	v_bignum_bit_shift_right(q1, 16 * (k - 1));
-/*	printf("q1=");
-	v_bignum_print_hex_lf(q1);
-*/
+
 	q2 = bignum_alloc(2 * *x);
 	v_bignum_set_bignum(q2, q1);
 	v_bignum_mul(q2, mu);
-/*	printf("q2=");
-	v_bignum_print_hex_lf(q2);
-*/
+
 	q3 = bignum_alloc(*q2);
 	v_bignum_set_bignum(q3, q2);
 	v_bignum_bit_shift_right(q3, 16 * (k + 1));
-/*	printf("q3=");
-	v_bignum_print_hex_lf(q3);
-*/
+
 	/* Step 2, initialize. */
 	r1 = bignum_alloc(*x);
 	r2 = bignum_alloc(*x);
@@ -704,17 +694,9 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	v_bignum_mul(r2, m);
 	for(i = k + 1; i < *r2; i++)
 		r2[i + 1] = 0;
-/*	printf("r1=");
-	v_bignum_print_hex_lf(r1);
-	printf("r2=");
-	v_bignum_print_hex_lf(r2);
-*/	v_bignum_set_bignum(r, r1);
+	v_bignum_set_bignum(r, r1);
 	v_bignum_sub(r, r2);
-/*	printf("r=");
-	v_bignum_print_hex_lf(r);
-	printf("m=");
-	v_bignum_print_hex_lf(m);
-*/	/* Step 3, make sure r is positive. Shaky. */
+	/* Step 3, make sure r is positive. Shaky. */
 	if(v_bignum_bit_test(r, V_BIGBITS * *r - 1))
 	{
 		VBigDig	*term;
@@ -736,7 +718,6 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	v_bignum_print_hex_lf(r);
 */	while(v_bignum_gte(r, m))
 		v_bignum_sub(r, m);
-/*	v_bignum_set_bignum(x, r);*/
 
 	bignum_free(r2);
 	bignum_free(r1);
@@ -744,7 +725,6 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 	bignum_free(q3);
 	bignum_free(q2);
 	bignum_free(q1);
-/*	bignum_free(mu);*/
 }
 
 /* Computes x = (x^y) % n, where ^ denotes exponentiation. */
