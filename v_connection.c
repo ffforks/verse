@@ -265,7 +265,7 @@ void verse_callback_update(unsigned int microseconds)
 			if(VConData.con[VConData.current_connection].expected_key != NULL)
 				free(VConData.con[VConData.current_connection].expected_key);
 			VConData.con[VConData.current_connection] = VConData.con[--VConData.con_count];
-			if(connection < VConData.con_count)
+			if(connection >= VConData.con_count)
 			{
 				VConData.current_connection = 0;
 			}
@@ -276,8 +276,15 @@ void verse_callback_update(unsigned int microseconds)
 	VConData.current_connection = connection;
 
 	if(VConData.con_count > 0)
+	{
 		if(V_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue))
-			v_callback_connect_terminate("connection timed out");
+		{
+			if(VConData.con[VConData.current_connection].connect_stage != V_CS_CONNECTED)
+				VConData.con[VConData.current_connection].destroy_flag = TRUE;
+			else
+				v_callback_connect_terminate("connection timed out");
+		}
+	}
 
 	v_con_network_listen();
 	if(VConData.con_count > 0)
