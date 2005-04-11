@@ -82,8 +82,8 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(128, v_unpack_c_curve_create, verse_send_c_curve_create, verse_send_c_curve_destroy);
 	v_fs_add_func(129, v_unpack_c_curve_subscribe, verse_send_c_curve_subscribe, verse_send_c_curve_unsubscribe);
 	v_fs_add_func(130, v_unpack_c_key_set, verse_send_c_key_set, verse_send_c_key_destroy);
-	v_fs_add_func(160, v_unpack_a_layer_create, verse_send_a_layer_create, verse_send_a_layer_destroy);
-	v_fs_add_func(161, v_unpack_a_layer_subscribe, verse_send_a_layer_subscribe, verse_send_a_layer_unsubscribe);
+	v_fs_add_func(160, v_unpack_a_buffer_create, verse_send_a_buffer_create, verse_send_a_buffer_destroy);
+	v_fs_add_func(161, v_unpack_a_buffer_subscribe, verse_send_a_buffer_subscribe, verse_send_a_buffer_unsubscribe);
 	v_fs_add_func(162, v_unpack_a_block_set, verse_send_a_block_set, verse_send_a_block_clear);
 	v_fs_add_func(163, v_unpack_a_stream_create, verse_send_a_stream_create, verse_send_a_stream_destroy);
 	v_fs_add_func(164, v_unpack_a_stream_subscribe, verse_send_a_stream_subscribe, verse_send_a_stream_unsubscribe);

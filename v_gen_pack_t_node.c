@@ -59,7 +59,7 @@ unsigned int v_unpack_t_set_language(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, const char *name)
+void verse_send_t_buffer_create(VNodeID node_id, VBufferID buffer_id, const char *name)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -82,7 +82,7 @@ void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, const ch
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id)
+void verse_send_t_buffer_destroy(VNodeID node_id, VBufferID buffer_id)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -108,9 +108,9 @@ void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id)
 unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_t_buffer_create)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, const char *name);
+	void (* func_t_buffer_create)(void *user_data, VNodeID node_id, VBufferID buffer_id, const char *name);
 	VNodeID node_id;
-	VNMBufferID buffer_id;
+	VBufferID buffer_id;
 	char name[16];
 	
 	func_t_buffer_create = v_fs_get_user_func(97);
@@ -127,7 +127,7 @@ unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length)
 #endif
 	if(name[0] == 0)
 	{
-		void (* alias_t_buffer_destroy)(void *user_data, VNodeID node_id, VNMBufferID buffer_id);
+		void (* alias_t_buffer_destroy)(void *user_data, VNodeID node_id, VBufferID buffer_id);
 		alias_t_buffer_destroy = v_fs_get_alias_user_func(97);
 		if(alias_t_buffer_destroy != NULL)
 			alias_t_buffer_destroy(v_fs_get_alias_user_data(97), node_id, buffer_id);
@@ -139,7 +139,7 @@ unsigned int v_unpack_t_buffer_create(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_t_buffer_subscribe(VNodeID node_id, VNMBufferID buffer_id)
+void verse_send_t_buffer_subscribe(VNodeID node_id, VBufferID buffer_id)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -162,7 +162,7 @@ void verse_send_t_buffer_subscribe(VNodeID node_id, VNMBufferID buffer_id)
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id)
+void verse_send_t_buffer_unsubscribe(VNodeID node_id, VBufferID buffer_id)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -188,9 +188,9 @@ void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id)
 unsigned int v_unpack_t_buffer_subscribe(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_t_buffer_subscribe)(void *user_data, VNodeID node_id, VNMBufferID buffer_id);
+	void (* func_t_buffer_subscribe)(void *user_data, VNodeID node_id, VBufferID buffer_id);
 	VNodeID node_id;
-	VNMBufferID buffer_id;
+	VBufferID buffer_id;
 	uint8	alias_bool;
 
 	func_t_buffer_subscribe = v_fs_get_user_func(98);
@@ -209,7 +209,7 @@ unsigned int v_unpack_t_buffer_subscribe(const char *buf, size_t buffer_length)
 #endif
 	if(!alias_bool)
 	{
-		void (* alias_t_buffer_unsubscribe)(void *user_data, VNodeID node_id, VNMBufferID buffer_id);
+		void (* alias_t_buffer_unsubscribe)(void *user_data, VNodeID node_id, VBufferID buffer_id);
 		alias_t_buffer_unsubscribe = v_fs_get_alias_user_func(98);
 		if(alias_t_buffer_unsubscribe != NULL)
 			alias_t_buffer_unsubscribe(v_fs_get_alias_user_data(98), node_id, buffer_id);

@@ -16,7 +16,7 @@
 #include "v_network.h"
 #include "v_connection.h"
 
-void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNALayerType type, real64 frequency)
+void verse_send_a_buffer_create(VNodeID node_id, VBufferID buffer_id, const char *name, VNALayerType type, real64 frequency)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -26,14 +26,14 @@ void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, const char *n
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 160);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_a_layer_create(node_id = %u layer_id = %u name = %s type = %u frequency = %f );\n", node_id, layer_id, name, type, frequency);
+	printf("send: verse_send_a_buffer_create(node_id = %u buffer_id = %u name = %s type = %u frequency = %f );\n", node_id, buffer_id, name, type, frequency);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], name, 16);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)type);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], frequency);
-	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1))
+	if(node_id == (uint32)(-1) || buffer_id == (uint16)(-1))
 		v_cmd_buf_set_unique_address_size(head, 7);
 	else
 		v_cmd_buf_set_address_size(head, 7);
@@ -41,7 +41,7 @@ void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, const char *n
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-void verse_send_a_layer_destroy(VNodeID node_id, VLayerID layer_id)
+void verse_send_a_buffer_destroy(VNodeID node_id, VBufferID buffer_id)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -51,14 +51,14 @@ void verse_send_a_layer_destroy(VNodeID node_id, VLayerID layer_id)
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 160);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_a_layer_destroy(node_id = %u layer_id = %u );\n", node_id, layer_id);
+	printf("send: verse_send_a_buffer_destroy(node_id = %u buffer_id = %u );\n", node_id, buffer_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)-1);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
-	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1))
+	if(node_id == (uint32)(-1) || buffer_id == (uint16)(-1))
 		v_cmd_buf_set_unique_address_size(head, 7);
 	else
 		v_cmd_buf_set_address_size(head, 7);
@@ -66,22 +66,22 @@ void verse_send_a_layer_destroy(VNodeID node_id, VLayerID layer_id)
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_a_layer_create(const char *buf, size_t buffer_length)
+unsigned int v_unpack_a_buffer_create(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_a_layer_create)(void *user_data, VNodeID node_id, VLayerID layer_id, const char *name, VNALayerType type, real64 frequency);
+	void (* func_a_buffer_create)(void *user_data, VNodeID node_id, VBufferID buffer_id, const char *name, VNALayerType type, real64 frequency);
 	VNodeID node_id;
-	VLayerID layer_id;
+	VBufferID buffer_id;
 	char name[16];
 	VNALayerType type;
 	real64 frequency;
 	
-	func_a_layer_create = v_fs_get_user_func(160);
+	func_a_buffer_create = v_fs_get_user_func(160);
 	if(buffer_length < 6)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
-	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
+	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &buffer_id);
 	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], name, 16, buffer_length - buffer_pos);
 	if(buffer_length < 9 + buffer_pos)
 		return -1;
@@ -90,25 +90,25 @@ unsigned int v_unpack_a_layer_create(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frequency);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(name[0] == 0)
-		printf("receive: verse_send_a_layer_destroy(node_id = %u layer_id = %u ); callback = %p\n", node_id, layer_id, v_fs_get_alias_user_func(160));
+		printf("receive: verse_send_a_buffer_destroy(node_id = %u buffer_id = %u ); callback = %p\n", node_id, buffer_id, v_fs_get_alias_user_func(160));
 	else
-		printf("receive: verse_send_a_layer_create(node_id = %u layer_id = %u name = %s type = %u frequency = %f ); callback = %p\n", node_id, layer_id, name, type, frequency, v_fs_get_user_func(160));
+		printf("receive: verse_send_a_buffer_create(node_id = %u buffer_id = %u name = %s type = %u frequency = %f ); callback = %p\n", node_id, buffer_id, name, type, frequency, v_fs_get_user_func(160));
 #endif
 	if(name[0] == 0)
 	{
-		void (* alias_a_layer_destroy)(void *user_data, VNodeID node_id, VLayerID layer_id);
-		alias_a_layer_destroy = v_fs_get_alias_user_func(160);
-		if(alias_a_layer_destroy != NULL)
-			alias_a_layer_destroy(v_fs_get_alias_user_data(160), node_id, layer_id);
+		void (* alias_a_buffer_destroy)(void *user_data, VNodeID node_id, VBufferID buffer_id);
+		alias_a_buffer_destroy = v_fs_get_alias_user_func(160);
+		if(alias_a_buffer_destroy != NULL)
+			alias_a_buffer_destroy(v_fs_get_alias_user_data(160), node_id, buffer_id);
 		return buffer_pos;
 	}
-	if(func_a_layer_create != NULL)
-		func_a_layer_create(v_fs_get_user_data(160), node_id, layer_id, name, (VNALayerType)type, frequency);
+	if(func_a_buffer_create != NULL)
+		func_a_buffer_create(v_fs_get_user_data(160), node_id, buffer_id, name, (VNALayerType)type, frequency);
 
 	return buffer_pos;
 }
 
-void verse_send_a_layer_subscribe(VNodeID node_id, VLayerID layer_id)
+void verse_send_a_buffer_subscribe(VNodeID node_id, VBufferID layer_id)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -118,7 +118,7 @@ void verse_send_a_layer_subscribe(VNodeID node_id, VLayerID layer_id)
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 161);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_a_layer_subscribe(node_id = %u layer_id = %u );\n", node_id, layer_id);
+	printf("send: verse_send_a_buffer_subscribe(node_id = %u layer_id = %u );\n", node_id, layer_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -131,7 +131,7 @@ void verse_send_a_layer_subscribe(VNodeID node_id, VLayerID layer_id)
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
+void verse_send_a_buffer_unsubscribe(VNodeID node_id, VBufferID layer_id)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -141,7 +141,7 @@ void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 161);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_a_layer_unsubscribe(node_id = %u layer_id = %u );\n", node_id, layer_id);
+	printf("send: verse_send_a_buffer_unsubscribe(node_id = %u layer_id = %u );\n", node_id, layer_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
@@ -154,15 +154,15 @@ void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID layer_id)
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_a_layer_subscribe(const char *buf, size_t buffer_length)
+unsigned int v_unpack_a_buffer_subscribe(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_a_layer_subscribe)(void *user_data, VNodeID node_id, VLayerID layer_id);
+	void (* func_a_buffer_subscribe)(void *user_data, VNodeID node_id, VBufferID layer_id);
 	VNodeID node_id;
-	VLayerID layer_id;
+	VBufferID layer_id;
 	uint8	alias_bool;
 
-	func_a_layer_subscribe = v_fs_get_user_func(161);
+	func_a_buffer_subscribe = v_fs_get_user_func(161);
 	if(buffer_length < 6)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
@@ -172,25 +172,25 @@ unsigned int v_unpack_a_layer_subscribe(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &alias_bool);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(!alias_bool)
-		printf("receive: verse_send_a_layer_unsubscribe(node_id = %u layer_id = %u ); callback = %p\n", node_id, layer_id, v_fs_get_alias_user_func(161));
+		printf("receive: verse_send_a_buffer_unsubscribe(node_id = %u layer_id = %u ); callback = %p\n", node_id, layer_id, v_fs_get_alias_user_func(161));
 	else
-		printf("receive: verse_send_a_layer_subscribe(node_id = %u layer_id = %u ); callback = %p\n", node_id, layer_id, v_fs_get_user_func(161));
+		printf("receive: verse_send_a_buffer_subscribe(node_id = %u layer_id = %u ); callback = %p\n", node_id, layer_id, v_fs_get_user_func(161));
 #endif
 	if(!alias_bool)
 	{
-		void (* alias_a_layer_unsubscribe)(void *user_data, VNodeID node_id, VLayerID layer_id);
-		alias_a_layer_unsubscribe = v_fs_get_alias_user_func(161);
-		if(alias_a_layer_unsubscribe != NULL)
-			alias_a_layer_unsubscribe(v_fs_get_alias_user_data(161), node_id, layer_id);
+		void (* alias_a_buffer_unsubscribe)(void *user_data, VNodeID node_id, VBufferID layer_id);
+		alias_a_buffer_unsubscribe = v_fs_get_alias_user_func(161);
+		if(alias_a_buffer_unsubscribe != NULL)
+			alias_a_buffer_unsubscribe(v_fs_get_alias_user_data(161), node_id, layer_id);
 		return buffer_pos;
 	}
-	if(func_a_layer_subscribe != NULL)
-		func_a_layer_subscribe(v_fs_get_user_data(161), node_id, layer_id);
+	if(func_a_buffer_subscribe != NULL)
+		func_a_buffer_subscribe(v_fs_get_user_data(161), node_id, layer_id);
 
 	return buffer_pos;
 }
 
-void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 block_index, VNALayerType type, const VNASample *data)
+void verse_send_a_block_set(VNodeID node_id, VLayerID buffer_id, uint32 block_index, VNALayerType type, const VNASample *data)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -200,10 +200,10 @@ void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 block_ind
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 162);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_a_block_set(node_id = %u layer_id = %u block_index = %u type = %u data = %p );\n", node_id, layer_id, block_index, type, data);
+	printf("send: verse_send_a_block_set(node_id = %u buffer_id = %u block_index = %u type = %u data = %p );\n", node_id, buffer_id, block_index, type, data);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], block_index);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)type);
 	{
@@ -229,7 +229,7 @@ void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 block_ind
 			break;
 		}
 	}
-	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || block_index == (uint32)(-1))
+	if(node_id == (uint32)(-1) || buffer_id == (uint16)(-1) || block_index == (uint32)(-1))
 		v_cmd_buf_set_unique_address_size(head, 11);
 	else
 		v_cmd_buf_set_address_size(head, 11);
@@ -237,7 +237,7 @@ void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 block_ind
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-void verse_send_a_block_clear(VNodeID node_id, VLayerID layer_id, uint32 block_index)
+void verse_send_a_block_clear(VNodeID node_id, VLayerID buffer_id, uint32 block_index)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -247,13 +247,13 @@ void verse_send_a_block_clear(VNodeID node_id, VLayerID layer_id, uint32 block_i
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 162);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_a_block_clear(node_id = %u layer_id = %u block_index = %u );\n", node_id, layer_id, block_index);
+	printf("send: verse_send_a_block_clear(node_id = %u buffer_id = %u block_index = %u );\n", node_id, buffer_id, block_index);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], buffer_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], block_index);
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)-1);
-	if(node_id == (uint32)(-1) || layer_id == (uint16)(-1) || block_index == (uint32)(-1))
+	if(node_id == (uint32)(-1) || buffer_id == (uint16)(-1) || block_index == (uint32)(-1))
 		v_cmd_buf_set_unique_address_size(head, 11);
 	else
 		v_cmd_buf_set_address_size(head, 11);
@@ -265,9 +265,9 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_a_block_set)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 block_index, VNALayerType type, const VNASample *data);
+	void (* func_a_block_set)(void *user_data, VNodeID node_id, VLayerID buffer_id, uint32 block_index, VNALayerType type, const VNASample *data);
 	VNodeID node_id;
-	VLayerID layer_id;
+	VLayerID buffer_id;
 	uint32 block_index;
 	VNALayerType type;
 	const VNASample *data;
@@ -276,15 +276,15 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 	if(buffer_length < 10)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
-	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
+	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &buffer_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &block_index);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
 	type = (VNALayerType)enum_temp;
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(type > VN_A_LAYER_REAL64)
-		printf("receive: verse_send_a_block_clear(node_id = %u layer_id = %u block_index = %u ); callback = %p\n", node_id, layer_id, block_index, v_fs_get_alias_user_func(162));
+		printf("receive: verse_send_a_block_clear(node_id = %u buffer_id = %u block_index = %u ); callback = %p\n", node_id, buffer_id, block_index, v_fs_get_alias_user_func(162));
 	else
-		printf("receive: verse_send_a_block_set(node_id = %u layer_id = %u block_index = %u type = %u ); callback = %p\n", node_id, layer_id, block_index, type, v_fs_get_user_func(162));
+		printf("receive: verse_send_a_block_set(node_id = %u buffer_id = %u block_index = %u type = %u ); callback = %p\n", node_id, buffer_id, block_index, type, v_fs_get_user_func(162));
 #endif
 	{
 		switch(type)
@@ -294,7 +294,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 				uint8 data[VN_A_BLOCK_SIZE_INT8];
 				buffer_pos += vnp_raw_unpack_uint8_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT8);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
 				return buffer_pos;
 			}
 			case VN_A_LAYER_INT16 :
@@ -302,7 +302,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 				uint16 data[VN_A_BLOCK_SIZE_INT16];
 				buffer_pos += vnp_raw_unpack_uint16_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT16);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
 				return buffer_pos;
 			}
 			case VN_A_LAYER_INT24 :
@@ -310,7 +310,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 				uint32 data[VN_A_BLOCK_SIZE_INT24];
 				buffer_pos += vnp_raw_unpack_uint24_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT24);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
 				return buffer_pos;
 			}
 			case VN_A_LAYER_INT32 :
@@ -318,7 +318,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 				uint32 data[VN_A_BLOCK_SIZE_INT32];
 				buffer_pos += vnp_raw_unpack_uint32_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT32);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
 				return buffer_pos;
 			}
 			case VN_A_LAYER_REAL32 :
@@ -326,7 +326,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 				real32 data[VN_A_BLOCK_SIZE_REAL32];
 				buffer_pos += vnp_raw_unpack_real32_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_REAL32);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
 				return buffer_pos;
 			}
 			case VN_A_LAYER_REAL64 :
@@ -334,7 +334,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 				real64 data[VN_A_BLOCK_SIZE_REAL64];
 				buffer_pos += vnp_raw_unpack_real64_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_REAL64);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
 				return buffer_pos;
 			}
 		}
@@ -342,14 +342,14 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 
 	if(type > VN_A_LAYER_REAL64)
 	{
-		void (* alias_a_block_clear)(void *user_data, VNodeID node_id, VLayerID layer_id, uint32 block_index);
+		void (* alias_a_block_clear)(void *user_data, VNodeID node_id, VLayerID buffer_id, uint32 block_index);
 		alias_a_block_clear = v_fs_get_alias_user_func(162);
 		if(alias_a_block_clear != NULL)
-			alias_a_block_clear(v_fs_get_alias_user_data(162), node_id, layer_id, block_index);
+			alias_a_block_clear(v_fs_get_alias_user_data(162), node_id, buffer_id, block_index);
 		return buffer_pos;
 	}
 	if(func_a_block_set != NULL)
-		func_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, data);
+		func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, data);
 
 	return buffer_pos;
 }
