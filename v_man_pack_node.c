@@ -165,7 +165,7 @@ typedef struct VTempText	VTempText;
 
 struct VTempText {
 	VNodeID		node_id;
-	VNMBufferID buffer_id;
+	VBufferID buffer_id;
 	uint32		pos;
 	uint32		length;
 	uint16		index; 
@@ -204,7 +204,7 @@ void v_destroy_ordered_storage(VOrderedStorage *s)
 	free(s);
 }
 
-void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text)
+void verse_send_t_text_set(VNodeID node_id, VBufferID buffer_id, uint32 pos, uint32 length, const char *text)
 {
 	uint8 *buf;
 	VOrderedStorage *s;
@@ -235,7 +235,7 @@ void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, u
 static void call_text_set(VTempText *line)
 {
 	const char *t;
-	void (* func_t_text_set)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint16 length, const char *text);
+	void (* func_t_text_set)(void *user_data, VNodeID node_id, VBufferID buffer_id, uint32 pos, uint16 length, const char *text);
 
 	func_t_text_set = v_fs_get_user_func(99);
 #if defined V_PRINT_RECEIVE_COMMANDS
