@@ -144,6 +144,7 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 {
 	struct sockaddr_in	address_in;
+	int			ret;
 
 	if(v_n_socket_create() == -1)
 		return 0;
@@ -151,7 +152,10 @@ int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 	address_in.sin_port = htons(address->port); /* short, network byte order */
 	address_in.sin_addr.s_addr = htonl(address->ip);
 	memset(&address_in.sin_zero, 0, sizeof address_in.sin_zero);
-	return sendto(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr_in));
+	ret = sendto(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr_in));
+	if(ret < 0)
+		fprintf(stderr, "Socket sendto() failed, code %d (%s)\n", errno, strerror(errno));
+	return ret;
 }
 
 #if !defined V_GENERATE_FUNC_MODE
