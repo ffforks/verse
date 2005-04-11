@@ -348,23 +348,23 @@ typedef enum {
 } VNAConstants;
 
 typedef enum {
-	VN_A_LAYER_INT8,
-	VN_A_LAYER_INT16,
-	VN_A_LAYER_INT24,
-	VN_A_LAYER_INT32,
-	VN_A_LAYER_REAL32,
-	VN_A_LAYER_REAL64,
-} VNALayerType;
+	VN_A_BLOCK_INT8,
+	VN_A_BLOCK_INT16,
+	VN_A_BLOCK_INT24,
+	VN_A_BLOCK_INT32,
+	VN_A_BLOCK_REAL32,
+	VN_A_BLOCK_REAL64,
+} VNABlockType;
 
 /* Audio commands take pointers to blocks of these. They are not packed as unions. */
 typedef union {
-	int8	vint8;
-	int16	vint16;
-	uint8	vint24[3];
-	int32	vint32;
-	real32	vreal32;
-	real64	vreal64;
-} VNASample;
+	int8	vint8[VN_A_BLOCK_INT8];
+	int16	vint16[VN_A_BLOCK_INT16];
+	int32	vint24[VN_A_BLOCK_SIZE_INT24];
+	int32	vint32[VN_A_BLOCK_SIZE_INT32];
+	real32	vreal32[VN_A_BLOCK_REAL32];
+	real64	vreal64[VN_A_BLOCK_REAL64];
+} VNABlock;
 
 extern void		verse_set_port(uint16 port);
 extern void		verse_host_id_create(uint8 *id);
