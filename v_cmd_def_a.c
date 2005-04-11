@@ -9,27 +9,27 @@
 
 void v_gen_audio_cmd_def(void)
 {
-	v_cg_new_cmd(V_NT_AUDIO,		"a_layer_create", 160, VCGCT_NORMAL);
+	v_cg_new_cmd(V_NT_AUDIO,		"a_buffer_create", 160, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
-	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
+	v_cg_add_param(VCGP_BUFFER_ID,	"buffer_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_NAME,		"name");
 	v_cg_add_param(VCGP_ENUM_NAME,	"VNALayerType");
 	v_cg_add_param(VCGP_ENUM,		"type");
 	v_cg_add_param(VCGP_REAL64,		"frequency");
-	v_cg_alias(FALSE, "a_layer_destroy", "if(name[0] == 0)", 2, NULL);
+	v_cg_alias(FALSE, "a_buffer_destroy", "if(name[0] == 0)", 2, NULL);
 	v_cg_end_cmd();
 
-	v_cg_new_cmd(V_NT_AUDIO,		"a_layer_subscribe", 161, VCGCT_NORMAL); 
+	v_cg_new_cmd(V_NT_AUDIO,		"a_buffer_subscribe", 161, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
-	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
+	v_cg_add_param(VCGP_BUFFER_ID,	"layer_id");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
-	v_cg_alias(TRUE, "a_layer_unsubscribe", NULL, 2, NULL);
+	v_cg_alias(TRUE, "a_buffer_unsubscribe", NULL, 2, NULL);
 	v_cg_end_cmd();
 
 	v_cg_new_cmd(V_NT_AUDIO,		"a_block_set", 162, VCGCT_NORMAL); 
 	v_cg_add_param(VCGP_NODE_ID,	"node_id");
-	v_cg_add_param(VCGP_LAYER_ID,	"layer_id");
+	v_cg_add_param(VCGP_LAYER_ID,	"buffer_id");
 	v_cg_add_param(VCGP_UINT32,		"block_index");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_ENUM_NAME,	"VNALayerType");
@@ -69,7 +69,7 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\tuint8 data[VN_A_BLOCK_SIZE_INT8];\n"
 	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint8_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT8);\n"
 	"\t\t\t\tif(func_a_block_set != NULL)\n"
-	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t\tcase VN_A_LAYER_INT16 :\n"
@@ -77,7 +77,7 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\tuint16 data[VN_A_BLOCK_SIZE_INT16];\n"
 	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint16_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT16);\n"
 	"\t\t\t\tif(func_a_block_set != NULL)\n"
-	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t\tcase VN_A_LAYER_INT24 :\n"
@@ -85,7 +85,7 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\tuint32 data[VN_A_BLOCK_SIZE_INT24];\n"
 	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint24_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT24);\n"
 	"\t\t\t\tif(func_a_block_set != NULL)\n"
-	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t\tcase VN_A_LAYER_INT32 :\n"
@@ -93,7 +93,7 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\tuint32 data[VN_A_BLOCK_SIZE_INT32];\n"
 	"\t\t\t\tbuffer_pos += vnp_raw_unpack_uint32_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT32);\n"
 	"\t\t\t\tif(func_a_block_set != NULL)\n"
-	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t\tcase VN_A_LAYER_REAL32 :\n"
@@ -101,7 +101,7 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\treal32 data[VN_A_BLOCK_SIZE_REAL32];\n"
 	"\t\t\t\tbuffer_pos += vnp_raw_unpack_real32_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_REAL32);\n"
 	"\t\t\t\tif(func_a_block_set != NULL)\n"
-	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t\tcase VN_A_LAYER_REAL64 :\n"
@@ -109,7 +109,7 @@ void v_gen_audio_cmd_def(void)
 	"\t\t\t\treal64 data[VN_A_BLOCK_SIZE_REAL64];\n"
 	"\t\t\t\tbuffer_pos += vnp_raw_unpack_real64_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_REAL64);\n"
 	"\t\t\t\tif(func_a_block_set != NULL)\n"
-	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, layer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
+	"\t\t\t\t\tfunc_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);\n"
 	"\t\t\t\treturn buffer_pos;\n"
 	"\t\t\t}\n"
 	"\t\t}\n"
