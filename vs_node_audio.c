@@ -29,8 +29,8 @@ typedef struct {
 
 typedef struct{
 	VSNodeHead		head;
-	VSNLayer		*layers;
-	unsigned int	layer_count;
+	VSNLayer		*buffers;
+	unsigned int	buffer_count;
 	VSNStream		*streams;
 	unsigned int	stream_count;
 } VSNodeAudio;
@@ -45,10 +45,10 @@ VSNodeAudio * vs_a_create_node(unsigned int owner)
 	vs_add_new_node(&node->head, V_NT_AUDIO);
 	sprintf(name, "Audio_Node_%u", node->head.id);
 	create_node_head(&node->head, name, owner);
-	node->layer_count = 16;
-	node->layers = malloc((sizeof *node->layers) * node->layer_count);
-	for(i = 0; i < node->layer_count; i++)
-		node->layers[i].name[0] = 0;
+	node->buffer_count = 16;
+	node->buffers = malloc((sizeof *node->buffers) * node->buffer_count);
+	for(i = 0; i < node->buffer_count; i++)
+		node->buffers[i].name[0] = 0;
 	node->stream_count = 16;
 	node->streams = malloc((sizeof *node->streams) * node->stream_count);
 	for(i = 0; i < node->stream_count; i++)
@@ -62,17 +62,17 @@ void vs_a_destroy_node(VSNodeAudio *node)
 	unsigned int i, j;
 	destroy_node_head(&node->head);
 	
-	for(i = 0; i < node->layer_count; i++)
+	for(i = 0; i < node->buffer_count; i++)
 	{
-		if(node->layers[i].name[0] != 0)
+		if(node->buffers[i].name[0] != 0)
 		{
-			for(j = 0; j < node->layers[i].length; j++)
-				if(node->layers[i].data[j] != NULL)
-					free(node->layers[i].data[j]);
-			free(node->layers[i].data);
+			for(j = 0; j < node->buffers[i].length; j++)
+				if(node->buffers[i].data[j] != NULL)
+					free(node->buffers[i].data[j]);
+			free(node->buffers[i].data);
 		}
 	}
-	free(node->layers);
+	free(node->buffers);
 	free(node->streams);
 	free(node);
 }
@@ -82,10 +82,10 @@ void vs_a_subscribe(VSNodeAudio *node)
 	unsigned int i;
 	if(node == NULL)
 		return;
-	for(i = 0; i < node->layer_count; i++)
-		if(node->layers[i].name[0] != 0)
-			verse_send_a_layer_create(node->head.id, i, node->layers[i].name, node->layers[i].type,
-						  node->layers[i].frequency);
+	for(i = 0; i < node->buffer_count; i++)
+		if(node->buffers[i].name[0] != 0)
+			verse_send_a_buffer_create(node->head.id, i, node->buffers[i].name, node->buffers[i].type,
+						  node->buffers[i].frequency);
 	for(i = 0; i < node->stream_count; i++)
 		if(node->streams[i].name[0] != 0)
 			verse_send_a_stream_create(node->head.id, i, node->streams[i].name);
@@ -94,9 +94,9 @@ void vs_a_subscribe(VSNodeAudio *node)
 void vs_a_unsubscribe(VSNodeAudio *node)
 {
 	unsigned int i;
-	for(i = 0; i < node->layer_count; i++)
-		if(node->layers[i].name[0] != 0)	
-			vs_remove_subscriptor(node->layers[i].subscribers);
+	for(i = 0; i < node->buffer_count; i++)
+		if(node->buffers[i].name[0] != 0)	
+			vs_remove_subscriptor(node->buffers[i].subscribers);
 	for(i = 0; i < node->stream_count; i++)
 		if(node->streams[i].name[0] != 0)	
 			vs_remove_subscriptor(node->streams[i].subscribers);
@@ -164,7 +164,7 @@ static void callback_send_a_stream_destroy(void *user, VNodeID node_id, VLayerID
 	vs_reset_subscript_session();
 }
 
-static void callback_send_a_layer_create(void *user, VNodeID node_id, VLayerID layer_id, const char *name,
+static void callback_send_a_buffer_create(void *user, VNodeID node_id, VBufferID buffer_id, const char *name,
 					 VNALayerType type, real64 frequency)
 {
 	VSNodeAudio *node;
@@ -176,76 +176,76 @@ static void callback_send_a_layer_create(void *user, VNodeID node_id, VLayerID l
 	if(node == NULL)
 		return;
 
-	for(i = 0; i < node->layer_count; i++)
+	for(i = 0; i < node->buffer_count; i++)
 	{
-		if(layer_id != i)
+		if(buffer_id != i)
 		{
-			for(j = 0; name[j] == node->layers[i].name[j] && name[j] != 0; j++);
-			if(name[j] == node->layers[i].name[j])
+			for(j = 0; name[j] == node->buffers[i].name[j] && name[j] != 0; j++);
+			if(name[j] == node->buffers[i].name[j])
 				return;
 		}
 	}
 
-	if(layer_id < node->layer_count && node->layers[layer_id].name[0] != 0 && type != node->layers[layer_id].type)
+	if(buffer_id < node->buffer_count && node->buffers[buffer_id].name[0] != 0 && type != node->buffers[buffer_id].type)
 	{
-		free(node->layers[layer_id].data);
-		vs_destroy_subscription_list(node->layers[layer_id].subscribers);
-		node->layers[layer_id].name[0] = 0;
+		free(node->buffers[buffer_id].data);
+		vs_destroy_subscription_list(node->buffers[buffer_id].subscribers);
+		node->buffers[buffer_id].name[0] = 0;
 	}
 
-	if(layer_id >= node->layer_count || node->layers[layer_id].name[0] == 0)
+	if(buffer_id >= node->buffer_count || node->buffers[buffer_id].name[0] == 0)
 	{
-		for(layer_id = 0; layer_id < node->layer_count && node->layers[layer_id].name[0] != 0; layer_id++);
-		if(layer_id == node->layer_count)
+		for(buffer_id = 0; buffer_id < node->buffer_count && node->buffers[buffer_id].name[0] != 0; buffer_id++);
+		if(buffer_id == node->buffer_count)
 		{
-			layer_id = node->layer_count;
-			node->layer_count += 16;
-			node->layers = realloc(node->layers, (sizeof *node->layers) * node->layer_count);
-			for(i = layer_id; i < node->layer_count; i++)
-				node->layers[i].name[0] = 0;		
+			buffer_id = node->buffer_count;
+			node->buffer_count += 16;
+			node->buffers = realloc(node->buffers, (sizeof *node->buffers) * node->buffer_count);
+			for(i = buffer_id; i < node->buffer_count; i++)
+				node->buffers[i].name[0] = 0;		
 		}
-		node->layers[layer_id].subscribers = vs_create_subscription_list();
-		node->layers[layer_id].type = type;
-		node->layers[layer_id].frequency = frequency;
-		node->layers[layer_id].length = 64;
-		node->layers[layer_id].data = malloc(sizeof(*node->layers[layer_id].data) * node->layers[layer_id].length);
-		for(i = 0; i < node->layers[layer_id].length; i++)
-			node->layers[layer_id].data[i] = NULL;	
+		node->buffers[buffer_id].subscribers = vs_create_subscription_list();
+		node->buffers[buffer_id].type = type;
+		node->buffers[buffer_id].frequency = frequency;
+		node->buffers[buffer_id].length = 64;
+		node->buffers[buffer_id].data = malloc(sizeof(*node->buffers[buffer_id].data) * node->buffers[buffer_id].length);
+		for(i = 0; i < node->buffers[buffer_id].length; i++)
+			node->buffers[buffer_id].data[i] = NULL;	
 	}
 	for(i = 0; name[i] != 0 && i < 15; i++)
-		node->layers[layer_id].name[i] = name[i];
-	node->layers[layer_id].name[i] = 0;
+		node->buffers[buffer_id].name[i] = name[i];
+	node->buffers[buffer_id].name[i] = 0;
 
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->head.subscribers, i);
-		verse_send_a_layer_create(node_id, layer_id, name, type, frequency);
+		verse_send_a_buffer_create(node_id, buffer_id, name, type, frequency);
 	}
 	vs_reset_subscript_session();
 }
 
-static void callback_send_a_layer_destroy(void *user, VNodeID node_id, VLayerID layer_id)
+static void callback_send_a_buffer_destroy(void *user, VNodeID node_id, VBufferID buffer_id)
 {
 	VSNodeAudio *node;
 	unsigned int i, count;
 
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
-	if(node == NULL || layer_id >= node->layer_count || node->layers[layer_id].name[0] == 0)
+	if(node == NULL || buffer_id >= node->buffer_count || node->buffers[buffer_id].name[0] == 0)
 		return;
-	vs_remove_subscriptor(node->layers[layer_id].subscribers);
-	node->layers[layer_id].name[0] = 0;
-	free(node->layers[layer_id].data);
+	vs_remove_subscriptor(node->buffers[buffer_id].subscribers);
+	node->buffers[buffer_id].name[0] = 0;
+	free(node->buffers[buffer_id].data);
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->head.subscribers, i);
-		verse_send_a_layer_destroy(node_id, layer_id);
+		verse_send_a_buffer_destroy(node_id, buffer_id);
 	}
 	vs_reset_subscript_session();
 }
 
-static void callback_send_a_layer_subscribe(void *user, VNodeID node_id, VLayerID layer_id)
+static void callback_send_a_buffer_subscribe(void *user, VNodeID node_id, VLayerID buffer_id)
 {
 	VSNodeAudio *node;
 	unsigned int i;
@@ -253,32 +253,32 @@ static void callback_send_a_layer_subscribe(void *user, VNodeID node_id, VLayerI
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
 	if(node == NULL)
 		return;
-	if(node->layer_count <= layer_id)
+	if(node->buffer_count <= buffer_id)
 		return;
-	if(node->layers[layer_id].name[0] == 0)
+	if(node->buffers[buffer_id].name[0] == 0)
 		return;
-	vs_add_new_subscriptor(node->layers[layer_id].subscribers);
-	for(i = 0; i < node->layers[layer_id].length; i++)
+	vs_add_new_subscriptor(node->buffers[buffer_id].subscribers);
+	for(i = 0; i < node->buffers[buffer_id].length; i++)
 	{
-		if(node->layers[layer_id].data[i] != NULL)
-			verse_send_a_block_set(node_id, layer_id, i, node->layers[layer_id].type, node->layers[layer_id].data[i]);
+		if(node->buffers[buffer_id].data[i] != NULL)
+			verse_send_a_block_set(node_id, buffer_id, i, node->buffers[buffer_id].type, node->buffers[buffer_id].data[i]);
 	}
 }
 
-static void callback_send_a_layer_unsubscribe(void *user, VNodeID node_id, VLayerID layer_id)
+static void callback_send_a_buffer_unsubscribe(void *user, VNodeID node_id, VLayerID buffer_id)
 {
 	VSNodeAudio *node;
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
 	if(node == NULL)
 		return;
-	if(node->layer_count <= layer_id)
+	if(node->buffer_count <= buffer_id)
 		return;
-	if(node->layers[layer_id].name[0] == 0)
+	if(node->buffers[buffer_id].name[0] == 0)
 		return;
-	vs_remove_subscriptor(node->layers[layer_id].subscribers);
+	vs_remove_subscriptor(node->buffers[buffer_id].subscribers);
 }
 
-static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID layer_id, uint32 block_index,
+static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID buffer_id, uint32 block_index,
 				      VNALayerType type, const VNASample *data)
 {
 	static const size_t	blocksize[] = {
@@ -298,56 +298,56 @@ static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID laye
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
 	if(node == NULL)
 		return;
-	if(node->layers[layer_id].name[0] == 0)
+	if(node->buffers[buffer_id].name[0] == 0)
 		return;
-	if(type != node->layers[layer_id].type)		/* Disregard attempts to set data of wrong type. */
+	if(type != node->buffers[buffer_id].type)		/* Disregard attempts to set data of wrong type. */
 		return;
-	if(block_index > node->layers[layer_id].length)
+	if(block_index > node->buffers[buffer_id].length)
 	{
-		node->layers[layer_id].data = realloc(node->layers[layer_id].data,
-						      (sizeof *node->layers[layer_id].data) * (block_index + 64));
-		for(i = node->layers[layer_id].length; i < block_index + 64; i++)
-			node->layers[layer_id].data[i] = NULL;
-		node->layers[layer_id].length = block_index + 64;
+		node->buffers[buffer_id].data = realloc(node->buffers[buffer_id].data,
+						      (sizeof *node->buffers[buffer_id].data) * (block_index + 64));
+		for(i = node->buffers[buffer_id].length; i < block_index + 64; i++)
+			node->buffers[buffer_id].data[i] = NULL;
+		node->buffers[buffer_id].length = block_index + 64;
 	}
 
-	if(node->layers[layer_id].data[block_index] == NULL)
-		node->layers[layer_id].data[block_index] = malloc(blocksize[type]);
-	if(node->layers[layer_id].data[block_index] != NULL)
+	if(node->buffers[buffer_id].data[block_index] == NULL)
+		node->buffers[buffer_id].data[block_index] = malloc(blocksize[type]);
+	if(node->buffers[buffer_id].data[block_index] != NULL)
 	{
-		memcpy(node->layers[layer_id].data[block_index], data, blocksize[type]);
-		count =	vs_get_subscript_count(node->layers[layer_id].subscribers);
+		memcpy(node->buffers[buffer_id].data[block_index], data, blocksize[type]);
+		count =	vs_get_subscript_count(node->buffers[buffer_id].subscribers);
 		for(i = 0; i < count; i++)
 		{
-			vs_set_subscript_session(node->layers[layer_id].subscribers, i);
-			verse_send_a_block_set(node_id, layer_id, block_index, type, data);
+			vs_set_subscript_session(node->buffers[buffer_id].subscribers, i);
+			verse_send_a_block_set(node_id, buffer_id, block_index, type, data);
 		}
 		vs_reset_subscript_session();
 	}
 }
 
-static void callback_send_a_block_clear(void *user, VNodeID node_id, VLayerID layer_id, uint32 id)
+static void callback_send_a_block_clear(void *user, VNodeID node_id, VLayerID buffer_id, uint32 id)
 {
 	VSNodeAudio *node;
 	unsigned int i, count;
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
 	if(node == NULL)
 		return;
-	if(node->layer_count <= layer_id)
+	if(node->buffer_count <= buffer_id)
 		return;
-	if(node->layers[layer_id].name[0] == 0)
+	if(node->buffers[buffer_id].name[0] == 0)
 		return;
-	if(id >= node->layers[layer_id].length)
+	if(id >= node->buffers[buffer_id].length)
 		return;
-	if(node->layers[layer_id].data[id] == NULL)
+	if(node->buffers[buffer_id].data[id] == NULL)
 		return;
-	free(node->layers[layer_id].data[id]);
-	node->layers[layer_id].data[id] = NULL;
-	count =	vs_get_subscript_count(node->layers[layer_id].subscribers);
+	free(node->buffers[buffer_id].data[id]);
+	node->buffers[buffer_id].data[id] = NULL;
+	count =	vs_get_subscript_count(node->buffers[buffer_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->layers[layer_id].subscribers, i);
-		verse_send_a_block_clear(node_id, layer_id, id);
+		vs_set_subscript_session(node->buffers[buffer_id].subscribers, i);
+		verse_send_a_block_clear(node_id, buffer_id, id);
 	}
 	vs_reset_subscript_session();
 }
@@ -404,10 +404,10 @@ static void callback_send_a_stream(void *user, VNodeID node_id, VLayerID stream_
 
 void vs_a_callback_init(void)
 {
-	verse_callback_set(verse_send_a_layer_create,		callback_send_a_layer_create,		NULL);
-	verse_callback_set(verse_send_a_layer_destroy,		callback_send_a_layer_destroy,		NULL);
-	verse_callback_set(verse_send_a_layer_subscribe,	callback_send_a_layer_subscribe,	NULL);
-	verse_callback_set(verse_send_a_layer_unsubscribe,	callback_send_a_layer_unsubscribe,	NULL);
+	verse_callback_set(verse_send_a_buffer_create,		callback_send_a_buffer_create,		NULL);
+	verse_callback_set(verse_send_a_buffer_destroy,		callback_send_a_buffer_destroy,		NULL);
+	verse_callback_set(verse_send_a_buffer_subscribe,	callback_send_a_buffer_subscribe,	NULL);
+	verse_callback_set(verse_send_a_buffer_unsubscribe,	callback_send_a_buffer_unsubscribe,	NULL);
 	verse_callback_set(verse_send_a_block_set,		callback_send_a_block_set,		NULL);
 	verse_callback_set(verse_send_a_block_clear,		callback_send_a_block_clear,		NULL);
 	verse_callback_set(verse_send_a_stream_create,		callback_send_a_stream_create,		NULL);
