@@ -236,8 +236,9 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 	if(queue->unsent_size == 0 && delta < 1 && (queue->ack_nak == NULL || queue->ack_nak->next == NULL))
 		return TRUE;
 
-	if(queue->unsent_size == 0 && queue->ack_nak == NULL)
+	if(delta > 2.0 && queue->unsent_size == 0 && queue->ack_nak == NULL)
 	{
+/*		printf("A) re-sending last delta=%g\n", delta);*/
 		v_n_send_data(address, data, queue->packet_buffer_use);
 		queue->seconds = seconds;
 		queue->fractions = fractions;
@@ -261,6 +262,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 	{
 		if(size > 5)
 		{
+/*			printf("ACK: sending actual size=%u id=%u\n", size, queue->packet_id);*/
 			v_n_send_data(address, data, size);
 			queue->packet_buffer_use = size;
 			queue->seconds = seconds;
@@ -293,10 +295,11 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 				my_counter++;
 			}
 		}
+/*		printf("DATA: sending actual size=%u id=%u\n", size, queue->packet_id);*/
 		v_n_send_data(address, data, size);
 		queue->packet_buffer_use = size;
 		queue->packet_id++;
-		size = vnp_raw_pack_uint32(data, queue->packet_id);
+/*		size = vnp_raw_pack_uint32(data, queue->packet_id);*/
 		queue->seconds = seconds;
 		queue->fractions = fractions;	
 	}
