@@ -101,7 +101,7 @@ static void callback_send_t_set_language(void *user, VNodeID node_id, char *lang
 
 }
 
-static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBufferID buffer_id, const char *name)
+static void callback_send_t_buffer_create(void *user, VNodeID node_id, VBufferID buffer_id, const char *name)
 {
 	VSNodeText *node;
 	unsigned int i, count;
@@ -142,7 +142,7 @@ static void callback_send_t_buffer_create(void *user, VNodeID node_id, VNMBuffer
 	vs_reset_subscript_session();
 }
 
-void callback_send_t_buffer_destroy(void *user, VNodeID node_id, VNMBufferID buffer_id)
+void callback_send_t_buffer_destroy(void *user, VNodeID node_id, VBufferID buffer_id)
 {
 	VSNodeText *node;
 	unsigned int i, count;
@@ -166,7 +166,7 @@ void callback_send_t_buffer_destroy(void *user, VNodeID node_id, VNMBufferID buf
 	vs_reset_subscript_session();
 }
 
-static void callback_send_t_buffer_subscribe(void *user, VNodeID node_id, VNMBufferID buffer_id)
+static void callback_send_t_buffer_subscribe(void *user, VNodeID node_id, VBufferID buffer_id)
 {
 	VSNodeText *node;
 	unsigned int i;
@@ -185,7 +185,7 @@ static void callback_send_t_buffer_subscribe(void *user, VNodeID node_id, VNMBuf
 	}
 }
 
-static void callback_send_t_buffer_unsubscribe(void *user, VNodeID node_id, VNMBufferID buffer_id)
+static void callback_send_t_buffer_unsubscribe(void *user, VNodeID node_id, VBufferID buffer_id)
 {
 	VSNodeText *node;
 	node = (VSNodeText *)vs_get_node(node_id, V_NT_TEXT);
@@ -196,7 +196,7 @@ static void callback_send_t_buffer_unsubscribe(void *user, VNodeID node_id, VNMB
 	vs_remove_subscriptor(node->buffer[buffer_id].subscribers);
 }
 
-static void callback_send_t_text_set(void *user, VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text)
+static void callback_send_t_text_set(void *user, VNodeID node_id, VBufferID buffer_id, uint32 pos, uint32 length, const char *text)
 {
 	VSNodeText *node;
 	VSTextBuffer *tb;
