@@ -30,7 +30,7 @@ void v_gen_text_cmd_def(void)
 	v_cg_alias(TRUE, "t_buffer_unsubscribe", NULL, 2, NULL);
 	v_cg_end_cmd();
 
-	v_cg_new_manual_cmd(99, "t_text_set", "void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text)", NULL, NULL);
+	v_cg_new_manual_cmd(99, "t_text_set", "void verse_send_t_text_set(VNodeID node_id, VBufferID buffer_id, uint32 pos, uint32 length, const char *text)", NULL, NULL);
 }
 
 #endif
