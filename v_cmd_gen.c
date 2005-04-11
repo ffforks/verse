@@ -231,7 +231,7 @@ static void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 					fprintf(f, "VLayerID %s", VCGData.param_name[active]);
 				break;
 				case VCGP_BUFFER_ID :
-					fprintf(f, "VNMBufferID %s", VCGData.param_name[active]);
+					fprintf(f, "VBufferID %s", VCGData.param_name[active]);
 				break;
 				case VCGP_FRAGMENT_ID :
 					fprintf(f, "VNMFragmentID %s", VCGData.param_name[active]);
