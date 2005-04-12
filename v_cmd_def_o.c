@@ -88,8 +88,7 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_UINT32,		"time_s");
 	v_cg_add_param(VCGP_UINT32,		"time_f");
-	v_cg_add_param(VCGP_POINTER_TYPE,"real32");
-	v_cg_add_param(VCGP_POINTER,	"rot");
+	v_cg_add_param(VCGP_QUAT32,	"rot");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real32");
 	v_cg_add_param(VCGP_POINTER,	"speed");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real32");
@@ -100,10 +99,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tunsigned char mask = 0;\n"
 	"\t\tunsigned int cmd;\n"
 	"\t\tcmd = buffer_pos++;\n"
-	"\t\tbuffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[0]);\n"
-	"\t\tbuffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[1]);\n"
-	"\t\tbuffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[2]);\n"
-	"\t\tbuffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[3]);\n"
+	"\t\tbuffer_pos += vnp_pack_quat32(&buf[buffer_pos], rot);\n"
 	"\t\tif(drag_normal != NULL && (speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[3] < -0.0000001 || speed[3] < -0.0000001))\n"
 	"\t\t{\n"
 	"\t\t\tmask |= 1;\n"
@@ -248,8 +244,7 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_UINT32,		"time_s");
 	v_cg_add_param(VCGP_UINT32,		"time_f");
-	v_cg_add_param(VCGP_POINTER_TYPE,"real64");
-	v_cg_add_param(VCGP_POINTER,	"rot");
+	v_cg_add_param(VCGP_QUAT64,	"rot");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real64");
 	v_cg_add_param(VCGP_POINTER,	"speed");
 	v_cg_add_param(VCGP_POINTER_TYPE,"real64");
@@ -260,10 +255,7 @@ void v_gen_object_cmd_def(void)
 	"\t\tchar bitfeald = 0;\n"
 	"\t\tunsigned int cmd;\n"
 	"\t\tcmd = buffer_pos++;\n"
-	"\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[0]);\n"
-	"\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[1]);\n"
-	"\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[2]);\n"
-	"\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[3]);\n"
+	"\t\tbuffer_pos += vnp_pack_quat64(&buf[buffer_pos], rot);\n"
 	"\t\tif(drag_normal != NULL && (speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001 || speed[3] > 0.0000001 || speed[3] < -0.0000001))\n"
 	"\t\t{\n"
 	"\t\t\tbitfeald += 1;\n"
