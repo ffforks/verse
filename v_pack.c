@@ -118,7 +118,6 @@ size_t vnp_raw_pack_uint24_vector(void *buffer, const uint32 *data, unsigned int
 		*b++ = (*data >> 24) & 0xFF;
 		*b++ = (*data >> 16) & 0xFF;
 		*b++ = (*data >> 8)  & 0xFF;
-		*b++;
 		data++;
 	}
 	return length * 3;
