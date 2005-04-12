@@ -127,7 +127,7 @@ unsigned int v_unpack_o_transform_pos_real32(const char *buf, size_t buffer_leng
 	return buffer_pos;
 }
 
-void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 time_f, const real32 *rot, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag)
+void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat32 *rot, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -137,19 +137,17 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 ti
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 33);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_o_transform_rot_real32(node_id = %u time_s = %u time_f = %u rot = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, rot, speed, accelerate, drag_normal, drag);
+	printf("send: verse_send_o_transform_rot_real32(node_id = %u time_s = %u time_f = %u speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, speed, accelerate, drag_normal, drag);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_s);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_f);
+	buffer_pos += vnp_pack_quat32(&buf[buffer_pos], rot);
 	{
 		unsigned char mask = 0;
 		unsigned int cmd;
 		cmd = buffer_pos++;
-		buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[0]);
-		buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[1]);
-		buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[2]);
-		buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], rot[3]);
+		buffer_pos += vnp_pack_quat32(&buf[buffer_pos], rot);
 		if(drag_normal != NULL && (speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[3] < -0.0000001 || speed[3] < -0.0000001))
 		{
 			mask |= 1;
@@ -193,11 +191,11 @@ void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 ti
 unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_transform_rot_real32)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, const real32 *rot, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag);
+	void (* func_o_transform_rot_real32)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat32 *rot, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag);
 	VNodeID node_id;
 	uint32 time_s;
 	uint32 time_f;
-	const real32 *rot;
+	const VNQuat32 *rot;
 	const real32 *speed;
 	const real32 *accelerate;
 	const real32 *drag_normal;
@@ -209,6 +207,7 @@ unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_leng
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_s);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_f);
+	buffer_pos += vnp_unpack_quat32(&buf[buffer_pos], &rot);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	printf("receive: verse_send_o_transform_rot_real32(node_id = %u time_s = %u time_f = %u drag = %f ); callback = %p\n", node_id, time_s, time_f, drag, v_fs_get_user_func(33));
 #endif
@@ -402,7 +401,7 @@ unsigned int v_unpack_o_transform_pos_real64(const char *buf, size_t buffer_leng
 	return buffer_pos;
 }
 
-void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 time_f, const real64 *rot, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag)
+void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat64 *rot, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -412,19 +411,17 @@ void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 ti
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 36);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_o_transform_rot_real64(node_id = %u time_s = %u time_f = %u rot = %p speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, rot, speed, accelerate, drag_normal, drag);
+	printf("send: verse_send_o_transform_rot_real64(node_id = %u time_s = %u time_f = %u speed = %p accelerate = %p drag_normal = %p drag = %f );\n", node_id, time_s, time_f, speed, accelerate, drag_normal, drag);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_s);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], time_f);
+	buffer_pos += vnp_pack_quat64(&buf[buffer_pos], rot);
 	{
 		char bitfeald = 0;
 		unsigned int cmd;
 		cmd = buffer_pos++;
-		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[0]);
-		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[1]);
-		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[2]);
-		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], rot[3]);
+		buffer_pos += vnp_pack_quat64(&buf[buffer_pos], rot);
 		if(drag_normal != NULL && (speed[0] > 0.0000001 || speed[0] < -0.0000001 || speed[1] > 0.0000001 || speed[1] < -0.0000001 || speed[2] > 0.0000001 || speed[2] < -0.0000001 || speed[3] > 0.0000001 || speed[3] < -0.0000001))
 		{
 			bitfeald += 1;
@@ -468,11 +465,11 @@ void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 ti
 unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_transform_rot_real64)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, const real64 *rot, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag);
+	void (* func_o_transform_rot_real64)(void *user_data, VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat64 *rot, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag);
 	VNodeID node_id;
 	uint32 time_s;
 	uint32 time_f;
-	const real64 *rot;
+	const VNQuat64 *rot;
 	const real64 *speed;
 	const real64 *accelerate;
 	const real64 *drag_normal;
@@ -484,6 +481,7 @@ unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_leng
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_s);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_f);
+	buffer_pos += vnp_unpack_quat64(&buf[buffer_pos], &rot);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	printf("receive: verse_send_o_transform_rot_real64(node_id = %u time_s = %u time_f = %u drag = %f ); callback = %p\n", node_id, time_s, time_f, drag, v_fs_get_user_func(36));
 #endif
