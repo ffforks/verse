@@ -17,7 +17,7 @@ typedef struct {
 	void				**data;
 	unsigned int		length;
 	char				name[16];
-	VNALayerType		type;
+	VNABlockType		type;
 	real64			frequency;
 	VSSubscriptionList  *subscribers;
 } VSNLayer;
@@ -165,7 +165,7 @@ static void callback_send_a_stream_destroy(void *user, VNodeID node_id, VLayerID
 }
 
 static void callback_send_a_buffer_create(void *user, VNodeID node_id, VBufferID buffer_id, const char *name,
-					 VNALayerType type, real64 frequency)
+					 VNABlockType type, real64 frequency)
 {
 	VSNodeAudio *node;
 	unsigned int i, j, count;
@@ -279,7 +279,7 @@ static void callback_send_a_buffer_unsubscribe(void *user, VNodeID node_id, VLay
 }
 
 static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID buffer_id, uint32 block_index,
-				      VNALayerType type, const VNASample *data)
+				      VNABlockType type, const VNABlock *data)
 {
 	static const size_t	blocksize[] = {
 		VN_A_BLOCK_SIZE_INT8   * sizeof (int8),
@@ -292,7 +292,7 @@ static void callback_send_a_block_set(void *user, VNodeID node_id, VLayerID buff
 	VSNodeAudio *node;
 	unsigned int i, count;
 
-	if(type < 0 || type > VN_A_LAYER_REAL64)	/* Protect blocksize array. */
+	if(type < 0 || type > VN_A_BLOCK_REAL64)	/* Protect blocksize array. */
 		return;
 
 	node = (VSNodeAudio *)vs_get_node(node_id, V_NT_AUDIO);
@@ -379,7 +379,7 @@ static void callback_send_a_stream_unsubscribe(void *user, VNodeID node_id, VLay
 }
 
 static void callback_send_a_stream(void *user, VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f,
-				   VNALayerType type, real64 frequency, const VNASample *data)
+				   VNABlockType type, real64 frequency, const VNABlock *data)
 {
 	VSNodeAudio *node;
 	unsigned int i, count;
