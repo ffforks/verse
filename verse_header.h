@@ -161,6 +161,14 @@ typedef enum {
 	VN_FORMAT_REAL64
 } VNRealFormat;
 
+typedef struct {
+	real32	x, y, z, w;
+} VNQuat32;
+
+typedef struct {
+	real64	x, y, z, w;
+} VNQuat64;
+
 typedef enum {
 	VN_O_METHOD_GROUP_NAME_SIZE = 16,
 	VN_O_METHOD_NAME_SIZE = 16,
