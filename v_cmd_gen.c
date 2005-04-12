@@ -242,6 +242,13 @@ static void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 					else
 */						fprintf(f, "%s %s", VCGData.param_name[active - 1], VCGData.param_name[active]);
 				break;
+				case VCGP_QUAT32:
+					fprintf(f, "const VNQuat32 *%s", VCGData.param_name[active]);
+				break;
+				case VCGP_QUAT64:
+					fprintf(f, "const VNQuat64 *%s", VCGData.param_name[active]);
+				break;
+				
 			}
 			if(types)
 				fprintf(f, ";\n\t");
@@ -565,6 +572,12 @@ static void v_cg_gen_pack(boolean alias)
 			case VCGP_LONG_NAME :
 				fprintf(f, "\tbuffer_pos += vnp_raw_pack_string(&buf[buffer_pos], %s, 512);\n", param);
 			break;
+			case VCGP_QUAT32:
+				fprintf(f, "\tbuffer_pos += vnp_pack_quat32(&buf[buffer_pos], %s);\n", param);
+			break;
+			case VCGP_QUAT64:
+				fprintf(f, "\tbuffer_pos += vnp_pack_quat64(&buf[buffer_pos], %s);\n", param);
+			break;
 		}
 		if(no_param)
 			param = "-1";
@@ -670,6 +683,12 @@ static void v_cg_gen_unpack(void)
 			case VCGP_ENUM :
 				fprintf(f, "\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);\n");
 				fprintf(f, "\t%s = (%s)enum_temp;\n", VCGData.param_name[i], VCGData.param_name[i - 1]);
+			break;
+			case VCGP_QUAT32 :
+				fprintf(f, "\tbuffer_pos += vnp_unpack_quat32(&buf[buffer_pos], &%s);\n", VCGData.param_name[i]);
+			break;
+			case VCGP_QUAT64 :
+				fprintf(f, "\tbuffer_pos += vnp_unpack_quat64(&buf[buffer_pos], &%s);\n", VCGData.param_name[i]);
 			break;
 			case VCGP_UNPACK_INLINE :
 				if(!printed)
