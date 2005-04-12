@@ -16,7 +16,7 @@
 #include "v_network.h"
 #include "v_connection.h"
 
-void verse_send_a_buffer_create(VNodeID node_id, VBufferID buffer_id, const char *name, VNALayerType type, real64 frequency)
+void verse_send_a_buffer_create(VNodeID node_id, VBufferID buffer_id, const char *name, VNABlockType type, real64 frequency)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -70,11 +70,11 @@ unsigned int v_unpack_a_buffer_create(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_a_buffer_create)(void *user_data, VNodeID node_id, VBufferID buffer_id, const char *name, VNALayerType type, real64 frequency);
+	void (* func_a_buffer_create)(void *user_data, VNodeID node_id, VBufferID buffer_id, const char *name, VNABlockType type, real64 frequency);
 	VNodeID node_id;
 	VBufferID buffer_id;
 	char name[16];
-	VNALayerType type;
+	VNABlockType type;
 	real64 frequency;
 	
 	func_a_buffer_create = v_fs_get_user_func(160);
@@ -86,7 +86,7 @@ unsigned int v_unpack_a_buffer_create(const char *buf, size_t buffer_length)
 	if(buffer_length < 9 + buffer_pos)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
-	type = (VNALayerType)enum_temp;
+	type = (VNABlockType)enum_temp;
 	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frequency);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(name[0] == 0)
@@ -103,7 +103,7 @@ unsigned int v_unpack_a_buffer_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_a_buffer_create != NULL)
-		func_a_buffer_create(v_fs_get_user_data(160), node_id, buffer_id, name, (VNALayerType)type, frequency);
+		func_a_buffer_create(v_fs_get_user_data(160), node_id, buffer_id, name, (VNABlockType)type, frequency);
 
 	return buffer_pos;
 }
@@ -190,7 +190,7 @@ unsigned int v_unpack_a_buffer_subscribe(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_a_block_set(VNodeID node_id, VLayerID buffer_id, uint32 block_index, VNALayerType type, const VNASample *data)
+void verse_send_a_block_set(VNodeID node_id, VLayerID buffer_id, uint32 block_index, VNABlockType type, const VNABlock *data)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -209,22 +209,22 @@ void verse_send_a_block_set(VNodeID node_id, VLayerID buffer_id, uint32 block_in
 	{
 		switch(type)
 		{
-			case VN_A_LAYER_INT8 :
+			case VN_A_BLOCK_INT8 :
 				buffer_pos += vnp_raw_pack_uint8_vector(&buf[buffer_pos], (uint8 *) data, VN_A_BLOCK_SIZE_INT8);
 			break;
-			case VN_A_LAYER_INT16 :
+			case VN_A_BLOCK_INT16 :
 				buffer_pos += vnp_raw_pack_uint16_vector(&buf[buffer_pos], (uint16 *) data, VN_A_BLOCK_SIZE_INT16);
 			break;
-			case VN_A_LAYER_INT24 :
+			case VN_A_BLOCK_INT24 :
 				buffer_pos += vnp_raw_pack_uint24_vector(&buf[buffer_pos], (uint32 *) data, VN_A_BLOCK_SIZE_INT24);
 			break;
-			case VN_A_LAYER_INT32 :
+			case VN_A_BLOCK_INT32 :
 				buffer_pos += vnp_raw_pack_uint32_vector(&buf[buffer_pos], (uint32 *) data, VN_A_BLOCK_SIZE_INT32);
 			break;
-			case VN_A_LAYER_REAL32 :
+			case VN_A_BLOCK_REAL32 :
 				buffer_pos += vnp_raw_pack_real32_vector(&buf[buffer_pos], (real32 *) data, VN_A_BLOCK_SIZE_REAL32);
 			break;
-			case VN_A_LAYER_REAL64 :
+			case VN_A_BLOCK_REAL64 :
 				buffer_pos += vnp_raw_pack_real64_vector(&buf[buffer_pos], (real64 *) data, VN_A_BLOCK_SIZE_REAL64);
 			break;
 		}
@@ -265,12 +265,12 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_a_block_set)(void *user_data, VNodeID node_id, VLayerID buffer_id, uint32 block_index, VNALayerType type, const VNASample *data);
+	void (* func_a_block_set)(void *user_data, VNodeID node_id, VLayerID buffer_id, uint32 block_index, VNABlockType type, const VNABlock *data);
 	VNodeID node_id;
 	VLayerID buffer_id;
 	uint32 block_index;
-	VNALayerType type;
-	const VNASample *data;
+	VNABlockType type;
+	const VNABlock *data;
 	
 	func_a_block_set = v_fs_get_user_func(162);
 	if(buffer_length < 10)
@@ -279,9 +279,9 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &buffer_id);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &block_index);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
-	type = (VNALayerType)enum_temp;
+	type = (VNABlockType)enum_temp;
 #if defined V_PRINT_RECEIVE_COMMANDS
-	if(type > VN_A_LAYER_REAL64)
+	if(type > VN_A_BLOCK_REAL64)
 		printf("receive: verse_send_a_block_clear(node_id = %u buffer_id = %u block_index = %u ); callback = %p\n", node_id, buffer_id, block_index, v_fs_get_alias_user_func(162));
 	else
 		printf("receive: verse_send_a_block_set(node_id = %u buffer_id = %u block_index = %u type = %u ); callback = %p\n", node_id, buffer_id, block_index, type, v_fs_get_user_func(162));
@@ -289,58 +289,58 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 	{
 		switch(type)
 		{
-			case VN_A_LAYER_INT8 :
+			case VN_A_BLOCK_INT8 :
 			{
 				uint8 data[VN_A_BLOCK_SIZE_INT8];
 				buffer_pos += vnp_raw_unpack_uint8_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT8);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNABlockType)type, (VNABlock *) data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_INT16 :
+			case VN_A_BLOCK_INT16 :
 			{
 				uint16 data[VN_A_BLOCK_SIZE_INT16];
 				buffer_pos += vnp_raw_unpack_uint16_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT16);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNABlockType)type, (VNABlock *) data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_INT24 :
+			case VN_A_BLOCK_INT24 :
 			{
 				uint32 data[VN_A_BLOCK_SIZE_INT24];
 				buffer_pos += vnp_raw_unpack_uint24_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT24);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNABlockType)type, (VNABlock *) data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_INT32 :
+			case VN_A_BLOCK_INT32 :
 			{
 				uint32 data[VN_A_BLOCK_SIZE_INT32];
 				buffer_pos += vnp_raw_unpack_uint32_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT32);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNABlockType)type, (VNABlock *) data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_REAL32 :
+			case VN_A_BLOCK_REAL32 :
 			{
 				real32 data[VN_A_BLOCK_SIZE_REAL32];
 				buffer_pos += vnp_raw_unpack_real32_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_REAL32);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNABlockType)type, (VNABlock *) data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_REAL64 :
+			case VN_A_BLOCK_REAL64 :
 			{
 				real64 data[VN_A_BLOCK_SIZE_REAL64];
 				buffer_pos += vnp_raw_unpack_real64_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_REAL64);
 				if(func_a_block_set != NULL)
-					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, (VNASample *) data);
+					func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNABlockType)type, (VNABlock *) data);
 				return buffer_pos;
 			}
 		}
 	}
 
-	if(type > VN_A_LAYER_REAL64)
+	if(type > VN_A_BLOCK_REAL64)
 	{
 		void (* alias_a_block_clear)(void *user_data, VNodeID node_id, VLayerID buffer_id, uint32 block_index);
 		alias_a_block_clear = v_fs_get_alias_user_func(162);
@@ -349,7 +349,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_a_block_set != NULL)
-		func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNALayerType)type, data);
+		func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNABlockType)type, data);
 
 	return buffer_pos;
 }
@@ -516,7 +516,7 @@ unsigned int v_unpack_a_stream_subscribe(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNALayerType type, real64 frequency, const VNASample *data)
+void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNABlockType type, real64 frequency, const VNABlock *data)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -537,22 +537,22 @@ void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uin
 	{
 		switch(type)
 		{
-			case VN_A_LAYER_INT8 :
+			case VN_A_BLOCK_INT8 :
 				buffer_pos += vnp_raw_pack_uint8_vector(&buf[buffer_pos], ((uint8*)data), VN_A_BLOCK_SIZE_INT8);
 			break;
-			case VN_A_LAYER_INT16 :
+			case VN_A_BLOCK_INT16 :
 				buffer_pos += vnp_raw_pack_uint16_vector(&buf[buffer_pos], ((uint16*)data), VN_A_BLOCK_SIZE_INT16);
 			break;
-			case VN_A_LAYER_INT24 :
+			case VN_A_BLOCK_INT24 :
 				buffer_pos += vnp_raw_pack_uint24_vector(&buf[buffer_pos], ((uint32*)data), VN_A_BLOCK_SIZE_INT24);
 			break;
-			case VN_A_LAYER_INT32 :
+			case VN_A_BLOCK_INT32 :
 				buffer_pos += vnp_raw_pack_uint32_vector(&buf[buffer_pos], ((uint32*)data), VN_A_BLOCK_SIZE_INT32);
 			break;
-			case VN_A_LAYER_REAL32 :
+			case VN_A_BLOCK_REAL32 :
 				buffer_pos += vnp_raw_pack_real32_vector(&buf[buffer_pos], ((real32*)data), VN_A_BLOCK_SIZE_REAL32);
 			break;
-			case VN_A_LAYER_REAL64 :
+			case VN_A_BLOCK_REAL64 :
 				buffer_pos += vnp_raw_pack_real64_vector(&buf[buffer_pos], ((real64*)data), VN_A_BLOCK_SIZE_REAL64);
 			break;
 		}
@@ -569,14 +569,14 @@ unsigned int v_unpack_a_stream(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_a_stream)(void *user_data, VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNALayerType type, real64 frequency, const VNASample *data);
+	void (* func_a_stream)(void *user_data, VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNABlockType type, real64 frequency, const VNABlock *data);
 	VNodeID node_id;
 	VLayerID stream_id;
 	uint32 time_s;
 	uint32 time_f;
-	VNALayerType type;
+	VNABlockType type;
 	real64 frequency;
-	const VNASample *data;
+	const VNABlock *data;
 	
 	func_a_stream = v_fs_get_user_func(165);
 	if(buffer_length < 6)
@@ -586,7 +586,7 @@ unsigned int v_unpack_a_stream(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_s);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &time_f);
 	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
-	type = (VNALayerType)enum_temp;
+	type = (VNABlockType)enum_temp;
 	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frequency);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	printf("receive: verse_send_a_stream(node_id = %u stream_id = %u time_s = %u time_f = %u type = %u frequency = %f ); callback = %p\n", node_id, stream_id, time_s, time_f, type, frequency, v_fs_get_user_func(165));
@@ -594,59 +594,59 @@ unsigned int v_unpack_a_stream(const char *buf, size_t buffer_length)
 	{
 		switch(type)
 		{
-			case VN_A_LAYER_INT8 :
+			case VN_A_BLOCK_INT8 :
 			{
 				uint8 data[VN_A_BLOCK_SIZE_INT8];
 				buffer_pos += vnp_raw_unpack_uint8_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT8);
 				if(func_a_stream != NULL)
-					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNALayerType)type, frequency, (VNASample *) data);
+					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNABlockType)type, frequency, (VNABlock *) data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_INT16 :
+			case VN_A_BLOCK_INT16 :
 			{
 				uint16 data[VN_A_BLOCK_SIZE_INT16];
 				buffer_pos += vnp_raw_unpack_uint16_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT16);
 				if(func_a_stream != NULL)
-					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNALayerType)type, frequency, (VNASample *) data);
+					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNABlockType)type, frequency, (VNABlock *) data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_INT24 :
+			case VN_A_BLOCK_INT24 :
 			{
 				uint32 data[VN_A_BLOCK_SIZE_INT24];
 				buffer_pos += vnp_raw_unpack_uint24_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT24);
 				if(func_a_stream != NULL)
-					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNALayerType)type, frequency, (VNASample *) data);
+					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNABlockType)type, frequency, (VNABlock *) data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_INT32 :
+			case VN_A_BLOCK_INT32 :
 			{
 				uint32 data[VN_A_BLOCK_SIZE_INT32];
 				buffer_pos += vnp_raw_unpack_uint32_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_INT32);
 				if(func_a_stream != NULL)
-					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNALayerType)type, frequency, (VNASample *) data);
+					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNABlockType)type, frequency, (VNABlock *) data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_REAL32 :
+			case VN_A_BLOCK_REAL32 :
 			{
 				real32 data[VN_A_BLOCK_SIZE_REAL32];
 				buffer_pos += vnp_raw_unpack_real32_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_REAL32);
 				if(func_a_stream != NULL)
-					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNALayerType)type, frequency, (VNASample *) data);
+					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNABlockType)type, frequency, (VNABlock *) data);
 				return buffer_pos;
 			}
-			case VN_A_LAYER_REAL64 :
+			case VN_A_BLOCK_REAL64 :
 			{
 				real64 data[VN_A_BLOCK_SIZE_REAL64];
 				buffer_pos += vnp_raw_unpack_real64_vector(&buf[buffer_pos], data, VN_A_BLOCK_SIZE_REAL64);
 				if(func_a_stream != NULL)
-					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNALayerType)type, frequency, (VNASample *) data);
+					func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNABlockType)type, frequency, (VNABlock *) data);
 				return buffer_pos;
 			}
 		}
 	}
 
 	if(func_a_stream != NULL)
-		func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNALayerType)type, frequency, data);
+		func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNABlockType)type, frequency, data);
 
 	return buffer_pos;
 }
