@@ -282,3 +282,53 @@ size_t vnp_raw_unpack_string(const void *buffer, char *string, size_t max_size, 
 	string[i] = 0;
 	return ++i;
 }
+
+/* --------------------------------------------------------------------------------------------------- */
+
+size_t vnp_pack_quat32(void *buffer, const VNQuat32 *data)
+{
+	uint8	*out = buffer;
+
+	out += vnp_raw_pack_real32(out, data->x);
+	out += vnp_raw_pack_real32(out, data->y);
+	out += vnp_raw_pack_real32(out, data->z);
+	out += vnp_raw_pack_real32(out, data->w);
+
+	return out - (uint8 *) buffer;
+}
+
+size_t vnp_unpack_quat32(const void *buffer, VNQuat32 *data)
+{
+	const uint8	*in = buffer;
+
+	in += vnp_raw_unpack_real32(in, &data->x);
+	in += vnp_raw_unpack_real32(in, &data->y);
+	in += vnp_raw_unpack_real32(in, &data->z);
+	in += vnp_raw_unpack_real32(in, &data->w);
+
+	return in - (uint8 *) buffer;
+}
+
+size_t vnp_pack_quat64(void *buffer, const VNQuat64 *data)
+{
+	uint8	*out = buffer;
+
+	out += vnp_raw_pack_real64(out, data->x);
+	out += vnp_raw_pack_real64(out, data->y);
+	out += vnp_raw_pack_real64(out, data->z);
+	out += vnp_raw_pack_real64(out, data->w);
+
+	return out - (uint8 *) buffer;
+}
+
+size_t vnp_unpack_quat64(const void *buffer, VNQuat64 *data)
+{
+	const uint8	*in = buffer;
+
+	in += vnp_raw_unpack_real64(in, &data->x);
+	in += vnp_raw_unpack_real64(in, &data->y);
+	in += vnp_raw_unpack_real64(in, &data->z);
+	in += vnp_raw_unpack_real64(in, &data->w);
+
+	return in - (uint8 *) buffer;
+}

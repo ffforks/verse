@@ -47,3 +47,10 @@ extern size_t vnp_raw_unpack_real32_vector(const void *buffer, real32 *data, uns
 
 extern size_t vnp_raw_pack_real64_vector(void *buffer, const real64 *data, unsigned int length);
 extern size_t vnp_raw_unpack_real64_vector(const void *buffer, real64 *data, unsigned int length);
+
+/* --------------------------------------------------------------------------------------------------- */
+
+extern size_t vnp_pack_quat32(void *buffer, const VNQuat32 *data);
+extern size_t vnp_unpack_quat32(const void *buffer, VNQuat32 *data);
+extern size_t vnp_pack_quat64(void *buffer, const VNQuat64 *data);
+extern size_t vnp_unpack_quat64(const void *buffer, VNQuat64 *data);
