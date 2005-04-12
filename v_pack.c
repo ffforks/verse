@@ -103,7 +103,7 @@ size_t vnp_raw_unpack_uint24(const void *buffer, uint32 *data)
 	tmp |= ((uint32) *p++) << 24;
 	tmp |= ((uint32) *p++) << 16;
 	tmp |= ((uint32) *p++) << 8;
-	*data = tmp << 8;
+	tmp |= tmp >> 24;
 
 	return 3;
 }
@@ -126,12 +126,15 @@ size_t vnp_raw_pack_uint24_vector(void *buffer, const uint32 *data, unsigned int
 size_t vnp_raw_unpack_uint24_vector(const void *buffer, uint32 *data, unsigned int length)
 {
 	register const uint8	*b = buffer;
+	register uint32		tmp;
 	uint32 *end;
 	for(end = data + length; end != data; data++)
 	{
-		*data  = ((uint32) *b++) << 24;
-		*data |= ((uint32) *b++) << 16;
-		*data |= ((uint32) *b++) << 8;
+		tmp  = ((uint32) *b++) << 24;
+		tmp |= ((uint32) *b++) << 16;
+		tmp |= ((uint32) *b++) << 8;
+		tmp |= tmp >> 24;
+		*data = tmp;
 	}
 	return length * 3;
 }
