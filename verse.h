@@ -380,12 +380,12 @@ typedef enum {
 
 /* Audio commands take pointers to blocks of these. They are not packed as unions. */
 typedef union {
-	int8	vint8[VN_A_BLOCK_INT8];
-	int16	vint16[VN_A_BLOCK_INT16];
+	int8	vint8[VN_A_BLOCK_SIZE_INT8];
+	int16	vint16[VN_A_BLOCK_SIZE_INT16];
 	int32	vint24[VN_A_BLOCK_SIZE_INT24];
 	int32	vint32[VN_A_BLOCK_SIZE_INT32];
-	real32	vreal32[VN_A_BLOCK_REAL32];
-	real64	vreal64[VN_A_BLOCK_REAL64];
+	real32	vreal32[VN_A_BLOCK_SIZE_REAL32];
+	real64	vreal64[VN_A_BLOCK_SIZE_REAL64];
 } VNABlock;
 
 extern void		verse_set_port(uint16 port);
