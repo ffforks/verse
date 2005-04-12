@@ -20,7 +20,7 @@ extern "C" {
 /* Release information. */
 #define	V_RELEASE_NUMBER	5
 #define	V_RELEASE_PATCH		0
-#define	V_RELEASE_LABEL		"pre2"
+#define	V_RELEASE_LABEL		"pre3"
 
 typedef unsigned char	boolean;
 typedef signed char	int8;
@@ -56,9 +56,9 @@ typedef enum {
 } VNodeType;
 
 typedef uint32		VNodeID;
-typedef uint16		VLayerID;		/* Commonly used to identify layers. */
+typedef uint16		VLayerID;		/* Commonly used to identify layers, nodes that have them. */
+typedef uint16		VBufferID;		/* Commonly used to identify buffers, nodes that have them. */
 typedef uint16		VNMFragmentID;
-typedef uint16		VNMBufferID;
 
 typedef void *		VSession;
 
@@ -174,6 +174,14 @@ typedef enum {
 	VN_FORMAT_REAL32,
 	VN_FORMAT_REAL64
 } VNRealFormat;
+
+typedef struct {
+	real32	x, y, z, w;
+} VNQuat32;
+
+typedef struct {
+	real64	x, y, z, w;
+} VNQuat64;
 
 typedef enum {
 	VN_O_METHOD_GROUP_NAME_SIZE = 16,
@@ -362,28 +370,28 @@ typedef enum {
 } VNAConstants;
 
 typedef enum {
-	VN_A_LAYER_INT8,
-	VN_A_LAYER_INT16,
-	VN_A_LAYER_INT24,
-	VN_A_LAYER_INT32,
-	VN_A_LAYER_REAL32,
-	VN_A_LAYER_REAL64,
-} VNALayerType;
+	VN_A_BLOCK_INT8,
+	VN_A_BLOCK_INT16,
+	VN_A_BLOCK_INT24,
+	VN_A_BLOCK_INT32,
+	VN_A_BLOCK_REAL32,
+	VN_A_BLOCK_REAL64,
+} VNABlockType;
 
 /* Audio commands take pointers to blocks of these. They are not packed as unions. */
 typedef union {
-	int8	vint8;
-	int16	vint16;
-	uint8	vint24[3];
-	int32	vint32;
-	real32	vreal32;
-	real64	vreal64;
-} VNASample;
+	int8	vint8[VN_A_BLOCK_INT8];
+	int16	vint16[VN_A_BLOCK_INT16];
+	int32	vint24[VN_A_BLOCK_SIZE_INT24];
+	int32	vint32[VN_A_BLOCK_SIZE_INT32];
+	real32	vreal32[VN_A_BLOCK_REAL32];
+	real64	vreal64[VN_A_BLOCK_REAL64];
+} VNABlock;
 
 extern void		verse_set_port(uint16 port);
 extern void		verse_host_id_create(uint8 *id);
 extern void		verse_host_id_set(uint8 *id);
-extern void		verse_callback_set(void *send_func, void (*callback)(), void *user_data);
+extern void		verse_callback_set(void *send_func, void *callback, void *user_data);
 extern void		verse_callback_update(uint32 microseconds);
 extern void		verse_session_set(VSession session);
 extern VSession		verse_session_get(void);
@@ -422,10 +430,10 @@ extern void verse_send_tag_destroy(VNodeID node_id, uint16 group_id, uint16 tag_
 extern void verse_send_node_name_set(VNodeID node_id, const char *name);
 
 extern void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time_s, uint32 time_f, const real32 *pos, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag);
-extern void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 time_f, const real32 *rot, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag);
+extern void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat32 *rot, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag);
 extern void verse_send_o_transform_scale_real32(VNodeID node_id, real32 scale_x, real32 scale_y, real32 scale_z);
 extern void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time_s, uint32 time_f, const real64 *pos, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag);
-extern void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 time_f, const real64 *rot, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag);
+extern void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat64 *rot, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag);
 extern void verse_send_o_transform_scale_real64(VNodeID node_id, real64 scale_x, real64 scale_y, real64 scale_z);
 extern void verse_send_o_transform_subscribe(VNodeID node_id, VNRealFormat type);
 extern void verse_send_o_transform_unsubscribe(VNodeID node_id, VNRealFormat type);
@@ -462,7 +470,7 @@ extern void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer
 extern void verse_send_g_polygon_set_face_real32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real32 value);
 extern void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 def_crease);
 extern void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def_crease);
-extern void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w);
+extern void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, const VNQuat64 *rot);
 extern void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id);
 
 extern void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, const VMatFrag *fragment);
@@ -476,11 +484,11 @@ extern void verse_send_b_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);
 extern void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, const VNBTile *tile);
 
 extern void verse_send_t_set_language(VNodeID node_id, const char *language);
-extern void verse_send_t_buffer_create(VNodeID node_id, VNMBufferID buffer_id, const char *name);
-extern void verse_send_t_buffer_destroy(VNodeID node_id, VNMBufferID buffer_id);
-extern void verse_send_t_buffer_subscribe(VNodeID node_id, VNMBufferID buffer_id);
-extern void verse_send_t_buffer_unsubscribe(VNodeID node_id, VNMBufferID buffer_id);
-extern void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text);
+extern void verse_send_t_buffer_create(VNodeID node_id, VBufferID buffer_id, const char *name);
+extern void verse_send_t_buffer_destroy(VNodeID node_id, VBufferID buffer_id);
+extern void verse_send_t_buffer_subscribe(VNodeID node_id, VBufferID buffer_id);
+extern void verse_send_t_buffer_unsubscribe(VNodeID node_id, VBufferID buffer_id);
+extern void verse_send_t_text_set(VNodeID node_id, VBufferID buffer_id, uint32 pos, uint32 length, const char *text);
 
 extern void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *name, uint8 dimensions);
 extern void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id);
@@ -489,17 +497,17 @@ extern void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id);
 extern void verse_send_c_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, const real64 *pre_value, const uint32 *pre_pos, const real64 *value, real64 pos, const real64 *post_value, const uint32 *post_pos);
 extern void verse_send_c_key_destroy(VNodeID node_id, VLayerID curve_id, uint32 key_id);
 
-extern void verse_send_a_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNALayerType type, real64 frequency);
-extern void verse_send_a_layer_destroy(VNodeID node_id, VLayerID layer_id);
-extern void verse_send_a_layer_subscribe(VNodeID node_id, VLayerID layer_id);
-extern void verse_send_a_layer_unsubscribe(VNodeID node_id, VLayerID layer_id);
-extern void verse_send_a_block_set(VNodeID node_id, VLayerID layer_id, uint32 block_index, VNALayerType type, const VNASample *data);
-extern void verse_send_a_block_clear(VNodeID node_id, VLayerID layer_id, uint32 block_index);
+extern void verse_send_a_buffer_create(VNodeID node_id, VBufferID buffer_id, const char *name, VNABlockType type, real64 frequency);
+extern void verse_send_a_buffer_destroy(VNodeID node_id, VBufferID buffer_id);
+extern void verse_send_a_buffer_subscribe(VNodeID node_id, VBufferID layer_id);
+extern void verse_send_a_buffer_unsubscribe(VNodeID node_id, VBufferID layer_id);
+extern void verse_send_a_block_set(VNodeID node_id, VLayerID buffer_id, uint32 block_index, VNABlockType type, const VNABlock *data);
+extern void verse_send_a_block_clear(VNodeID node_id, VLayerID buffer_id, uint32 block_index);
 extern void verse_send_a_stream_create(VNodeID node_id, VLayerID stream_id, const char *name);
 extern void verse_send_a_stream_destroy(VNodeID node_id, VLayerID stream_id);
 extern void verse_send_a_stream_subscribe(VNodeID node_id, VLayerID stream_id);
 extern void verse_send_a_stream_unsubscribe(VNodeID node_id, VLayerID stream_id);
-extern void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNALayerType type, real64 frequency, const VNASample *data);
+extern void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNABlockType type, real64 frequency, const VNABlock *data);
 
 
 #if defined __cplusplus
