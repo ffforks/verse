@@ -28,16 +28,13 @@ typedef struct {
 } VSNGLayer;
 
 typedef struct {
-	char weight[16];
-	char reference[16];
-	uint16 parent;
-	real64 pos_x;
-	real64 pos_y;
-	real64 pos_z;
-	real64 rot_x;
-	real64 rot_y;
-	real64 rot_z;
-	real64 rot_w;
+	char	weight[16];
+	char	reference[16];
+	uint16	parent;
+	real64	pos_x;
+	real64	pos_y;
+	real64	pos_z;
+	VNQuat64 rot;
 } VSNGBone;
 
 typedef struct {
@@ -131,7 +128,7 @@ void vs_g_subscribe(VSNodeGeometry *node)
 	verse_send_g_crease_set_edge(node->head.id, node->crease_edge_layer, node->crease_edge);
 	for(i = 0; i < node->bone_count; i++)
 		if(node->bones[i].weight[0] != 0)	
-			verse_send_g_bone_create(node->head.id, (uint16)i, node->bones[i].weight, node->bones[i].reference, node->bones[i].parent, node->bones[i].pos_x, node->bones[i].pos_y, node->bones[i].pos_z, node->bones[i].rot_x, node->bones[i].rot_y, node->bones[i].rot_z, node->bones[i].rot_w);
+			verse_send_g_bone_create(node->head.id, (uint16)i, node->bones[i].weight, node->bones[i].reference, node->bones[i].parent, node->bones[i].pos_x, node->bones[i].pos_y, node->bones[i].pos_z, &node->bones[i].rot);
 }
 
 
@@ -923,7 +920,7 @@ static void callback_send_g_crease_set_edge(void *user, VNodeID node_id, char *l
 void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, const char *weight,
 				 const char *reference, uint16 parent,
 				 real64 pos_x, real64 pos_y, real64 pos_z,
-				 real64 rot_x, real64 rot_y, real64 rot_z, real64 rot_w)
+				 const VNQuat64 *rot)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -956,16 +953,13 @@ void callback_send_g_bone_create(void *user, VNodeID node_id, uint16 bone_id, co
 	node->bones[bone_id].pos_x = pos_x;
 	node->bones[bone_id].pos_y = pos_y;
 	node->bones[bone_id].pos_z = pos_z;
-	node->bones[bone_id].rot_x = rot_x;
-	node->bones[bone_id].rot_y = rot_y;
-	node->bones[bone_id].rot_z = rot_z;
-	node->bones[bone_id].rot_w = rot_w;
+	node->bones[bone_id].rot = *rot;
 
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->head.subscribers, i);
-		verse_send_g_bone_create(node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, rot_w);
+		verse_send_g_bone_create(node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, rot);
 	}
 	vs_reset_subscript_session();
 }
