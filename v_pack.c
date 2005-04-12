@@ -289,6 +289,8 @@ size_t vnp_pack_quat32(void *buffer, const VNQuat32 *data)
 {
 	uint8	*out = buffer;
 
+	if(data == NULL)
+		return 0;
 	out += vnp_raw_pack_real32(out, data->x);
 	out += vnp_raw_pack_real32(out, data->y);
 	out += vnp_raw_pack_real32(out, data->z);
@@ -301,6 +303,8 @@ size_t vnp_unpack_quat32(const void *buffer, VNQuat32 *data)
 {
 	const uint8	*in = buffer;
 
+	if(data == NULL)
+		return 0;
 	in += vnp_raw_unpack_real32(in, &data->x);
 	in += vnp_raw_unpack_real32(in, &data->y);
 	in += vnp_raw_unpack_real32(in, &data->z);
@@ -313,6 +317,8 @@ size_t vnp_pack_quat64(void *buffer, const VNQuat64 *data)
 {
 	uint8	*out = buffer;
 
+	if(data == NULL)
+		return 0;
 	out += vnp_raw_pack_real64(out, data->x);
 	out += vnp_raw_pack_real64(out, data->y);
 	out += vnp_raw_pack_real64(out, data->z);
@@ -325,6 +331,8 @@ size_t vnp_unpack_quat64(const void *buffer, VNQuat64 *data)
 {
 	const uint8	*in = buffer;
 
+	if(data == NULL)
+		return 0;
 	in += vnp_raw_unpack_real64(in, &data->x);
 	in += vnp_raw_unpack_real64(in, &data->y);
 	in += vnp_raw_unpack_real64(in, &data->z);
