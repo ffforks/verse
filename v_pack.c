@@ -340,3 +340,47 @@ size_t vnp_unpack_quat64(const void *buffer, VNQuat64 *data)
 
 	return in - (uint8 *) buffer;
 }
+
+size_t vnp_pack_audio_block(void *buffer, VNABlockType type, const VNABlock *block)
+{
+	if(block == NULL)
+		return 0;
+	switch(type)
+	{
+		case VN_A_BLOCK_INT8:
+			return vnp_raw_pack_uint8_vector(buffer, block->vint8, sizeof block->vint8 / sizeof *block->vint8);
+		case VN_A_BLOCK_INT16:
+			return vnp_raw_pack_uint16_vector(buffer, block->vint16, sizeof block->vint16 / sizeof *block->vint16);
+		case VN_A_BLOCK_INT24:
+			return vnp_raw_pack_uint24_vector(buffer, block->vint24, sizeof block->vint24 / sizeof *block->vint24);
+		case VN_A_BLOCK_INT32:
+			return vnp_raw_pack_uint32_vector(buffer, block->vint32, sizeof block->vint32 / sizeof *block->vint32);
+		case VN_A_BLOCK_REAL32:
+			return vnp_raw_pack_real32_vector(buffer, block->vreal32, sizeof block->vreal32 / sizeof *block->vreal32);
+		case VN_A_BLOCK_REAL64:
+			return vnp_raw_pack_real64_vector(buffer, block->vreal64, sizeof block->vreal64 / sizeof *block->vreal64);
+	}
+	return 0;
+}
+
+size_t vnp_unpack_audio_block(const void *buffer, VNABlockType type, VNABlock *block)
+{
+	if(block == NULL)
+		return 0;
+	switch(type)
+	{
+		case VN_A_BLOCK_INT8:
+			return vnp_raw_unpack_uint8_vector(buffer, block->vint8, sizeof block->vint8 / sizeof *block->vint8);
+		case VN_A_BLOCK_INT16:
+			return vnp_raw_unpack_uint16_vector(buffer, block->vint16, sizeof block->vint16 / sizeof *block->vint16);
+		case VN_A_BLOCK_INT24:
+			return vnp_raw_unpack_uint24_vector(buffer, block->vint24, sizeof block->vint24 / sizeof *block->vint24);
+		case VN_A_BLOCK_INT32:
+			return vnp_raw_unpack_uint32_vector(buffer, block->vint32, sizeof block->vint32 / sizeof *block->vint32);
+		case VN_A_BLOCK_REAL32:
+			return vnp_raw_unpack_real32_vector(buffer, block->vreal32, sizeof block->vreal32 / sizeof *block->vreal32);
+		case VN_A_BLOCK_REAL64:
+			return vnp_raw_unpack_real64_vector(buffer, block->vreal64, sizeof block->vreal64 / sizeof *block->vreal64);
+	}
+	return 0;
+}

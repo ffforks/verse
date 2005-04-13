@@ -54,3 +54,6 @@ extern size_t vnp_pack_quat32(void *buffer, const VNQuat32 *data);
 extern size_t vnp_unpack_quat32(const void *buffer, VNQuat32 *data);
 extern size_t vnp_pack_quat64(void *buffer, const VNQuat64 *data);
 extern size_t vnp_unpack_quat64(const void *buffer, VNQuat64 *data);
+
+extern size_t vnp_pack_audio_block(void *buffer, VNABlockType type, const VNABlock *block);
+extern size_t vnp_unpack_audio_block(const void *buffer, VNABlockType type, VNABlock *block);
