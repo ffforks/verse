@@ -1099,7 +1099,7 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 	real64 pos_x;
 	real64 pos_y;
 	real64 pos_z;
-	const VNQuat64 *rot;
+	VNQuat64	rot;
 	
 	func_g_bone_create = v_fs_get_user_func(64);
 	if(buffer_length < 6)
@@ -1132,7 +1132,7 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_g_bone_create != NULL)
-		func_g_bone_create(v_fs_get_user_data(64), node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, rot);
+		func_g_bone_create(v_fs_get_user_data(64), node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, &rot);
 
 	return buffer_pos;
 }
