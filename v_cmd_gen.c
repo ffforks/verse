@@ -243,10 +243,16 @@ static void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 */						fprintf(f, "%s %s", VCGData.param_name[active - 1], VCGData.param_name[active]);
 				break;
 				case VCGP_QUAT32:
-					fprintf(f, "const VNQuat32 *%s", VCGData.param_name[active]);
+					if(types)
+						fprintf(f, "VNQuat32\t%s", VCGData.param_name[active]);
+					else
+						fprintf(f, "const VNQuat32 *%s", VCGData.param_name[active]);
 				break;
 				case VCGP_QUAT64:
-					fprintf(f, "const VNQuat64 *%s", VCGData.param_name[active]);
+					if(types)
+						fprintf(f, "VNQuat64\t%s", VCGData.param_name[active]);
+					else
+						fprintf(f, "const VNQuat64 *%s", VCGData.param_name[active]);
 				break;
 				
 			}
@@ -781,6 +787,8 @@ static void v_cg_gen_unpack(void)
 				fprintf(f, ", (%s)%s", VCGData.param_name[i], VCGData.param_name[i + 1]);
 				i++;
 			}
+			else if(VCGData.param_type[i] == VCGP_QUAT32 || VCGData.param_type[i] == VCGP_QUAT64)
+				fprintf(f, ", &%s", VCGData.param_name[i]);
 			else
 				fprintf(f, ", %s", VCGData.param_name[i]);
 		}
