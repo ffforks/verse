@@ -241,6 +241,7 @@ void v_con_network_listen(void)
 			{
 				if(VConData.current_connection < VConData.con_count)
 				{
+					VConData.con[VConData.current_connection].network_address.ip = 0;
 					VConData.con[VConData.current_connection].destroy_flag = TRUE; /* Destroy old connection if there is one. */
 				}
 				v_con_connect(address.ip, address.port, V_CS_IDLE); /* Create a new connection. */
