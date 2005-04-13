@@ -20,8 +20,8 @@
 #define CONNECTION_CHUNK_SIZE	16
 #define V_MAX_CONNECT_PACKET_SIZE	1500
 #define V_CON_MAX_MICROSECOND_BETWEEN_SENDS	100
-#define V_RE_CONNECTON_TIME_OUT 3
-#define V_CONNECTON_TIME_OUT 8
+#define V_RE_CONNECTON_TIME_OUT 4
+#define V_CONNECTON_TIME_OUT 30
 
 typedef struct {
 	VNetOutQueue	*out_queue;
@@ -149,19 +149,15 @@ uint32 v_co_find_connection(uint32 ip, uint16 port) /* if a packet comes form a 
 {
 	unsigned int i;
 
-/*	printf("looking for connection to %u:%u, count=%d ", ip, port, VConData.con_count);*/
 	for(i = 0; i < VConData.con_count; i++)
 	{
 		if(ip == VConData.con[i].network_address.ip &&
 		   port == VConData.con[i].network_address.port &&
 		   VConData.con[i].destroy_flag == 0)
 		{
-/*			printf("found %d, destroy=%d\n", i, VConData.con[i].destroy_flag);
-			printf("found %d\n", i);
-*/			return i;
+			return i;
 		}
 	}
-/*	printf("not found!\n");*/
 	return -1;
 }
 
