@@ -81,8 +81,8 @@ static void v_cg_init(void)
 		fprintf(f, "#include \"v_cmd_buf.h\"\n");
 		fprintf(f, "#include \"v_network_out_que.h\"\n");
 		fprintf(f, "#include \"v_network.h\"\n");
-		fprintf(f, "#include \"v_connection.h\"\n\n");
-		fprintf(f, "#include \"v_util.h\"\n");
+		fprintf(f, "#include \"v_connection.h\"\n");
+		fprintf(f, "#include \"v_util.h\"\n\n");
 	}
 	VCGData.cmd_id = 0;
 	fprintf(f, "#include \"v_gen_unpack_func.h\"\n\n");
