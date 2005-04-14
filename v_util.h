@@ -16,3 +16,5 @@ extern void	v_timer_print(const VUtilTimer *timer);
 
 extern int	v_quat32_valid(const VNQuat32 *q);
 extern int	v_quat64_valid(const VNQuat64 *q);
+extern VNQuat32*v_quat32_from_quat64(VNQuat32 *dst, const VNQuat64 *src);
+extern VNQuat64*v_quat64_from_quat32(VNQuat64 *dst, const VNQuat32 *src);

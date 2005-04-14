@@ -66,3 +66,25 @@ int v_quat64_valid(const VNQuat64 *q)
 		return 0;
 	return quat_valid(q->x) && quat_valid(q->y) && quat_valid(q->z) && quat_valid(q->w);
 }
+
+VNQuat32 * v_quat32_from_quat64(VNQuat32 *dst, const VNQuat64 *src)
+{
+	if(dst == NULL || src == NULL)
+		return NULL;
+	dst->x = src->x;	
+	dst->y = src->y;
+	dst->z = src->z;	
+	dst->w = src->w;
+	return dst;
+}
+
+VNQuat64 * v_quat64_from_quat32(VNQuat64 *dst, const VNQuat32 *src)
+{
+	if(dst == NULL || src == NULL)
+		return NULL;
+	dst->x = src->x;	
+	dst->y = src->y;
+	dst->z = src->z;	
+	dst->w = src->w;
+	return dst;
+}
