@@ -1,3 +1,6 @@
+/*
+ * Command definitions for audio node commands.
+*/
 
 #include <stdlib.h>
 #include <stdio.h>
