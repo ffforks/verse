@@ -430,10 +430,10 @@ extern void verse_send_tag_destroy(VNodeID node_id, uint16 group_id, uint16 tag_
 extern void verse_send_node_name_set(VNodeID node_id, const char *name);
 
 extern void verse_send_o_transform_pos_real32(VNodeID node_id, uint32 time_s, uint32 time_f, const real32 *pos, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag);
-extern void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat32 *rot, const real32 *speed, const real32 *accelerate, const real32 *drag_normal, real32 drag);
+extern void verse_send_o_transform_rot_real32(VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat32 *rot, const VNQuat32 *speed, const VNQuat32 *accelerate, const VNQuat32 *drag_normal, real32 drag);
 extern void verse_send_o_transform_scale_real32(VNodeID node_id, real32 scale_x, real32 scale_y, real32 scale_z);
 extern void verse_send_o_transform_pos_real64(VNodeID node_id, uint32 time_s, uint32 time_f, const real64 *pos, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag);
-extern void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat64 *rot, const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag);
+extern void verse_send_o_transform_rot_real64(VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat64 *rot, const VNQuat64 *speed, const VNQuat64 *accelerate, const VNQuat64 *drag_normal, real64 drag);
 extern void verse_send_o_transform_scale_real64(VNodeID node_id, real64 scale_x, real64 scale_y, real64 scale_z);
 extern void verse_send_o_transform_subscribe(VNodeID node_id, VNRealFormat type);
 extern void verse_send_o_transform_unsubscribe(VNodeID node_id, VNRealFormat type);
@@ -501,13 +501,13 @@ extern void verse_send_a_buffer_create(VNodeID node_id, VBufferID buffer_id, con
 extern void verse_send_a_buffer_destroy(VNodeID node_id, VBufferID buffer_id);
 extern void verse_send_a_buffer_subscribe(VNodeID node_id, VBufferID layer_id);
 extern void verse_send_a_buffer_unsubscribe(VNodeID node_id, VBufferID layer_id);
-extern void verse_send_a_block_set(VNodeID node_id, VLayerID buffer_id, uint32 block_index, VNABlockType type, const VNABlock *data);
+extern void verse_send_a_block_set(VNodeID node_id, VLayerID buffer_id, uint32 block_index, VNABlockType type, const VNABlock *samples);
 extern void verse_send_a_block_clear(VNodeID node_id, VLayerID buffer_id, uint32 block_index);
 extern void verse_send_a_stream_create(VNodeID node_id, VLayerID stream_id, const char *name);
 extern void verse_send_a_stream_destroy(VNodeID node_id, VLayerID stream_id);
 extern void verse_send_a_stream_subscribe(VNodeID node_id, VLayerID stream_id);
 extern void verse_send_a_stream_unsubscribe(VNodeID node_id, VLayerID stream_id);
-extern void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNABlockType type, real64 frequency, const VNABlock *data);
+extern void verse_send_a_stream(VNodeID node_id, VLayerID stream_id, uint32 time_s, uint32 time_f, VNABlockType type, real64 frequency, const VNABlock *samples);
 
 
 #if defined __cplusplus
