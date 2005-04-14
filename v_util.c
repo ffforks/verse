@@ -45,3 +45,24 @@ void v_timer_print(const VUtilTimer *timer)
 	v_n_get_current_time(&cur_seconds, &cur_fractions);
 	printf("%f", (double)(cur_seconds - timer->seconds) + ((double)cur_fractions - (double)timer->fractions) / (double) 0xffffffff);
 }
+
+/* Compare |x| against built-in semi-magical constant, and return 1 if it's larger, 0 if not. */
+static int quat_valid(real64 x)
+{
+	const real64	EPSILON = 0.0000001;
+	return x > 0.0 ? x > EPSILON : x < -EPSILON;
+}
+
+int v_quat32_valid(const VNQuat32 *q)
+{
+	if(q == NULL)
+		return 0;
+	return quat_valid(q->x) && quat_valid(q->y) && quat_valid(q->z) && quat_valid(q->w);
+}
+
+int v_quat64_valid(const VNQuat64 *q)
+{
+	if(q == NULL)
+		return 0;
+	return quat_valid(q->x) && quat_valid(q->y) && quat_valid(q->z) && quat_valid(q->w);
+}
