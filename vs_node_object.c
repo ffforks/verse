@@ -10,6 +10,7 @@
 #if !defined V_GENERATE_FUNC_MODE
 
 #include "verse.h"
+#include "v_util.h"
 #include "vs_server.h"
 
 extern void verse_send_o_link_set(VNodeID node_id, uint16 link_id, VNodeID link, const char *name, uint32 target_id);
@@ -165,21 +166,41 @@ static void callback_send_o_transform_pos_real32(void *user, VNodeID node_id, ui
 {
 	VSNodeObject *node;
 	unsigned int i, count;
+
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL)
 		return;
 	node->transform.position[0] = pos[0];
 	node->transform.position[1] = pos[1];
 	node->transform.position[2] = pos[2];
-	count =	vs_get_subscript_count(node->trans_sub64);
-	for(i = 0; i < count; i++)
+
+	if((count = vs_get_subscript_count(node->trans_sub64)) > 0)	/* Anyone listening at 64 bits? */
 	{
-		vs_set_subscript_session(node->trans_sub64, i);
-		verse_send_o_transform_pos_real64(node_id, time_s, time_f, node->transform.position, speed, accelerate, drag_normal, drag);
+		real64	spd[3], acc[3], drn[3], *pspd = NULL, *pacc = NULL, *pdrn = NULL;
+
+		pspd = (speed != NULL) ? spd : NULL;
+		pacc = (accelerate != NULL) ? acc : NULL;
+		pdrn = (drag_normal != NULL) ? drn : NULL;
+		/* Convert non-position values to 64-bit. */
+		for(i = 0; i < 3; i++)
+		{
+			if(speed != NULL)
+				spd[i] = speed[i];
+			if(accelerate != NULL)
+				acc[i] = accelerate[i];
+			if(drag_normal != NULL)
+				drn[i] = drag_normal[i];
+		}
+		for(i = 0; i < count; i++)
+		{
+			vs_set_subscript_session(node->trans_sub64, i);
+			verse_send_o_transform_pos_real64(node_id, time_s, time_f, node->transform.position, pspd, pacc, pdrn, drag);
+		}
 	}
 	count =	vs_get_subscript_count(node->trans_sub32);
 	for(i = 0; i < count; i++)
 	{
+
 		vs_set_subscript_session(node->trans_sub32, i);
 		verse_send_o_transform_pos_real32(node_id, time_s, time_f, pos, speed, accelerate, drag_normal, drag);
 	}
@@ -187,7 +208,7 @@ static void callback_send_o_transform_pos_real32(void *user, VNodeID node_id, ui
 }
 
 static void callback_send_o_transform_rot_real32(void *user, VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat32 *rot,
-						 real32 *speed, real32 *accelerate, real32 *drag_normal, real32 drag)
+						 const VNQuat32 *speed, const VNQuat32 *accelerate, const VNQuat32 *drag_normal, real32 drag)
 {
 	VSNodeObject *node;
 	unsigned int i, count;
@@ -198,11 +219,19 @@ static void callback_send_o_transform_rot_real32(void *user, VNodeID node_id, ui
 	node->transform.rotation.y = rot->y;
 	node->transform.rotation.z = rot->z;
 	node->transform.rotation.w = rot->w;
-	count =	vs_get_subscript_count(node->trans_sub64);
-	for(i = 0; i < count; i++)
+	if((count = vs_get_subscript_count(node->trans_sub64)) > 0)
 	{
-		vs_set_subscript_session(node->trans_sub64, i);
-		verse_send_o_transform_rot_real64(node_id, time_s, time_f, &node->transform.rotation, speed, accelerate, drag_normal, drag);
+		VNQuat64	spd, acc, drn, *p[3];
+
+		/* Convert 32-bit quaternions to 64-bit. Converter handles NULLs, has nice return semantics. */
+		p[0] = v_quat64_from_quat32(&spd, speed);
+		p[1] = v_quat64_from_quat32(&acc, accelerate);
+		p[2] = v_quat64_from_quat32(&drn, drag_normal);
+		for(i = 0; i < count; i++)
+		{
+			vs_set_subscript_session(node->trans_sub64, i);
+			verse_send_o_transform_rot_real64(node_id, time_s, time_f, &node->transform.rotation, p[0], p[1], p[2], drag);
+		}
 	}
 	count =	vs_get_subscript_count(node->trans_sub32);
 	for(i = 0; i < count; i++)
@@ -240,61 +269,97 @@ static void callback_send_o_transform_scale_real32(void *user, VNodeID node_id, 
 	vs_reset_subscript_session();
 }
 
-static void callback_send_o_transform_pos_real64(void *user, VNodeID node_id, uint32 time_s, uint32 time_f, real64 *pos, real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag)
+static void callback_send_o_transform_pos_real64(void *user, VNodeID node_id, uint32 time_s, uint32 time_f, const real64 *pos,
+						 const real64 *speed, const real64 *accelerate, const real64 *drag_normal, real64 drag)
 {
 	VSNodeObject *node;
 	unsigned int i, count;
-	float fpos[3];
+
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL)
 		return;
 	node->transform.position[0] = pos[0];
 	node->transform.position[1] = pos[1];
 	node->transform.position[2] = pos[2];
-	fpos[0] = (real32)pos[0];
-	fpos[1] = (real32)pos[1];
-	fpos[2] = (real32)pos[2];
 	count =	vs_get_subscript_count(node->trans_sub64);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub64, i);
 		verse_send_o_transform_pos_real64(node_id, time_s, time_f, node->transform.position, speed, accelerate, drag_normal, drag);
 	}
-	count =	vs_get_subscript_count(node->trans_sub32);
-	for(i = 0; i < count; i++)
+	if((count = vs_get_subscript_count(node->trans_sub32)) > 0)	/* Anyone listening at 32 bits? */
 	{
-		vs_set_subscript_session(node->trans_sub32, i);
-		verse_send_o_transform_pos_real32(node_id, time_s, time_f, fpos, speed, accelerate, drag_normal, drag);
+		real32	ps[3], spd[3], acc[3], drn[3], *p[] = { NULL, NULL, NULL };
+
+		ps[0] = pos[0];
+		ps[1] = pos[1];
+		ps[2] = pos[2];
+		if(speed != NULL)
+		{
+			p[0] = spd;
+			spd[0] = speed[0];
+			spd[1] = speed[1];
+			spd[2] = speed[2];
+		}
+		else
+			p[0] = NULL;
+		if(accelerate != NULL)
+		{
+			p[1] = acc;
+			acc[0] = accelerate[0];
+			acc[1] = accelerate[1];
+			acc[2] = accelerate[2];
+		}
+		else
+			p[1] = NULL;
+		if(drag_normal != NULL)
+		{
+			p[1] = drn;
+			drn[0] = drag_normal[0];
+			drn[1] = drag_normal[1];
+			drn[2] = drag_normal[2];
+		}
+		else
+			p[2] = NULL;
+
+		for(i = 0; i < count; i++)
+		{
+			vs_set_subscript_session(node->trans_sub32, i);
+			verse_send_o_transform_pos_real32(node_id, time_s, time_f, ps, p[0], p[1], p[2], drag);
+		}
 	}
 	vs_reset_subscript_session();
 }
 
 static void callback_send_o_transform_rot_real64(void *user, VNodeID node_id, uint32 time_s, uint32 time_f, const VNQuat64 *rot,
-						 real64 *speed, real64 *accelerate, real64 *drag_normal, real64 drag)
+						 const VNQuat64 *speed, const VNQuat64 *accelerate, const VNQuat64 *drag_normal, real64 drag)
 {
 	VSNodeObject *node;
 	unsigned int i, count;
-	VNQuat32 rot32;
 
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL)
 		return;
 	node->transform.rotation = *rot;
-	rot32.x = rot->x;
-	rot32.y = rot->y;
-	rot32.z = rot->z;
-	rot32.w = rot->w;
 	count =	vs_get_subscript_count(node->trans_sub64);
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub64, i);
 		verse_send_o_transform_rot_real64(node_id, time_s, time_f, &node->transform.rotation, speed, accelerate, drag_normal, drag);
 	}
-	count =	vs_get_subscript_count(node->trans_sub32);
-	for(i = 0; i < count; i++)
+	if((count = vs_get_subscript_count(node->trans_sub32)) >= 0)	/* Anyone listening at 32 bits? */
 	{
-		vs_set_subscript_session(node->trans_sub32, i);
-		verse_send_o_transform_rot_real32(node_id, time_s, time_f, &rot32, speed, accelerate, drag_normal, drag);
+		VNQuat32	rt, spd, acc, drn, *p[3];
+
+		v_quat32_from_quat64(&rt, rot);
+		p[0] = v_quat32_from_quat64(&spd, speed);
+		p[1] = v_quat32_from_quat64(&acc, accelerate);
+		p[2] = v_quat32_from_quat64(&drn, drag_normal);
+		for(i = 0; i < count; i++)
+		{
+			vs_set_subscript_session(node->trans_sub32, i);
+			verse_send_o_transform_rot_real32(node_id, time_s, time_f, &rt, p[0], p[1], p[2], drag);
+		}
 	}
 	vs_reset_subscript_session();
 }
