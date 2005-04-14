@@ -15,6 +15,7 @@
 #include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
+#include "v_util.h"
 
 void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *name, uint8 dimensions)
 {

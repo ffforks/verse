@@ -15,6 +15,7 @@
 #include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
+#include "v_util.h"
 
 void verse_send_b_dimensions_set(VNodeID node_id, uint16 width, uint16 height, uint16 depth)
 {

@@ -15,6 +15,7 @@
 #include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
+#include "v_util.h"
 
 void verse_send_a_buffer_create(VNodeID node_id, VBufferID buffer_id, const char *name, VNABlockType type, real64 frequency)
 {
