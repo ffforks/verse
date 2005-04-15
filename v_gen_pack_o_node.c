@@ -203,11 +203,12 @@ unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_leng
 	printf("receive: verse_send_o_transform_rot_real32(node_id = %u time_s = %u time_f = %u drag = %f ); callback = %p\n", node_id, time_s, time_f, drag, v_fs_get_user_func(33));
 #endif
 	{
-		VNQuat32 temp[3], *q[3];
+		VNQuat32 trot, temp[3], *q[3];
 		unsigned int i;
 		uint8 mask, test;
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);
-		buffer_pos += vnp_unpack_quat32(&buf[buffer_pos], &rot);
+		buffer_pos += vnp_unpack_quat32(&buf[buffer_pos], &trot);
+		printf("rot unpacked: (%g,%g,%g,%g)\n", trot.x, trot.y, trot.z, trot.w);
 		for(i = 0, test = 1; i < sizeof temp / sizeof *temp; i++, test <<= 1)
 		{
 			if(mask & test)		/* Field present? */
@@ -223,7 +224,7 @@ unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_leng
 		else
 			drag = 0.0;
 		if(func_o_transform_rot_real32 != NULL)
-			func_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time_s, time_f, &rot, q[1], q[2], q[3], drag);
+			func_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time_s, time_f, &trot, q[0], q[1], q[2], drag);
 		return buffer_pos;
 	}
 
@@ -469,11 +470,11 @@ unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_leng
 	printf("receive: verse_send_o_transform_rot_real64(node_id = %u time_s = %u time_f = %u drag = %f ); callback = %p\n", node_id, time_s, time_f, drag, v_fs_get_user_func(36));
 #endif
 	{
-		VNQuat64 temp[3], *q[3];
+		VNQuat64 trot, temp[3], *q[3];
 		unsigned int i;
 		uint8 mask, test;
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);
-		buffer_pos += vnp_unpack_quat64(&buf[buffer_pos], &rot);
+		buffer_pos += vnp_unpack_quat64(&buf[buffer_pos], &trot);
 		for(i = 0, test = 1; i < sizeof temp / sizeof *temp; i++, test <<= 1)
 		{
 			if(mask & test)		/* Field present? */
@@ -489,7 +490,7 @@ unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_leng
 		else
 			drag = 0.0;
 		if(func_o_transform_rot_real64 != NULL)
-			func_o_transform_rot_real64(v_fs_get_user_data(33), node_id, time_s, time_f, &rot, q[1], q[2], q[3], drag);
+			func_o_transform_rot_real64(v_fs_get_user_data(33), node_id, time_s, time_f, &trot, q[0], q[1], q[2], drag);
 		return buffer_pos;
 	}
 
