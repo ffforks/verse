@@ -208,7 +208,6 @@ unsigned int v_unpack_o_transform_rot_real32(const char *buf, size_t buffer_leng
 		uint8 mask, test;
 		buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);
 		buffer_pos += vnp_unpack_quat32(&buf[buffer_pos], &trot);
-		printf("rot unpacked: (%g,%g,%g,%g)\n", trot.x, trot.y, trot.z, trot.w);
 		for(i = 0, test = 1; i < sizeof temp / sizeof *temp; i++, test <<= 1)
 		{
 			if(mask & test)		/* Field present? */
