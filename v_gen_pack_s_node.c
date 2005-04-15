@@ -211,7 +211,7 @@ unsigned int v_unpack_node_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_node_create != NULL)
-		func_node_create(v_fs_get_user_data(10), node_id, (VNodeType)type, (VNodeOwner)owner);
+		func_node_create(v_fs_get_user_data(10), node_id, (VNodeType) type, (VNodeOwner) owner);
 
 	return buffer_pos;
 }
@@ -659,7 +659,7 @@ unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_tag_create != NULL)
-		func_tag_create(v_fs_get_user_data(18), node_id, group_id, tag_id, name, (VNTagType)type, tag);
+		func_tag_create(v_fs_get_user_data(18), node_id, group_id, tag_id, name, (VNTagType) type, tag);
 
 	return buffer_pos;
 }

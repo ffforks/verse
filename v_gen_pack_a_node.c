@@ -104,7 +104,7 @@ unsigned int v_unpack_a_buffer_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_a_buffer_create != NULL)
-		func_a_buffer_create(v_fs_get_user_data(160), node_id, buffer_id, name, (VNABlockType)type, frequency);
+		func_a_buffer_create(v_fs_get_user_data(160), node_id, buffer_id, name, (VNABlockType) type, frequency);
 
 	return buffer_pos;
 }
@@ -283,7 +283,7 @@ unsigned int v_unpack_a_block_set(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_a_block_set != NULL)
-		func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNABlockType)type, samples);
+		func_a_block_set(v_fs_get_user_data(162), node_id, buffer_id, block_index, (VNABlockType) type, samples);
 
 	return buffer_pos;
 }
@@ -512,7 +512,7 @@ unsigned int v_unpack_a_stream(const char *buf, size_t buffer_length)
 	}
 
 	if(func_a_stream != NULL)
-		func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNABlockType)type, frequency, samples);
+		func_a_stream(v_fs_get_user_data(165), node_id, stream_id, time_s, time_f, (VNABlockType) type, frequency, samples);
 
 	return buffer_pos;
 }

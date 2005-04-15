@@ -149,7 +149,7 @@ unsigned int v_unpack_b_layer_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_b_layer_create != NULL)
-		func_b_layer_create(v_fs_get_user_data(81), node_id, layer_id, name, (VNBLayerType)type);
+		func_b_layer_create(v_fs_get_user_data(81), node_id, layer_id, name, (VNBLayerType) type);
 
 	return buffer_pos;
 }
