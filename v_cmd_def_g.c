@@ -172,7 +172,17 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_add_param(VCGP_REAL64,		"pos_x");
 	v_cg_add_param(VCGP_REAL64,		"pos_y");
 	v_cg_add_param(VCGP_REAL64,		"pos_z");
-	v_cg_add_param(VCGP_QUAT64,		"rot");
+	v_cg_add_param(VCGP_POINTER_TYPE,	"VNQuat64");
+	v_cg_add_param(VCGP_POINTER,		"rot");
+	v_cg_add_param(VCGP_PACK_INLINE,	"\tbuffer_pos += vnp_pack_quat64(&buf[buffer_pos], rot);\n");
+	v_cg_add_param(VCGP_UNPACK_INLINE,	"\tif(weight[0] != 0)\n"
+	"\t{\n"
+	"\t\tVNQuat64\ttmp;\n"
+	"\t\tbuffer_pos += vnp_unpack_quat64(&buf[buffer_pos], &tmp);\n"
+	"\t\tif(func_g_bone_create != NULL)\n"
+	"\t\t\tfunc_g_bone_create(v_fs_get_user_data(64), node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, &tmp);\n"
+	"\t\treturn buffer_pos;\n"
+	"\t}\n");
 	v_cg_alias(FALSE, "g_bone_destroy", "if(weight[0] == 0)", 2, NULL);
 
 	v_cg_end_cmd();
