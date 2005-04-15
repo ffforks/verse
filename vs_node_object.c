@@ -77,7 +77,7 @@ VSNodeObject * vs_o_create_node(unsigned int owner)
 	node->transform.position[0] = node->transform.position[1] = node->transform.position[2] = 0;
 	node->transform.rotation.x = node->transform.rotation.y = node->transform.rotation.z = 0.0;
 	node->transform.rotation.w = 1.0;
-	node->transform.scale[0] = node->transform.scale[1] = node->transform.scale[2] = 1;
+	node->transform.scale[0] = node->transform.scale[1] = node->transform.scale[2] = 1.0;
 	node->light[0] = node->light[1] = node->light[2] = V_REAL64_MAX;
 	node->groups = malloc((sizeof *node->groups) * 16);
 	node->group_count = 16;
@@ -257,8 +257,7 @@ static void callback_send_o_transform_scale_real32(void *user, VNodeID node_id, 
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub64, i);
-		verse_send_o_transform_scale_real64(node_id, (real64)scale_x, (real64)scale_y, (real64)scale_z);
-
+		verse_send_o_transform_scale_real64(node_id, scale_x, scale_y, scale_z);
 	}
 	count =	vs_get_subscript_count(node->trans_sub32);
 	for(i = 0; i < count; i++)
@@ -378,7 +377,7 @@ static void callback_send_o_transform_scale_real64(void *user, VNodeID node_id, 
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub64, i);
-		verse_send_o_transform_scale_real64(node_id, (real64)scale_x, (real64)scale_y, (real64)scale_z);
+		verse_send_o_transform_scale_real64(node_id, scale_x, scale_y, scale_z);
 	}
 	count =	vs_get_subscript_count(node->trans_sub32);
 	for(i = 0; i < count; i++)
@@ -393,26 +392,24 @@ static void callback_send_o_transform_subscribe(void *user, VNodeID node_id, VNR
 {
 	VSNodeObject *node;
 	uint32 time_s, time_f;
-	real32	tpos[3];
-	VNQuat32 temp;
 
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
 	if(node == NULL)
 		return;
+	verse_session_get_time(&time_s, &time_f);
 	if(type == VN_FORMAT_REAL32)
 	{
+		real32	tpos[3];
+		VNQuat32 rot;
+
 		vs_add_new_subscriptor(node->trans_sub32);
 		tpos[0] = node->transform.position[0];
 		tpos[1] = node->transform.position[1];
 		tpos[2] = node->transform.position[2];
-		verse_session_get_time(&time_s, &time_f);
 		verse_send_o_transform_pos_real32(node_id, time_s, time_f, tpos, NULL, NULL, NULL, 0);
-		temp.x = node->transform.rotation.x;
-		temp.y = node->transform.rotation.y;
-		temp.z = node->transform.rotation.z;
-		temp.w = node->transform.rotation.w;
-		verse_send_o_transform_rot_real32(node_id, time_s, time_f, &temp, NULL, NULL, NULL, 0);
-		verse_send_o_transform_scale_real32(node_id, (real32)node->transform.scale[0], (real32)node->transform.scale[1], (real32)node->transform.scale[2]);
+		v_quat32_from_quat64(&rot, &node->transform.rotation);
+		verse_send_o_transform_rot_real32(node_id, time_s, time_f, &rot, NULL, NULL, NULL, 0);
+		verse_send_o_transform_scale_real32(node_id, node->transform.scale[0], node->transform.scale[1], node->transform.scale[2]);
 	}
 	else
 	{
