@@ -130,7 +130,6 @@ void v_gen_object_cmd_def(void)
 	"\t\tuint8 mask, test;\n"
 	"\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);\n"
 	"\t\tbuffer_pos += vnp_unpack_quat32(&buf[buffer_pos], &trot);\n"
-	"\t\tprintf(\"rot unpacked: (%g,%g,%g,%g)\\n\", trot.x, trot.y, trot.z, trot.w);\n"
 	"\t\tfor(i = 0, test = 1; i < sizeof temp / sizeof *temp; i++, test <<= 1)\n"
 	"\t\t{\n"
 	"\t\t\tif(mask & test)\t\t/* Field present? */\n"
