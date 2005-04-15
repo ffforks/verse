@@ -88,11 +88,14 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_UINT32,		"time_s");
 	v_cg_add_param(VCGP_UINT32,		"time_f");
-	v_cg_add_param(VCGP_QUAT32,	"rot");
-	v_cg_add_param(VCGP_QUAT32,	"speed");
-	v_cg_add_param(VCGP_QUAT32,	"accelerate");
-	v_cg_add_param(VCGP_QUAT32,	"drag_normal");
-	v_cg_add_param(VCGP_REAL32,	"drag");
+	v_cg_add_param(VCGP_POINTER_TYPE,	"VNQuat32");
+	v_cg_add_param(VCGP_POINTER,		"rot");
+	v_cg_add_param(VCGP_POINTER_TYPE,	"VNQuat32");
+	v_cg_add_param(VCGP_POINTER,		"speed");
+	v_cg_add_param(VCGP_POINTER_TYPE,	"VNQuat32");
+	v_cg_add_param(VCGP_POINTER,		"accelerate");
+	v_cg_add_param(VCGP_POINTER_TYPE,	"VNQuat32");
+	v_cg_add_param(VCGP_POINTER,		"drag_normal");
 	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
 	"\t\tuint8 mask = 0;\n"
 	"\t\tunsigned int maskpos;\n"
@@ -122,10 +125,11 @@ void v_gen_object_cmd_def(void)
 	"\t}\n"
 	"\tif(FALSE)\n");
 	v_cg_add_param(VCGP_UNPACK_INLINE, "\t{\n"
-	"\t\tVNQuat32 temp[4], *q[4];\n"
+	"\t\tVNQuat32 temp[3], *q[3];\n"
 	"\t\tunsigned int i;\n"
 	"\t\tuint8 mask, test;\n"
 	"\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);\n"
+	"\t\tbuffer_pos += vnp_unpack_quat32(&buf[buffer_pos], &rot);\n"
 	"\t\tfor(i = 0, test = 1; i < sizeof temp / sizeof *temp; i++, test <<= 1)\n"
 	"\t\t{\n"
 	"\t\t\tif(mask & test)\t\t/* Field present? */\n"
@@ -141,9 +145,10 @@ void v_gen_object_cmd_def(void)
 	"\t\telse\n"
 	"\t\t\tdrag = 0.0;\n"
 	"\t\tif(func_o_transform_rot_real32 != NULL)\n"
-	"\t\t\tfunc_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time_s, time_f, q[0], q[1], q[2], q[3], drag);\n"
+	"\t\t\tfunc_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time_s, time_f, &rot, q[1], q[2], q[3], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
+	v_cg_add_param(VCGP_REAL32,	"drag");
 	v_cg_end_cmd();
 
 	v_cg_new_cmd(V_NT_OBJECT,		"o_transform_scale_real32", 34, VCGCT_NORMAL);
@@ -233,17 +238,15 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_UINT32,		"time_s");
 	v_cg_add_param(VCGP_UINT32,		"time_f");
-	v_cg_add_param(VCGP_QUAT64,	"rot");
-	v_cg_add_param(VCGP_QUAT64,	"speed");
-	v_cg_add_param(VCGP_QUAT64,	"accelerate");
-	v_cg_add_param(VCGP_QUAT64,	"drag_normal");
-/*	v_cg_add_param(VCGP_POINTER_TYPE,"real64");
+	v_cg_add_param(VCGP_POINTER_TYPE,"VNQuat64");
+	v_cg_add_param(VCGP_POINTER,	"rot");
+	v_cg_add_param(VCGP_POINTER_TYPE,"VNQuat64");
 	v_cg_add_param(VCGP_POINTER,	"speed");
-	v_cg_add_param(VCGP_POINTER_TYPE,"real64");
+	v_cg_add_param(VCGP_POINTER_TYPE,"VNQuat64");
 	v_cg_add_param(VCGP_POINTER,	"accelerate");
-	v_cg_add_param(VCGP_POINTER_TYPE,"real64");
+	v_cg_add_param(VCGP_POINTER_TYPE,"VNQuat64");
 	v_cg_add_param(VCGP_POINTER,	"drag_normal");
-*/	v_cg_add_param(VCGP_REAL64,		"drag");	
+	v_cg_add_param(VCGP_REAL64,		"drag");	
 	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
 	"\t\tuint8 mask = 0;\n"
 	"\t\tunsigned int maskpos;\n"
@@ -273,10 +276,11 @@ void v_gen_object_cmd_def(void)
 	"\t}\n"
 	"\tif(FALSE)\n");
 	v_cg_add_param(VCGP_UNPACK_INLINE, "\t{\n"
-	"\t\tVNQuat64 temp[4], *q[4];\n"
+	"\t\tVNQuat64 temp[3], *q[3];\n"
 	"\t\tunsigned int i;\n"
 	"\t\tuint8 mask, test;\n"
 	"\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);\n"
+	"\t\tbuffer_pos += vnp_unpack_quat64(&buf[buffer_pos], &rot);\n"
 	"\t\tfor(i = 0, test = 1; i < sizeof temp / sizeof *temp; i++, test <<= 1)\n"
 	"\t\t{\n"
 	"\t\t\tif(mask & test)\t\t/* Field present? */\n"
@@ -292,7 +296,7 @@ void v_gen_object_cmd_def(void)
 	"\t\telse\n"
 	"\t\t\tdrag = 0.0;\n"
 	"\t\tif(func_o_transform_rot_real64 != NULL)\n"
-	"\t\t\tfunc_o_transform_rot_real64(v_fs_get_user_data(33), node_id, time_s, time_f, q[0], q[1], q[2], q[3], drag);\n"
+	"\t\t\tfunc_o_transform_rot_real64(v_fs_get_user_data(33), node_id, time_s, time_f, &rot, q[1], q[2], q[3], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_end_cmd();
