@@ -125,11 +125,12 @@ void v_gen_object_cmd_def(void)
 	"\t}\n"
 	"\tif(FALSE)\n");
 	v_cg_add_param(VCGP_UNPACK_INLINE, "\t{\n"
-	"\t\tVNQuat32 temp[3], *q[3];\n"
+	"\t\tVNQuat32 trot, temp[3], *q[3];\n"
 	"\t\tunsigned int i;\n"
 	"\t\tuint8 mask, test;\n"
 	"\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);\n"
-	"\t\tbuffer_pos += vnp_unpack_quat32(&buf[buffer_pos], &rot);\n"
+	"\t\tbuffer_pos += vnp_unpack_quat32(&buf[buffer_pos], &trot);\n"
+	"\t\tprintf(\"rot unpacked: (%g,%g,%g,%g)\\n\", trot.x, trot.y, trot.z, trot.w);\n"
 	"\t\tfor(i = 0, test = 1; i < sizeof temp / sizeof *temp; i++, test <<= 1)\n"
 	"\t\t{\n"
 	"\t\t\tif(mask & test)\t\t/* Field present? */\n"
@@ -145,7 +146,7 @@ void v_gen_object_cmd_def(void)
 	"\t\telse\n"
 	"\t\t\tdrag = 0.0;\n"
 	"\t\tif(func_o_transform_rot_real32 != NULL)\n"
-	"\t\t\tfunc_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time_s, time_f, &rot, q[1], q[2], q[3], drag);\n"
+	"\t\t\tfunc_o_transform_rot_real32(v_fs_get_user_data(33), node_id, time_s, time_f, &trot, q[0], q[1], q[2], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_REAL32,	"drag");
@@ -276,11 +277,11 @@ void v_gen_object_cmd_def(void)
 	"\t}\n"
 	"\tif(FALSE)\n");
 	v_cg_add_param(VCGP_UNPACK_INLINE, "\t{\n"
-	"\t\tVNQuat64 temp[3], *q[3];\n"
+	"\t\tVNQuat64 trot, temp[3], *q[3];\n"
 	"\t\tunsigned int i;\n"
 	"\t\tuint8 mask, test;\n"
 	"\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);\n"
-	"\t\tbuffer_pos += vnp_unpack_quat64(&buf[buffer_pos], &rot);\n"
+	"\t\tbuffer_pos += vnp_unpack_quat64(&buf[buffer_pos], &trot);\n"
 	"\t\tfor(i = 0, test = 1; i < sizeof temp / sizeof *temp; i++, test <<= 1)\n"
 	"\t\t{\n"
 	"\t\t\tif(mask & test)\t\t/* Field present? */\n"
@@ -296,7 +297,7 @@ void v_gen_object_cmd_def(void)
 	"\t\telse\n"
 	"\t\t\tdrag = 0.0;\n"
 	"\t\tif(func_o_transform_rot_real64 != NULL)\n"
-	"\t\t\tfunc_o_transform_rot_real64(v_fs_get_user_data(33), node_id, time_s, time_f, &rot, q[1], q[2], q[3], drag);\n"
+	"\t\t\tfunc_o_transform_rot_real64(v_fs_get_user_data(33), node_id, time_s, time_f, &trot, q[0], q[1], q[2], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
 	v_cg_end_cmd();
