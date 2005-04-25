@@ -9,9 +9,9 @@
 
 void v_gen_system_cmd_def(void)
 {
-	v_cg_new_manual_cmd(0, "connect", "VSession *verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_host_id)", NULL, NULL);
+	v_cg_new_manual_cmd(0, "connect", "VSession verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_host_id)", NULL, NULL);
 
-	v_cg_new_manual_cmd(1, "connect_accept", "VSession *verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id)", NULL, NULL);
+	v_cg_new_manual_cmd(1, "connect_accept", "VSession verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id)", NULL, NULL);
 
 	v_cg_new_manual_cmd(2, "connect_terminate", "void verse_send_connect_terminate(const char *address, const char *bye)", NULL, NULL);
 	
