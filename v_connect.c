@@ -110,7 +110,7 @@ static void v_send_hidden_connect_terminate(VNetworkAddress *address, unsigned i
 	v_n_send_data(address, buf, buffer_pos);
 }
 
-VSession * verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_key)
+VSession verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_key)
 {
 	uint8 *my_key, *key;
 	unsigned int i;
@@ -331,7 +331,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 	}
 }
 
-VSession * verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id)
+VSession verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id)
 {
 	VNetworkAddress a;
 #if defined(V_PRINT_SEND_COMMANDS)
