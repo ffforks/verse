@@ -15,16 +15,17 @@
 #include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
+#include "v_util.h"
 
 void verse_send_c_curve_create(VNodeID node_id, VLayerID curve_id, const char *name, uint8 dimensions)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 128);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 128);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_c_curve_create(node_id = %u curve_id = %u name = %s dimensions = %u );\n", node_id, curve_id, name, dimensions);
 #endif
@@ -45,10 +46,10 @@ void verse_send_c_curve_destroy(VNodeID node_id, VLayerID curve_id)
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_50);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 128);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 128);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_c_curve_destroy(node_id = %u curve_id = %u );\n", node_id, curve_id);
 #endif
@@ -110,7 +111,7 @@ void verse_send_c_curve_subscribe(VNodeID node_id, VLayerID curve_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 129);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 129);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_c_curve_subscribe(node_id = %u curve_id = %u );\n", node_id, curve_id);
 #endif
@@ -133,7 +134,7 @@ void verse_send_c_curve_unsubscribe(VNodeID node_id, VLayerID curve_id)
 	head = v_cmd_buf_allocate(VCMDBS_10);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 129);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 129);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_c_curve_unsubscribe(node_id = %u curve_id = %u );\n", node_id, curve_id);
 #endif
@@ -154,7 +155,7 @@ unsigned int v_unpack_c_curve_subscribe(const char *buf, size_t buffer_length)
 	void (* func_c_curve_subscribe)(void *user_data, VNodeID node_id, VLayerID curve_id);
 	VNodeID node_id;
 	VLayerID curve_id;
-	char alias_bool;
+	uint8	alias_bool;
 
 	func_c_curve_subscribe = v_fs_get_user_func(129);
 	if(buffer_length < 6)

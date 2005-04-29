@@ -15,8 +15,9 @@
 #include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
+#include "v_util.h"
 
-void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment)
+void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, const VMatFrag *fragment)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -24,7 +25,7 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 68);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 68);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_m_fragment_create(node_id = %u frag_id = %u type = %u fragment = %p );\n", node_id, frag_id, type, fragment);
 #endif
@@ -140,7 +141,7 @@ void verse_send_m_fragment_destroy(VNodeID node_id, VNMFragmentID frag_id)
 	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 68);/* Packing the command */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 68);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
 	printf("send: verse_send_m_fragment_destroy(node_id = %u frag_id = %u );\n", node_id, frag_id);
 #endif
@@ -159,11 +160,11 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 {
 	uint8 enum_temp;
 	unsigned int buffer_pos = 0;
-	void (* func_m_fragment_create)(void *user_data, VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, VMatFrag *fragment);
+	void (* func_m_fragment_create)(void *user_data, VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, const VMatFrag *fragment);
 	VNodeID node_id;
 	VNMFragmentID frag_id;
 	VNMFragmentType type;
-	VMatFrag *fragment;
+	const VMatFrag *fragment;
 	
 	func_m_fragment_create = v_fs_get_user_func(68);
 	if(buffer_length < 6)
@@ -317,7 +318,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_m_fragment_create != NULL)
-		func_m_fragment_create(v_fs_get_user_data(68), node_id, frag_id, (VNMFragmentType)type, fragment);
+		func_m_fragment_create(v_fs_get_user_data(68), node_id, frag_id, (VNMFragmentType) type, fragment);
 
 	return buffer_pos;
 }
