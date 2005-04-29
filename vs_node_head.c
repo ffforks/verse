@@ -11,6 +11,7 @@
 #if !defined(V_GENERATE_FUNC_MODE)
 
 #include "verse.h"
+#include "v_util.h"
 #include "vs_server.h"
 
 typedef struct {
@@ -28,23 +29,17 @@ typedef struct {
 
 void create_node_head(VSNodeHead *node, const char *name, unsigned int owner)
 {
-	unsigned int i;
-	for(i = 0; name[i] != 0; i++);
-	node->name = malloc((sizeof *node->name) * (i + 1));
-	for(i = 0; name[i] != 0; i++)
-		node->name[i] = name[i];
-	node->name[i] = name[i];
+	size_t	len;
+
+	len = strlen(name) + 1;
+	node->name = malloc(len);
+	v_strlcpy(node->name, name, len);
 	node->owner = owner;
 	node->tag_groups = NULL;
 	node->group_count = 0;
 	node->subscribers = vs_create_subscription_list();
 }
-/*
-	VN_TAG_INTEGER = 0,
-	VN_TAG_REAL,
-	VN_TAG_STRING,
-	VN_TAG_BLOB
-*/
+
 void destroy_node_head(VSNodeHead *node)
 {
 	unsigned int i, j;
@@ -56,7 +51,6 @@ void destroy_node_head(VSNodeHead *node)
 		{
 			for(j = 0; j < ((VSTagGroup *)node->tag_groups)[i].tag_count; i++)
 			{
-				free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag_name);
 				if(((VSTagGroup *)node->tag_groups)[i].tags[j].type == VN_TAG_STRING)
 					free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag.vstring);
 				if(((VSTagGroup *)node->tag_groups)[i].tags[j].type == VN_TAG_BLOB)
@@ -109,10 +103,8 @@ static void callback_send_tag_group_create(void *user, VNodeID node_id, uint16 g
 		}
 		((VSTagGroup *)node->tag_groups)[element].subscribers = vs_create_subscription_list();
 	}
-	for(i = 0; name[i] != 0 && i < 15; i++)
-		((VSTagGroup *)node->tag_groups)[element].group_name[i] = name[i];
-	((VSTagGroup *)node->tag_groups)[element].group_name[i] = name[i];
-
+	v_strlcpy(((VSTagGroup *)node->tag_groups)[element].group_name, name,
+		  sizeof ((VSTagGroup *)node->tag_groups)[element].group_name);
 
 	count =	vs_get_subscript_count(node->subscribers);
 	for(i = 0; i < count; i++)
@@ -209,7 +201,8 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 		;
 	else
 	{
-		for(tag_id = 0; tag_id < ((VSTagGroup *)node->tag_groups)[group_id].tag_count && ((VSTagGroup *)node->tag_groups)[group_id].tags[tag_id].tag_name[0] != 0; tag_id++);
+		for(tag_id = 0; tag_id < ((VSTagGroup *)node->tag_groups)[group_id].tag_count && ((VSTagGroup *)node->tag_groups)[group_id].tags[tag_id].tag_name[0] != 0; tag_id++)
+			;
 		if(tag_id == ((VSTagGroup *)node->tag_groups)[group_id].tag_count)
 		{
 			((VSTagGroup *)node->tag_groups)[group_id].tags = realloc(((VSTagGroup *)node->tag_groups)[group_id].tags, sizeof(VSTag) * (((VSTagGroup *)node->tag_groups)[group_id].tag_count + 16));
@@ -221,9 +214,7 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 	}
 	t = &((VSTagGroup *)node->tag_groups)[group_id].tags[tag_id];
 	t->type = type;
-	for(i = 0; name[i] != 0 && i < 15; i++)
-		t->tag_name[i] = name[i];
-	t->tag_name[i] = name[i];
+	v_strlcpy(t->tag_name, name, sizeof t->tag_name);
 	switch(type)
 	{
 		case VN_TAG_BOOLEAN :
@@ -262,10 +253,10 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 		break;
 	}
 
-	count =	vs_get_subscript_count(node->subscribers);
+	count =	vs_get_subscript_count(((VSTagGroup *) node->tag_groups)[group_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->subscribers, i);
+		vs_set_subscript_session(((VSTagGroup *) node->tag_groups)[group_id].subscribers, i);
 		verse_send_tag_create(node_id, group_id, tag_id, name, type, tag);
 	}
 	vs_reset_subscript_session();
@@ -278,10 +269,10 @@ static void callback_send_tag_destroy(void *user, VNodeID node_id, uint16 group_
 	if((node = vs_get_node_head(node_id)) == 0)
 		return;
 
-	count =	vs_get_subscript_count(node->subscribers);
+	count =	vs_get_subscript_count(((VSTagGroup *) node->tag_groups)[group_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->subscribers, i);
+		vs_set_subscript_session(((VSTagGroup *) node->tag_groups)[group_id].subscribers, i);
 		verse_send_tag_destroy(node_id, group_id, tag_id);
 	}
 	vs_reset_subscript_session();
@@ -291,16 +282,17 @@ static void callback_send_node_name_set(void *user, VNodeID node_id, char *name)
 {
 	VSNodeHead *node;
 	unsigned int count, i;
+	size_t	len;
+
 	if((node = vs_get_node_head(node_id)) == 0)
 		return;
-	for(i = 0; name[i] != 0; i++);
-	if(i == 0)
+	len = strlen(name);
+	if(len == 0)
 		return;
 	free(node->name);
-	node->name = malloc((sizeof *node->name) * ++i);
-	for(i = 0; name[i] != 0; i++)
-		node->name[i] = name[i];
-	node->name[i] = name[i];
+	len++;
+	node->name = malloc(len);
+	v_strlcpy(node->name, name, len);
 	count =	vs_get_subscript_count(node->subscribers);
 	for(i = 0; i < count; i++)
 	{
@@ -316,6 +308,7 @@ extern void vs_m_subscribe(VSNodeHead *node);
 extern void vs_b_subscribe(VSNodeHead *node);
 extern void vs_t_subscribe(VSNodeHead *node);
 extern void vs_c_subscribe(VSNodeHead *node);
+extern void vs_a_subscribe(VSNodeHead *node);
 
 static void callback_send_node_subscribe(void *user, VNodeID node_id)
 {
@@ -344,6 +337,11 @@ static void callback_send_node_subscribe(void *user, VNodeID node_id)
 		case V_NT_CURVE:
 			vs_c_subscribe(node);
 			break;
+		case V_NT_AUDIO:
+			vs_a_subscribe(node);
+			break;
+		default:
+			fprintf(stderr, "Not subscribing to node type %d\n", node->type);
 	}
 	verse_send_node_name_set(node->id, node->name);
 	for(i = 0; i < node->group_count; i++)
@@ -358,6 +356,7 @@ extern void vs_m_unsubscribe(VSNodeHead *node);
 extern void vs_b_unsubscribe(VSNodeHead *node);
 extern void vs_t_unsubscribe(VSNodeHead *node);
 extern void vs_c_unsubscribe(VSNodeHead *node);
+extern void vs_a_unsubscribe(VSNodeHead *node);
 
 static void callback_send_node_unsubscribe(VNodeID node_id)
 {
@@ -386,6 +385,11 @@ static void callback_send_node_unsubscribe(VNodeID node_id)
 		case V_NT_CURVE:
 			vs_c_unsubscribe(node);
 			break;
+		case V_NT_AUDIO:
+			vs_a_unsubscribe(node);
+			break;
+		default:
+			fprintf(stderr, "Not unsubscribing from node type %d\n", node->type);
 	}
 }
 

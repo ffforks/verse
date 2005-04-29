@@ -48,19 +48,18 @@ static void v_cg_init(void)
 	int	i;
 	FILE	*f;
 
-	VCGData.nodes[V_NT_OBJECT] = fopen("v_gen_pack_o_node.c", "wt");
-	VCGData.nodes[V_NT_GEOMETRY] = fopen("v_gen_pack_g_node.c", "wt");  
-	VCGData.nodes[V_NT_MATERIAL] = fopen("v_gen_pack_m_node.c", "wt");  
-	VCGData.nodes[V_NT_BITMAP] = fopen("v_gen_pack_b_node.c", "wt");  
-	VCGData.nodes[V_NT_TEXT] = fopen("v_gen_pack_t_node.c", "wt");  
-/*	VCGData.nodes[V_NT_PARTICLE] = fopen("v_gen_pack_p_node.c", "wt"); */
-	VCGData.nodes[V_NT_CURVE] = fopen("v_gen_pack_c_node.c", "wt");  
-	VCGData.nodes[V_NT_AUDIO] = fopen("v_gen_pack_a_node.c", "wt");  
-	VCGData.nodes[V_NT_SYSTEM] = fopen("v_gen_pack_s_node.c", "wt"); 
-	VCGData.init = fopen("v_gen_pack_init.c", "wt");
-	VCGData.unpack = fopen("v_gen_unpack_func.h", "wt"); 
-	VCGData.verse_h = fopen("verse.h", "wt");
-	VCGData.internal_verse_h = fopen("v_internal_verse.h", "wt");
+	VCGData.nodes[V_NT_OBJECT] = fopen("v_gen_pack_o_node.c", "w");
+	VCGData.nodes[V_NT_GEOMETRY] = fopen("v_gen_pack_g_node.c", "w");  
+	VCGData.nodes[V_NT_MATERIAL] = fopen("v_gen_pack_m_node.c", "w");  
+	VCGData.nodes[V_NT_BITMAP] = fopen("v_gen_pack_b_node.c", "w");  
+	VCGData.nodes[V_NT_TEXT] = fopen("v_gen_pack_t_node.c", "w");  
+	VCGData.nodes[V_NT_CURVE] = fopen("v_gen_pack_c_node.c", "w");  
+	VCGData.nodes[V_NT_AUDIO] = fopen("v_gen_pack_a_node.c", "w");  
+	VCGData.nodes[V_NT_SYSTEM] = fopen("v_gen_pack_s_node.c", "w"); 
+	VCGData.init = fopen("v_gen_pack_init.c", "w");
+	VCGData.unpack = fopen("v_gen_unpack_func.h", "w");
+	VCGData.verse_h = fopen("verse.h", "w");
+	VCGData.internal_verse_h = fopen("v_internal_verse.h", "w");
 	for(i = 0; i < V_NT_NUM_TYPES_NETPACK + 1; i++)
 	{
 		if(i == V_NT_NUM_TYPES_NETPACK)
@@ -82,7 +81,8 @@ static void v_cg_init(void)
 		fprintf(f, "#include \"v_cmd_buf.h\"\n");
 		fprintf(f, "#include \"v_network_out_que.h\"\n");
 		fprintf(f, "#include \"v_network.h\"\n");
-		fprintf(f, "#include \"v_connection.h\"\n\n");
+		fprintf(f, "#include \"v_connection.h\"\n");
+		fprintf(f, "#include \"v_util.h\"\n\n");
 	}
 	VCGData.cmd_id = 0;
 	fprintf(f, "#include \"v_gen_unpack_func.h\"\n\n");
@@ -97,10 +97,15 @@ static void v_cg_init(void)
 		"** Verse API Header file (for use with libverse.a).\n"
 		"** This is automatically generated code; do not edit.\n"
 		"*/\n\n"
+		"\n"
 		"#if !defined VERSE_H\n"
+		"\n"
+		"#if defined __cplusplus\t\t/* Declare as C symbols for C++ users. */\n"
+		"extern \"C\" {\n"
+		"#endif\n\n"
 		"#define\tVERSE_H\n\n");
 	/* Copy contents of "verse_header.h" into output "verse.h". */
-	f = fopen("verse_header.h", "rt");
+	f = fopen("verse_header.h", "r");
 	while((i = fgetc(f)) != EOF)
 		fputc(i, VCGData.verse_h);
 	fclose(f);
@@ -115,6 +120,10 @@ static void v_cg_close(void)
 		fprintf(VCGData.nodes[i], "#endif\n\n");
 	}
 	fprintf(VCGData.init, "}\n#endif\n\n");
+	fprintf(VCGData.verse_h,
+		"\n#if defined __cplusplus\n"
+		"}\n"
+		"#endif\n");
 	fprintf(VCGData.verse_h, "\n#endif\t\t/* VERSE_H */\n");
 }
 
@@ -200,9 +209,9 @@ static void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 				break;
 				case VCGP_POINTER :
 					if(active != 0 && VCGData.param_type[active - 1] == VCGP_POINTER_TYPE)
-						fprintf(f, "%s *%s", VCGData.param_name[active - 1], VCGData.param_name[active]);
+						fprintf(f, "const %s *%s", VCGData.param_name[active - 1], VCGData.param_name[active]);
 					else
-						fprintf(f, "void *%s", VCGData.param_name[active]);
+						fprintf(f, "const void *%s", VCGData.param_name[active]);
 				break;
 				case VCGP_NAME :
 					if(types)
@@ -223,7 +232,7 @@ static void v_cg_gen_func_params(FILE *f, boolean types, boolean alias)
 					fprintf(f, "VLayerID %s", VCGData.param_name[active]);
 				break;
 				case VCGP_BUFFER_ID :
-					fprintf(f, "VNMBufferID %s", VCGData.param_name[active]);
+					fprintf(f, "VBufferID %s", VCGData.param_name[active]);
 				break;
 				case VCGP_FRAGMENT_ID :
 					fprintf(f, "VNMFragmentID %s", VCGData.param_name[active]);
@@ -459,12 +468,16 @@ static const char * v_cg_compute_buffer_size(void)
 	size = v_cg_compute_command_size(0, FALSE) + 1;
 	if(size <= 10)
 		return "VCMDBS_10";
-	else if(size <= 50)
-		return "VCMDBS_50";
-	else if(size <= 100)
-		return "VCMDBS_100";
-	else if(size <= 500)
-		return "VCMDBS_500";
+	else if(size <= 20)
+		return "VCMDBS_20";
+	else if(size <= 30)
+		return "VCMDBS_30";
+	else if(size <= 80)
+		return "VCMDBS_80";
+	else if(size <= 160)
+		return "VCMDBS_160";
+	else if(size <= 320)
+		return "VCMDBS_320";
 	return "VCMDBS_1500";
 }
 
@@ -489,7 +502,7 @@ static void v_cg_gen_pack(boolean alias)
 	fprintf(f, "\thead = v_cmd_buf_allocate(%s);/* Allocating the buffer */\n", v_cg_compute_buffer_size());
 	fprintf(f, "\tbuf = ((VCMDBuffer10 *)head)->buf;\n\n");
 
-	fprintf(f, "\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], %u);/* Packing the command */\n", VCGData.cmd_id);
+	fprintf(f, "\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], %u);\t/* Pack the command. */\n", VCGData.cmd_id);
 
 	fprintf(f, "#if defined V_PRINT_SEND_COMMANDS\n");
 	v_cg_create_print(f, TRUE, alias);
@@ -555,7 +568,7 @@ static void v_cg_gen_pack(boolean alias)
 			break;
 		}
 		if(no_param)
-			param = "0";
+			param = "-1";
 		switch(VCGData.param_type[i])
 		{	
 			case VCGP_NODE_ID :
@@ -607,7 +620,7 @@ static void v_cg_gen_unpack(void)
 	fprintf(f, ");\n\t");
 	v_cg_gen_func_params(f, TRUE, FALSE);
 	if(VCGData.alias_name != NULL && VCGData.alias_bool_switch)
-		fprintf(f, "char alias_bool;\n");
+		fprintf(f, "uint8\talias_bool;\n");
 	fprintf(f, "\n\tfunc_%s = v_fs_get_user_func(%u);\n", VCGData.func_name, VCGData.cmd_id);
 	fprintf(f, "\tif(buffer_length < %u)\n\t\treturn -1;\n", v_cg_compute_command_size(0, TRUE));
 	for(i = 0; i < VCGData.param_count; i++)
@@ -747,7 +760,7 @@ static void v_cg_gen_unpack(void)
 		{
 			if(VCGData.param_type[i] == VCGP_ENUM_NAME)
 			{
-				fprintf(f, ", (%s)%s", VCGData.param_name[i], VCGData.param_name[i + 1]);
+				fprintf(f, ", (%s) %s", VCGData.param_name[i], VCGData.param_name[i + 1]);
 				i++;
 			}
 			else

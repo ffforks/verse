@@ -48,14 +48,19 @@ unsigned int vs_add_new_node(VSNodeHead *node, VNodeType type)
 		VSNodeStorage.node_length = i + 1;
 	node->id = i;
 	node->type = type;
+
 	return node->id;
 }
 
 VSNodeHead *vs_get_node(unsigned int node_id, VNodeType type)
 {
 	if(VSNodeStorage.node_length > node_id)
-		if(VSNodeStorage.nodes[node_id] != NULL && VSNodeStorage.nodes[node_id]->type == type)
-			return VSNodeStorage.nodes[node_id];
+	{
+		VSNodeHead	*node = VSNodeStorage.nodes[node_id];
+
+		if(node != NULL && node->type == type)
+			return node;
+	}
 	return NULL;
 }
 
@@ -73,6 +78,7 @@ extern VSNodeHead *vs_b_create_node(unsigned int owner);
 extern VSNodeHead *vs_t_create_node(unsigned int owner);
 extern VSNodeHead *vs_c_create_node(unsigned int owner);
 extern VSNodeHead *vs_p_create_node(unsigned int owner);
+extern VSNodeHead *vs_a_create_node(unsigned int owner);
 
 extern void vs_o_destroy_node(VSNodeHead *node);
 extern void vs_g_destroy_node(VSNodeHead *node);
@@ -81,12 +87,15 @@ extern void vs_b_destroy_node(VSNodeHead *node);
 extern void vs_t_destroy_node(VSNodeHead *node);
 extern void vs_c_destroy_node(VSNodeHead *node);
 extern void vs_p_destroy_node(VSNodeHead *node);
+extern void vs_a_destroy_node(VSNodeHead *node);
+
 
 VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 {
 	unsigned int count, i;
 	VSNodeHead *node;
 	VNodeID node_id;
+
 	printf("vs_node_create(%u, %u)\n", owner_id, type);
 	switch(type)
 	{
@@ -105,16 +114,17 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 		case V_NT_TEXT :
 			node = vs_t_create_node(owner_id);
 		break;
-/*		case V_NT_PARTICLE :
-			return 0;			
-			node = vs_p_create_node(owner_id);
-		break;*/
 		case V_NT_CURVE :
 			node = vs_c_create_node(owner_id);
 		break;
+		case V_NT_AUDIO :
+			node = vs_a_create_node(owner_id);
+		break;
+		default:
+			fprintf(stderr, "Can't create node of unknown type %u\n", type);
+			return 0U;
 	}
 	node_id = node->id;
-
 
 	count =	vs_get_subscript_count(VSNodeStorage.list[type]);
 	for(i = 0; i < count; i++)
@@ -172,14 +182,15 @@ void callback_send_node_destroy(void *user_data, VNodeID node_id)
 		case V_NT_TEXT :
 			vs_t_destroy_node(node);
 		break;
-/*		case V_NT_PARTICLE :
-			vs_p_destroy_node(node);
-		break;*/
 		case V_NT_CURVE :
 			vs_c_destroy_node(node);
 		break;
-	default:
-		fprintf(stderr, __FILE__ " Can't send node_destroy for type %d--not implemented", type);
+		case V_NT_AUDIO :
+			vs_c_destroy_node(node);
+		break;
+		default:
+			fprintf(stderr, __FILE__ " Can't handle node_destroy for type %d--not implemented", type);
+		return;
 	}
 	count =	vs_get_subscript_count(VSNodeStorage.list[type]);
 	for(i = 0; i < count; i++)
@@ -187,14 +198,14 @@ void callback_send_node_destroy(void *user_data, VNodeID node_id)
 		vs_set_subscript_session(VSNodeStorage.list[type], i);
 		verse_send_node_destroy(node_id);
 	}
-
 	vs_reset_subscript_session();
 }
 
 static void callback_send_node_list(void *user_data, uint32 mask)
 {
 	unsigned int i, j, pow = 1;
-	for(i = 0; i < V_NT_NUM_TYPES; i++)
+
+	for(i = 0; i < V_NT_NUM_TYPES; i++, pow <<= 1)
 	{
 		if((mask & pow) != 0)
 		{
@@ -202,16 +213,16 @@ static void callback_send_node_list(void *user_data, uint32 mask)
 			{
 				if(VSNodeStorage.nodes[j] != NULL && VSNodeStorage.nodes[j]->type == (VNodeType)i)
 				{
-/*					if(VSNodeStorage.nodes[j]->owner == verse_session_get_avatar())
+					if(VSNodeStorage.nodes[j]->owner == verse_session_get_avatar())
 						verse_send_node_create(VSNodeStorage.nodes[j]->id, i, VN_OWNER_MINE);
 					else
-*/						verse_send_node_create(VSNodeStorage.nodes[j]->id, i, VN_OWNER_OTHER);
+						verse_send_node_create(VSNodeStorage.nodes[j]->id, i, VN_OWNER_OTHER);
 				}
 			}
 			vs_add_new_subscriptor(VSNodeStorage.list[i]);
-		}else
+		}
+		else
 			vs_remove_subscriptor(VSNodeStorage.list[i]);
-		pow *= 2;
 	}
 }
 
