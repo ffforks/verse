@@ -11,19 +11,21 @@
 
 typedef enum {
 	VCMDBS_10 = 0,
-	VCMDBS_50 = 1,
-	VCMDBS_100 = 2,
-	VCMDBS_500 = 3,
-	VCMDBS_1500 = 4,
-	VCMDBS_COUNT = 5
+	VCMDBS_20 = 1,
+	VCMDBS_30 = 2,
+	VCMDBS_80 = 3,
+	VCMDBS_160 = 4,
+	VCMDBS_320 = 5,
+	VCMDBS_1500 = 6,
+	VCMDBS_COUNT = 7
 } VCMDBufSize;
 
 typedef struct {
-	void		*next;
-	uint32		packet;
+	void			*next;
+	uint32			packet;
 	unsigned int	address_size;
 	unsigned int	address_sum;
-	VCMDBufSize	buf_size;
+	VCMDBufSize		buf_size;
 	unsigned int	size;
 } VCMDBufHead;
 
@@ -34,18 +36,29 @@ typedef struct {
 
 typedef struct {
 	VCMDBufHead	head;
-	uint8		buf[50];
-} VCMDBuffer50;
+	uint8		buf[20];
+} VCMDBuffer20;
 
 typedef struct {
 	VCMDBufHead head;
-	uint8		buf[100];
-} VCMDBuffer100;
+	uint8		buf[30];
+} VCMDBuffer30;
 
 typedef struct {
 	VCMDBufHead	head;
-	uint8		buf[500];
-} VCMDBuffer500;
+	uint8		buf[80];
+} VCMDBuffer80;
+
+typedef struct {
+	VCMDBufHead	head;
+	uint8		buf[160];
+} VCMDBuffer160;
+
+typedef struct {
+	VCMDBufHead	head;
+	uint8		buf[320];
+} VCMDBuffer320;
+
 
 typedef struct {
 	VCMDBufHead	head;
