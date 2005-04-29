@@ -6,7 +6,7 @@
 /* Release information. */
 #define	V_RELEASE_NUMBER	5
 #define	V_RELEASE_PATCH		0
-#define	V_RELEASE_LABEL		"pre3"
+#define	V_RELEASE_LABEL		""
 
 typedef unsigned char	boolean;
 typedef signed char	int8;
