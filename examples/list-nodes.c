@@ -18,9 +18,8 @@ static void callback_accept_connect(void *user, uint32 avatar, void *address, vo
     verse_send_node_list(mask);     /* Request listing of all nodes. */
 }
 
-
 /* A callback for node creation: is called to report information about existing nodes, too. */
-static void callback_node_create(void *user, VNodeID node_id, uint8 type, VNodeOwner ownership)
+static void callback_node_create(void *user, VNodeID node_id, VNodeType type, VNodeOwner ownership)
 {
     printf(" Node #%u has type %u\n", node_id, type);
 }
@@ -32,9 +31,9 @@ int main(void)
     verse_callback_set(verse_send_node_create,	  callback_node_create, NULL);
 
     /* Kick off program by connecting to Verse host on local machine. */
-    verse_send_connect("My_name", "My_password", "localhost", NULL);
+    verse_send_connect("list-nodes", "<secret>", "localhost", NULL);
     while(TRUE)
-        verse_callback_update(100);   /* Listen to network, get callbacks. */
+        verse_callback_update(10000);   /* Listen to network, get callbacks. */
 
     return EXIT_SUCCESS;    /* This is never reached. */
 }
