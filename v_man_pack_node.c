@@ -33,8 +33,131 @@ unsigned int v_unpack_connect_terminate(const char *buf, unsigned int buffer_len
 {
 	unsigned int buffer_pos = 0;
 	char bye[512];
+
 	buffer_pos = vnp_raw_unpack_string(buf, bye, sizeof bye, buffer_length);
 	v_callback_connect_terminate(bye);
+
+	return buffer_pos;
+}
+
+static unsigned int pack_b_tile_set_head(VCMDBufHead *head, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, const VNBTile *tile)
+{
+	unsigned int buffer_pos = 0;
+	uint8 *buf;
+	buf = ((VCMDBuffer30 *)head)->buf;
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 83);	/* Pack the command. */
+#if defined V_PRINT_SEND_COMMANDS
+	printf("send: verse_send_b_tile_set(node_id = %u layer_id = %u tile_x = %u tile_y = %u z = %u type = %u tile = %p );\n", node_id, layer_id, tile_x, tile_y, z, type, tile);
+#endif
+	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], layer_id);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], tile_x);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], tile_y);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], z);
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)type);
+	return buffer_pos;
+	v_cmd_buf_set_address_size(head, 13);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
+}
+
+void verse_send_b_tile_set(VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, const VNBTile *tile)
+{
+	uint8 *buf;
+	unsigned int buffer_pos = 0;
+	VCMDBufHead *head;
+	switch(type)
+	{
+		case VN_B_LAYER_UINT1 :
+			head = v_cmd_buf_allocate(VCMDBS_30);/* Allocating the buffer */
+			buf = ((VCMDBuffer30 *)head)->buf;
+			buffer_pos += pack_b_tile_set_head(head, node_id, layer_id, tile_x, tile_y, z, type, tile);
+			buffer_pos += vnp_raw_pack_uint8_vector(&buf[buffer_pos], tile->vuint1, VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8);
+		break;
+		case VN_B_LAYER_UINT8 :
+			head = v_cmd_buf_allocate(VCMDBS_80);/* Allocating the buffer */
+			buf = ((VCMDBuffer80 *)head)->buf;
+			buffer_pos += pack_b_tile_set_head(head, node_id, layer_id, tile_x, tile_y, z, type, tile);
+			buffer_pos += vnp_raw_pack_uint8_vector(&buf[buffer_pos], tile->vuint8, VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+		break;
+		case VN_B_LAYER_UINT16 :
+			head = v_cmd_buf_allocate(VCMDBS_160);/* Allocating the buffer */
+			buf = ((VCMDBuffer160 *)head)->buf;
+			buffer_pos += pack_b_tile_set_head(head, node_id, layer_id, tile_x, tile_y, z, type, tile);
+			buffer_pos += vnp_raw_pack_uint16_vector(&buf[buffer_pos], tile->vuint16, VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+		break;
+		case VN_B_LAYER_REAL32 :
+			head = v_cmd_buf_allocate(VCMDBS_320);/* Allocating the buffer */
+			buf = ((VCMDBuffer320 *)head)->buf;
+			buffer_pos += pack_b_tile_set_head(head, node_id, layer_id, tile_x, tile_y, z, type, tile);
+			buffer_pos += vnp_raw_pack_real32_vector(&buf[buffer_pos], tile->vreal32, VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+		break;
+		case VN_B_LAYER_REAL64 :
+			head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
+			buf = ((VCMDBuffer10 *)head)->buf;
+			buffer_pos += pack_b_tile_set_head(head, node_id, layer_id, tile_x, tile_y, z, type, tile);
+			buffer_pos += vnp_raw_pack_real64_vector(&buf[buffer_pos], tile->vreal64, VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+		break;
+	}
+	v_cmd_buf_set_address_size(head, 13);
+	v_cmd_buf_set_size(head, buffer_pos);
+	v_noq_send_buf(v_con_get_network_queue(), head);
+}
+
+unsigned int v_unpack_b_tile_set(const char *buf, size_t buffer_length)
+{
+	uint8 enum_temp;
+	unsigned int buffer_pos = 0;
+	void (* func_b_tile_set)(void *user_data, VNodeID node_id, VLayerID layer_id, uint16 tile_x, uint16 tile_y, uint16 z, VNBLayerType type, const VNBTile *tile);
+	VNodeID node_id;
+	VLayerID layer_id;
+	uint16 tile_x;
+	uint16 tile_y;
+	uint16 z;
+	VNBLayerType type;
+	const VNBTile *tile;
+	
+	func_b_tile_set = v_fs_get_user_func(83);
+	if(buffer_length < 12)
+		return -1;
+	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &node_id);
+	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &layer_id);
+	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile_x);
+	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &tile_y);
+	buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &z);
+	buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &enum_temp);
+	type = (VNBLayerType)enum_temp;
+#if defined V_PRINT_RECEIVE_COMMANDS
+	printf("receive: verse_send_b_tile_set(node_id = %u layer_id = %u tile_x = %u tile_y = %u z = %u type = %u ); callback = %p\n", node_id, layer_id, tile_x, tile_y, z, type, v_fs_get_user_func(83));
+#endif
+	{
+		VNBTile tile;
+		switch(type)
+		{
+			case VN_B_LAYER_UINT1 :
+				buffer_pos += vnp_raw_unpack_uint8_vector(&buf[buffer_pos], tile.vuint1, VN_B_TILE_SIZE * VN_B_TILE_SIZE / 8);
+			break;
+			case VN_B_LAYER_UINT8 :
+				buffer_pos += vnp_raw_unpack_uint8_vector(&buf[buffer_pos], tile.vuint8, VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+			break;
+			case VN_B_LAYER_UINT16 :
+				buffer_pos += vnp_raw_unpack_uint16_vector(&buf[buffer_pos], tile.vuint16, VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+			break;
+			case VN_B_LAYER_REAL32 :
+				buffer_pos += vnp_raw_unpack_real32_vector(&buf[buffer_pos], tile.vreal32, VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+			break;
+			case VN_B_LAYER_REAL64 :
+				buffer_pos += vnp_raw_unpack_real64_vector(&buf[buffer_pos], tile.vreal64, VN_B_TILE_SIZE * VN_B_TILE_SIZE);
+			break;
+		}
+		if(func_b_tile_set != NULL && type <= VN_B_LAYER_REAL64)
+			func_b_tile_set(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, type, &tile);
+		return buffer_pos;
+	}
+
+	if(func_b_tile_set != NULL)
+		func_b_tile_set(v_fs_get_user_data(83), node_id, layer_id, tile_x, tile_y, z, (VNBLayerType)type, tile);
+
 	return buffer_pos;
 }
 
@@ -42,7 +165,7 @@ typedef struct VTempText	VTempText;
 
 struct VTempText {
 	VNodeID		node_id;
-	VNMBufferID buffer_id;
+	VBufferID buffer_id;
 	uint32		pos;
 	uint32		length;
 	uint16		index; 
@@ -81,7 +204,7 @@ void v_destroy_ordered_storage(VOrderedStorage *s)
 	free(s);
 }
 
-void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint32 length, const char *text)
+void verse_send_t_text_set(VNodeID node_id, VBufferID buffer_id, uint32 pos, uint32 length, const char *text)
 {
 	uint8 *buf;
 	VOrderedStorage *s;
@@ -112,7 +235,7 @@ void verse_send_t_text_set(VNodeID node_id, VNMBufferID buffer_id, uint32 pos, u
 static void call_text_set(VTempText *line)
 {
 	const char *t;
-	void (* func_t_text_set)(void *user_data, VNodeID node_id, VNMBufferID buffer_id, uint32 pos, uint16 length, const char *text);
+	void (* func_t_text_set)(void *user_data, VNodeID node_id, VBufferID buffer_id, uint32 pos, uint16 length, const char *text);
 
 	func_t_text_set = v_fs_get_user_func(99);
 #if defined V_PRINT_RECEIVE_COMMANDS
@@ -192,7 +315,10 @@ unsigned int v_unpack_t_text_set(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_c_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions, real64 *pre_value, uint32 *pre_pos, real64 *value, real64 pos, real64 *post_value, uint32 *post_pos)
+void verse_send_c_key_set(VNodeID node_id, VLayerID curve_id, uint32 key_id, uint8 dimensions,
+			  const real64 *pre_value, const uint32 *pre_pos,
+			  const real64 *value, real64 pos,
+			  const real64 *post_value, const uint32 *post_pos)
 {
 	uint8 *buf;
 	unsigned int i, buffer_pos = 0;

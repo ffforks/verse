@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 extern void			vs_init_connection_storage(void);
-extern void			vs_add_new_connection(VSession session, char *name, char *pass, unsigned int node_id);
+extern void			vs_add_new_connection(VSession session, const char *name, const char *pass, VNodeID node_id);
 extern void			vs_remove_connection(void);
 extern void			vs_set_next_session(void);
 
@@ -43,11 +43,12 @@ extern void			create_node_head(VSNodeHead *node, const char *name, unsigned int 
 extern void			destroy_node_head(VSNodeHead *node);
 extern void			vs_send_node_head(VSNodeHead *node);
 
+extern void			vs_h_callback_init(void);	/* "Head", not an actual node type. */
 extern void			vs_o_callback_init(void);
 extern void			vs_g_callback_init(void);
 extern void			vs_m_callback_init(void);
 extern void			vs_b_callback_init(void);
 extern void			vs_t_callback_init(void);
 extern void			vs_c_callback_init(void);
-extern void			vs_h_callback_init(void);
+extern void			vs_a_callback_init(void);
 extern void			init_callback_node_storage(void);

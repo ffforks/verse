@@ -59,6 +59,7 @@ VSocket v_n_socket_create(void)
 {
 	static boolean initialized = FALSE;
 	struct sockaddr_in address;
+        int buffer_size = 1 << 20;
 
 	if(my_socket != -1)
 		return my_socket;
@@ -86,7 +87,10 @@ VSocket v_n_socket_create(void)
 	}
 #else
 	if(fcntl(my_socket, F_SETFL, O_NONBLOCK) != 0)
+	{
+		fprintf(stderr, "v_network: Couldn't make socket non-blocking\n");
 		return -1;
+	}
 #endif
 	address.sin_family = AF_INET;     /* host byte order */
 	address.sin_port = htons(my_port); /* short, network byte order */
@@ -96,6 +100,10 @@ VSocket v_n_socket_create(void)
 		fprintf(stderr, "v_network: Failed to bind(), code %d (%s)\n", errno, strerror(errno));
 		exit(0); /* FIX ME */
 	}
+	if(setsockopt(my_socket, SOL_SOCKET, SO_SNDBUF, &buffer_size, sizeof buffer_size) != 0)
+		fprintf(stderr, "v_network: Couldn't set send buffer size of socket to %d\n", buffer_size);
+	if(setsockopt(my_socket, SOL_SOCKET, SO_RCVBUF, &buffer_size, sizeof buffer_size) != 0)
+		fprintf(stderr, "v_network: Couldn't set receive buffer size of socket to %d\n", buffer_size);
 	return my_socket;
 }
 
@@ -136,18 +144,18 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 {
 	struct sockaddr_in	address_in;
+	int			ret;
+
 	if(v_n_socket_create() == -1)
 		return 0;
 	address_in.sin_family = AF_INET;     /* host byte order */
 	address_in.sin_port = htons(address->port); /* short, network byte order */
 	address_in.sin_addr.s_addr = htonl(address->ip);
 	memset(&address_in.sin_zero, 0, sizeof address_in.sin_zero);
-/*	{
-		char string[32];
-		v_n_get_address_string(address, string);
-		printf("send to %s\n", string);
-	}
-*/	return sendto(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr_in));
+	ret = sendto(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr_in));
+	if(ret < 0)
+		fprintf(stderr, "Socket sendto() failed, code %d (%s)\n", errno, strerror(errno));
+	return ret;
 }
 
 #if !defined V_GENERATE_FUNC_MODE
@@ -155,28 +163,32 @@ int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 extern void *v_con_get_network_address_id(unsigned int id);
 extern unsigned int v_con_get_network_address_count();
 
-void v_n_wait_for_incoming(unsigned int microseconds) 
+unsigned int v_n_wait_for_incoming(unsigned int microseconds) 
 {
-	struct timeval tv;
-	fd_set fd_select;
+	struct timeval	tv;
+	fd_set		fd_select;
+	unsigned int	s1, f1, s2, f2;
+
 	if(microseconds == 0)
-		return;
+		return 0;
 	v_n_socket_create();
-	tv.tv_sec = microseconds / 1000000;
+	tv.tv_sec  = microseconds / 1000000;
 	tv.tv_usec = microseconds % 1000000;
 	FD_ZERO(&fd_select);
-/*	address = v_con_get_network_address_id(i);*/
 	FD_SET(my_socket, &fd_select);
+	v_n_get_current_time(&s1, &f1);
 	select(1, &fd_select, NULL, NULL, &tv);
+	v_n_get_current_time(&s2, &f2);
+	return (1000000 * s2 + f2 * (1E6 / 0xffffffffU)) -
+	       (1000000 * s1 + f1 * (1E6 / 0xffffffffU));
 }
 
 #endif
 
 int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
 {
-	int		output_length;
 	struct	sockaddr_in address_in;
-	int	from_length = sizeof address_in;
+	int	from_length = sizeof address_in, len;
 
 	if(v_n_socket_create() == -1)
 		return 0;
@@ -184,10 +196,13 @@ int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
 	address_in.sin_family = AF_INET;
 	address_in.sin_port = htons(my_port); 
 	address_in.sin_addr.s_addr = INADDR_ANY;
-	output_length = recvfrom(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, &from_length);
-	address->ip   = ntohl(address_in.sin_addr.s_addr);
-	address->port = ntohs(address_in.sin_port);
-	return output_length;
+	len = recvfrom(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, &from_length);
+	if(len > 0)
+	{
+		address->ip   = ntohl(address_in.sin_addr.s_addr);
+		address->port = ntohs(address_in.sin_port);
+	}
+	return len;
 }
 
 #if defined _WIN32

@@ -1,3 +1,8 @@
+/*
+ * 
+*/
+
+#include <stdio.h>
 #include <stdlib.h>
 #include "verse_header.h"
 #include "v_pack.h"
@@ -8,7 +13,7 @@
 #include "v_cmd_buf.h"
 #include "v_network_out_que.h"
 
-#define V_FS_MAX_CMDS 256
+#define V_FS_MAX_CMDS	256
 
 extern void init_pack_and_unpack(void);
 
@@ -117,20 +122,36 @@ boolean v_fs_func_accept_connections(void)
 	return VCmdData.user_func[0] != NULL;
 }
 
+/* Inspect beginning of packet, looking for ACK or NAK commands. */
+void v_fs_unpack_beginning(const uint8 *data, unsigned int length)
+{
+	uint32 id, i = 4;
+	uint8 cmd_id;
+
+	i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
+	while(i < length && (cmd_id == 7 || cmd_id == 8))
+	{
+		i += vnp_raw_unpack_uint32(&data[i], &id);
+		if(cmd_id == 7)
+			callback_send_packet_ack(NULL, id);
+		else
+			callback_send_packet_nak(NULL, id);
+		i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
+	}
+}
+
 void v_fs_unpack(uint8 *data, unsigned int length)
 {
-	uint32 i = 0, output, pack_id;
+	uint32 i, output, pack_id;
 	uint8 cmd_id;
-	i = vnp_raw_unpack_uint32(data, &pack_id); /* each pack starts with a 32 bit id */
-/*	printf("unpak %u %u %u\n", length, i, *expected);
-	if(expected != NULL)
+
+	i = vnp_raw_unpack_uint32(data, &pack_id); /* each packet starts with a 32 bit id */
+	vnp_raw_unpack_uint8(&data[i], &cmd_id);
+	while(i < length && (cmd_id == 7 || cmd_id == 8))
 	{
-		if(pack_id < *expected)
-			return;
-		for(; *expected < pack_id; (*expected)++)
-			verse_send_packet_nak(*expected);
-		(*expected)++;
-	}*/
+		i += 5;
+		vnp_raw_unpack_uint8(&data[i], &cmd_id);
+	}
 	while(i < length)
 	{
 		i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
@@ -140,79 +161,27 @@ void v_fs_unpack(uint8 *data, unsigned int length)
 			output = VCmdData.unpack_func[cmd_id](&data[i], length - i);
 			if(output == (unsigned int) -1)	/* Can this happen? Should be size_t or int, depending. */
 			{
-		/*		verse_send_packet_nak(pack_id);*/
+/*				verse_send_packet_nak(pack_id);*/
 				return;
 			}
 			i += output;
+		}
+		else	/* If unknown command byte was found, complain loudly and stop parsing packet. */
+		{
+			size_t	j;
+
+			printf("\n** Unknown command ID %d (0x%02X) encountered--aborting packet decode\n", cmd_id, cmd_id);
+			printf("rest of packet: ");
+			for(j = i; j < length; j++)
+				printf("%02X ", data[j]);
+			printf("\n");
+			break;
 		}
 	}
 /*	if(expected != NULL)
 		verse_send_packet_ack(pack_id);*/
 }
 
-void v_fs_unpack_old(uint8 *data, unsigned int length, uint32 *expected)
-{
-	uint32 i = 0, output, pack_id;
-	uint8 cmd_id;
-	i = vnp_raw_unpack_uint32(data, &pack_id); /* each pack starts with a 32 bit id */
-	if(expected != NULL)
-	{
-		if(pack_id < *expected)
-			return;
-		for(; *expected < pack_id; (*expected)++)
-			verse_send_packet_nak(*expected);
-		(*expected)++;
-	}
-	while(i < length)
-	{
-		i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
-		if(VCmdData.unpack_func[cmd_id] != NULL)
-		{
-			if(cmd_id == 7 || cmd_id == 8)
-				VCmdData.call = (expected == NULL);
-			else
-				VCmdData.call = !(expected == NULL);
-			output = VCmdData.unpack_func[cmd_id](&data[i], length - i);
-			if(output == (unsigned int) -1)	/* Can this happen? Should be size_t or int, depending. */
-			{
-				verse_send_packet_nak(pack_id);
-				return;
-			}
-			i += output;
-		}
-	}
-	if(expected != NULL)
-		verse_send_packet_ack(pack_id);
-}
-
 extern unsigned int v_unpack_connection(const char *data, size_t length);
-/*
-void v_fs_unpack_connect(uint8 *data, unsigned int length, uint32 *expected)
-{
-	uint32 i = 0, output, pack_id;
-	uint8 cmd_id;
-	i = vnp_raw_unpack_uint32(data, &pack_id);
-	if(pack_id != *expected)
-		return;
-	VCmdData.call = TRUE;
-	if(v_unpack_connection(data, length))
-		(*expected)++;
-}
-*/
-/*
-static char *connect_address = NULL;
-
-void v_fs_connect_unpack(uint8 *data, unsigned int length, char *address)
-{
-	unsigned int i = 0, pack_id;
-	uint8 cmd_id;
-	VCmdData.call = TRUE;
-	i += vnp_raw_unpack_uint32(&data[i], &pack_id);
-	i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
-	connect_address = address;
-	if(cmd_id == 0 || cmd_id == 4)
-		i += v_unpack_connect(&data[i], length);	
-	connect_address = NULL;
-}*/
 
 #endif

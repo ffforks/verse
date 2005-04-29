@@ -12,7 +12,6 @@
 #include "v_network.h"
 #include "v_pack.h"
 
-#define V_CONNECTON_TIME_OUT 5
 
 #if !defined(V_GENERATE_FUNC_MODE)
 
@@ -25,17 +24,24 @@ void v_niq_clear(VNetInQueue *queue)
 	queue->oldest = NULL;
 	queue->newest = NULL;
 	queue->packet_id = 2;
+	v_niq_timer_update(queue);
+}
+
+/* Set queue's last-used timestamp to "now". */
+void v_niq_timer_update(VNetInQueue *queue)
+{
 	v_n_get_current_time(&queue->seconds, NULL);
 }
 
-boolean v_niq_time_out(const VNetInQueue *queue)
+uint32 v_niq_time_out(const VNetInQueue *queue)
 {
 	uint32 seconds;
 	v_n_get_current_time(&seconds, NULL);
-	return queue->seconds + V_CONNECTON_TIME_OUT < seconds;
+/*	printf("queue at %p has seconds=%u, now=%u -> diff=%u\n", queue, queue->seconds, seconds, seconds - queue->seconds);*/
+	return seconds - queue->seconds;
 }
 
-VNetInPacked *v_niq_get(VNetInQueue *queue, size_t *length)
+VNetInPacked * v_niq_get(VNetInQueue *queue, size_t *length)
 {
 	VNetInPacked *p;
 
@@ -44,7 +50,6 @@ VNetInPacked *v_niq_get(VNetInQueue *queue, size_t *length)
 		*length = 0;
 		return NULL;
 	}
-
 	/* pop oldest package */
 	p = queue->oldest;
 	queue->oldest = p->newer;
@@ -52,10 +57,19 @@ VNetInPacked *v_niq_get(VNetInQueue *queue, size_t *length)
 		queue->newest = NULL;
 	else
 		((VNetInPacked *)queue->oldest)->older = NULL;
-
 	*length = p->size;
 
 	return p;
+}
+
+unsigned int v_niq_free(VNetInQueue *queue)
+{
+	unsigned int i;
+	size_t length;
+
+	for(i = 0; v_niq_get(queue, &length) != NULL; i++)
+		;
+	return i;
 }
 
 void v_niq_release(VNetInQueue *queue, VNetInPacked *p)
@@ -68,14 +82,21 @@ void v_niq_release(VNetInQueue *queue, VNetInPacked *p)
 char *v_niq_store(VNetInQueue *queue, size_t length, unsigned int packet_id)
 {
 	VNetInPacked	*p;
-	v_n_get_current_time(&queue->seconds, NULL);
+
+	v_niq_timer_update(queue);
 
 	if(packet_id < queue->packet_id)
 		return NULL;
 	
-	while(queue->packet_id < packet_id)
+	while(queue->packet_id != packet_id)
+	{
 		verse_send_packet_nak(queue->packet_id++);
+		if(queue->packet_id == 0)
+			queue->packet_id++;
+	}
 	queue->packet_id++;
+	if(queue->packet_id == 0)
+		queue->packet_id++;
 	verse_send_packet_ack(packet_id);
 
 	if(v_niq_temp == NULL)

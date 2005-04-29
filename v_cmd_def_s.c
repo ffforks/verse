@@ -9,20 +9,13 @@
 
 void v_gen_system_cmd_def(void)
 {
-	v_cg_new_manual_cmd(0, "connect", "VSession *verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_host_id)", NULL, NULL);
+	v_cg_new_manual_cmd(0, "connect", "VSession verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_host_id)", NULL, NULL);
 
-	v_cg_new_manual_cmd(1, "connect_accept", "VSession *verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id)", NULL, NULL);
+	v_cg_new_manual_cmd(1, "connect_accept", "VSession verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id)", NULL, NULL);
 
 	v_cg_new_manual_cmd(2, "connect_terminate", "void verse_send_connect_terminate(const char *address, const char *bye)", NULL, NULL);
 	
-	v_cg_new_cmd(V_NT_SYSTEM,		"get_time", 4, VCGCT_UNIQUE);
-	v_cg_add_param(VCGP_UINT32,		"time");
-	v_cg_end_cmd();
-
-	v_cg_new_cmd(V_NT_SYSTEM,		"ping", 5, VCGCT_UNIQUE);
-	v_cg_add_param(VCGP_LONG_NAME,	"address");
-	v_cg_add_param(VCGP_LONG_NAME,	"text");
-	v_cg_end_cmd();
+	v_cg_new_manual_cmd(5, "ping", "void verse_send_ping(const char *address, const char *message)", NULL, NULL);
 
 	v_cg_new_cmd(V_NT_SYSTEM,		"error_message", 6, VCGCT_UNIQUE);
 	v_cg_add_param(VCGP_LONG_NAME, "message");
@@ -143,6 +136,8 @@ void v_gen_system_cmd_def(void)
 	"\t\t\t\tbuffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], ((uint8 *)((VNTag *)tag)->vblob.blob)[i]);\n"
 	"\t\t}\n"
 	"\t\tbreak;\n"
+	"\t\tdefault :\n"
+	"\t\t\t;\n"
 	"\t}\n");
 	v_cg_add_param(VCGP_UNPACK_INLINE, "\tif(type < VN_TAG_TYPE_COUNT)\n"
 	"\t{\n"
@@ -195,6 +190,8 @@ void v_gen_system_cmd_def(void)
 	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &string[i]);\n"
 	"\t\t\t}\n"
 	"\t\t\tbreak;\n"
+	"\t\tdefault :\n"
+	"\t\t\t;\n"
 	"\t\t}\n"
 	"\t\tif(func_tag_create != NULL)\n"
 	"\t\tfunc_tag_create(v_fs_get_user_data(18), node_id, group_id, tag_id, name, type, &tag);\n"
