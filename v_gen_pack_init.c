@@ -15,6 +15,7 @@
 #include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
+#include "v_util.h"
 
 #include "v_gen_unpack_func.h"
 
@@ -29,7 +30,6 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(0, v_unpack_connect, verse_send_connect, NULL);
 	v_fs_add_func(1, v_unpack_connect_accept, verse_send_connect_accept, NULL);
 	v_fs_add_func(2, v_unpack_connect_terminate, verse_send_connect_terminate, NULL);
-	v_fs_add_func(4, v_unpack_get_time, verse_send_get_time, NULL);
 	v_fs_add_func(5, v_unpack_ping, verse_send_ping, NULL);
 	v_fs_add_func(7, v_unpack_packet_ack, verse_send_packet_ack, NULL);
 	v_fs_add_func(8, v_unpack_packet_nak, verse_send_packet_nak, NULL);
@@ -53,11 +53,11 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(42, v_unpack_o_method_group_subscribe, verse_send_o_method_group_subscribe, verse_send_o_method_group_unsubscribe);
 	v_fs_add_func(43, v_unpack_o_method_create, verse_send_o_method_create, verse_send_o_method_destroy);
 	v_fs_add_func(44, v_unpack_o_method_call, verse_send_o_method_call, NULL);
-	v_fs_add_func(45, v_unpack_o_anim_run, verse_send_o_anim_run, verse_send_o_anim_stop);
+	v_fs_add_func(45, v_unpack_o_anim_run, verse_send_o_anim_run, NULL);
 	v_fs_add_func(48, v_unpack_g_layer_create, verse_send_g_layer_create, verse_send_g_layer_destroy);
 	v_fs_add_func(49, v_unpack_g_layer_subscribe, verse_send_g_layer_subscribe, verse_send_g_layer_unsubscribe);
-	v_fs_add_func(50, v_unpack_g_vertex_set_real32_xyz, verse_send_g_vertex_set_real32_xyz, verse_send_g_vertex_delete_real32);
-	v_fs_add_func(51, v_unpack_g_vertex_set_real64_xyz, verse_send_g_vertex_set_real64_xyz, verse_send_g_vertex_delete_real64);
+	v_fs_add_func(50, v_unpack_g_vertex_set_xyz_real32, verse_send_g_vertex_set_xyz_real32, verse_send_g_vertex_delete_real32);
+	v_fs_add_func(51, v_unpack_g_vertex_set_xyz_real64, verse_send_g_vertex_set_xyz_real64, verse_send_g_vertex_delete_real64);
 	v_fs_add_func(52, v_unpack_g_vertex_set_uint32, verse_send_g_vertex_set_uint32, NULL);
 	v_fs_add_func(53, v_unpack_g_vertex_set_real64, verse_send_g_vertex_set_real64, NULL);
 	v_fs_add_func(54, v_unpack_g_vertex_set_real32, verse_send_g_vertex_set_real32, NULL);
@@ -83,9 +83,9 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(128, v_unpack_c_curve_create, verse_send_c_curve_create, verse_send_c_curve_destroy);
 	v_fs_add_func(129, v_unpack_c_curve_subscribe, verse_send_c_curve_subscribe, verse_send_c_curve_unsubscribe);
 	v_fs_add_func(130, v_unpack_c_key_set, verse_send_c_key_set, verse_send_c_key_destroy);
-	v_fs_add_func(160, v_unpack_a_layer_create, verse_send_a_layer_create, verse_send_a_layer_destroy);
-	v_fs_add_func(161, v_unpack_a_layer_subscribe, verse_send_a_layer_subscribe, verse_send_a_layer_unsubscribe);
-	v_fs_add_func(162, v_unpack_a_block_set, verse_send_a_block_set, NULL);
+	v_fs_add_func(160, v_unpack_a_buffer_create, verse_send_a_buffer_create, verse_send_a_buffer_destroy);
+	v_fs_add_func(161, v_unpack_a_buffer_subscribe, verse_send_a_buffer_subscribe, verse_send_a_buffer_unsubscribe);
+	v_fs_add_func(162, v_unpack_a_block_set, verse_send_a_block_set, verse_send_a_block_clear);
 	v_fs_add_func(163, v_unpack_a_stream_create, verse_send_a_stream_create, verse_send_a_stream_destroy);
 	v_fs_add_func(164, v_unpack_a_stream_subscribe, verse_send_a_stream_subscribe, verse_send_a_stream_unsubscribe);
 	v_fs_add_func(165, v_unpack_a_stream, verse_send_a_stream, NULL);
