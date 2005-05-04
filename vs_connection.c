@@ -136,16 +136,18 @@ void vs_destroy_subscription_list(VSSubscriptionList *list)
 	free(list);
 }
 
-void vs_add_new_subscriptor(VSSubscriptionList *list)
+/* Returns 1 if subscriber was added, 0 if not (typically meaning it was already on the list). */
+int vs_add_new_subscriptor(VSSubscriptionList *list)
 {
 	unsigned int i;
 	if(list->session_count % VS_CONNECTION_CHUNK_SIZE == 0)
 		list->session = realloc(list->session, (sizeof *list->session) * (list->session_count + VS_CONNECTION_CHUNK_SIZE));
 	for(i = 0; i < list->session_count; i++)
 		if(list->session[i] == VSConnectionStorage.connection[VSConnectionStorage.current_session].session)
-			return;
+			return 0;
 	list->session[list->session_count] = VSConnectionStorage.connection[VSConnectionStorage.current_session].session;
 	list->session_count++;
+	return 1;
 }
 
 
