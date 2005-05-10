@@ -168,7 +168,7 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_NAME,		"weight");
 	v_cg_add_param(VCGP_NAME,		"reference");
-	v_cg_add_param(VCGP_UINT32,		"parent");
+	v_cg_add_param(VCGP_UINT16,		"parent");
 	v_cg_add_param(VCGP_REAL64,		"pos_x");
 	v_cg_add_param(VCGP_REAL64,		"pos_y");
 	v_cg_add_param(VCGP_REAL64,		"pos_z");
