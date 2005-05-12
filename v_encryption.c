@@ -233,7 +233,6 @@ void v_encrypt_test(void)
 	for(i = 0; decode[i] != 0; i++)
 		putchar(decode[i]);
 	printf("'\n");
-	exit(0);
 /*	printf("\npublic key: ");
 	v_bignum_print_hex_lf(k_public);
 	printf("private key: ");
@@ -266,3 +265,12 @@ void v_encrypt_test(void)
 	printf("\n\n");
 */
 }
+
+#if defined CRYPTALONE
+int main(void)
+{
+	v_encrypt_test();
+
+	return 0;
+}
+#endif
