@@ -470,7 +470,7 @@ extern void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer
 extern void verse_send_g_polygon_set_face_real32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real32 value);
 extern void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 def_crease);
 extern void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def_crease);
-extern void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, const VNQuat64 *rot);
+extern void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint16 parent, real64 pos_x, real64 pos_y, real64 pos_z, const VNQuat64 *rot);
 extern void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id);
 
 extern void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, const VMatFrag *fragment);
