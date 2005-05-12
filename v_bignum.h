@@ -7,7 +7,8 @@
 
 /* ----------------------------------------------------------------------------------------- */
 
-typedef unsigned short	VBigDig;
+typedef unsigned short	VBigDig;	/* Type used to hold one digit of a bignum. */
+typedef unsigned int	VBigDigs;	/* Should hold precisely two digits. */
 
 #define	V_BIGBITS	(CHAR_BIT * sizeof (VBigDig))
 
@@ -16,7 +17,7 @@ typedef unsigned short	VBigDig;
  * Creates automatic variables 'foo' of 128 bits, and 'bar' of 256.
  * 
  * Note that 'bits' must be a multiple of V_BIGBITS, completely
- * arbitrary number sizes is not supported by this module.
+ * arbitrary number sizes are not supported by this module.
 */
 #define	VBIGNUM(n, bits)	n[1 + (bits / V_BIGBITS)] = { bits / V_BIGBITS }
 
