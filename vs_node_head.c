@@ -358,10 +358,11 @@ extern void vs_t_unsubscribe(VSNodeHead *node);
 extern void vs_c_unsubscribe(VSNodeHead *node);
 extern void vs_a_unsubscribe(VSNodeHead *node);
 
-static void callback_send_node_unsubscribe(VNodeID node_id)
+static void callback_send_node_unsubscribe(void *user, VNodeID node_id)
 {
 	VSNodeHead *node;
-	if((node = vs_get_node_head(node_id)) == 0)
+
+	if((node = vs_get_node_head(node_id)) == NULL)
 		return;
 	vs_remove_subscriptor(node->subscribers);
 
