@@ -1,5 +1,6 @@
 /*
- * 
+ * Random number generator module. Defines a simple API to allocate, use and
+ * destroy a generator of randomness. Relies on platform-specific APIs.
 */
 
 #include <stdio.h>
@@ -12,7 +13,7 @@
 /* This is a fall-back to the old style of simply using rand(). It should
  * be replaced by something using the proper Win32 cryptography APIs.
  * The CryptAcquireContext() and CryptGenRandom() calls sound interesting.
- * FIXME: Replace ASAP:
+ * FIXME: Replace ASAP.
 */
 
 VRandGen * v_randgen_new(void)
