@@ -70,7 +70,7 @@ VRandGen * v_randgen_new(void)
 		gen->fd = open(SOURCE, O_RDONLY);
 		if(gen->fd < 0)
 		{
-			fprintf(stderr, "vrand.c: Coulnd't open " SOURCE " for reading\n");
+			fprintf(stderr, __FILE__ ": Coulnd't open " SOURCE " for reading\n");
 			free(gen);
 			gen = NULL;
 		}
@@ -83,7 +83,7 @@ void v_randgen_get(VRandGen *gen, void *bytes, size_t num)
 	if(gen != NULL && bytes != NULL)
 	{
 		if(read(gen->fd, bytes, num) != num)
-			fprintf(stderr, "vrand.c: Failed to read %u bytes of random data from " SOURCE "\n", (unsigned int) num);
+			fprintf(stderr, __FILE__ ": Failed to read %u bytes of random data from " SOURCE "\n", (unsigned int) num);
 	}
 }
 
