@@ -36,6 +36,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "v_randgen.h"
+
 #include "v_bignum.h"
 
 #define	MAX_DIG	((1UL << V_BIGBITS) - 1)
@@ -196,12 +198,23 @@ void v_bignum_set_bignum_part(VBigDig *x, const VBigDig *y, unsigned int msb, un
 }
 
 /* Set x to a random bunch of bits. Should use a real random source. */
-void v_bignum_set_random(VBigDig *x)
+void v_bignum_set_random(VBigDig *x, VRandGen *gen)
 {
-	unsigned int	i, s = *x++;
+	unsigned int	s = *x++;
 
-	for(i = 0; i < s; i++)
-		x[i] = rand() >> 7;
+	if(gen != NULL)
+		v_randgen_get(gen, x, s * sizeof *x);
+	else
+	{
+		fprintf(stderr, "** Warning: Calling v_bignum_set_random() without VRandGen is potentially expensive\n");
+		if((gen = v_randgen_new()) != NULL)
+		{
+			v_randgen_get(gen, x, s * sizeof *x);
+			v_randgen_destroy(gen);
+		}
+		else
+			fprintf(stderr, __FILE__ ":  Couldn't create random number generator\n");
+	}
 }
 
 /* Print x in hexadecimal, with 0x prefix but no linefeed. */
