@@ -13,6 +13,7 @@
 /* This is a fall-back to the old style of simply using rand(). It should
  * be replaced by something using the proper Win32 cryptography APIs.
  * The CryptAcquireContext() and CryptGenRandom() calls sound interesting.
+ * 
  * FIXME: Replace ASAP.
 */
 
@@ -71,7 +72,7 @@ VRandGen * v_randgen_new(void)
 		gen->fd = open(SOURCE, O_RDONLY);
 		if(gen->fd < 0)
 		{
-			fprintf(stderr, __FILE__ ": Coulnd't open " SOURCE " for reading\n");
+			fprintf(stderr, __FILE__ ": Couldn't open " SOURCE " for reading\n");
 			free(gen);
 			gen = NULL;
 		}
