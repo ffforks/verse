@@ -40,7 +40,7 @@ static int quick_filter(const VBigDig *n)
 /* The Miller-Rabin primality test. Returns 1 if the candidate looks prime, 0 if
  * it IS NOT prime. Assumes that n is BITS / 2 bits, so that its square fits in BITS.
 */
-static int miller_rabin(const VBigDig *n)
+static int miller_rabin(const VBigDig *n, VRandGen *gen)
 {
 	int		i, k;
 	VBigDig		VBIGNUM(a, BITS / 2), VBIGNUM(d, BITS), VBIGNUM(nmo, BITS / 2), VBIGNUM(x, BITS);
@@ -49,7 +49,7 @@ static int miller_rabin(const VBigDig *n)
 	mu = v_bignum_reduce_begin(n);
 
 	/* Pick a "witness", a number in the [1, n) range. */
-	v_bignum_set_random(a);
+	v_bignum_set_random(a, gen);
 	v_bignum_reduce(a, n, mu);
 
 	v_bignum_set_one(d);
@@ -77,7 +77,7 @@ static int miller_rabin(const VBigDig *n)
 }
 
 /* Test q for primality, returning 1 if it seems prime, 0 if it certainly IS not. */
-int v_prime_test(const VBigDig *q)
+int v_prime_test(const VBigDig *q, VRandGen *gen)
 {
 	int	i;
 
@@ -86,7 +86,7 @@ int v_prime_test(const VBigDig *q)
 
 	for(i = 0; i < CYCLES; i++)
 	{
-		if(!miller_rabin(q))
+		if(!miller_rabin(q, gen))
 			return 0;
 	}
 	return 1;
@@ -94,26 +94,24 @@ int v_prime_test(const VBigDig *q)
 
 void v_prime_set_random(VBigDig *x)
 {
-	int	count = 1, bits = v_bignum_bit_size(x);
+	int		bits = v_bignum_bit_size(x);
+	VRandGen	*gen;
 
-	/* Create initial candidate, making sure it's both odd and non-zero. */
-	v_bignum_set_random(x);
-	/* Set topmost two bits, makes sure products are big. */
-	v_bignum_bit_set(x, bits - 1);
-	v_bignum_bit_set(x, bits - 2);
-	/* Set lowermost bit, makes sure it is odd (better prime candidate that way). */
-	v_bignum_bit_set(x, 0);
-
-	while(!v_prime_test(x))
+	gen = v_randgen_new();
+	do
 	{
-		count++;
-		v_bignum_add_digit(x, 2);	/* Simple step to next candidate. */
-		if(v_bignum_eq_one(x))
-			printf("prime generator overflow, not good\n");
-	}
+		/* Create candidate, making sure it's both odd and non-zero. */
+		v_bignum_set_random(x, gen);
+		/* Set topmost two bits, makes sure products are big. */
+		v_bignum_bit_set(x, bits - 1);
+		v_bignum_bit_set(x, bits - 2);
+		/* Set lowermost bit, makes sure it is odd (better prime candidate that way). */
+		v_bignum_bit_set(x, 0);
+	} while(!v_prime_test(x, gen));
 /*	printf("Prime found after %d iterations: ", count);
 	v_bignum_print_hex_lf(x);
 */
+	v_randgen_destroy(gen);
 }
 
 /* Big (small?) primes from <http://www.utm.edu/research/primes/lists/small/small3.html#300>. */
@@ -126,3 +124,42 @@ void v_prime_set_table(VBigDig *x, unsigned int i)
 	else
 		v_bignum_set_string(x, "65537");	/* It ain't big, but it's prime. */
 }
+
+#if PRIMEALONE
+#include <sys/time.h>
+
+#define	REPS	300
+
+static double elapsed(const struct timeval *t1, const struct timeval *t2)
+{
+	return t2->tv_sec - t1->tv_sec + 1E-6 * (t2->tv_usec - t1->tv_usec);
+}
+
+int main(void)
+{
+	struct timeval	now, then;
+	VBigDig	VBIGNUM(x, BITS / 2);
+	int	i;
+
+	srand(clock());
+
+/*	gettimeofday(&then, NULL);
+	for(i = 0; i < REPS; i++)
+	{
+		v_prime_set_random_incr(x);
+	}
+	gettimeofday(&now, NULL);
+	printf("incr: %g\n", elapsed(&then, &now));
+*/
+	gettimeofday(&then, NULL);
+	for(i = 0; i < REPS; i++)
+	{
+		v_prime_set_random(x);
+	}
+	gettimeofday(&now, NULL);
+	printf("rand: %g\n", elapsed(&then, &now));
+
+	return EXIT_SUCCESS;
+}
+
+#endif
