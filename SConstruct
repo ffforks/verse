@@ -146,6 +146,7 @@ lib_source_files = (['v_cmd_buf.c',
 					 'v_pack.c',
 					 'v_pack_method.c',
 					 'v_prime.c',
+					 'v_randgen.c',
 					 'v_util.c',
 					 'v_bignum.c'
 					 ])
