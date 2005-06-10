@@ -170,8 +170,12 @@ void v_fs_unpack(uint8 *data, unsigned int length)
 		{
 			size_t	j;
 
-			printf("\n** Unknown command ID %d (0x%02X) encountered--aborting packet decode\n", cmd_id, cmd_id);
-			printf("rest of packet: ");
+			printf("\n** Unknown command ID %u (0x%02X) encountered--aborting packet decode\n", cmd_id, cmd_id);
+			printf(" decoded %u bytes: ", --i);
+			for(j = 0; j < i; j++)
+				printf("%02X ", data[j]);
+			printf("\n (packet id=%u)", pack_id);
+			printf(" remaining %u bytes: ", length - i);
 			for(j = i; j < length; j++)
 				printf("%02X ", data[j]);
 			printf("\n");
