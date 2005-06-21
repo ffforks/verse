@@ -245,10 +245,11 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 		return TRUE;
 	}
 
-	size = vnp_raw_pack_uint32(data, queue->packet_id);
+	size = 4;
 	buf = queue->ack_nak;
 	while(buf != NULL && size + buf->size < V_NOQ_MAX_PACKET_SIZE)
 	{
+		vnp_raw_pack_uint32(data, queue->packet_id);
 		queue->ack_nak = buf->next;
 		buf->next = queue->history[queue->slot];
 		queue->history[queue->slot] = buf;
@@ -270,10 +271,12 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 			queue->packet_id++;
 			return TRUE;
 		}
+/*		printf("returning FALSE from send_queue()\n");*/
 		return FALSE;
 	}
 /*	if(queue->sent_size < V_NOQ_WINDOW_SIZE && queue->unsent_size != 0)*/
 	{
+		vnp_raw_pack_uint32(data, queue->packet_id);
 		while(queue->unsent_size != 0)
 		{
 			queue->slot = ((1 + queue->slot) % V_NOQ_OPTIMIZATION_SLOTS);
