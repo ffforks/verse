@@ -63,19 +63,17 @@ static void callback_send_m_fragment_create(void *user, VNodeID node_id, VNMFrag
 	node = (VSNodeMaterial *)vs_get_node(node_id, V_NT_MATERIAL);
 	if(node == NULL)
 		return;
-	if(node->frag_count <= frag_id || node->frag[frag_id].type > VN_M_FT_OUTPUT)
+	if(node->frag_count + 32 < frag_id)
 		frag_id = (uint16)-1;
 	if(frag_id == (uint16)-1)
-	{
 		for(frag_id = 0; frag_id < node->frag_count && node->frag[frag_id].type < VN_M_FT_OUTPUT + 1; frag_id++);
-		if(frag_id == node->frag_count)
-		{
-			node->frag = realloc(node->frag, (sizeof *node->frag) * (node->frag_count + 16));
-			for(i = node->frag_count; i < (node->frag_count + 16); i++)
-				node->frag[i].type = 255;
-			node->frag_count += 16;
-		}			
-	}
+	if(frag_id >= node->frag_count)
+	{
+		node->frag = realloc(node->frag, (sizeof *node->frag) * (node->frag_count + 16));
+		for(i = node->frag_count; i < (node->frag_count + 16); i++)
+			node->frag[i].type = 255;
+		node->frag_count += 16;
+	}	
 	node->frag[frag_id].type = type;
 	node->frag[frag_id].frag = *fragment;
 
