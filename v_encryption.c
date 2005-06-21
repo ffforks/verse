@@ -34,6 +34,9 @@ const uint8 * v_e_data_create_key(void) /* possibly the worst key gen ever */
 	/* FIXME: This really isn't very pretty. */
 	buffer[0] &= 0x3f;	/* Make sure top word is... Low. For RSA compatibility. */
 
+/*	memset(buffer, 0, sizeof buffer);
+	fprintf(stderr, "**WARNING: XOR data encryption disabled\n");
+*/
 	return buffer;
 }
 
