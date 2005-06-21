@@ -100,43 +100,6 @@ void v_e_math_inv(VBigDig *inv, const VBigDig *u, const VBigDig *v)
 		v_bignum_set_bignum(inv, u1);
 }
 
-#if 0
-/* Compute GCD of u and v, using binary algorithm. */
-void v_e_math_compute_gcd(VBigDig *gcd, const VBigDig *u, const VBigDig *v)
-{
-	VBigNum	g = v_bignum_new_one();
-
-	while(!v_bignum_bit_test(u, 0) && !v_bignum_bit_test(v, 0))
-	{
-		u = v_bignum_bit_shift_right(u, 1);
-		v = v_bignum_bit_shift_right(v, 1);
-		g = v_bignum_bit_shift_left(g, 1);
-	}
-	while(!v_bignum_eq_zero(u))
-	{
-		if(!v_bignum_bit_test(u, 0))
-			u = v_bignum_bit_shift_right(u, 1);
-		else if(!v_bignum_bit_test(v, 0))
-			v = v_bignum_bit_shift_right(v, 1);
-		else
-		{
-			VBigNum	t = v_bignum_sub(u, v);
-			if(v_bignum_bit_test(t, V_BIGNUM_BITS - 1))	/* We need |u-v|, so if negative, invert. */
-			{
-				t = v_bignum_not(t);
-				t = v_bignum_add_ushort(t, 1);
-			}
-			t = v_bignum_bit_shift_right(t, 1);
-			if(!v_bignum_gte(u, v))
-				v = t;
-			else
-				u = t;
-		}
-	}
-	return v_bignum_mul(g, v);
-}
-#endif
-
 void v_e_connect_create_key(uint8 *private_key, uint8 *public_key, uint8 *n)
 {
 	VBigDig	VBIGNUM(p, BITS / 2), VBIGNUM(q, BITS / 2), VBIGNUM(qmo, BITS / 2), VBIGNUM(phi, BITS),
@@ -218,6 +181,7 @@ void v_e_connect_encrypt(uint8 *output, const uint8 *data, const uint8 *key, con
 */	v_bignum_raw_export(packet, output);
 }
 
+#if defined CRYPTALONE
 void v_encrypt_test(void)
 {
 	uint8	k_priv[BITS / 8], k_pub[BITS / 8], k_n[BITS / 8], cipher[BITS / 8], plain[BITS / 8], decode[BITS / 8], i;
@@ -269,7 +233,6 @@ void v_encrypt_test(void)
 */
 }
 
-#if defined CRYPTALONE
 int main(void)
 {
 	v_encrypt_test();
