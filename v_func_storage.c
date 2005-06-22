@@ -179,6 +179,7 @@ void v_fs_unpack(uint8 *data, unsigned int length)
 			for(j = i; j < length; j++)
 				printf("%02X ", data[j]);
 			printf("\n");
+/*			*(char *) 0 = 0;*/
 			break;
 		}
 	}
