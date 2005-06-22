@@ -189,6 +189,8 @@ typedef enum {
 	VN_O_METHOD_SIG_SIZE = 256
 } VNOMethodConstants;
 
+typedef void VNOPackedParams;	/* Opaque type. */
+
 typedef enum {
 	VN_G_LAYER_VERTEX_XYZ = 0,
 	VN_G_LAYER_VERTEX_UINT32,
@@ -400,8 +402,8 @@ extern size_t	verse_session_get_size(void);
 extern VNodeID	verse_session_get_avatar(void);
 extern void		verse_session_get_time(uint32 *seconds, uint32 *fractions);
 
-extern void *		verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
-extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
+extern VNOPackedParams*	verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
+extern boolean	verse_method_call_unpack(const VNOPackedParams *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
 
 /*
 #define V_PRINT_SEND_COMMANDS
@@ -412,7 +414,7 @@ extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, co
 
 /* Command sending functions begin. ----------------------------------------- */
 
-extern VSession verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_host_id);
+extern VSession verse_send_connect(const char *name, const char *pass, const char *address, const uint8 *expected_host_id);
 extern VSession verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id);
 extern void verse_send_connect_terminate(const char *address, const char *bye);
 extern void verse_send_ping(const char *address, const char *message);
