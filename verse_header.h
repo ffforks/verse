@@ -175,6 +175,8 @@ typedef enum {
 	VN_O_METHOD_SIG_SIZE = 256
 } VNOMethodConstants;
 
+typedef void VNOPackedParams;	/* Opaque type. */
+
 typedef enum {
 	VN_G_LAYER_VERTEX_XYZ = 0,
 	VN_G_LAYER_VERTEX_UINT32,
