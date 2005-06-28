@@ -448,7 +448,7 @@ extern void verse_send_o_method_group_subscribe(VNodeID node_id, uint16 group_id
 extern void verse_send_o_method_group_unsubscribe(VNodeID node_id, uint16 group_id);
 extern void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_id, const char *name, uint8 param_count, const VNOParamType *param_types, const char * *param_names);
 extern void verse_send_o_method_destroy(VNodeID node_id, uint16 group_id, uint16 method_id);
-extern void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const void *params);
+extern void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const VNOPackedParams *params);
 extern void verse_send_o_anim_run(VNodeID node_id, uint16 link_id, uint32 time_s, uint32 time_f, real64 pos, real64 speed, real64 accel, real64 scale, real64 scale_speed);
 
 extern void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_uint, real64 def_real);
