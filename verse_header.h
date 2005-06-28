@@ -388,8 +388,8 @@ extern size_t	verse_session_get_size(void);
 extern VNodeID	verse_session_get_avatar(void);
 extern void		verse_session_get_time(uint32 *seconds, uint32 *fractions);
 
-extern void *		verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
-extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
+extern VNOPackedParams * verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
+extern boolean	verse_method_call_unpack(const VNOPackedParams *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
 
 /*
 #define V_PRINT_SEND_COMMANDS
