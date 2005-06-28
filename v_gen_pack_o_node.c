@@ -1066,7 +1066,7 @@ unsigned int v_unpack_o_method_create(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const void *params)
+void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const VNOPackedParams *params)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -1097,12 +1097,12 @@ void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id
 unsigned int v_unpack_o_method_call(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_o_method_call)(void *user_data, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const void *params);
+	void (* func_o_method_call)(void *user_data, VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const VNOPackedParams *params);
 	VNodeID node_id;
 	uint16 group_id;
 	uint16 method_id;
 	VNodeID sender;
-	const void *params;
+	const VNOPackedParams *params;
 	
 	func_o_method_call = v_fs_get_user_func(44);
 	if(buffer_length < 12)
