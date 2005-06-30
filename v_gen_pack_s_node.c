@@ -93,7 +93,7 @@ unsigned int v_unpack_packet_nak(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_node_list(uint32 mask)
+void verse_send_node_index_subscribe(uint32 mask)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
@@ -103,7 +103,7 @@ void verse_send_node_list(uint32 mask)
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 9);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_node_list(mask = %u );\n", mask);
+	printf("send: verse_send_node_index_subscribe(mask = %u );\n", mask);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], mask);
 	if(mask == (uint32)(-1))
@@ -114,21 +114,21 @@ void verse_send_node_list(uint32 mask)
 	v_noq_send_buf(v_con_get_network_queue(), head);
 }
 
-unsigned int v_unpack_node_list(const char *buf, size_t buffer_length)
+unsigned int v_unpack_node_index_subscribe(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_node_list)(void *user_data, uint32 mask);
+	void (* func_node_index_subscribe)(void *user_data, uint32 mask);
 	uint32 mask;
 	
-	func_node_list = v_fs_get_user_func(9);
+	func_node_index_subscribe = v_fs_get_user_func(9);
 	if(buffer_length < 4)
 		return -1;
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &mask);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	printf("receive: verse_send_node_list(mask = %u ); callback = %p\n", mask, v_fs_get_user_func(9));
+	printf("receive: verse_send_node_index_subscribe(mask = %u ); callback = %p\n", mask, v_fs_get_user_func(9));
 #endif
-	if(func_node_list != NULL)
-		func_node_list(v_fs_get_user_data(9), mask);
+	if(func_node_index_subscribe != NULL)
+		func_node_index_subscribe(v_fs_get_user_data(9), mask);
 
 	return buffer_pos;
 }

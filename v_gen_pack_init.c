@@ -33,7 +33,7 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(5, v_unpack_ping, verse_send_ping, NULL);
 	v_fs_add_func(7, v_unpack_packet_ack, verse_send_packet_ack, NULL);
 	v_fs_add_func(8, v_unpack_packet_nak, verse_send_packet_nak, NULL);
-	v_fs_add_func(9, v_unpack_node_list, verse_send_node_list, NULL);
+	v_fs_add_func(9, v_unpack_node_index_subscribe, verse_send_node_index_subscribe, NULL);
 	v_fs_add_func(10, v_unpack_node_create, verse_send_node_create, verse_send_node_destroy);
 	v_fs_add_func(11, v_unpack_node_subscribe, verse_send_node_subscribe, verse_send_node_unsubscribe);
 	v_fs_add_func(16, v_unpack_tag_group_create, verse_send_tag_group_create, verse_send_tag_group_destroy);

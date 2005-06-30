@@ -37,7 +37,7 @@ void v_gen_system_cmd_def(void)
 	v_cg_end_cmd();
 
 
-	v_cg_new_cmd(V_NT_SYSTEM,		"node_list", 9, VCGCT_NORMAL);
+	v_cg_new_cmd(V_NT_SYSTEM,		"node_index_subscribe", 9, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_UINT32,		"mask");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_end_cmd();
