@@ -412,8 +412,8 @@ extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, co
 
 /* Command sending functions begin. ----------------------------------------- */
 
-extern VSession *verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_host_id);
-extern VSession *verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id);
+extern VSession verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_host_id);
+extern VSession verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id);
 extern void verse_send_connect_terminate(const char *address, const char *bye);
 extern void verse_send_ping(const char *address, const char *message);
 extern void verse_send_node_list(uint32 mask);

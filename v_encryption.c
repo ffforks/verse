@@ -34,6 +34,9 @@ const uint8 * v_e_data_create_key(void) /* possibly the worst key gen ever */
 	/* FIXME: This really isn't very pretty. */
 	buffer[0] &= 0x3f;	/* Make sure top word is... Low. For RSA compatibility. */
 
+/*	memset(buffer, 0, sizeof buffer);
+	fprintf(stderr, "**WARNING: XOR data encryption disabled\n");
+*/
 	return buffer;
 }
 
@@ -42,7 +45,7 @@ void v_e_data_encrypt_command(uint8 *packet, size_t packet_size, const uint8 *co
 	uint32	pos, i;
 
 	vnp_raw_unpack_uint32(packet, &pos);
-	pos = key[pos % V_ENCRYPTION_DATA_KEY_SIZE] + packet_size - 4;
+	pos = key[pos % V_ENCRYPTION_DATA_KEY_SIZE] + packet_size;
 	for(i = 0; i < command_size; i++)
 		packet[packet_size + i] = command[i] ^ key[(i + pos) % V_ENCRYPTION_DATA_KEY_SIZE];
 }
@@ -52,7 +55,7 @@ void v_e_data_decrypt_packet(uint8 *to, const uint8 *from, size_t size, const ui
 	uint32	pos, i;
 
 	vnp_raw_unpack_uint32(from, &pos);
-	pos = key[pos % V_ENCRYPTION_DATA_KEY_SIZE] - 4;
+	pos = key[pos % V_ENCRYPTION_DATA_KEY_SIZE];
 	for(i = 0; i < 4; i++)
 		to[i] = from[i];
 	for(i = 4; i < size; i++)
@@ -96,43 +99,6 @@ void v_e_math_inv(VBigDig *inv, const VBigDig *u, const VBigDig *v)
 	else
 		v_bignum_set_bignum(inv, u1);
 }
-
-#if 0
-/* Compute GCD of u and v, using binary algorithm. */
-void v_e_math_compute_gcd(VBigDig *gcd, const VBigDig *u, const VBigDig *v)
-{
-	VBigNum	g = v_bignum_new_one();
-
-	while(!v_bignum_bit_test(u, 0) && !v_bignum_bit_test(v, 0))
-	{
-		u = v_bignum_bit_shift_right(u, 1);
-		v = v_bignum_bit_shift_right(v, 1);
-		g = v_bignum_bit_shift_left(g, 1);
-	}
-	while(!v_bignum_eq_zero(u))
-	{
-		if(!v_bignum_bit_test(u, 0))
-			u = v_bignum_bit_shift_right(u, 1);
-		else if(!v_bignum_bit_test(v, 0))
-			v = v_bignum_bit_shift_right(v, 1);
-		else
-		{
-			VBigNum	t = v_bignum_sub(u, v);
-			if(v_bignum_bit_test(t, V_BIGNUM_BITS - 1))	/* We need |u-v|, so if negative, invert. */
-			{
-				t = v_bignum_not(t);
-				t = v_bignum_add_ushort(t, 1);
-			}
-			t = v_bignum_bit_shift_right(t, 1);
-			if(!v_bignum_gte(u, v))
-				v = t;
-			else
-				u = t;
-		}
-	}
-	return v_bignum_mul(g, v);
-}
-#endif
 
 void v_e_connect_create_key(uint8 *private_key, uint8 *public_key, uint8 *n)
 {
@@ -215,6 +181,7 @@ void v_e_connect_encrypt(uint8 *output, const uint8 *data, const uint8 *key, con
 */	v_bignum_raw_export(packet, output);
 }
 
+#if defined CRYPTALONE
 void v_encrypt_test(void)
 {
 	uint8	k_priv[BITS / 8], k_pub[BITS / 8], k_n[BITS / 8], cipher[BITS / 8], plain[BITS / 8], decode[BITS / 8], i;
@@ -233,7 +200,6 @@ void v_encrypt_test(void)
 	for(i = 0; decode[i] != 0; i++)
 		putchar(decode[i]);
 	printf("'\n");
-	exit(0);
 /*	printf("\npublic key: ");
 	v_bignum_print_hex_lf(k_public);
 	printf("private key: ");
@@ -266,3 +232,11 @@ void v_encrypt_test(void)
 	printf("\n\n");
 */
 }
+
+int main(void)
+{
+	v_encrypt_test();
+
+	return 0;
+}
+#endif
