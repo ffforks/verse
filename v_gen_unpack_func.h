@@ -4,7 +4,7 @@ extern unsigned int v_unpack_connect_terminate(const char *data, size_t length);
 extern unsigned int v_unpack_ping(const char *data, size_t length);
 extern unsigned int v_unpack_packet_ack(const char *data, size_t length);
 extern unsigned int v_unpack_packet_nak(const char *data, size_t length);
-extern unsigned int v_unpack_node_list(const char *data, size_t length);
+extern unsigned int v_unpack_node_index_subscribe(const char *data, size_t length);
 extern unsigned int v_unpack_node_create(const char *data, size_t length);
 extern unsigned int v_unpack_node_subscribe(const char *data, size_t length);
 extern unsigned int v_unpack_tag_group_create(const char *data, size_t length);

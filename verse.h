@@ -418,7 +418,7 @@ extern VSession verse_send_connect(const char *name, const char *pass, const cha
 extern VSession verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id);
 extern void verse_send_connect_terminate(const char *address, const char *bye);
 extern void verse_send_ping(const char *address, const char *message);
-extern void verse_send_node_list(uint32 mask);
+extern void verse_send_node_index_subscribe(uint32 mask);
 extern void verse_send_node_create(VNodeID node_id, VNodeType type, VNodeOwner owner);
 extern void verse_send_node_destroy(VNodeID node_id);
 extern void verse_send_node_subscribe(VNodeID node_id);

@@ -201,7 +201,7 @@ void callback_send_node_destroy(void *user_data, VNodeID node_id)
 	vs_reset_subscript_session();
 }
 
-static void callback_send_node_list(void *user_data, uint32 mask)
+static void callback_send_node_index_subscribe(void *user_data, uint32 mask)
 {
 	unsigned int i, j, pow = 1;
 
@@ -228,9 +228,9 @@ static void callback_send_node_list(void *user_data, uint32 mask)
 
 void init_callback_node_storage(void)
 {
-	verse_callback_set(verse_send_node_list, callback_send_node_list,  NULL);
-	verse_callback_set(verse_send_node_create, callback_send_node_create,  NULL);
-	verse_callback_set(verse_send_node_destroy, callback_send_node_destroy,  NULL);
+	verse_callback_set(verse_send_node_index_subscribe,	callback_send_node_index_subscribe,  NULL);
+	verse_callback_set(verse_send_node_create,		callback_send_node_create,  NULL);
+	verse_callback_set(verse_send_node_destroy,		callback_send_node_destroy,  NULL);
 }
 
 #endif
