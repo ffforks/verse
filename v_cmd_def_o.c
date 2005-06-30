@@ -403,6 +403,7 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_UINT16,		"group_id");
 	v_cg_add_param(VCGP_UINT16,		"method_id");
 	v_cg_add_param(VCGP_NODE_ID,	"sender");
+	v_cg_add_param(VCGP_POINTER_TYPE, "VNOPackedParams");
 	v_cg_add_param(VCGP_POINTER,	"params");
 	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
 	"\t\tunsigned int i;\n"

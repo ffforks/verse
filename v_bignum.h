@@ -5,9 +5,12 @@
 
 #include <limits.h>
 
+#include "v_randgen.h"
+
 /* ----------------------------------------------------------------------------------------- */
 
-typedef unsigned short	VBigDig;
+typedef unsigned short	VBigDig;	/* Type used to hold one digit of a bignum. */
+typedef unsigned int	VBigDigs;	/* Should hold precisely two digits. */
 
 #define	V_BIGBITS	(CHAR_BIT * sizeof (VBigDig))
 
@@ -16,7 +19,7 @@ typedef unsigned short	VBigDig;
  * Creates automatic variables 'foo' of 128 bits, and 'bar' of 256.
  * 
  * Note that 'bits' must be a multiple of V_BIGBITS, completely
- * arbitrary number sizes is not supported by this module.
+ * arbitrary number sizes are not supported by this module.
 */
 #define	VBIGNUM(n, bits)	n[1 + (bits / V_BIGBITS)] = { bits / V_BIGBITS }
 
@@ -40,7 +43,7 @@ extern void	v_bignum_set_bignum(VBigDig *x, const VBigDig *y);
 */ 
 extern void	v_bignum_set_bignum_part(VBigDig *x, const VBigDig *y,
 					 unsigned int msb, unsigned int bits);
-extern void	v_bignum_set_random(VBigDig *x);
+extern void	v_bignum_set_random(VBigDig *x, VRandGen *gen);
 
 /* Handy during debugging. */
 extern void	v_bignum_print_hex(const VBigDig *x);

@@ -224,16 +224,14 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 	uint32 seconds, fractions;
 	double delta;
 	
-	
 	data = queue->packet_buffer;
 	v_n_get_current_time(&seconds, &fractions);
-	delta = (double)(seconds - queue->seconds) + ((double)fractions - (double)queue->fractions) / (double) 0xffffffff;
+	delta = seconds - queue->seconds + (fractions - queue->fractions) / (double) 0xffffffff;
 	
 	if(queue->unsorted != NULL)	
 		v_noq_sort_unsorted(queue);
 
-
-	if(queue->unsent_size == 0 && delta < 1 && (queue->ack_nak == NULL || queue->ack_nak->next == NULL))
+	if(queue->unsent_size == 0 && delta < 1.0 && (queue->ack_nak == NULL || queue->ack_nak->next == NULL))
 		return TRUE;
 
 	if(delta > 2.0 && queue->unsent_size == 0 && queue->ack_nak == NULL)
@@ -245,10 +243,11 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 		return TRUE;
 	}
 
-	size = vnp_raw_pack_uint32(data, queue->packet_id);
+	size = 4;
 	buf = queue->ack_nak;
 	while(buf != NULL && size + buf->size < V_NOQ_MAX_PACKET_SIZE)
 	{
+		vnp_raw_pack_uint32(data, queue->packet_id);
 		queue->ack_nak = buf->next;
 		buf->next = queue->history[queue->slot];
 		queue->history[queue->slot] = buf;
@@ -270,10 +269,12 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 			queue->packet_id++;
 			return TRUE;
 		}
+/*		printf("returning FALSE from send_queue()\n");*/
 		return FALSE;
 	}
 /*	if(queue->sent_size < V_NOQ_WINDOW_SIZE && queue->unsent_size != 0)*/
 	{
+		vnp_raw_pack_uint32(data, queue->packet_id);
 		while(queue->unsent_size != 0)
 		{
 			queue->slot = ((1 + queue->slot) % V_NOQ_OPTIMIZATION_SLOTS);

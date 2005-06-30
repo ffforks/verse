@@ -36,6 +36,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "v_randgen.h"
+
 #include "v_bignum.h"
 
 #define	MAX_DIG	((1UL << V_BIGBITS) - 1)
@@ -196,12 +198,23 @@ void v_bignum_set_bignum_part(VBigDig *x, const VBigDig *y, unsigned int msb, un
 }
 
 /* Set x to a random bunch of bits. Should use a real random source. */
-void v_bignum_set_random(VBigDig *x)
+void v_bignum_set_random(VBigDig *x, VRandGen *gen)
 {
-	unsigned int	i, s = *x++;
+	unsigned int	s = *x++;
 
-	for(i = 0; i < s; i++)
-		x[i] = rand() >> 7;
+	if(gen != NULL)
+		v_randgen_get(gen, x, s * sizeof *x);
+	else
+	{
+		fprintf(stderr, "** Warning: Calling v_bignum_set_random() without VRandGen is potentially expensive\n");
+		if((gen = v_randgen_new()) != NULL)
+		{
+			v_randgen_get(gen, x, s * sizeof *x);
+			v_randgen_destroy(gen);
+		}
+		else
+			fprintf(stderr, __FILE__ ":  Couldn't create random number generator\n");
+	}
 }
 
 /* Print x in hexadecimal, with 0x prefix but no linefeed. */
@@ -549,13 +562,12 @@ void v_bignum_sub(VBigDig *x, const VBigDig *y)
 }
 
 /* Compute x *= y, using as many digits as is necessary, then truncating the
- * result down. This is Algorithm 14.9 from "Handbook of Applied Cryptography".
- * It beats my earlier naive pen-and-paper approach by about 
+ * result down. This is Algorithm 14.12 from "Handbook of Applied Cryptography".
 */
 void v_bignum_mul(VBigDig *x, const VBigDig *y)
 {
 	int		n = *x, t = *y, i, j;
-	unsigned long	uv = 0, c, w[2048];
+	VBigDigs	uv = 0, c, w[2048];
 
 	memset(w, 0, (n + t + 1) * sizeof *w);
 	for(i = 0; i < t; i++)
@@ -645,6 +657,9 @@ void v_bignum_mod(VBigDig *x, const VBigDig *y)
 */
 }
 
+/* Initialize Barrett reduction by computing the "mu" helper value. Defined in
+ * Handbook of Applied Cryptography algorithm 14.42 as floor(b^2k / m).
+*/
 const VBigDig * v_bignum_reduce_begin(const VBigDig *m)
 {
 	VBigDig	*mu;
@@ -652,14 +667,15 @@ const VBigDig * v_bignum_reduce_begin(const VBigDig *m)
 
 	for(k = *m; m[k] == 0; k--)
 		;
-/*	printf("k=%d\n", k);
+/*	printf("k=%d -> digits are 0..%u\n", k, k - 1);
 	printf("computing mu=floor(65536^%d/", 2 * k);
 	v_bignum_print_hex(m);
 	printf(")\n");
 */	mu = bignum_alloc(2 * k + 1);
-	/* b ^ x is just 65536 << x, i.e. set bit 16 * x. */
+	/* b ^ 2k is just 65536 << 2k, i.e. set bit 16 * 2k. */
 	v_bignum_set_zero(mu);
 	v_bignum_bit_set(mu, V_BIGBITS * 2 * k);
+/*	v_bignum_print_hex_lf(mu);*/
 	v_bignum_div(mu, m, NULL);
 
 	return mu;
@@ -670,6 +686,9 @@ void v_bignum_reduce_end(const VBigDig *mu)
 	bignum_free(mu);
 }
 
+/* Compute x % m, using mu as the helper quantity mu, precomputed by the
+ * routine above.
+*/
 void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 {
 	VBigDig	*q, *r1, *r2, *r;
@@ -724,7 +743,7 @@ void v_bignum_reduce(VBigDig *x, const VBigDig *m, const VBigDig *mu)
 */
 void v_bignum_square_half(VBigDig *x)
 {
-	unsigned long	w[256], uv, c, ouv;
+	VBigDigs	w[256], uv, c, ouv;
 	int		t = *x / 2, i, j, high;
 
 	if(t == 0)

@@ -9,7 +9,7 @@
 
 void v_gen_system_cmd_def(void)
 {
-	v_cg_new_manual_cmd(0, "connect", "VSession verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_host_id)", NULL, NULL);
+	v_cg_new_manual_cmd(0, "connect", "VSession verse_send_connect(const char *name, const char *pass, const char *address, const uint8 *expected_host_id)", NULL, NULL);
 
 	v_cg_new_manual_cmd(1, "connect_accept", "VSession verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id)", NULL, NULL);
 
@@ -37,7 +37,7 @@ void v_gen_system_cmd_def(void)
 	v_cg_end_cmd();
 
 
-	v_cg_new_cmd(V_NT_SYSTEM,		"node_list", 9, VCGCT_NORMAL);
+	v_cg_new_cmd(V_NT_SYSTEM,		"node_index_subscribe", 9, VCGCT_NORMAL);
 	v_cg_add_param(VCGP_UINT32,		"mask");
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_end_cmd();

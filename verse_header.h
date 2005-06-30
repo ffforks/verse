@@ -6,7 +6,7 @@
 /* Release information. */
 #define	V_RELEASE_NUMBER	5
 #define	V_RELEASE_PATCH		0
-#define	V_RELEASE_LABEL		"pre3"
+#define	V_RELEASE_LABEL		""
 
 typedef unsigned char	boolean;
 typedef signed char	int8;
@@ -174,6 +174,8 @@ typedef enum {
 	VN_O_METHOD_NAME_SIZE = 16,
 	VN_O_METHOD_SIG_SIZE = 256
 } VNOMethodConstants;
+
+typedef void VNOPackedParams;	/* Opaque type. */
 
 typedef enum {
 	VN_G_LAYER_VERTEX_XYZ = 0,
@@ -386,8 +388,8 @@ extern size_t	verse_session_get_size(void);
 extern VNodeID	verse_session_get_avatar(void);
 extern void		verse_session_get_time(uint32 *seconds, uint32 *fractions);
 
-extern void *		verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
-extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
+extern VNOPackedParams * verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
+extern boolean	verse_method_call_unpack(const VNOPackedParams *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
 
 /*
 #define V_PRINT_SEND_COMMANDS

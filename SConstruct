@@ -124,7 +124,6 @@ cmd_gen_deps = (['v_gen_pack_init.c',
 				 'v_gen_pack_g_node.c',
 				 'v_gen_pack_m_node.c',
 				 'v_gen_pack_o_node.c',
-				 'v_gen_pack_p_node.c',
 				 'v_gen_pack_s_node.c',
 				 'v_gen_pack_t_node.c',
 				])
@@ -142,16 +141,20 @@ lib_source_files = (['v_cmd_buf.c',
 					 'v_func_storage.c',
 					 'v_man_pack_node.c',
 					 'v_network.c',
-					 #'v_network_que.c',
 					 'v_network_in_que.c',
 					 'v_network_out_que.c',
 					 'v_pack.c',
-					 'v_pack_method.c'
+					 'v_pack_method.c',
+					 'v_prime.c',
+					 'v_randgen.c',
+					 'v_util.c',
+					 'v_bignum.c'
 					 ])
 lib_source_files += cmd_gen_deps
 
 server_source_files = (['vs_connection.c',
                         'vs_main.c',
+						'vs_node_audio.c',
                         'vs_node_bitmap.c',
                         'vs_node_curve.c',
                         'vs_node_geometry.c',

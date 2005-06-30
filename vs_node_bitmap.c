@@ -372,11 +372,12 @@ static void callback_send_b_layer_subscribe(void *user, VNodeID node_id, VLayerI
 		return;
 	if(layer_id >= node->layer_count || node->layers[layer_id].layer == NULL)
 		return;
+	if(vs_add_new_subscriptor(node->layers[layer_id].subscribers) == 0)
+		return;
 	tile[0] = ((node->size[0] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[1] = ((node->size[1] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[2] = node->size[2];
 	data = node->layers[layer_id].layer;
-	vs_add_new_subscriptor(node->layers[layer_id].subscribers);
 	switch(node->layers[layer_id].type)
 	{
 	case VN_B_LAYER_UINT1:
@@ -478,10 +479,10 @@ static void callback_send_b_tile_set(void *user, VNodeID node_id, VLayerID layer
 		}
 		break;
 	}
-	count =	vs_get_subscript_count(node->head.subscribers);
+	count =	vs_get_subscript_count(node->layers[layer_id].subscribers);
 	for(i = 0; i < count; i++)
 	{
-		vs_set_subscript_session(node->head.subscribers, i);
+		vs_set_subscript_session(node->layers[layer_id].subscribers, i);
 		verse_send_b_tile_set(node_id, layer_id, tile_x, tile_y, tile_z, type, data);
 	}
 	vs_reset_subscript_session();
