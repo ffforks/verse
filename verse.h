@@ -20,7 +20,7 @@ extern "C" {
 /* Release information. */
 #define	V_RELEASE_NUMBER	5
 #define	V_RELEASE_PATCH		0
-#define	V_RELEASE_LABEL		"pre3"
+#define	V_RELEASE_LABEL		""
 
 typedef unsigned char	boolean;
 typedef signed char	int8;
@@ -188,6 +188,8 @@ typedef enum {
 	VN_O_METHOD_NAME_SIZE = 16,
 	VN_O_METHOD_SIG_SIZE = 256
 } VNOMethodConstants;
+
+typedef void VNOPackedParams;	/* Opaque type. */
 
 typedef enum {
 	VN_G_LAYER_VERTEX_XYZ = 0,
@@ -400,8 +402,8 @@ extern size_t	verse_session_get_size(void);
 extern VNodeID	verse_session_get_avatar(void);
 extern void		verse_session_get_time(uint32 *seconds, uint32 *fractions);
 
-extern void *		verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
-extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
+extern VNOPackedParams * verse_method_call_pack(uint32 param_count, const VNOParamType *param_type, const VNOParam *params);
+extern boolean	verse_method_call_unpack(const VNOPackedParams *data, uint32 param_count, const VNOParamType *param_type, VNOParam *params);
 
 /*
 #define V_PRINT_SEND_COMMANDS
@@ -412,11 +414,11 @@ extern boolean	verse_method_call_unpack(const void *data, uint32 param_count, co
 
 /* Command sending functions begin. ----------------------------------------- */
 
-extern VSession verse_send_connect(const char *name, const char *pass, const char *address, uint8 *expected_host_id);
+extern VSession verse_send_connect(const char *name, const char *pass, const char *address, const uint8 *expected_host_id);
 extern VSession verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id);
 extern void verse_send_connect_terminate(const char *address, const char *bye);
 extern void verse_send_ping(const char *address, const char *message);
-extern void verse_send_node_list(uint32 mask);
+extern void verse_send_node_index_subscribe(uint32 mask);
 extern void verse_send_node_create(VNodeID node_id, VNodeType type, VNodeOwner owner);
 extern void verse_send_node_destroy(VNodeID node_id);
 extern void verse_send_node_subscribe(VNodeID node_id);
@@ -446,7 +448,7 @@ extern void verse_send_o_method_group_subscribe(VNodeID node_id, uint16 group_id
 extern void verse_send_o_method_group_unsubscribe(VNodeID node_id, uint16 group_id);
 extern void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_id, const char *name, uint8 param_count, const VNOParamType *param_types, const char * *param_names);
 extern void verse_send_o_method_destroy(VNodeID node_id, uint16 group_id, uint16 method_id);
-extern void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const void *params);
+extern void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const VNOPackedParams *params);
 extern void verse_send_o_anim_run(VNodeID node_id, uint16 link_id, uint32 time_s, uint32 time_f, real64 pos, real64 speed, real64 accel, real64 scale, real64 scale_speed);
 
 extern void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_uint, real64 def_real);
@@ -470,7 +472,7 @@ extern void verse_send_g_polygon_set_face_real64(VNodeID node_id, VLayerID layer
 extern void verse_send_g_polygon_set_face_real32(VNodeID node_id, VLayerID layer_id, uint32 polygon_id, real32 value);
 extern void verse_send_g_crease_set_vertex(VNodeID node_id, const char *layer, uint32 def_crease);
 extern void verse_send_g_crease_set_edge(VNodeID node_id, const char *layer, uint32 def_crease);
-extern void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint32 parent, real64 pos_x, real64 pos_y, real64 pos_z, const VNQuat64 *rot);
+extern void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint16 parent, real64 pos_x, real64 pos_y, real64 pos_z, const char *pos_label, const VNQuat64 *rot, const char *rot_label);
 extern void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id);
 
 extern void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFragmentType type, const VMatFrag *fragment);
