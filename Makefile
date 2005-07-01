@@ -75,7 +75,8 @@ clean:
 # -----------------------------------------------------
 
 # Utter ugliness to create release archives. Needs to improve, but should work for a while.
-dist:
+dist:	clean
+	rm -f mkprot
 	RELEASE=$$( \
 	R=`grep V_RELEASE_NUMBER verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; \
 	P=`grep V_RELEASE_PATCH verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; \
