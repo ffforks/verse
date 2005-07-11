@@ -15,7 +15,7 @@ static void callback_accept_connect(void *user, uint32 avatar, void *address, vo
     /* Build node subscription mask. */
     for(i = 0; i < V_NT_NUM_TYPES; i++)
         mask |= 1 << i;
-    verse_send_node_list(mask);     /* Request listing of all nodes. */
+    verse_send_node_index_subscribe(mask);     /* Request listing of all nodes. */
 }
 
 /* A callback for node creation: is called to report information about existing nodes, too. */
