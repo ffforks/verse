@@ -434,7 +434,7 @@ static unsigned int vs_g_extend_arrays(VSNodeGeometry *node, boolean vertex, boo
 			id = node->vertex_hole;
 		}else
 		{
-			while(node->polygon_hole < node->poly_size && ((real64 *)node->layer[0].layer)[node->polygon_hole * 4] != -1)
+			while(node->polygon_hole < node->poly_size && ((uint32 *)node->layer[1].layer)[node->polygon_hole * 4] != -1)
 				node->polygon_hole++;
 			id = node->polygon_hole;
 		}
