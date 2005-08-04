@@ -90,3 +90,26 @@ dist:	clean
 	;else \
 	  echo "Couldn't auto-set RELEASE from verse.h, something is fishy" \
 	;fi
+
+# More creative bashing, to create binary release archive for Linux.
+distb:	$(TARGETS)
+	RELEASE=$$( \
+	R=`grep V_RELEASE_NUMBER verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; \
+	P=`grep V_RELEASE_PATCH verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; \
+	L=`grep V_RELEASE_LABEL verse.h | tr -s ' \t' | tr -d '"\r' | cut -d'	' -f3` ; echo r$${R}p$$P$$L ) ; \
+	S=`uname -s | tr -d ' ' | tr [A-Z] [a-z]`-`uname -m | tr -d ' '`; \
+	H=`pwd`;\
+	if [ $$RELEASE ]; then ( \
+	 A=verse-$$RELEASE-$$S.tar.gz; \
+	 rm -rf /tmp/verse; \
+	 mkdir -p /tmp/verse; \
+	 cp verse libverse.a verse.h /tmp/verse; \
+	 strip /tmp/verse/verse; \
+	 cd /tmp; \
+	 mv verse verse-$$RELEASE; \
+	 tar czf $$A verse-$$RELEASE ; \
+	 mv $$A $$H;\
+	 ); \
+	else \
+	  echo "Couldn't auto-set RELEASE from verse.h, something is out of whack." \
+	; fi
