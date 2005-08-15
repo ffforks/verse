@@ -234,7 +234,7 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 	if(queue->unsent_size == 0 && delta < 1.0 && (queue->ack_nak == NULL || queue->ack_nak->next == NULL))
 		return TRUE;
 
-	if(delta > 2.0 && queue->unsent_size == 0 && queue->ack_nak == NULL)
+	if(delta > 3.0 && queue->unsent_size == 0 && queue->ack_nak == NULL)
 	{
 /*		printf("A) re-sending last delta=%g\n", delta);*/
 		v_n_send_data(address, data, queue->packet_buffer_use);
