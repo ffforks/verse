@@ -435,11 +435,10 @@ static void callback_send_b_tile_set(void *user, VNodeID node_id, VLayerID layer
 		return;
 	if(tile_x >= ((node->size[0] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE) || tile_y >= ((node->size[1] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE) || tile_z >= node->size[2])
 		return;
+
 	tile[0] = ((node->size[0] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[1] = ((node->size[1] + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE);
 	tile[2] = node->size[2];
-
-/*	printf("set tile: %u.%u.(%u,%u,%u)\n", node_id, layer_id, tile_x, tile_y, tile_z);*/
 
 	switch(node->layers[layer_id].type)
 	{
