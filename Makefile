@@ -16,7 +16,9 @@ ARFLAGS	= rus
 RANLIB	?= ranlib
 
 TARGETS = libverse.a verse
+SUBDIRS = examples-dir
 
+ALL:	$(TARGETS) $(SUBDIRS)
 .PHONY:	all clean cleanprot
 
 # Automatically generated protocol things.
@@ -46,6 +48,9 @@ verse:		$(VERSE_OBJ) libverse.a
 		$(CC) $(LDFLAGS) -o $@ $^
 
 libverse.a:	libverse.a($(LIBVERSE_OBJ))
+
+examples-dir:
+	cd examples && $(MAKE)
 
 # -----------------------------------------------------
 
