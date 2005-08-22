@@ -180,8 +180,7 @@ unsigned int v_n_wait_for_incoming(unsigned int microseconds)
 	v_n_get_current_time(&s1, &f1);
 	select(1, &fd_select, NULL, NULL, &tv);
 	v_n_get_current_time(&s2, &f2);
-	return (1000000 * s2 + f2 * (1E6 / 0xffffffffU)) -
-	       (1000000 * s1 + f1 * (1E6 / 0xffffffffU));
+	return 1000000 * (s2 - s1) + (1000000.0 / 0xffffffffu) * (long) (f2 - f1);	/* Must cast to (long) for f1 > f2 case! */
 }
 
 #endif
