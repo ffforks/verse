@@ -19,7 +19,7 @@
 
 VRandGen * v_randgen_new(void)
 {
-	return (VRandCtx *) 1;	/* Anything that isn't NULL. */
+	return (VRandGen *) 1;	/* Anything that isn't NULL. */
 }
 
 void v_randgen_get(VRandGen *gen, void *bytes, size_t num)
