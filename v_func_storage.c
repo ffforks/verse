@@ -143,7 +143,7 @@ void v_fs_unpack_beginning(const uint8 *data, unsigned int length)
 void v_fs_unpack(uint8 *data, unsigned int length)
 {
 	uint32 i, output, pack_id;
-	uint8 cmd_id;
+	uint8 cmd_id, last = 255;
 
 	i = vnp_raw_unpack_uint32(data, &pack_id); /* each packet starts with a 32 bit id */
 	vnp_raw_unpack_uint8(&data[i], &cmd_id);
@@ -164,13 +164,14 @@ void v_fs_unpack(uint8 *data, unsigned int length)
 /*				verse_send_packet_nak(pack_id);*/
 				return;
 			}
+			last = cmd_id;
 			i += output;
 		}
 		else	/* If unknown command byte was found, complain loudly and stop parsing packet. */
 		{
 			size_t	j;
 
-			printf("\n** Unknown command ID %u (0x%02X) encountered--aborting packet decode\n", cmd_id, cmd_id);
+			printf("\n** Unknown command ID %u (0x%02X) encountered--aborting packet decode len=%u pos=%u last=%u\n", cmd_id, cmd_id, length, i, last);
 			printf(" decoded %u bytes: ", --i);
 			for(j = 0; j < i; j++)
 				printf("%02X ", data[j]);
