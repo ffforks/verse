@@ -161,6 +161,7 @@ void v_fs_unpack(uint8 *data, unsigned int length)
 			output = VCmdData.unpack_func[cmd_id](&data[i], length - i);
 			if(output == (unsigned int) -1)	/* Can this happen? Should be size_t or int, depending. */
 			{
+				printf("** Aborting decode, command %u unpacker returned failure\n", cmd_id);
 /*				verse_send_packet_nak(pack_id);*/
 				return;
 			}
