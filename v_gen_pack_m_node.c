@@ -108,7 +108,8 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->ramp.ramp[i].red);
 				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->ramp.ramp[i].green);
 				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->ramp.ramp[i].blue);
-			}if(i != fragment->ramp.point_count)
+			}
+			if(i != fragment->ramp.point_count)
 				vnp_raw_pack_uint8(&buf[pos], i);
 		}
 		break;
@@ -214,7 +215,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.transparency.normal_falloff);
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.transparency.refraction_index);
 			break;
-	case VN_M_FT_VOLUME :
+		case VN_M_FT_VOLUME :
 			if(buffer_pos + 34 > buffer_length)
 				return -1;
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.diffusion);
