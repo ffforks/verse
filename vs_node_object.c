@@ -475,7 +475,10 @@ static void callback_send_o_link_set(void *user, VNodeID node_id, uint16 link_id
 			node->link_count += 16;
 			node->links = realloc(node->links, (sizeof *node->links) * node->link_count);
 			for(; i < node->link_count; i++)
+			{
 				node->links[i].name[0] = 0;
+				node->links[i].scale = 0.0;
+			}
 		}
 	}
 
