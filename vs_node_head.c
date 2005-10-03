@@ -209,7 +209,6 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 			for(i = tag_id; i < ((VSTagGroup *)node->tag_groups)[group_id].tag_count + 16; i++)
 				((VSTagGroup *)node->tag_groups)[group_id].tags[i].tag_name[0] = 0;
 			((VSTagGroup *)node->tag_groups)[group_id].tag_count += 16;
-
 		}
 	}
 	t = &((VSTagGroup *)node->tag_groups)[group_id].tags[tag_id];
@@ -227,11 +226,9 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 			t->tag.vreal64 = ((VNTag *)tag)->vreal64;
 		break;
 		case VN_TAG_STRING :
-			for(i = 0; ((VNTag *)tag)->vstring[i] != 0; i++);
-			t->tag.vstring = malloc((sizeof *t->tag.vstring) * i);
-			for(i = 0; ((VNTag *)tag)->vstring[i] != 0; i++)
-				t->tag.vstring[i] = ((VNTag *)tag)->vstring[i];
-			t->tag.vstring[i] = 0;
+			i = strlen(((VNTag *) tag)->vstring);
+			t->tag.vstring = malloc(i + 1);
+			strcpy(t->tag.vstring, ((VNTag *) tag)->vstring);
 		break;
 		case VN_TAG_REAL64_VEC3 :
 			t->tag.vreal64_vec3[0] = ((VNTag *)tag)->vreal64_vec3[0];
