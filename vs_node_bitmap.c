@@ -459,21 +459,21 @@ static void callback_send_b_tile_set(void *user, VNodeID node_id, VLayerID layer
 		case VN_B_LAYER_UINT16 :
 		{
 			uint16 *p;
-			p = &((uint16 *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE * 2];
+			p = &((uint16 *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE];
 			memcpy(p, data->vuint16, VN_B_TILE_SIZE * VN_B_TILE_SIZE * sizeof(uint16));
 		}
 		break;
 		case VN_B_LAYER_REAL32 :
 		{
 			real32 *p;
-			p = &((float *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE * 4];
+			p = &((real32 *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE];
 			memcpy(p, data->vreal32, VN_B_TILE_SIZE * VN_B_TILE_SIZE * sizeof(real32));
 		}
 		break;
 		case VN_B_LAYER_REAL64 :
 		{
 			real64 *p;
-			p = &((double *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE * 8];
+			p = &((real64 *)node->layers[layer_id].layer)[(tile[0] * tile[1] * tile_z + tile_y * tile[0] + tile_x) * VN_B_TILE_SIZE * VN_B_TILE_SIZE];
 			memcpy(p, data->vreal64, VN_B_TILE_SIZE * VN_B_TILE_SIZE * sizeof(real64));
 		}
 		break;
