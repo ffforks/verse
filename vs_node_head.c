@@ -212,6 +212,13 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 		}
 	}
 	t = &((VSTagGroup *)node->tag_groups)[group_id].tags[tag_id];
+	if(t->tag_name[0] != '\0')	/* Old tag being re-set? */
+	{
+		if(t->type == VN_TAG_STRING)
+			free(t->tag.vstring);
+		else if(t->type == VN_TAG_BLOB)
+			free(t->tag.vblob.blob);
+	}
 	t->type = type;
 	v_strlcpy(t->tag_name, name, sizeof t->tag_name);
 	switch(type)
