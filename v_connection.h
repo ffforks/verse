@@ -25,7 +25,7 @@ typedef enum{
 
 /* Connection related functions (v_connection.c) */
 
-extern void				v_con_network_listen(void);
+extern boolean				v_con_network_listen(void);
 
 extern void				v_con_set_name_pass(const char *name, const char *pass);
 extern const char *			v_con_get_name(void);
