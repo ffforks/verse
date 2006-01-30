@@ -197,13 +197,14 @@ extern void	v_ping_update(void);
 void v_fs_unpack_beginning(uint8 *data, unsigned int length);
 
 /* Main function that receives and distributes all incoming packets. */
-void v_con_network_listen(void)
+boolean v_con_network_listen(void)
 {
 	VNetworkAddress address;
 	uint8 buf[V_MAX_CONNECT_PACKET_SIZE], *store;
 	int size = 0;
 	unsigned int connection;
 	uint32 packet_id;
+	boolean ret = FALSE;
 
 	v_con_init(); /* Init if needed. */
 	connection = VConData.current_connection; /* Store current connection in a local variable so that we can restore it later. */
@@ -258,8 +259,11 @@ void v_con_network_listen(void)
 			       packet_id);
 		}
 		size = v_n_receive_data(&address, buf, sizeof buf); /* See if there are more incoming packets. */
+		ret = TRUE;
 	}
 	VConData.current_connection = connection; /* Reset the current connection. */
+
+	return ret;
 }
 
 extern void	v_update_connection_pending(boolean resend);
@@ -297,9 +301,9 @@ boolean v_con_callback_update(void)
 void verse_callback_update(unsigned int microseconds)
 {
 	unsigned int connection, passed;
+	boolean receiving;
 
 	v_ping_update();	/* Deliver any pending pings. */
-/*	printf("%u\n", VConData.pending_packets);*/
 	connection = VConData.current_connection;
 	for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
 	{
@@ -340,15 +344,20 @@ void verse_callback_update(unsigned int microseconds)
 			return;
 	for(passed = 0; passed < microseconds && VConData.pending_packets == 0;)
 	{
-		if(V_CON_MAX_MICROSECOND_BETWEEN_SENDS < microseconds - passed)
+		boolean	update;
+		if(microseconds - passed > V_CON_MAX_MICROSECOND_BETWEEN_SENDS)	/* Still a long way to go? */
 			passed += v_n_wait_for_incoming(V_CON_MAX_MICROSECOND_BETWEEN_SENDS);
 		else
 			passed += v_n_wait_for_incoming(microseconds - passed);
-		v_con_network_listen();
-		connection = VConData.current_connection;
-		for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
-			v_noq_send_queue(VConData.con[VConData.current_connection].out_queue, &VConData.con[VConData.current_connection].network_address);
-		VConData.current_connection = connection;
+		do
+		{
+			update = v_con_network_listen();
+			connection = VConData.current_connection;
+			for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
+				if(v_noq_send_queue(VConData.con[VConData.current_connection].out_queue, &VConData.con[VConData.current_connection].network_address))
+					update = TRUE;
+			VConData.current_connection = connection;
+		} while(update);
 	}
 	if(VConData.con_count > 0)
 		v_con_callback_update();
