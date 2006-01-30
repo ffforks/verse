@@ -134,7 +134,7 @@ void vs_g_subscribe(VSNodeGeometry *node)
 	verse_send_g_crease_set_edge(node->head.id, node->crease_edge_layer, node->crease_edge);
 	for(i = 0; i < node->bone_count; i++)
 	{
-		if(node->bones[i].weight[0] != 0)	
+		if(node->bones[i].weight[0] != 0)
 			verse_send_g_bone_create(node->head.id, (uint16)i, node->bones[i].weight, node->bones[i].reference, node->bones[i].parent,
 						 node->bones[i].pos_x, node->bones[i].pos_y, node->bones[i].pos_z, node->bones[i].pos_label,
 						 &node->bones[i].rot, node->bones[i].rot_label);
@@ -160,6 +160,7 @@ static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID l
 	VSNodeGeometry *node;
 	unsigned int i, j, count;
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
+
 	if(node == NULL)
 		return;
 
@@ -796,6 +797,7 @@ static void callback_send_g_polygon_set_face_uint8(void *user, VNodeID node_id, 
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
+
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
 	if(node == NULL)
 		return;
