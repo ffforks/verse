@@ -444,6 +444,7 @@ uint32 verse_session_get_avatar(void)
 {
 	return VConData.con[VConData.current_connection].avatar;
 }
+
 void verse_session_get_time(uint32 *seconds, uint32 *fractions)
 {
 	uint32 s, f;
