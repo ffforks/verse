@@ -13,7 +13,10 @@
 
 #include "verse.h"
 #include "v_network.h"
+#include "v_util.h"
 #include "vs_server.h"
+
+#define	MASTER_SERVER_PERIOD	(1.0  * 60.0)
 
 extern VNodeID	vs_node_create(VNodeID owner_id, unsigned int type);
 extern void	callback_send_node_destroy(void *user_data, VNodeID node_id);
@@ -92,11 +95,32 @@ static void cb_sigint_handler(int sig)
 	}
 }
 
+static void master_server_update(VUtilTimer *timer, const char *master_server)
+{
+	if(master_server == NULL || v_timer_elapsed(timer) < MASTER_SERVER_PERIOD)
+		return;
+	verse_send_ping(master_server, "MS:ANNOUNCE");
+	v_timer_start(timer);
+	printf("MS:ANNOUNCE sent to %s\n", master_server);
+}
+
 int main(int argc, char **argv)
 {
-	uint32	seconds, fractions;
+	const char	*ms_address = NULL;
+	VUtilTimer	ms_timer;
+	uint32		i, seconds, fractions;
 
 	signal(SIGINT, cb_sigint_handler);
+
+	for(i = 1; i < argc; i++)
+	{
+		if(strcmp(argv[i], "-Q") == 0)
+			ms_address = NULL;
+		else if(strncmp(argv[i], "--master=", 9) == 0)
+			ms_address = argv[i] + 9;
+		else
+			fprintf(stderr, "Ignoring unknown argument \"%s\"\n", argv[i]);
+	}
 
 	printf("Verse Server r%up%u%s by Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
 	verse_set_port(4950);	/* The Verse standard port. */
@@ -116,14 +140,17 @@ int main(int argc, char **argv)
 	vs_a_callback_init();
 	vs_h_callback_init();
 	init_callback_node_storage();
-	verse_callback_set(verse_send_ping,	callback_send_ping, NULL);
+	verse_callback_set(verse_send_ping,		callback_send_ping, NULL);
 	verse_callback_set(verse_send_connect,		callback_send_connect,		NULL);
 	verse_callback_set(verse_send_connect_terminate, callback_send_connect_terminate, NULL);
 
+	v_timer_start(&ms_timer);
+	v_timer_advance(&ms_timer, MASTER_SERVER_PERIOD - 1.0);
 	while(TRUE)
 	{
 		vs_set_next_session();
 		verse_callback_update(1000000);
+		master_server_update(&ms_timer, ms_address);
 	}
 	return EXIT_SUCCESS;
 }
