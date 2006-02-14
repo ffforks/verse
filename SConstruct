@@ -132,7 +132,7 @@ if user_options_dict['REGEN_PROTO']=='yes':
     cmd_gen_env = library_env.Copy()
     cmd_gen_env.Append(CPPDEFINES=['V_GENERATE_FUNC_MODE'])
     mkprot = cmd_gen_env.Program(target='mkprot', source=cmd_gen_files)
-    cmd_gen_env.Command('mkprot', '' , 'mkprot')
+    cmd_gen_env.Command('regen', '' , './mkprot')
 
 lib_source_files = (['v_cmd_buf.c',
 					 'v_connect.c',
