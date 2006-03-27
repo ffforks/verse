@@ -117,6 +117,8 @@ unsigned int v_unpack_o_transform_pos_real32(const char *buf, size_t buffer_leng
 		}
 		if((mask & pow) != 0)
 			buffer_pos += vnp_raw_unpack_real32(&buf[buffer_pos], &drag);
+		else
+			drag = 0.0f;
 		if(func_o_transform_pos_real32 != NULL)
 			func_o_transform_pos_real32(v_fs_get_user_data(32), node_id, time_s, time_f, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);
 		return buffer_pos;
@@ -382,6 +384,8 @@ unsigned int v_unpack_o_transform_pos_real64(const char *buf, size_t buffer_leng
 		}
 		if((mask & pow) != 0)
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &drag);
+		else
+			drag = 0.0;
 		if(func_o_transform_pos_real64 != NULL)
 			func_o_transform_pos_real64(v_fs_get_user_data(35), node_id, time_s, time_f, &output[0][0], &output[1][0], &output[2][0], &output[3][0], drag);
 		return buffer_pos;
