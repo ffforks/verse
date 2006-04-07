@@ -119,14 +119,15 @@ int main(int argc, char **argv)
 			ms_address = NULL;
 		else if(strncmp(argv[i], "-master=", 9) == 0)
 			ms_address = argv[i] + 9;
-		else if(strncmp(argv[i], "-port=", 7) == 0)
-			port = strtoul(argv[i] + 7, NULL, 0);
+		else if(strncmp(argv[i], "-port=", 6) == 0)
+			port = strtoul(argv[i] + 6, NULL, 0);
 		else
 			fprintf(stderr, "Ignoring unknown argument \"%s\"\n", argv[i]);
 	}
 
 	printf("Verse Server r%up%u%s by Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
 	verse_set_port(port);	/* The Verse standard port. */
+	printf(" Listening on port %d\n", port);
 
 	/* Seed the random number generator. Still rather too weak for crypto, I guess. */
 	v_n_get_current_time(&seconds, &fractions);
