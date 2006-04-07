@@ -163,6 +163,9 @@ static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID l
 
 	if(node == NULL)
 		return;
+	if((type < VN_G_LAYER_POLYGON_CORNER_UINT32 && type > VN_G_LAYER_VERTEX_REAL) ||
+	   (type > VN_G_LAYER_POLYGON_FACE_REAL))
+		return;
 
 	if(layer_id < 2)
 		layer_id = -1;
