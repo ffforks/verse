@@ -39,6 +39,7 @@ static void callback_send_connect(void *user, const char *name, const char *pass
 		avatar = vs_node_create(~0, V_NT_OBJECT);
 		session = verse_send_connect_accept(avatar, address, NULL);
 		vs_add_new_connection(session, name, pass, avatar);
+/*		vs_avatar_init(avatar, name);*/
 	}
 	else
 	{
@@ -108,7 +109,7 @@ int main(int argc, char **argv)
 {
 	const char	*ms_address = NULL;
 	VUtilTimer	ms_timer;
-	uint32		i, seconds, fractions;
+	uint32		i, seconds, fractions, port = VERSE_STD_CONNECT_PORT;
 
 	signal(SIGINT, cb_sigint_handler);
 
@@ -116,14 +117,16 @@ int main(int argc, char **argv)
 	{
 		if(strcmp(argv[i], "-Q") == 0)
 			ms_address = NULL;
-		else if(strncmp(argv[i], "--master=", 9) == 0)
+		else if(strncmp(argv[i], "-master=", 9) == 0)
 			ms_address = argv[i] + 9;
+		else if(strncmp(argv[i], "-port=", 7) == 0)
+			port = strtoul(argv[i] + 7, NULL, 0);
 		else
 			fprintf(stderr, "Ignoring unknown argument \"%s\"\n", argv[i]);
 	}
 
 	printf("Verse Server r%up%u%s by Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
-	verse_set_port(4950);	/* The Verse standard port. */
+	verse_set_port(port);	/* The Verse standard port. */
 
 	/* Seed the random number generator. Still rather too weak for crypto, I guess. */
 	v_n_get_current_time(&seconds, &fractions);
