@@ -92,6 +92,8 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		}
 		break;
 	case VN_M_FT_RAMP :
+		if(fragment->ramp.point_count == 0)
+			return;
 		{
 			unsigned int i, pos;
 			double last;
@@ -239,7 +241,7 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.texture.mapping);
 			break;
 		case VN_M_FT_NOISE :
-			if(buffer_pos + 4 > buffer_length)
+			if(buffer_pos + 3 > buffer_length)
 				return -1;
 			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
 			frag.noise.type = (VNMNoiseType)temp;
