@@ -301,13 +301,13 @@ boolean v_con_callback_update(void)
 void verse_callback_update(unsigned int microseconds)
 {
 	unsigned int connection, passed;
-	boolean receiving;
 
 	v_ping_update();	/* Deliver any pending pings. */
 	connection = VConData.current_connection;
 	for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
 	{
-		v_noq_send_queue(VConData.con[VConData.current_connection].out_queue, &VConData.con[VConData.current_connection].network_address);
+		if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
+			v_noq_send_queue(VConData.con[VConData.current_connection].out_queue, &VConData.con[VConData.current_connection].network_address);
 		if(VConData.con[VConData.current_connection].destroy_flag == TRUE)
 		{
 			v_noq_destroy_network_queue(VConData.con[VConData.current_connection].out_queue);
@@ -354,8 +354,13 @@ void verse_callback_update(unsigned int microseconds)
 			update = v_con_network_listen();
 			connection = VConData.current_connection;
 			for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
-				if(v_noq_send_queue(VConData.con[VConData.current_connection].out_queue, &VConData.con[VConData.current_connection].network_address))
-					update = TRUE;
+			{
+				if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
+				{
+					if(v_noq_send_queue(VConData.con[VConData.current_connection].out_queue, &VConData.con[VConData.current_connection].network_address))
+						update = TRUE;
+				}
+			}
 			VConData.current_connection = connection;
 		} while(update);
 	}
@@ -412,7 +417,14 @@ uint8 * v_con_get_host_id(void)
 
 void v_con_set_data_key(const uint8 *key)
 {
+	int	i;
+
 	memcpy(VConData.con[VConData.current_connection].key_data, key, V_ENCRYPTION_DATA_KEY_SIZE);
+/*	printf("data key set to: [");
+	for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
+		printf(" %02X", key[i]);
+	printf(" ]\n");
+*/
 }
 
 const uint8 * v_con_get_data_key(void)
