@@ -258,7 +258,6 @@ static void callback_send_b_dimensions_set(void *user, VNodeID node_id, uint16 w
 	node->size[2] = depth;
 	node->partial_tile_col = (width  % VN_B_TILE_SIZE) != 0 ? (width  + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE - 1 : ~0;
 	node->partial_tile_row = (height % VN_B_TILE_SIZE) != 0 ? (height + VN_B_TILE_SIZE - 1) / VN_B_TILE_SIZE - 1 : ~0;
-	printf("partials: %u and %u\n", node->partial_tile_col, node->partial_tile_row);
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
 	{
