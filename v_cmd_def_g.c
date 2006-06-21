@@ -175,8 +175,8 @@ void v_gen_geometry_cmd_def(void)
 	v_cg_add_param(VCGP_NAME,		"pos_label");
 	v_cg_add_param(VCGP_POINTER_TYPE,	"VNQuat64");
 	v_cg_add_param(VCGP_POINTER,		"rot");
-	v_cg_add_param(VCGP_PACK_INLINE,	"\tbuffer_pos += vnp_pack_quat64(&buf[buffer_pos], rot);\n");
 	v_cg_add_param(VCGP_NAME,		"rot_label");
+	v_cg_add_param(VCGP_PACK_INLINE,	"\tif(weight[0] != '\\0')\n\t\tbuffer_pos += vnp_pack_quat64(&buf[buffer_pos], rot);\n");
 	v_cg_add_param(VCGP_UNPACK_INLINE,	"\tif(weight[0] != 0)\n"
 	"\t{\n"
 	"\t\tVNQuat64\ttmp;\n"
