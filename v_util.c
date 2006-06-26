@@ -30,6 +30,14 @@ void v_timer_start(VUtilTimer *timer)
 	v_n_get_current_time(&timer->seconds, &timer->fractions);
 }
 
+void v_timer_advance(VUtilTimer *timer, double seconds)
+{
+	if(timer == NULL)
+		return;
+	timer->seconds   += (int) seconds;
+	timer->fractions += (seconds - (int) seconds) * (double) 0xffffffff;
+}
+
 double v_timer_elapsed(const VUtilTimer *timer)
 {
 	uint32 cur_seconds, cur_fractions;

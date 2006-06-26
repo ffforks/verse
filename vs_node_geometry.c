@@ -134,7 +134,7 @@ void vs_g_subscribe(VSNodeGeometry *node)
 	verse_send_g_crease_set_edge(node->head.id, node->crease_edge_layer, node->crease_edge);
 	for(i = 0; i < node->bone_count; i++)
 	{
-		if(node->bones[i].weight[0] != 0)	
+		if(node->bones[i].weight[0] != 0)
 			verse_send_g_bone_create(node->head.id, (uint16)i, node->bones[i].weight, node->bones[i].reference, node->bones[i].parent,
 						 node->bones[i].pos_x, node->bones[i].pos_y, node->bones[i].pos_z, node->bones[i].pos_label,
 						 &node->bones[i].rot, node->bones[i].rot_label);
@@ -160,7 +160,11 @@ static void callback_send_g_layer_create(void *user, VNodeID node_id, VLayerID l
 	VSNodeGeometry *node;
 	unsigned int i, j, count;
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
+
 	if(node == NULL)
+		return;
+	if((type < VN_G_LAYER_POLYGON_CORNER_UINT32 && type > VN_G_LAYER_VERTEX_REAL) ||
+	   (type > VN_G_LAYER_POLYGON_FACE_REAL))
 		return;
 
 	if(layer_id < 2)
@@ -796,6 +800,7 @@ static void callback_send_g_polygon_set_face_uint8(void *user, VNodeID node_id, 
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
+
 	node = (VSNodeGeometry *)vs_get_node(node_id, V_NT_GEOMETRY);
 	if(node == NULL)
 		return;
@@ -913,7 +918,7 @@ static void callback_send_g_polygon_delete(void *user, VNodeID node_id, uint32 p
 	vs_reset_subscript_session();
 }
 
-static void callback_send_g_crease_set_vertex(void *user, VNodeID node_id, char *layer, uint32 def_crease)
+static void callback_send_g_crease_set_vertex(void *user, VNodeID node_id, const char *layer, uint32 def_crease)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -921,8 +926,7 @@ static void callback_send_g_crease_set_vertex(void *user, VNodeID node_id, char 
 	if(node == NULL)
 		return;
 	node->crease_vertex = def_crease;
-	for(i = 0; i < 16; i++)
-		node->crease_vertex_layer[i] = layer[i];
+	v_strlcpy(node->crease_vertex_layer, layer, sizeof node->crease_vertex_layer);
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
 	{
@@ -932,7 +936,7 @@ static void callback_send_g_crease_set_vertex(void *user, VNodeID node_id, char 
 	vs_reset_subscript_session();
 }
 
-static void callback_send_g_crease_set_edge(void *user, VNodeID node_id, char *layer, uint32 def_crease)
+static void callback_send_g_crease_set_edge(void *user, VNodeID node_id, const char *layer, uint32 def_crease)
 {
 	VSNodeGeometry *node;
 	unsigned int i, count;
@@ -940,8 +944,7 @@ static void callback_send_g_crease_set_edge(void *user, VNodeID node_id, char *l
 	if(node == NULL)
 		return;
 	node->crease_edge = def_crease;
-	for(i = 0; i < 16; i++)
-		node->crease_edge_layer[i] = layer[i];
+	v_strlcpy(node->crease_edge_layer, layer, sizeof node->crease_edge_layer);
 	count =	vs_get_subscript_count(node->head.subscribers);
 	for(i = 0; i < count; i++)
 	{

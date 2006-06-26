@@ -354,7 +354,7 @@ typedef enum {
 	VN_A_BLOCK_SIZE_INT24 = 384,
 	VN_A_BLOCK_SIZE_INT32 = 256,
 	VN_A_BLOCK_SIZE_REAL32 = 256,
-	VN_A_BLOCK_SIZE_REAL64 = 128,
+	VN_A_BLOCK_SIZE_REAL64 = 128
 } VNAConstants;
 
 typedef enum {
@@ -363,7 +363,7 @@ typedef enum {
 	VN_A_BLOCK_INT24,
 	VN_A_BLOCK_INT32,
 	VN_A_BLOCK_REAL32,
-	VN_A_BLOCK_REAL64,
+	VN_A_BLOCK_REAL64
 } VNABlockType;
 
 /* Audio commands take pointers to blocks of these. They are not packed as unions. */

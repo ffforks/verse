@@ -15,7 +15,8 @@ VNOPackedParams * verse_method_call_pack(unsigned int param_count, const VNOPara
 {
 	unsigned int i, j, buffer_pos;
 	uint8 *buf;
-	buf = malloc((sizeof *buf) * (1500 + 8 * 16));
+
+	buf = malloc(1500 + 8 * 16);
 	buffer_pos = vnp_raw_pack_uint16(buf, 0);
 	for(i = 0; i < param_count; i++)
 	{
@@ -109,7 +110,7 @@ VNOPackedParams * verse_method_call_pack(unsigned int param_count, const VNOPara
 			return NULL;
 		}
 	}
-	vnp_raw_pack_uint16(buf, (uint16)buffer_pos);
+	vnp_raw_pack_uint16(buf, buffer_pos);
 	return buf;
 }
 

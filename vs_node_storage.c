@@ -140,6 +140,13 @@ VNodeID vs_node_create(VNodeID owner_id, unsigned int type)
 	return node_id;
 }
 
+/* Initialize an object node into being an avatar. */
+void vs_avatar_init(VNodeID id, const char *name)
+{
+	callback_send_tag_group_create(NULL, id, (short) ~0u, "avatar");
+	/* FIXME: Populate the group, too. */
+}
+
 void vs_reset_owner(VNodeID owner_id)
 {
 	unsigned int i;

@@ -11,6 +11,7 @@ typedef struct {
 } VUtilTimer;
 
 extern void	v_timer_start(VUtilTimer *timer);
+extern void	v_timer_advance(VUtilTimer *timer, double seconds);
 extern double	v_timer_elapsed(const VUtilTimer *timer);
 extern void	v_timer_print(const VUtilTimer *timer);
 
