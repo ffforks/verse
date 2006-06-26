@@ -3,7 +3,7 @@
 
 This is the Verse protocol and sample server implementations.
 
-For more information, see <http://www.blender.org/modules/verse/>.
+For more information, see <http://verse.blender.org/>.
 
 Running "make" here will build the API library, "libverse.a" (and its
 header file, "verse.h"). These two will then be used to build the
