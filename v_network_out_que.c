@@ -15,6 +15,7 @@
 #include "v_pack.h"
 #include "v_encryption.h"
 #include "v_network_out_que.h"
+#include "v_util.h"
 
 #if !defined(V_GENERATE_FUNC_MODE)
 
@@ -81,6 +82,7 @@ VNetOutQueue * v_noq_create_network_queue(void)
 	queue->unsorted = NULL;
 	queue->unsorted_end = NULL;
 	queue->unsorted_count = 0;
+	queue->packet_buffer_use = 0;
 	v_n_get_current_time(&queue->seconds, &queue->fractions);
 	return queue;
 }
@@ -131,7 +133,7 @@ void v_noq_sort_and_collapse_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 	{
 		for(b = queue->unsent[slot]; !v_cmd_buf_compare(buf, b) && b->next != NULL; b = b->next)
 			last = b;
-		if(v_cmd_buf_compare(buf, b)) /* fond a command to replace */
+		if(v_cmd_buf_compare(buf, b)) /* found a command to replace */
 		{
 			queue->unsent_size -= b->size;
 			queue->unsent_comands--;
@@ -156,7 +158,7 @@ void v_noq_sort_and_collapse_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 		last = NULL;
 		for(b = queue->history[slot]; b != NULL && !v_cmd_buf_compare(buf, b); b = b->next)
 			last = b;
-		if(b != NULL) /* fond a command to replace */
+		if(b != NULL) /* found a command to replace */
 		{
 			if(last == NULL)
 				queue->history[slot] = b->next;
@@ -166,7 +168,6 @@ void v_noq_sort_and_collapse_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 			v_cmd_buf_free(b);
 		}
 	}
-
 }
 
 void v_noq_send_buf(VNetOutQueue *queue, VCMDBufHead *buf)
@@ -187,7 +188,7 @@ void v_noq_send_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 		queue->unsorted_count++;
 /*	}else
 		v_noq_sort_and_colapse_buf(queue, buf);
-*/	count = (count + 1) % 3000;
+*/	count = (count + 1) % 30;
 	if(count == 0)
 	{
 		v_con_network_listen();
@@ -198,6 +199,7 @@ void v_noq_send_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 void v_noq_sort_unsorted(VNetOutQueue *queue)
 {
 	VCMDBufHead *buf;
+
 	while(queue->unsent_comands < V_NOQ_MAX_SORTED_COMMANDS && queue->unsorted != NULL)
 	{
 		buf = queue->unsorted;
@@ -227,14 +229,14 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 	data = queue->packet_buffer;
 	v_n_get_current_time(&seconds, &fractions);
 	delta = seconds - queue->seconds + (fractions - queue->fractions) / (double) 0xffffffff;
-	
+
 	if(queue->unsorted != NULL)	
 		v_noq_sort_unsorted(queue);
 
 	if(queue->unsent_size == 0 && delta < 1.0 && (queue->ack_nak == NULL || queue->ack_nak->next == NULL))
-		return TRUE;
+		return FALSE;
 
-	if(delta > 2.0 && queue->unsent_size == 0 && queue->ack_nak == NULL)
+	if(delta > 3.0 && queue->unsent_size == 0 && queue->ack_nak == NULL && queue->packet_buffer_use != 0)
 	{
 /*		printf("A) re-sending last delta=%g\n", delta);*/
 		v_n_send_data(address, data, queue->packet_buffer_use);
@@ -296,7 +298,6 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 				my_counter++;
 			}
 		}
-/*		printf("DATA: sending actual size=%u id=%u\n", size, queue->packet_id);*/
 		v_n_send_data(address, data, size);
 		queue->packet_buffer_use = size;
 		queue->packet_id++;
@@ -313,13 +314,12 @@ void v_noq_send_ack_nak_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 	queue->ack_nak = buf;
 }
 
-extern void v_con_network_listen(void);
-
 void callback_send_packet_ack(void *user, uint32 packet_id)
 {
 	VNetOutQueue *queue;
 	VCMDBufHead *buf, *last;
 	unsigned int slot;
+
 	queue = v_con_get_network_queue();
 	for(slot = 0; slot < V_NOQ_OPTIMIZATION_SLOTS; slot++)
 	{

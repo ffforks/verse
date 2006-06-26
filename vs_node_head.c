@@ -49,7 +49,7 @@ void destroy_node_head(VSNodeHead *node)
 	{
 		for(i = 0; i < node->group_count; i++)
 		{
-			for(j = 0; j < ((VSTagGroup *)node->tag_groups)[i].tag_count; i++)
+			for(j = 0; j < ((VSTagGroup *)node->tag_groups)[i].tag_count; j++)
 			{
 				if(((VSTagGroup *)node->tag_groups)[i].tags[j].type == VN_TAG_STRING)
 					free(((VSTagGroup *)node->tag_groups)[i].tags[j].tag.vstring);
@@ -64,7 +64,7 @@ void destroy_node_head(VSNodeHead *node)
 	}
 }
 
-static void callback_send_tag_group_create(void *user, VNodeID node_id, uint16 group_id, char *name)
+ void callback_send_tag_group_create(void *user, VNodeID node_id, uint16 group_id, char *name)
 {
 	VSNodeHead *node;
 	unsigned int count, i, j, element;
@@ -209,10 +209,16 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 			for(i = tag_id; i < ((VSTagGroup *)node->tag_groups)[group_id].tag_count + 16; i++)
 				((VSTagGroup *)node->tag_groups)[group_id].tags[i].tag_name[0] = 0;
 			((VSTagGroup *)node->tag_groups)[group_id].tag_count += 16;
-
 		}
 	}
 	t = &((VSTagGroup *)node->tag_groups)[group_id].tags[tag_id];
+	if(t->tag_name[0] != '\0')	/* Old tag being re-set? */
+	{
+		if(t->type == VN_TAG_STRING)
+			free(t->tag.vstring);
+		else if(t->type == VN_TAG_BLOB)
+			free(t->tag.vblob.blob);
+	}
 	t->type = type;
 	v_strlcpy(t->tag_name, name, sizeof t->tag_name);
 	switch(type)
@@ -227,11 +233,9 @@ static void callback_send_tag_create(void *user, VNodeID node_id, uint16 group_i
 			t->tag.vreal64 = ((VNTag *)tag)->vreal64;
 		break;
 		case VN_TAG_STRING :
-			for(i = 0; ((VNTag *)tag)->vstring[i] != 0; i++);
-			t->tag.vstring = malloc((sizeof *t->tag.vstring) * i);
-			for(i = 0; ((VNTag *)tag)->vstring[i] != 0; i++)
-				t->tag.vstring[i] = ((VNTag *)tag)->vstring[i];
-			t->tag.vstring[i] = 0;
+			i = strlen(((VNTag *) tag)->vstring);
+			t->tag.vstring = malloc(i + 1);
+			strcpy(t->tag.vstring, ((VNTag *) tag)->vstring);
 		break;
 		case VN_TAG_REAL64_VEC3 :
 			t->tag.vreal64_vec3[0] = ((VNTag *)tag)->vreal64_vec3[0];

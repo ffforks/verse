@@ -144,17 +144,18 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 {
 	struct sockaddr_in	address_in;
+	VSocket			sock;
 	int			ret;
 
-	if(v_n_socket_create() == -1)
+	if((sock = v_n_socket_create()) == -1 || length == 0)
 		return 0;
 	address_in.sin_family = AF_INET;     /* host byte order */
 	address_in.sin_port = htons(address->port); /* short, network byte order */
 	address_in.sin_addr.s_addr = htonl(address->ip);
 	memset(&address_in.sin_zero, 0, sizeof address_in.sin_zero);
-	ret = sendto(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr_in));
+	ret = sendto(sock, data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr_in));
 	if(ret < 0)
-		fprintf(stderr, "Socket sendto() failed, code %d (%s)\n", errno, strerror(errno));
+		fprintf(stderr, "Socket sendto() of %u bytes failed, code %d (%s)\n", (unsigned int) length, errno, strerror(errno));
 	return ret;
 }
 
@@ -179,8 +180,7 @@ unsigned int v_n_wait_for_incoming(unsigned int microseconds)
 	v_n_get_current_time(&s1, &f1);
 	select(1, &fd_select, NULL, NULL, &tv);
 	v_n_get_current_time(&s2, &f2);
-	return (1000000 * s2 + f2 * (1E6 / 0xffffffffU)) -
-	       (1000000 * s1 + f1 * (1E6 / 0xffffffffU));
+	return 1000000 * (s2 - s1) + (1000000.0 / 0xffffffffu) * (long) (f2 - f1);	/* Must cast to (long) for f1 > f2 case! */
 }
 
 #endif
@@ -209,21 +209,21 @@ int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
 
 void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 {
-	static LARGE_INTEGER freqency;
+	static LARGE_INTEGER frequency;
 	static boolean init = FALSE;
 	LARGE_INTEGER counter;
 
 	if(!init)
 	{
 		init = TRUE;
-		QueryPerformanceFrequency(&freqency);
+		QueryPerformanceFrequency(&frequency);
 	}
 
 	QueryPerformanceCounter(&counter);
 	if(seconds != NULL)
-		*seconds = counter.QuadPart / freqency.QuadPart;
+		*seconds = counter.QuadPart / frequency.QuadPart;
 	if(fractions != NULL)
-		*fractions = (uint32)((counter.QuadPart % freqency.QuadPart) * (0xffffffff / freqency.QuadPart));
+		*fractions = (uint32)((0xffffffffULL * (counter.QuadPart % frequency.QuadPart)) / frequency.QuadPart);
 }
 
 #else

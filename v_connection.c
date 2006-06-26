@@ -197,13 +197,14 @@ extern void	v_ping_update(void);
 void v_fs_unpack_beginning(uint8 *data, unsigned int length);
 
 /* Main function that receives and distributes all incoming packets. */
-void v_con_network_listen(void)
+boolean v_con_network_listen(void)
 {
 	VNetworkAddress address;
 	uint8 buf[V_MAX_CONNECT_PACKET_SIZE], *store;
 	int size = 0;
 	unsigned int connection;
 	uint32 packet_id;
+	boolean ret = FALSE;
 
 	v_con_init(); /* Init if needed. */
 	connection = VConData.current_connection; /* Store current connection in a local variable so that we can restore it later. */
@@ -258,8 +259,11 @@ void v_con_network_listen(void)
 			       packet_id);
 		}
 		size = v_n_receive_data(&address, buf, sizeof buf); /* See if there are more incoming packets. */
+		ret = TRUE;
 	}
 	VConData.current_connection = connection; /* Reset the current connection. */
+
+	return ret;
 }
 
 extern void	v_update_connection_pending(boolean resend);
@@ -299,11 +303,11 @@ void verse_callback_update(unsigned int microseconds)
 	unsigned int connection, passed;
 
 	v_ping_update();	/* Deliver any pending pings. */
-/*	printf("%u\n", VConData.pending_packets);*/
 	connection = VConData.current_connection;
 	for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
 	{
-		v_noq_send_queue(VConData.con[VConData.current_connection].out_queue, &VConData.con[VConData.current_connection].network_address);
+		if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
+			v_noq_send_queue(VConData.con[VConData.current_connection].out_queue, &VConData.con[VConData.current_connection].network_address);
 		if(VConData.con[VConData.current_connection].destroy_flag == TRUE)
 		{
 			v_noq_destroy_network_queue(VConData.con[VConData.current_connection].out_queue);
@@ -340,15 +344,25 @@ void verse_callback_update(unsigned int microseconds)
 			return;
 	for(passed = 0; passed < microseconds && VConData.pending_packets == 0;)
 	{
-		if(V_CON_MAX_MICROSECOND_BETWEEN_SENDS < microseconds - passed)
+		boolean	update;
+		if(microseconds - passed > V_CON_MAX_MICROSECOND_BETWEEN_SENDS)	/* Still a long way to go? */
 			passed += v_n_wait_for_incoming(V_CON_MAX_MICROSECOND_BETWEEN_SENDS);
 		else
 			passed += v_n_wait_for_incoming(microseconds - passed);
-		v_con_network_listen();
-		connection = VConData.current_connection;
-		for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
-			v_noq_send_queue(VConData.con[VConData.current_connection].out_queue, &VConData.con[VConData.current_connection].network_address);
-		VConData.current_connection = connection;
+		do
+		{
+			update = v_con_network_listen();
+			connection = VConData.current_connection;
+			for(VConData.current_connection = 0; VConData.current_connection < VConData.con_count; VConData.current_connection++)
+			{
+				if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
+				{
+					if(v_noq_send_queue(VConData.con[VConData.current_connection].out_queue, &VConData.con[VConData.current_connection].network_address))
+						update = TRUE;
+				}
+			}
+			VConData.current_connection = connection;
+		} while(update);
 	}
 	if(VConData.con_count > 0)
 		v_con_callback_update();
@@ -403,7 +417,14 @@ uint8 * v_con_get_host_id(void)
 
 void v_con_set_data_key(const uint8 *key)
 {
+	int	i;
+
 	memcpy(VConData.con[VConData.current_connection].key_data, key, V_ENCRYPTION_DATA_KEY_SIZE);
+/*	printf("data key set to: [");
+	for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
+		printf(" %02X", key[i]);
+	printf(" ]\n");
+*/
 }
 
 const uint8 * v_con_get_data_key(void)
@@ -435,6 +456,7 @@ uint32 verse_session_get_avatar(void)
 {
 	return VConData.con[VConData.current_connection].avatar;
 }
+
 void verse_session_get_time(uint32 *seconds, uint32 *fractions)
 {
 	uint32 s, f;

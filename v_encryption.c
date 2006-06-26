@@ -45,7 +45,14 @@ void v_e_data_encrypt_command(uint8 *packet, size_t packet_size, const uint8 *co
 	uint32	pos, i;
 
 	vnp_raw_unpack_uint32(packet, &pos);
+/*	printf("encrypting packet %u", pos);*/
 	pos = key[pos % V_ENCRYPTION_DATA_KEY_SIZE] + packet_size;
+/*	printf(" -> pos=%u (size %u)", pos, packet_size);
+	printf(", key begins: [");
+	for(i = 0; i < 16; i++)
+		printf(" %02X", key[(pos + i) % V_ENCRYPTION_DATA_KEY_SIZE]);
+	printf(" ]\n");
+*/
 	for(i = 0; i < command_size; i++)
 		packet[packet_size + i] = command[i] ^ key[(i + pos) % V_ENCRYPTION_DATA_KEY_SIZE];
 }
@@ -55,8 +62,14 @@ void v_e_data_decrypt_packet(uint8 *to, const uint8 *from, size_t size, const ui
 	uint32	pos, i;
 
 	vnp_raw_unpack_uint32(from, &pos);
+/*	printf("decrypting packet %u", pos);*/
 	pos = key[pos % V_ENCRYPTION_DATA_KEY_SIZE];
-	for(i = 0; i < 4; i++)
+/*	printf(" -> pos=%u", pos);
+	printf(", key begins: [");
+	for(i = 0; i < 16; i++)
+		printf(" %02X", key[(i + pos) % V_ENCRYPTION_DATA_KEY_SIZE]);
+	printf(" ]\n");
+*/	for(i = 0; i < 4; i++)
 		to[i] = from[i];
 	for(i = 4; i < size; i++)
 		to[i] = from[i] ^ key[(i + pos) % V_ENCRYPTION_DATA_KEY_SIZE];
