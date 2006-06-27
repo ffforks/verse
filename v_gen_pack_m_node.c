@@ -64,13 +64,15 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.col_r);
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.col_g);
 		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->volume.col_b);
-		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->volume.color);
+		break;
+	case VN_M_FT_VIEW :
 		break;
 	case VN_M_FT_TEXTURE :
 		buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], fragment->texture.bitmap);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->texture.layer_r, 16);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->texture.layer_g, 16);
 		buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], fragment->texture.layer_b, 16);
+		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)fragment->texture.filtered);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->texture.mapping);
 		break;
 	case VN_M_FT_NOISE :
@@ -83,6 +85,13 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.data_b);
 		buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->blender.control);
 		break;
+	case VN_M_FT_CLAMP :
+		buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], (uint8)fragment->clamp.min);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->clamp.red);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->clamp.green);
+		buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->clamp.blue);
+			buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], fragment->clamp.data);
+		break;
 	case VN_M_FT_MATRIX :
 		{
 			unsigned int i;
@@ -92,6 +101,8 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 		}
 		break;
 	case VN_M_FT_RAMP :
+		if(fragment->ramp.point_count == 0)
+			return;
 		{
 			unsigned int i, pos;
 			double last;
@@ -108,7 +119,8 @@ void verse_send_m_fragment_create(VNodeID node_id, VNMFragmentID frag_id, VNMFra
 				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->ramp.ramp[i].red);
 				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->ramp.ramp[i].green);
 				buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], fragment->ramp.ramp[i].blue);
-			}if(i != fragment->ramp.point_count)
+			}
+			if(i != fragment->ramp.point_count)
 				vnp_raw_pack_uint8(&buf[pos], i);
 		}
 		break;
@@ -214,14 +226,15 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.transparency.normal_falloff);
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.transparency.refraction_index);
 			break;
-	case VN_M_FT_VOLUME :
+		case VN_M_FT_VOLUME :
 			if(buffer_pos + 34 > buffer_length)
 				return -1;
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.diffusion);
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.col_r);
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.col_g);
 			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.volume.col_b);
-			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.volume.color);
+			break;
+		case VN_M_FT_VIEW :
 			break;
 		case VN_M_FT_GEOMETRY :
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.geometry.layer_r, 16, buffer_length - buffer_pos);
@@ -229,16 +242,18 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.geometry.layer_b, 16, buffer_length - buffer_pos);
 			break;
 		case VN_M_FT_TEXTURE :
-			if(buffer_pos + 4 > buffer_length)
+			if(buffer_pos + 10 > buffer_length)
 				return -1;
 			buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &frag.texture.bitmap);
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.texture.layer_r, 16, buffer_length - buffer_pos);
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.texture.layer_g, 16, buffer_length - buffer_pos);
 			buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], frag.texture.layer_b, 16, buffer_length - buffer_pos);
+			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
+			frag.texture.filtered = (VNMNoiseType)temp;
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.texture.mapping);
 			break;
 		case VN_M_FT_NOISE :
-			if(buffer_pos + 4 > buffer_length)
+			if(buffer_pos + 3 > buffer_length)
 				return -1;
 			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
 			frag.noise.type = (VNMNoiseType)temp;
@@ -252,6 +267,16 @@ unsigned int v_unpack_m_fragment_create(const char *buf, size_t buffer_length)
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.data_a);
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.data_b);
 			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.blender.control);
+			break;
+		case VN_M_FT_CLAMP :
+			if(buffer_pos + 27 > buffer_length)
+				return -1;
+			buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &temp);
+			frag.clamp.min = (VNMBlendType)temp;
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.clamp.red);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.clamp.green);
+			buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &frag.clamp.blue);
+			buffer_pos += vnp_raw_unpack_uint16(&buf[buffer_pos], &frag.clamp.data);
 			break;
 		case VN_M_FT_MATRIX :
 			if(buffer_pos + 8 * 16 + 2 > buffer_length)
