@@ -250,7 +250,6 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_POINTER,	"accelerate");
 	v_cg_add_param(VCGP_POINTER_TYPE,"VNQuat64");
 	v_cg_add_param(VCGP_POINTER,	"drag_normal");
-	v_cg_add_param(VCGP_REAL64,		"drag");	
 	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
 	"\t\tuint8 mask = 0;\n"
 	"\t\tunsigned int maskpos;\n"
@@ -303,6 +302,7 @@ void v_gen_object_cmd_def(void)
 	"\t\t\tfunc_o_transform_rot_real64(v_fs_get_user_data(33), node_id, time_s, time_f, &trot, q[0], q[1], q[2], drag);\n"
 	"\t\treturn buffer_pos;\n"
 	"\t}\n");
+	v_cg_add_param(VCGP_REAL64,		"drag");	
 	v_cg_end_cmd();
 
 	v_cg_new_cmd(V_NT_OBJECT,		"o_transform_scale_real64", 37, VCGCT_NORMAL);
@@ -437,11 +437,80 @@ void v_gen_object_cmd_def(void)
 	v_cg_add_param(VCGP_END_ADDRESS, NULL);
 	v_cg_add_param(VCGP_UINT32,		"time_s");
 	v_cg_add_param(VCGP_UINT32,		"time_f");
-	v_cg_add_param(VCGP_REAL64,		"pos");
-	v_cg_add_param(VCGP_REAL64,		"speed");
-	v_cg_add_param(VCGP_REAL64,		"accel");
-	v_cg_add_param(VCGP_REAL64,		"scale");
-	v_cg_add_param(VCGP_REAL64,		"scale_speed");
+	v_cg_add_param(VCGP_UINT8,		"dimensions");
+	v_cg_add_param(VCGP_POINTER_TYPE, "real64");
+	v_cg_add_param(VCGP_POINTER,	"pos");
+	v_cg_add_param(VCGP_POINTER_TYPE, "real64");
+	v_cg_add_param(VCGP_POINTER,	"speed");
+	v_cg_add_param(VCGP_POINTER_TYPE, "real64");
+	v_cg_add_param(VCGP_POINTER,	"accel");
+	v_cg_add_param(VCGP_POINTER_TYPE, "real64");
+	v_cg_add_param(VCGP_POINTER,	"scale");
+	v_cg_add_param(VCGP_POINTER_TYPE, "real64");
+	v_cg_add_param(VCGP_POINTER,	"scale_speed");
+	v_cg_add_param(VCGP_PACK_INLINE, "\t{\n"
+	"\t\tunsigned char mask = 0;\n"
+	"\t\tunsigned int cmd, i;\n"
+	"\t\tcmd = buffer_pos++;\n"
+	"\t\tif(dimensions > 4)\n"
+	"\t\t\tdimensions = 4;\n"	
+	"\t\tfor(i = 0; i < dimensions; i++)\n"
+	"\t\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos[i]);\n"
+	"\t\tif(speed != NULL)\n"
+	"\t\t{\n"
+	"\t\t\tmask |= 1;\n"
+	"\t\t\tfor(i = 0; i < dimensions; i++)\n"
+	"\t\t\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], speed[i]);\n"
+	"\t\t}\n"
+	"\t\tif(accel != NULL)\n"
+	"\t\t{\n"
+	"\t\t\tmask |= 2;\n"
+	"\t\t\tfor(i = 0; i < dimensions; i++)\n"
+	"\t\t\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], accel[i]);\n"
+	"\t\t}\n"
+	"\t\tif(scale != NULL)\n"
+	"\t\t{\n"
+	"\t\t\tmask |= 3;\n"
+	"\t\t\tfor(i = 0; i < dimensions; i++)\n"
+	"\t\t\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], scale[i]);\n"
+	"\t\t}\n"
+	"\t\tif(scale_speed != NULL)\n"
+	"\t\t{\n"
+	"\t\t\tmask |= 4;\n"
+	"\t\t\tfor(i = 0; i < dimensions; i++)\n"
+	"\t\t\t\tbuffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], scale_speed[i]);\n"
+	"\t\t}\n"
+	"\t\tvnp_raw_pack_uint8(&buf[cmd], mask);\n"
+	"\t}\n");
+	v_cg_add_param(VCGP_UNPACK_INLINE, "\t{\n"
+	"\t\tdouble output[5][4];\n"
+	"\t\tunsigned int i, j;\n"
+	"\t\tchar mask, pow = 1;\n"
+	"\t\tbuffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &mask);\n"
+	"\t\tif(dimensions > 4)\n"
+	"\t\t\tdimensions = 4;\n"
+	"\t\tfor(j = 0; j < dimensions; j++)\n"
+	"\t\t\tbuffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &output[0][j]);\n"
+	"\t\tfor(i = 1; i < 5; i++)\n"
+	"\t\t{\n"
+	"\t\t\tif((mask & pow) != 0)\n"
+	"\t\t\t\tfor(j = 0; j < dimensions; j++)\n"
+	"\t\t\t\t\tbuffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &output[i][j]);\n"
+	"\t\t\telse\n"
+	"\t\t\t\tfor(j = 0; j < dimensions; j++)\n"
+	"\t\t\t\t\toutput[i][j] = 0;\n"
+	"\t\t\tpow *= 2;\n"
+	"\t\t}\n"
+	"\t\tif(func_o_anim_run != NULL)\n"
+	"\t\t\tfunc_o_anim_run(v_fs_get_user_data(45), node_id, link_id, time_s, time_f, dimensions, &output[0][0], &output[1][0], &output[2][0], &output[3][0], &output[4][0]);\n"
+	"\t\treturn buffer_pos;\n"
+	"\t}\n");
+	v_cg_end_cmd();
+
+	v_cg_new_cmd(V_NT_OBJECT,		"o_hide", 46, VCGCT_NORMAL);
+	v_cg_add_param(VCGP_NODE_ID,	"node_id");
+	v_cg_add_param(VCGP_END_ADDRESS, NULL);
+	v_cg_add_param(VCGP_UINT8,		"hidden");
 	v_cg_end_cmd();
 }
 
