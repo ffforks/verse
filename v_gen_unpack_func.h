@@ -25,6 +25,7 @@ extern unsigned int v_unpack_o_method_group_subscribe(const char *data, size_t l
 extern unsigned int v_unpack_o_method_create(const char *data, size_t length);
 extern unsigned int v_unpack_o_method_call(const char *data, size_t length);
 extern unsigned int v_unpack_o_anim_run(const char *data, size_t length);
+extern unsigned int v_unpack_o_hide(const char *data, size_t length);
 extern unsigned int v_unpack_g_layer_create(const char *data, size_t length);
 extern unsigned int v_unpack_g_layer_subscribe(const char *data, size_t length);
 extern unsigned int v_unpack_g_vertex_set_xyz_real32(const char *data, size_t length);

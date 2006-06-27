@@ -1051,8 +1051,9 @@ void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weigh
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos_y);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos_z);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], pos_label, 16);
-	buffer_pos += vnp_pack_quat64(&buf[buffer_pos], rot);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], rot_label, 16);
+	if(weight[0] != '\0')
+		buffer_pos += vnp_pack_quat64(&buf[buffer_pos], rot);
 	if(node_id == (uint32)(-1) || bone_id == (uint16)(-1))
 		v_cmd_buf_set_unique_address_size(head, 7);
 	else

@@ -610,7 +610,7 @@ unsigned int v_unpack_tag_create(const char *buf, size_t buffer_length)
 			case VN_TAG_STRING :
 			{
 				tag.vstring = string;
-				vnp_raw_unpack_string(&buf[buffer_pos], string, VN_TAG_MAX_BLOB_SIZE, buffer_length - buffer_pos);
+				buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], string, VN_TAG_MAX_BLOB_SIZE, buffer_length - buffer_pos);
 			}
 			break;
 			case VN_TAG_REAL64_VEC3 :

@@ -54,6 +54,7 @@ void init_pack_and_unpack(void)
 	v_fs_add_func(43, v_unpack_o_method_create, verse_send_o_method_create, verse_send_o_method_destroy);
 	v_fs_add_func(44, v_unpack_o_method_call, verse_send_o_method_call, NULL);
 	v_fs_add_func(45, v_unpack_o_anim_run, verse_send_o_anim_run, NULL);
+	v_fs_add_func(46, v_unpack_o_hide, verse_send_o_hide, NULL);
 	v_fs_add_func(48, v_unpack_g_layer_create, verse_send_g_layer_create, verse_send_g_layer_destroy);
 	v_fs_add_func(49, v_unpack_g_layer_subscribe, verse_send_g_layer_subscribe, verse_send_g_layer_unsubscribe);
 	v_fs_add_func(50, v_unpack_g_vertex_set_xyz_real32, verse_send_g_vertex_set_xyz_real32, verse_send_g_vertex_delete_real32);
