@@ -158,7 +158,7 @@ void v_gen_system_cmd_def(void)
 	"\t\t\tcase VN_TAG_STRING :\n"
 	"\t\t\t{\n"
 	"\t\t\t\ttag.vstring = string;\n"
-	"\t\t\t\tvnp_raw_unpack_string(&buf[buffer_pos], string, VN_TAG_MAX_BLOB_SIZE, buffer_length - buffer_pos);\n"
+	"\t\t\t\tbuffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], string, VN_TAG_MAX_BLOB_SIZE, buffer_length - buffer_pos);\n"
 	"\t\t\t}\n"
 	"\t\t\tbreak;\n"
 	"\t\t\tcase VN_TAG_REAL64_VEC3 :\n"
