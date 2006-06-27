@@ -417,14 +417,7 @@ uint8 * v_con_get_host_id(void)
 
 void v_con_set_data_key(const uint8 *key)
 {
-	int	i;
-
 	memcpy(VConData.con[VConData.current_connection].key_data, key, V_ENCRYPTION_DATA_KEY_SIZE);
-/*	printf("data key set to: [");
-	for(i = 0; i < V_ENCRYPTION_DATA_KEY_SIZE; i++)
-		printf(" %02X", key[i]);
-	printf(" ]\n");
-*/
 }
 
 const uint8 * v_con_get_data_key(void)
