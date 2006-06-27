@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 /* Release information. */
-#define	V_RELEASE_NUMBER	5
+#define	V_RELEASE_NUMBER	6
 #define	V_RELEASE_PATCH		0
 #define	V_RELEASE_LABEL		""
 
@@ -199,7 +199,9 @@ typedef enum {
 
 typedef enum {
 	VN_M_NOISE_PERLIN_ZERO_TO_ONE = 0,
-	VN_M_NOISE_PERLIN_MINUS_ONE_TO_ONE
+	VN_M_NOISE_PERLIN_MINUS_ONE_TO_ONE,
+	VN_M_NOISE_POINT_ZERO_TO_ONE,
+	VN_M_NOISE_POINT_MINUS_ONE_TO_ONE
 } VNMNoiseType;
 
 typedef enum {
@@ -227,7 +229,6 @@ typedef enum {
 	VN_M_BLEND_SUBTRACT,
 	VN_M_BLEND_MULTIPLY,
 	VN_M_BLEND_DIVIDE,
-	VN_M_BLEND_DOT
 } VNMBlendType;
 
 typedef enum {
@@ -236,10 +237,12 @@ typedef enum {
 	VN_M_FT_REFLECTION,
 	VN_M_FT_TRANSPARENCY,
 	VN_M_FT_VOLUME,
+	VN_M_FT_VIEW,
 	VN_M_FT_GEOMETRY,
 	VN_M_FT_TEXTURE,
 	VN_M_FT_NOISE,
 	VN_M_FT_BLENDER,
+	VN_M_FT_CLAMP,
 	VN_M_FT_MATRIX,
 	VN_M_FT_RAMP,
 	VN_M_FT_ANIMATION,
@@ -273,7 +276,6 @@ typedef union {
 		real64 col_r;
 		real64 col_g;
 		real64 col_b;
-		VNMFragmentID color;
 	} volume;
 	struct {
 		char layer_r[16];
@@ -285,6 +287,7 @@ typedef union {
 		char layer_r[16];
 		char layer_g[16];
 		char layer_b[16];
+		boolean filtered;
 		VNMFragmentID mapping;
 	} texture;
 	struct {
@@ -297,6 +300,13 @@ typedef union {
 		VNMFragmentID data_b; 
 		VNMFragmentID control;
 	} blender;
+	struct {
+		boolean min;
+		real64 red;
+		real64 green;
+		real64 blue;
+		VNMFragmentID data;
+	} clamp;
 	struct {
 		real64 matrix[16];
 		VNMFragmentID data;
