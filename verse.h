@@ -18,7 +18,7 @@ extern "C" {
 #include <stdlib.h>
 
 /* Release information. */
-#define	V_RELEASE_NUMBER	5
+#define	V_RELEASE_NUMBER	6
 #define	V_RELEASE_PATCH		0
 #define	V_RELEASE_LABEL		""
 
@@ -213,7 +213,9 @@ typedef enum {
 
 typedef enum {
 	VN_M_NOISE_PERLIN_ZERO_TO_ONE = 0,
-	VN_M_NOISE_PERLIN_MINUS_ONE_TO_ONE
+	VN_M_NOISE_PERLIN_MINUS_ONE_TO_ONE,
+	VN_M_NOISE_POINT_ZERO_TO_ONE,
+	VN_M_NOISE_POINT_MINUS_ONE_TO_ONE
 } VNMNoiseType;
 
 typedef enum {
@@ -241,7 +243,6 @@ typedef enum {
 	VN_M_BLEND_SUBTRACT,
 	VN_M_BLEND_MULTIPLY,
 	VN_M_BLEND_DIVIDE,
-	VN_M_BLEND_DOT
 } VNMBlendType;
 
 typedef enum {
@@ -250,10 +251,12 @@ typedef enum {
 	VN_M_FT_REFLECTION,
 	VN_M_FT_TRANSPARENCY,
 	VN_M_FT_VOLUME,
+	VN_M_FT_VIEW,
 	VN_M_FT_GEOMETRY,
 	VN_M_FT_TEXTURE,
 	VN_M_FT_NOISE,
 	VN_M_FT_BLENDER,
+	VN_M_FT_CLAMP,
 	VN_M_FT_MATRIX,
 	VN_M_FT_RAMP,
 	VN_M_FT_ANIMATION,
@@ -287,7 +290,6 @@ typedef union {
 		real64 col_r;
 		real64 col_g;
 		real64 col_b;
-		VNMFragmentID color;
 	} volume;
 	struct {
 		char layer_r[16];
@@ -299,6 +301,7 @@ typedef union {
 		char layer_r[16];
 		char layer_g[16];
 		char layer_b[16];
+		boolean filtered;
 		VNMFragmentID mapping;
 	} texture;
 	struct {
@@ -311,6 +314,13 @@ typedef union {
 		VNMFragmentID data_b; 
 		VNMFragmentID control;
 	} blender;
+	struct {
+		boolean min;
+		real64 red;
+		real64 green;
+		real64 blue;
+		VNMFragmentID data;
+	} clamp;
 	struct {
 		real64 matrix[16];
 		VNMFragmentID data;
@@ -368,7 +378,7 @@ typedef enum {
 	VN_A_BLOCK_SIZE_INT24 = 384,
 	VN_A_BLOCK_SIZE_INT32 = 256,
 	VN_A_BLOCK_SIZE_REAL32 = 256,
-	VN_A_BLOCK_SIZE_REAL64 = 128,
+	VN_A_BLOCK_SIZE_REAL64 = 128
 } VNAConstants;
 
 typedef enum {
@@ -377,7 +387,7 @@ typedef enum {
 	VN_A_BLOCK_INT24,
 	VN_A_BLOCK_INT32,
 	VN_A_BLOCK_REAL32,
-	VN_A_BLOCK_REAL64,
+	VN_A_BLOCK_REAL64
 } VNABlockType;
 
 /* Audio commands take pointers to blocks of these. They are not packed as unions. */
@@ -449,7 +459,8 @@ extern void verse_send_o_method_group_unsubscribe(VNodeID node_id, uint16 group_
 extern void verse_send_o_method_create(VNodeID node_id, uint16 group_id, uint16 method_id, const char *name, uint8 param_count, const VNOParamType *param_types, const char * *param_names);
 extern void verse_send_o_method_destroy(VNodeID node_id, uint16 group_id, uint16 method_id);
 extern void verse_send_o_method_call(VNodeID node_id, uint16 group_id, uint16 method_id, VNodeID sender, const VNOPackedParams *params);
-extern void verse_send_o_anim_run(VNodeID node_id, uint16 link_id, uint32 time_s, uint32 time_f, real64 pos, real64 speed, real64 accel, real64 scale, real64 scale_speed);
+extern void verse_send_o_anim_run(VNodeID node_id, uint16 link_id, uint32 time_s, uint32 time_f, uint8 dimensions, const real64 *pos, const real64 *speed, const real64 *accel, const real64 *scale, const real64 *scale_speed);
+extern void verse_send_o_hide(VNodeID node_id, uint8 hidden);
 
 extern void verse_send_g_layer_create(VNodeID node_id, VLayerID layer_id, const char *name, VNGLayerType type, uint32 def_uint, real64 def_real);
 extern void verse_send_g_layer_destroy(VNodeID node_id, VLayerID layer_id);
