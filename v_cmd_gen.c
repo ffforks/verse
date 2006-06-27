@@ -12,7 +12,7 @@
 
 #if defined V_GENERATE_FUNC_MODE
 
-#define MAX_PARAMS_PER_CMD	16
+#define MAX_PARAMS_PER_CMD	32
 
 static struct {
 	FILE		*nodes[V_NT_NUM_TYPES_NETPACK];
