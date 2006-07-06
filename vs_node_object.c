@@ -793,7 +793,7 @@ static void callback_send_o_hide(void *user, VNodeID node_id, uint8 hidden)
 	unsigned int i, count;
 
 	node = (VSNodeObject *)vs_get_node(node_id, V_NT_OBJECT);
-	if(node == NULL && hidden == node->hidden)
+	if(node == NULL || hidden == node->hidden)
 		return;
 	node->hidden = hidden;
 	count = vs_get_subscript_count(node->head.subscribers);
