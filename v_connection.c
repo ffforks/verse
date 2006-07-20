@@ -21,7 +21,7 @@
 #define V_MAX_CONNECT_PACKET_SIZE	1500
 #define V_CON_MAX_MICROSECOND_BETWEEN_SENDS	100
 #define V_RE_CONNECTON_TIME_OUT 4
-#define V_CONNECTON_TIME_OUT 300
+#define V_CONNECTON_TIME_OUT 30
 
 typedef struct {
 	VNetOutQueue	*out_queue;
