@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 
 	signal(SIGINT, cb_sigint_handler);
 
-	for(i = 1; i < argc; i++)
+	for(i = 1; i < (uint32) argc; i++)
 	{
 		if(strcmp(argv[i], "-Q") == 0)
 			ms_address = NULL;
