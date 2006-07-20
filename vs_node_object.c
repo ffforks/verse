@@ -335,7 +335,7 @@ static void callback_send_o_transform_pos_real64(void *user, VNodeID node_id, ui
 		for(i = 0; i < count; i++)
 		{
 			vs_set_subscript_session(node->trans_sub32, i);
-			verse_send_o_transform_pos_real32(node_id, time_s, time_f, ps, p[0], p[1], p[2], drag);
+			verse_send_o_transform_pos_real32(node_id, time_s, time_f, ps, p[0], p[1], p[2], (real32) drag);
 		}
 	}
 	vs_reset_subscript_session();
@@ -368,7 +368,7 @@ static void callback_send_o_transform_rot_real64(void *user, VNodeID node_id, ui
 		for(i = 0; i < count; i++)
 		{
 			vs_set_subscript_session(node->trans_sub32, i);
-			verse_send_o_transform_rot_real32(node_id, time_s, time_f, &rt, p[0], p[1], p[2], drag);
+			verse_send_o_transform_rot_real32(node_id, time_s, time_f, &rt, p[0], p[1], p[2], (real32) drag);
 		}
 	}
 	vs_reset_subscript_session();
@@ -394,7 +394,7 @@ static void callback_send_o_transform_scale_real64(void *user, VNodeID node_id, 
 	for(i = 0; i < count; i++)
 	{
 		vs_set_subscript_session(node->trans_sub32, i);
-		verse_send_o_transform_scale_real32(node_id, scale_x, scale_y, scale_z);
+		verse_send_o_transform_scale_real32(node_id, (real32) scale_x, (real32) scale_y, (real32) scale_z);
 	}
 	vs_reset_subscript_session();
 }
@@ -417,10 +417,10 @@ static void callback_send_o_transform_subscribe(void *user, VNodeID node_id, VNR
 		tpos[0] = node->transform.position[0];
 		tpos[1] = node->transform.position[1];
 		tpos[2] = node->transform.position[2];
-		verse_send_o_transform_pos_real32(node_id, time_s, time_f, tpos, NULL, NULL, NULL, 0);
+		verse_send_o_transform_pos_real32(node_id, time_s, time_f, tpos, NULL, NULL, NULL, 0.0f);
 		v_quat32_from_quat64(&rot, &node->transform.rotation);
-		verse_send_o_transform_rot_real32(node_id, time_s, time_f, &rot, NULL, NULL, NULL, 0);
-		verse_send_o_transform_scale_real32(node_id, node->transform.scale[0], node->transform.scale[1], node->transform.scale[2]);
+		verse_send_o_transform_rot_real32(node_id, time_s, time_f, &rot, NULL, NULL, NULL, 0.0f);
+		verse_send_o_transform_scale_real32(node_id, (real32) node->transform.scale[0], (real32) node->transform.scale[1], (real32) node->transform.scale[2]);
 	}
 	else
 	{
