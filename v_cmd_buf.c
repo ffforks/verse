@@ -87,7 +87,7 @@ void v_cmd_buf_free(VCMDBufHead *head)
 
 void v_cmd_buf_set_size(VCMDBufHead *head, unsigned int size)
 {
-	if(head->address_size > size);
+	if(head->address_size > size)
 		head->address_size = size;
 	head->size = size;
 }
