@@ -79,10 +79,10 @@ VNQuat32 * v_quat32_from_quat64(VNQuat32 *dst, const VNQuat64 *src)
 {
 	if(dst == NULL || src == NULL)
 		return NULL;
-	dst->x = src->x;	
-	dst->y = src->y;
-	dst->z = src->z;	
-	dst->w = src->w;
+	dst->x = (real32) src->x;
+	dst->y = (real32) src->y;
+	dst->z = (real32) src->z;	
+	dst->w = (real32) src->w;
 	return dst;
 }
 
