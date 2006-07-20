@@ -551,7 +551,7 @@ static void callback_send_o_method_group_create(void *user, VNodeID node_id, uin
 		if(group_id == node->group_count)
 		{
 			node->groups = realloc(node->groups, sizeof(*node->groups) * (node->group_count + 16));
-			for(i = node->group_count; i < node->group_count + 16; i++)
+			for(i = node->group_count; i < node->group_count + 16u; i++)
 			{
 				node->groups[i].name[0] = 0;
 				node->groups[i].methods = NULL;
