@@ -357,7 +357,7 @@ static void callback_send_o_transform_rot_real64(void *user, VNodeID node_id, ui
 		vs_set_subscript_session(node->trans_sub64, i);
 		verse_send_o_transform_rot_real64(node_id, time_s, time_f, &node->transform.rotation, speed, accelerate, drag_normal, drag);
 	}
-	if((count = vs_get_subscript_count(node->trans_sub32)) >= 0)	/* Anyone listening at 32 bits? */
+	if((count = vs_get_subscript_count(node->trans_sub32)) > 0)	/* Anyone listening at 32 bits? */
 	{
 		VNQuat32	rt, spd, acc, drn, *p[3];
 
