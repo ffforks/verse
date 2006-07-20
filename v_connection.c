@@ -21,7 +21,7 @@
 #define V_MAX_CONNECT_PACKET_SIZE	1500
 #define V_CON_MAX_MICROSECOND_BETWEEN_SENDS	100
 #define V_RE_CONNECTON_TIME_OUT 4
-#define V_CONNECTON_TIME_OUT 30
+#define V_CONNECTON_TIME_OUT 300
 
 typedef struct {
 	VNetOutQueue	*out_queue;
@@ -252,11 +252,14 @@ boolean v_con_network_listen(void)
 		else
 		{
 			fprintf(stderr, __FILE__ ": Unhandled packet--dropping\n");
-			fprintf(stderr, __FILE__ ": State: current=%u count=%u stage=%d id=%u\n",
-			       VConData.current_connection,
-			       VConData.con_count,
-			       VConData.con[VConData.current_connection].connect_stage,
-			       packet_id);
+			if(VConData.con_count > 0)
+			{
+				fprintf(stderr, __FILE__ ": State: current=%u count=%u stage=%d id=%u\n",
+				       VConData.current_connection,
+				       VConData.con_count,
+				       VConData.con[VConData.current_connection].connect_stage,
+					packet_id);
+			}
 		}
 		size = v_n_receive_data(&address, buf, sizeof buf); /* See if there are more incoming packets. */
 		ret = TRUE;
