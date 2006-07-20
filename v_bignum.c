@@ -98,7 +98,7 @@ void v_bignum_raw_export(const VBigDig *x, void *bits)
 	for(i = *x++ - 1; i >= 0; i--)
 	{
 		*bytes++ = x[i] >> 8;
-		*bytes++ = x[i];
+		*bytes++ = (unsigned char) x[i];
 	}
 }
 
@@ -184,7 +184,7 @@ void v_bignum_set_bignum(VBigDig *x, const VBigDig *y)
 /* Performs x = y[msb:msb-bits], right-adjusting the result. */
 void v_bignum_set_bignum_part(VBigDig *x, const VBigDig *y, unsigned int msb, unsigned int bits)
 {
-	int	i, bit;
+	unsigned int	i, bit;
 
 	v_bignum_set_zero(x);
 	if(y == NULL || msb > (y[0] * (CHAR_BIT * sizeof *x)))
@@ -339,7 +339,7 @@ void v_bignum_bit_shift_left_1(VBigDig *x)
 void v_bignum_bit_shift_right(VBigDig *x, unsigned int count)
 {
 	unsigned int	t, carry, s = *x++;
-	int		i;
+	int	i;
 
 	/* Shift entire digits first. */
 	if(count >= CHAR_BIT * sizeof *x)
