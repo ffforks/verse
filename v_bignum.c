@@ -29,6 +29,7 @@
  * 
  * In general, these routines do not do a lot of error checking, they
  * assume you know what you're doing. Numbers must have >0 digits.
+ * Shifts should not be overly large (1e3 bits: safe, ~2e9+: avoid).
 */
 
 #include <ctype.h>
@@ -304,7 +305,7 @@ void v_bignum_bit_shift_left(VBigDig *x, unsigned int count)
 	{
 		unsigned int	places = count / (CHAR_BIT * sizeof *x);
 
-		for(i = s - 1; i >= places; i--)
+		for(i = s - 1; i >= (int) places; i--)
 			x[i] = x[i - places];
 		for(; i >= 0; i--)		/* Clear out the LSBs. */
 			x[i] = 0;
@@ -313,7 +314,7 @@ void v_bignum_bit_shift_left(VBigDig *x, unsigned int count)
 			return;
 	}
 	/* Shift bits. */
-	for(i = carry = 0; i < s; i++)
+	for(i = carry = 0; i < (int) s; i++)
 	{
 		t = (x[i] << count) | carry;
 		x[i] = t;
@@ -351,9 +352,9 @@ void v_bignum_bit_shift_right(VBigDig *x, unsigned int count)
 			memset(x, 0, s * sizeof *x);
 			return;
 		}
-		for(i = 0; i < s - places; i++)
+		for(i = 0; i < (int) (s - places); i++)
 			x[i] = x[i + places];
-		for(; i < s; i++)
+		for(; i < (int) s; i++)
 			x[i] = 0;
 		count -= places * CHAR_BIT * sizeof *x;
 		if(count == 0)
