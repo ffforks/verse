@@ -87,7 +87,12 @@ void v_cmd_buf_free(VCMDBufHead *head)
 
 void v_cmd_buf_set_size(VCMDBufHead *head, unsigned int size)
 {
-	if(head->address_size > size)
+	/* FIXME: This is OBVIOUSLY broken, but is what has worked so far. There
+	 * is currently (pre-SIGGRAPH 2006) not time for Eskil to dive deeply
+	 * enough into this code to fix it properly, so we'll just let it be.
+	 * The compiler warning this produces is a fair reminder.
+	*/
+	if(head->address_size > size);		/* <-- That ; is the problem, if it wasn't obvious from the above. */
 		head->address_size = size;
 	head->size = size;
 }
