@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "verse_header.h"
 #include "v_pack.h"
@@ -87,13 +88,6 @@ void v_cmd_buf_free(VCMDBufHead *head)
 
 void v_cmd_buf_set_size(VCMDBufHead *head, unsigned int size)
 {
-	/* FIXME: This is OBVIOUSLY broken, but is what has worked so far. There
-	 * is currently (pre-SIGGRAPH 2006) not time for Eskil to dive deeply
-	 * enough into this code to fix it properly, so we'll just let it be.
-	 * The compiler warning this produces is a fair reminder.
-	*/
-	if(head->address_size > size);		/* <-- That ; is the problem, if it wasn't obvious from the above. */
-		head->address_size = size;
 	head->size = size;
 }
 
@@ -117,14 +111,9 @@ void v_cmd_buf_set_unique_address_size(VCMDBufHead *head, unsigned int size)
 
 boolean	v_cmd_buf_compare(VCMDBufHead *a, VCMDBufHead *b)
 {
-	unsigned int i;
-
 	if(a->address_sum != b->address_sum)
 		return FALSE;
 	if(a->address_size != b->address_size)
 		return FALSE;
-	for(i = 0; i < a->address_size; i++)
-		if(((VCMDBuffer1500 *)a)->buf[i] != ((VCMDBuffer1500 *)b)->buf[i])
-			return FALSE;
-	return TRUE;
+	return memcmp(((VCMDBuffer1500 *)a)->buf, ((VCMDBuffer1500 *)b)->buf, a->address_size) == 0;
 }
