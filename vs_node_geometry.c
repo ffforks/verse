@@ -907,7 +907,7 @@ static void callback_send_g_polygon_delete(void *user, VNodeID node_id, uint32 p
 	if(polygon_id < node->polygon_hole)
 		node->polygon_hole = polygon_id;
 
-	((uint32 *)node->layer[1].layer)[polygon_id * 4] = -1;
+	((uint32 *)node->layer[1].layer)[polygon_id * 4] = ~0u;
 	count =	vs_get_subscript_count(node->layer[1].subscribers);
 	for(i = 0; i < count; i++)
 	{
