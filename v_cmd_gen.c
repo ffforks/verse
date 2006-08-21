@@ -590,7 +590,15 @@ static void v_cg_gen_pack(boolean alias)
 			break;
 		}
 		if(no_param)
-			param = "-1";
+		{
+			/* Horrible work-around, that prevents vertex/polygon deletes from misbehaving. */
+			if(strncmp(VCGData.alias_name, "g_vertex_delete_real", 20) == 0 && i == 1)
+				param = "0";
+			else if(strncmp(VCGData.alias_name, "g_polygon_delete", 16) == 0 && i == 1)
+				param = "1";
+			else
+				param = "-1";
+		}
 		switch(VCGData.param_type[i])
 		{	
 			case VCGP_NODE_ID :
