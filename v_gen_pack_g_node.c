@@ -234,7 +234,7 @@ void verse_send_g_vertex_delete_real32(VNodeID node_id, uint32 vertex_id)
 	printf("send: verse_send_g_vertex_delete_real32(node_id = %u vertex_id = %u );\n", node_id, vertex_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], -1);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], 0);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], V_REAL32_MAX);
 	buffer_pos += vnp_raw_pack_real32(&buf[buffer_pos], V_REAL32_MAX);
@@ -326,7 +326,7 @@ void verse_send_g_vertex_delete_real64(VNodeID node_id, uint32 vertex_id)
 	printf("send: verse_send_g_vertex_delete_real64(node_id = %u vertex_id = %u );\n", node_id, vertex_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], -1);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], 0);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], vertex_id);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
@@ -566,7 +566,7 @@ void verse_send_g_polygon_delete(VNodeID node_id, uint32 polygon_id)
 	printf("send: verse_send_g_polygon_delete(node_id = %u polygon_id = %u );\n", node_id, polygon_id);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
-	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], -1);
+	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], 1);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], polygon_id);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], -1);
@@ -603,12 +603,12 @@ unsigned int v_unpack_g_polygon_set_corner_uint32(const char *buf, size_t buffer
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &v2);
 	buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &v3);
 #if defined V_PRINT_RECEIVE_COMMANDS
-	if(layer_id == (VLayerID) ~0)
+	if(v0 == ~0u)
 		printf("receive: verse_send_g_polygon_delete(node_id = %u polygon_id = %u ); callback = %p\n", node_id, polygon_id, v_fs_get_alias_user_func(55));
 	else
 		printf("receive: verse_send_g_polygon_set_corner_uint32(node_id = %u layer_id = %u polygon_id = %u v0 = %u v1 = %u v2 = %u v3 = %u ); callback = %p\n", node_id, layer_id, polygon_id, v0, v1, v2, v3, v_fs_get_user_func(55));
 #endif
-	if(layer_id == (VLayerID) ~0)
+	if(v0 == ~0u)
 	{
 		void (* alias_g_polygon_delete)(void *user_data, VNodeID node_id, uint32 polygon_id);
 		alias_g_polygon_delete = v_fs_get_alias_user_func(55);
