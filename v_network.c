@@ -223,7 +223,7 @@ void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 	if(seconds != NULL)
 		*seconds = (uint32) (counter.QuadPart / frequency.QuadPart);
 	if(fractions != NULL)
-		*fractions = (uint32) ((0xffffffffULL * (counter.QuadPart % frequency.QuadPart)) / frequency.QuadPart);
+		*fractions = (uint32) ((0xffffffffUL * (counter.QuadPart % frequency.QuadPart)) / frequency.QuadPart);
 }
 
 #else
