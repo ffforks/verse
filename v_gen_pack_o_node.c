@@ -492,7 +492,7 @@ unsigned int v_unpack_o_transform_rot_real64(const char *buf, size_t buffer_leng
 		else
 			drag = 0.0;
 		if(func_o_transform_rot_real64 != NULL)
-			func_o_transform_rot_real64(v_fs_get_user_data(33), node_id, time_s, time_f, &trot, q[0], q[1], q[2], drag);
+			func_o_transform_rot_real64(v_fs_get_user_data(36), node_id, time_s, time_f, &trot, q[0], q[1], q[2], drag);
 		return buffer_pos;
 	}
 
