@@ -124,7 +124,7 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 	boolean		ok = FALSE;
 
 	v_n_socket_create();
-	address->port = htons(VERSE_STD_CONNECT_TO_PORT);
+	address->port = VERSE_STD_CONNECT_TO_PORT;
 	/* If a port number is included, as indicated by a colon, we need to work a bit more. */
 	if((colon = strchr(host_name, ':')) != NULL)
 	{
