@@ -368,42 +368,42 @@ static void callback_send_g_layer_subscribe(void *user, VNodeID node_id, VLayerI
 		break;
 		case VN_G_LAYER_POLYGON_CORNER_UINT32 :
 			for(i = 0; i < node->poly_size; i++)
-				if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) -1 && !(((uint32 *)layer->layer)[i * 4] == layer->def.integer && ((uint32 *)layer->layer)[i * 4 + 1] == layer->def.integer && ((uint32 *)layer->layer)[i * 4 + 2] == layer->def.integer && ((uint32 *)layer->layer)[i * 4 + 3] == layer->def.integer))
+				if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) ~0u && !(((uint32 *)layer->layer)[i * 4] == layer->def.integer && ((uint32 *)layer->layer)[i * 4 + 1] == layer->def.integer && ((uint32 *)layer->layer)[i * 4 + 2] == layer->def.integer && ((uint32 *)layer->layer)[i * 4 + 3] == layer->def.integer))
 					verse_send_g_polygon_set_corner_uint32(node_id, layer_id, i, ((uint32 *)layer->layer)[i * 4], ((uint32 *)layer->layer)[i * 4 + 1], ((uint32 *)layer->layer)[i * 4 + 2], ((uint32 *)layer->layer)[i * 4 + 3]);
 		break;
 		case VN_G_LAYER_POLYGON_CORNER_REAL :
 			if(type == VN_FORMAT_REAL64)
 			{
 				for(i = 0; i < node->poly_size; i++)
-					if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) -1 && !(((real64 *)layer->layer)[i * 4] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 1] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 2] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 3] == layer->def.real))
+					if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) ~0u && !(((real64 *)layer->layer)[i * 4] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 1] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 2] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 3] == layer->def.real))
 						verse_send_g_polygon_set_corner_real64(node_id, layer_id, i, ((real64 *)layer->layer)[i * 4], ((real64 *)layer->layer)[i * 4 + 1], ((real64 *)layer->layer)[i * 4 + 2], ((real64 *)layer->layer)[i * 4 + 3]);
 			}else
 			{
 				for(i = 0; i < node->poly_size; i++)
-					if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) -1 && !(((real64 *)layer->layer)[i * 4] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 1] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 2] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 3] == layer->def.real))
+					if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) ~0u && !(((real64 *)layer->layer)[i * 4] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 1] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 2] == layer->def.real && ((real64 *)layer->layer)[i * 4 + 3] == layer->def.real))
 						verse_send_g_polygon_set_corner_real32(node_id, layer_id, i, (float)((real64 *)layer->layer)[i * 4], (float)((real64 *)layer->layer)[i * 4 + 1], (float)((real64 *)layer->layer)[i * 4 + 2], (float)((real64 *)layer->layer)[i * 4 + 3]);
 			}
 		break;
 		case VN_G_LAYER_POLYGON_FACE_UINT8 :
 			for(i = 0; i < node->poly_size; i++)
-				if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) -1 && ((uint8 *)layer->layer)[i] != layer->def.integer)
+				if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) ~0u && ((uint8 *)layer->layer)[i] != layer->def.integer)
 					verse_send_g_polygon_set_face_uint8(node_id, layer_id, i, ((uint8 *)layer->layer)[i]);
 		break;
 		case VN_G_LAYER_POLYGON_FACE_UINT32 :
 			for(i = 0; i < node->poly_size; i++)
-				if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) -1 && ((uint32 *)layer->layer)[i] != layer->def.integer)
+				if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) ~0u && ((uint32 *)layer->layer)[i] != layer->def.integer)
 					verse_send_g_polygon_set_face_uint32(node_id, layer_id, i, ((uint32 *)layer->layer)[i]);
 		break;
 		case VN_G_LAYER_POLYGON_FACE_REAL :
 			if(type == VN_FORMAT_REAL64)
 			{
 				for(i = 0; i < node->poly_size; i++)
-					if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) -1 && ((real64 *)layer->layer)[i] != layer->def.real)
+					if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) ~0u && ((real64 *)layer->layer)[i] != layer->def.real)
 						verse_send_g_polygon_set_face_real64(node_id, layer_id, i, ((real64 *)layer->layer)[i]);
 			}else
 			{
 				for(i = 0; i < node->poly_size; i++)
-					if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) -1 && ((real64 *)layer->layer)[i] != layer->def.real)
+					if(((uint32 *)node->layer[1].layer)[i * 4] != (uint32) ~0u && ((real64 *)layer->layer)[i] != layer->def.real)
 						verse_send_g_polygon_set_face_real32(node_id, layer_id, i, (float)((real64 *)layer->layer)[i]);
 			}
 		break;
