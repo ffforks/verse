@@ -1030,17 +1030,17 @@ unsigned int v_unpack_g_crease_set_edge(const char *buf, size_t buffer_length)
 	return buffer_pos;
 }
 
-void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint16 parent, real64 pos_x, real64 pos_y, real64 pos_z, const char *pos_label, const VNQuat64 *rot, const char *rot_label)
+void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint16 parent, real64 pos_x, real64 pos_y, real64 pos_z, const char *position_label, const char *rotation_label, const char *scale_label)
 {
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_160);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);	/* Pack the command. */
 #if defined V_PRINT_SEND_COMMANDS
-	printf("send: verse_send_g_bone_create(node_id = %u bone_id = %u weight = %s reference = %s parent = %u pos_x = %f pos_y = %f pos_z = %f pos_label = %s rot = %p rot_label = %s );\n", node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, pos_label, rot, rot_label);
+	printf("send: verse_send_g_bone_create(node_id = %u bone_id = %u weight = %s reference = %s parent = %u pos_x = %f pos_y = %f pos_z = %f position_label = %s rotation_label = %s scale_label = %s );\n", node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, position_label, rotation_label, scale_label);
 #endif
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], node_id);
 	buffer_pos += vnp_raw_pack_uint16(&buf[buffer_pos], bone_id);
@@ -1050,10 +1050,9 @@ void verse_send_g_bone_create(VNodeID node_id, uint16 bone_id, const char *weigh
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos_x);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos_y);
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], pos_z);
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], pos_label, 16);
-	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], rot_label, 16);
-	if(weight[0] != '\0')
-		buffer_pos += vnp_pack_quat64(&buf[buffer_pos], rot);
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], position_label, 16);
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], rotation_label, 16);
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], scale_label, 16);
 	if(node_id == (uint32) ~0u || bone_id == (uint16) ~0u)
 		v_cmd_buf_set_unique_address_size(head, 7);
 	else
@@ -1067,7 +1066,7 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id)
 	uint8 *buf;
 	unsigned int buffer_pos = 0;
 	VCMDBufHead *head;
-	head = v_cmd_buf_allocate(VCMDBS_1500);/* Allocating the buffer */
+	head = v_cmd_buf_allocate(VCMDBS_160);/* Allocating the buffer */
 	buf = ((VCMDBuffer10 *)head)->buf;
 
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 64);	/* Pack the command. */
@@ -1084,6 +1083,7 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id)
 	buffer_pos += vnp_raw_pack_real64(&buf[buffer_pos], V_REAL64_MAX);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
+	buffer_pos += vnp_raw_pack_string(&buf[buffer_pos], NULL, 16);
 	if(node_id == (uint32) ~0u || bone_id == (uint16) ~0u)
 		v_cmd_buf_set_unique_address_size(head, 7);
 	else
@@ -1095,7 +1095,7 @@ void verse_send_g_bone_destroy(VNodeID node_id, uint16 bone_id)
 unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 {
 	unsigned int buffer_pos = 0;
-	void (* func_g_bone_create)(void *user_data, VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint16 parent, real64 pos_x, real64 pos_y, real64 pos_z, const char *pos_label, const VNQuat64 *rot, const char *rot_label);
+	void (* func_g_bone_create)(void *user_data, VNodeID node_id, uint16 bone_id, const char *weight, const char *reference, uint16 parent, real64 pos_x, real64 pos_y, real64 pos_z, const char *position_label, const char *rotation_label, const char *scale_label);
 	VNodeID node_id;
 	uint16 bone_id;
 	char weight[16];
@@ -1104,9 +1104,9 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 	real64 pos_x;
 	real64 pos_y;
 	real64 pos_z;
-	char pos_label[16];
-	const VNQuat64 *rot;
-	char rot_label[16];
+	char position_label[16];
+	char rotation_label[16];
+	char scale_label[16];
 	
 	func_g_bone_create = v_fs_get_user_func(64);
 	if(buffer_length < 6)
@@ -1123,27 +1123,19 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &pos_x);
 	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &pos_y);
 	buffer_pos += vnp_raw_unpack_real64(&buf[buffer_pos], &pos_z);
-	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], pos_label, 16, buffer_length - buffer_pos);
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], position_label, 16, buffer_length - buffer_pos);
 	if(buffer_length < 0 + buffer_pos)
 		return -1;
-	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], rot_label, 16, buffer_length - buffer_pos);
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], rotation_label, 16, buffer_length - buffer_pos);
 	if(buffer_length < 0 + buffer_pos)
 		return -1;
+	buffer_pos += vnp_raw_unpack_string(&buf[buffer_pos], scale_label, 16, buffer_length - buffer_pos);
 #if defined V_PRINT_RECEIVE_COMMANDS
 	if(weight[0] == 0)
 		printf("receive: verse_send_g_bone_destroy(node_id = %u bone_id = %u ); callback = %p\n", node_id, bone_id, v_fs_get_alias_user_func(64));
 	else
-		printf("receive: verse_send_g_bone_create(node_id = %u bone_id = %u weight = %s reference = %s parent = %u pos_x = %f pos_y = %f pos_z = %f pos_label = %s rot_label = %s ); callback = %p\n", node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, pos_label, rot_label, v_fs_get_user_func(64));
+		printf("receive: verse_send_g_bone_create(node_id = %u bone_id = %u weight = %s reference = %s parent = %u pos_x = %f pos_y = %f pos_z = %f position_label = %s rotation_label = %s scale_label = %s ); callback = %p\n", node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, position_label, rotation_label, scale_label, v_fs_get_user_func(64));
 #endif
-	if(weight[0] != 0)
-	{
-		VNQuat64	tmp;
-		buffer_pos += vnp_unpack_quat64(&buf[buffer_pos], &tmp);
-		if(func_g_bone_create != NULL)
-			func_g_bone_create(v_fs_get_user_data(64), node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, pos_label, &tmp, rot_label);
-		return buffer_pos;
-	}
-
 	if(weight[0] == 0)
 	{
 		void (* alias_g_bone_destroy)(void *user_data, VNodeID node_id, uint16 bone_id);
@@ -1153,7 +1145,7 @@ unsigned int v_unpack_g_bone_create(const char *buf, size_t buffer_length)
 		return buffer_pos;
 	}
 	if(func_g_bone_create != NULL)
-		func_g_bone_create(v_fs_get_user_data(64), node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, pos_label, rot, rot_label);
+		func_g_bone_create(v_fs_get_user_data(64), node_id, bone_id, weight, reference, parent, pos_x, pos_y, pos_z, position_label, rotation_label, scale_label);
 
 	return buffer_pos;
 }
