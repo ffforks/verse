@@ -21,11 +21,6 @@ static struct {
 
 #define	LEFT(d)	(sizeof server_info.desc - (d - server_info.desc) - 1)
 
-void vs_master_disable(void)
-{
-	server_info.master = NULL;
-}
-
 void vs_master_set(const char *address)
 {
 	server_info.master = address;
