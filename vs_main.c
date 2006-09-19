@@ -90,7 +90,6 @@ static void cb_sigint_handler(int sig)
 
 static void callback_send_ping(void *user, const char *address, const char *message)
 {
-	printf("got ping: '%s'\n", message);
 	if(strncmp(message, "DESCRIBE", 8) == 0 && message[8] == ' ')
 		vs_master_handle_describe(address, message + 9);
 }
@@ -111,6 +110,7 @@ int main(int argc, char **argv)
 
 	signal(SIGINT, cb_sigint_handler);
 
+	vs_master_set(NULL);	/* Make sure it's off. */
 	for(i = 1; i < (uint32) argc; i++)
 	{
 		if(strcmp(argv[i], "-h") == 0)
