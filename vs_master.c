@@ -71,7 +71,7 @@ void vs_master_update(void)
 		return;
 	verse_send_ping(server_info.master, "MS:ANNOUNCE");
 	v_timer_start(&server_info.timer);
-	printf("MS:ANNOUNCE sent to %s\n", server_info.master);
+/*	printf("MS:ANNOUNCE sent to %s\n", server_info.master);*/
 }
 
 /* Check if a description request, of the form "A,B,C,...,D" includes the given keyword. This needs to
