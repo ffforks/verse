@@ -135,7 +135,7 @@ int main(int argc, char **argv)
 			fprintf(stderr, "Ignoring unknown argument \"%s\"\n", argv[i]);
 	}
 
-	printf("Verse Server r%up%u%s by Eskil Steenberg <http://www.blender.org/modules/verse/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
+	printf("Verse Server r%up%u%s by Eskil Steenberg <http://verse.blender.org/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
 	verse_set_port(port);	/* The Verse standard port. */
 	printf(" Listening on port %d\n", port);
 
