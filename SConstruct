@@ -154,7 +154,8 @@ lib_source_files += cmd_gen_deps
 
 server_source_files = (['vs_connection.c',
                         'vs_main.c',
-						'vs_node_audio.c',
+			'vs_master.c',
+			'vs_node_audio.c',
                         'vs_node_bitmap.c',
                         'vs_node_curve.c',
                         'vs_node_geometry.c',
