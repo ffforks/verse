@@ -1,12 +1,4 @@
-#
-# SConstruct for Verse
-#
-# This file is still quite crude, but it does it's job, and
-# is geared towards future extensions.
-#
-# I did this only on Windows so people should look into the
-# if...elif...
-# construction about the platform specific stuff.
+#!/usr/bin/env python
 #
 # I think it is quite straight-forward to add new platforms,
 # just look at the old makefile and at the existing platforms.
@@ -19,6 +11,7 @@
 
 import os
 import sys
+import re
 import time
 import string
 from distutils import sysconfig
@@ -50,15 +43,15 @@ elif sys.platform == 'linux2':
 elif sys.platform == 'openbsd3':
     print "Building on openbsd3"
 
+
+env_dict = env.Dictionary()
 if os.path.exists (config_file):
     print "Using config file: " + config_file
 else:
     print "Creating new config file: " + config_file
-    env_dict = env.Dictionary()
     config = open (config_file, 'w')
     config.write ("#Configuration file for verse SCons user definable options.\n")
     config.write ("BUILD_BINARY = 'release'\n")
-    config.write ("REGEN_PROTO = 'yes'\n")
     config.write ("\n# Compiler information.\n")
     config.write ("HOST_CC = %r\n"%(env_dict['CC']))
     config.write ("HOST_CXX = %r\n"%(env_dict['CXX']))
@@ -70,20 +63,20 @@ else:
 user_options_env = Environment()
 user_options = Options (config_file)
 user_options.AddOptions(
-    (EnumOption ('BUILD_BINARY', 'release',
-        'Build a release or debug binary.',
+    (EnumOption ('BUILD_BINARY',
+        'Build a release or debug binary.', 'release',
         allowed_values = ('release', 'debug'))),
     ('BUILD_DIR', 'Target directory for intermediate files.',
         root_build_dir),
-    (EnumOption ('REGEN_PROTO', 'yes',
-        'Whether to regenerate the protocol files',
+    (EnumOption ('REGEN_PROTO',
+        'Whether to regenerate the protocol files', 'no',
         allowed_values = ('yes', 'no'))),
-    ('HOST_CC', 'C compiler for the host platfor. This is the same as target platform when not cross compiling.'),
-    ('HOST_CXX', 'C++ compiler for the host platform. This is the same as target platform when not cross compiling.'),
-    ('TARGET_CC', 'C compiler for the target platform.'),
-    ('TARGET_CXX', 'C++ compiler for the target platform.'),
-    ('TARGET_AR', 'Linker command for linking libraries.'),
-    ('PATH', 'Standard search path')
+    ('HOST_CC', 'C compiler for the host platfor. This is the same as target platform when not cross compiling.', env_dict['CC']),
+    ('HOST_CXX', 'C++ compiler for the host platform. This is the same as target platform when not cross compiling.', env_dict['CXX']),
+    ('TARGET_CC', 'C compiler for the target platform.', env_dict['CC']),
+    ('TARGET_CXX', 'C++ compiler for the target platform.', env_dict['CXX']),
+    ('TARGET_AR', 'Linker command for linking libraries.', env_dict['AR']),
+    ('PATH', 'Standard search path', os.environ['PATH'])
 )
 user_options.Update (user_options_env)
 user_options_dict = user_options_env.Dictionary()
@@ -100,11 +93,12 @@ else:
         #defines += ['_DEBUG'] specifying this makes msvc want to link to python22_d.lib??
         platform_linkflags += ['/DEBUG','/PDB:verse.pdb']
 
-library_env = Environment()
-library_env.Replace (CC = user_options_dict['TARGET_CC'])
-library_env.Replace (CXX = user_options_dict['TARGET_CXX'])
-library_env.Replace (PATH = user_options_dict['PATH'])
-library_env.Replace (AR = user_options_dict['TARGET_AR'])
+
+env = Environment()
+env.Replace (CC = user_options_dict['TARGET_CC'])
+env.Replace (CXX = user_options_dict['TARGET_CXX'])
+env.Replace (PATH = user_options_dict['PATH'])
+env.Replace (AR = user_options_dict['TARGET_AR'])
 
 cmd_gen_files = (['v_cmd_gen.c',
 				  'v_cmd_def_a.c',
@@ -117,22 +111,30 @@ cmd_gen_files = (['v_cmd_gen.c',
 				  'v_cmd_def_t.c'
 				  ])
 
-cmd_gen_deps = (['v_gen_pack_init.c',
-				 'v_gen_pack_a_node.c',
-				 'v_gen_pack_b_node.c',
-				 'v_gen_pack_c_node.c',
-				 'v_gen_pack_g_node.c',
-				 'v_gen_pack_m_node.c',
-				 'v_gen_pack_o_node.c',
-				 'v_gen_pack_s_node.c',
-				 'v_gen_pack_t_node.c',
-				])
+cmd_gen_deps = (['v_gen_pack_init.c'])
 
-if user_options_dict['REGEN_PROTO']=='yes':
-    cmd_gen_env = library_env.Copy()
-    cmd_gen_env.Append(CPPDEFINES=['V_GENERATE_FUNC_MODE'])
-    mkprot = cmd_gen_env.Program(target='mkprot', source=cmd_gen_files)
-    cmd_gen_env.Command('regen', '' , 'mkprot')
+proto_env = env.Copy()
+proto_env.Append(CPPDEFINES=['V_GENERATE_FUNC_MODE'])
+mkprot_tool = proto_env.Program(target = 'mkprot', source = cmd_gen_files)
+
+mkprot_re = re.compile('v_cmd_def_([a-z]{1}).c')
+def mkprot_emitter(target = None, source = None, env = None):
+	newtargets = list()
+	for s in source:
+		m = mkprot_re.match(str(s))
+		if m:
+			newtargets.append("v_gen_pack_"+m.group(1)+"_node.c")
+	newtargets.extend(['verse.h'])
+	env.Depends(newtargets, mkprot_tool)
+	return (newtargets, source)
+
+mkprot_bld = Builder(action = "\"" + mkprot_tool[0].abspath + "\"",
+			emitter = mkprot_emitter)
+
+env['BUILDERS']['Protocol'] = mkprot_bld
+
+cmd_gen_deps.extend(env.Protocol('do_mkprot', cmd_gen_files))
+cmd_gen_deps.pop()
 
 lib_source_files = (['v_cmd_buf.c',
 					 'v_connect.c',
@@ -150,12 +152,12 @@ lib_source_files = (['v_cmd_buf.c',
 					 'v_util.c',
 					 'v_bignum.c'
 					 ])
-lib_source_files += cmd_gen_deps
+lib_source_files.extend(cmd_gen_deps)
 
 server_source_files = (['vs_connection.c',
                         'vs_main.c',
-			'vs_master.c',
-			'vs_node_audio.c',
+                        'vs_master.c',
+                        'vs_node_audio.c',
                         'vs_node_bitmap.c',
                         'vs_node_curve.c',
                         'vs_node_geometry.c',
@@ -169,16 +171,16 @@ server_source_files = (['vs_connection.c',
 
 verse_example_sources = (['examples/list-nodes.c'])
 
-verselib_env = library_env.Copy()
+verselib_env = env.Copy()
 verselib_env.Append(CPPDEFINES = defines)
 
-verseserver_env = library_env.Copy()
+verseserver_env = env.Copy()
 verseserver_env.Append(CPPDEFINES = defines)
 verseserver_env.Append (LIBS=['libverse'])
 verseserver_env.Append (LIBPATH = ['.'])
 verseserver_env.Append (LIBS= platform_libs)
 
-verseexample_env = library_env.Copy()
+verseexample_env = env.Copy()
 verseexample_env.Append(CPPDEFINES = defines)
 verseexample_env.Append (LIBS=['libverse'])
 verseexample_env.Append (LIBPATH = ['.'])
@@ -186,7 +188,6 @@ verseexample_env.Append (LIBS= platform_libs)
 verseexample_env.Append (CPPPATH = ['.'])
 
 verselib = verselib_env.Library(target='libverse', source=lib_source_files)
-if user_options_dict['REGEN_PROTO']=='yes':
-    verselib_env.Depends(verselib, mkprot)
 verseserver_env.Program(target='verse', source=server_source_files)
 verseexample_env.Program(target='list-nodes', source=verse_example_sources)
+
