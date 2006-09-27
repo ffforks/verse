@@ -97,7 +97,11 @@ static void callback_send_ping(void *user, const char *address, const char *mess
 static void usage(void)
 {
 	printf("Verse server usage:\n");
-	printf(" -master=IP[:PORT]\tSet master server to register with. Disabled by default.\n");
+	printf(" -h\t\t\tShow this usage information.\n");
+	printf(" -ms\t\t\tRegisters the server with a master server at the address\n");
+	printf(" \t\t\tgiven with the -ms:ip= option.\n");
+	printf(" -ms:ip=IP[:PORT]\tSet master server to register with. Implies -ms.\n");
+	printf(" \t\t\tThe default address is <%s>.\n", vs_master_get_address());
 	printf(" -ms:de=DESC\t\tSet description, sent to master server.\n");
 	printf(" -ms:ta=TAGS\t\tSet tags, sent to master server.\n");
 	printf(" -port=PORT\t\tSet port to use for incoming connections.\n");
@@ -110,7 +114,8 @@ int main(int argc, char **argv)
 
 	signal(SIGINT, cb_sigint_handler);
 
-	vs_master_set(NULL);	/* Make sure it's off. */
+	vs_master_set_address("master.uni-verse.org");		/* The default master address. */
+	vs_master_set_enabled(FALSE);				/* Make sure master server support is disabled. */
 	for(i = 1; i < (uint32) argc; i++)
 	{
 		if(strcmp(argv[i], "-h") == 0)
@@ -118,8 +123,13 @@ int main(int argc, char **argv)
 			usage();
 			return EXIT_SUCCESS;
 		}
-                else if(strncmp(argv[i], "-master=", 8) == 0)
-                        vs_master_set(argv[i] + 8);
+		else if(strcmp(argv[i], "-ms") == 0)
+			vs_master_set_enabled(TRUE);
+                else if(strncmp(argv[i], "-ms:ip=", 7) == 0)
+		{
+                        vs_master_set_address(argv[i] + 7);
+			vs_master_set_enabled(TRUE);
+		}
                 else if(strncmp(argv[i], "-ms:de=", 7) == 0)
                         vs_master_set_desc(argv[i] + 7);
                 else if(strncmp(argv[i], "-ms:ta=", 7) == 0)
@@ -132,7 +142,7 @@ int main(int argc, char **argv)
 			return EXIT_SUCCESS;
 		}
 		else
-			fprintf(stderr, "Ignoring unknown argument \"%s\"\n", argv[i]);
+			fprintf(stderr, "Ignoring unknown argument \"%s\", try -h for help\n", argv[i]);
 	}
 
 	printf("Verse Server r%up%u%s by Eskil Steenberg <http://verse.blender.org/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
