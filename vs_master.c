@@ -12,16 +12,27 @@
 #define	MASTER_SERVER_PERIOD	(60.0)	/* Period between ANNOUNCE to master server, in seconds. */
 
 static struct {
+	boolean		enabled;
 	boolean		started;
-	VUtilTimer	timer;
 	const char	*master;
 	char		desc[64];
 	const char	*tags;
+	VUtilTimer	timer;
 } server_info;
 
 #define	LEFT(d)	(sizeof server_info.desc - (d - server_info.desc) - 1)
 
-void vs_master_set(const char *address)
+void vs_master_set_enabled(boolean enabled)
+{
+	server_info.enabled = enabled;
+}
+
+const char * vs_master_get_address(void)
+{
+	return server_info.master;
+}
+
+void vs_master_set_address(const char *address)
 {
 	server_info.master = address;
 }
@@ -57,7 +68,7 @@ void vs_master_set_tags(const char *tags)
 
 void vs_master_update(void)
 {
-	if(server_info.master == NULL)
+	if(!server_info.enabled || server_info.master == NULL)
 		return;
 
 	if(!server_info.started)
