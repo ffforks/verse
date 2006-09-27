@@ -99,7 +99,7 @@ static void usage(void)
 	printf("Verse server usage:\n");
 	printf(" -h\t\t\tShow this usage information.\n");
 	printf(" -ms\t\t\tRegisters the server with a master server at the address\n");
-	printf(" \t\t\tgiven with the -ms:ip= option.\n");
+	printf(" \t\t\tgiven with the -ms:ip= option. Off by default.\n");
 	printf(" -ms:ip=IP[:PORT]\tSet master server to register with. Implies -ms.\n");
 	printf(" \t\t\tThe default address is <%s>.\n", vs_master_get_address());
 	printf(" -ms:de=DESC\t\tSet description, sent to master server.\n");
