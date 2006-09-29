@@ -1,4 +1,9 @@
-/* A minimalist Verse example. Ask server for nodes, print information. */
+/* A minimalist Verse example. Ask server for nodes, print information.
+ * 
+ * In Linux, this can be built with a command like so:
+ * 
+ * gcc -o list-nodes -I.. list-nodes.c  -L.. -lverse
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
