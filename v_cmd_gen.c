@@ -11,8 +11,8 @@
 #include "v_cmd_gen.h"
 
 #if defined _WIN32
-#define chdir	_chdir
-#define	snprint	_snprintf
+#define chdir		_chdir
+#define	snprintf	_snprintf
 #endif
 
 #if defined V_GENERATE_FUNC_MODE
