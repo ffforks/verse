@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "verse_header.h"
 #include "v_cmd_buf.h"
@@ -11,6 +12,7 @@
 #include "v_cmd_gen.h"
 
 #if defined _WIN32
+#include <direct.h>
 #define chdir		_chdir
 #define	snprintf	_snprintf
 #endif
@@ -158,9 +160,9 @@ void v_cg_new_manual_cmd(unsigned int cmd_id, const char *name, const char *def,
 	fprintf(VCGData.verse_h, "extern %s;\n", def);
 	if(alias_def != NULL)
 		fprintf(VCGData.verse_h, "extern %s;\n", alias_def);
-	fprintf(VCGData.init, "\tv_fs_add_func(%i, v_unpack_%s, verse_send_%s, ", cmd_id, name, name);
+	fprintf(VCGData.init, "\tv_fs_add_func(%i, v_unpack_%s, (void *) verse_send_%s, ", cmd_id, name, name);
 	if(alias_name != NULL)
-		fprintf(VCGData.init, "verse_send_%s);\n", alias_name);
+		fprintf(VCGData.init, "(void *) verse_send_%s);\n", alias_name);
 	else
 		fprintf(VCGData.init, "NULL);\n");
 	fprintf(VCGData.unpack, "extern unsigned int v_unpack_%s(const char *data, size_t length);\n", name);
