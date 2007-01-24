@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "verse_header.h"
 #include "v_cmd_buf.h"
@@ -11,6 +12,7 @@
 #include "v_cmd_gen.h"
 
 #if defined _WIN32
+#include <direct.h>
 #define chdir		_chdir
 #define	snprintf	_snprintf
 #endif
