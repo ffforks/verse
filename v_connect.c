@@ -71,9 +71,9 @@ static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypte
 	/* Pad data area with randomness. */
 	for(i = 0; i < sizeof name_pass; i++)
 		name_pass[i] = rand() >> 13;
-	v_strlcpy(name_pass, name, V_ENCRYPTION_LOGIN_KEY_SIZE / 2);
+	v_strlcpy((char *) name_pass, name, V_ENCRYPTION_LOGIN_KEY_SIZE / 2);
 	pass = v_con_get_pass();
-	v_strlcpy(name_pass + V_ENCRYPTION_LOGIN_KEY_SIZE / 2, pass, V_ENCRYPTION_LOGIN_KEY_SIZE / 2);
+	v_strlcpy((char *) name_pass + V_ENCRYPTION_LOGIN_KEY_SIZE / 2, pass, V_ENCRYPTION_LOGIN_KEY_SIZE / 2);
 	/* Make sure last (MSB) byte is clear, to guarantee that data < key for RSA math. */
 	name_pass[sizeof name_pass - 1] = 0;
 	key = v_con_get_other_key();
@@ -293,7 +293,8 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 #endif
 		if(stage == V_CS_CONTACTED && V_CS_CONTACTED == v_con_get_connect_stage()) /* reseved by host */
 		{
-			char *host_id, unpack[V_ENCRYPTION_LOGIN_KEY_SIZE], data[V_ENCRYPTION_LOGIN_KEY_SIZE];
+			uint8 unpack[V_ENCRYPTION_LOGIN_KEY_SIZE];
+			uint8 *host_id, data[V_ENCRYPTION_LOGIN_KEY_SIZE];
 			VNetworkAddress *address;
 			verse_send_packet_ack(pack_id);
 			address = v_con_get_network_address();
@@ -301,7 +302,7 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length) /* un pack
 				buffer_pos += vnp_raw_unpack_uint8(&buf[buffer_pos], &data[i]);
 			host_id = v_con_get_host_id();
 			v_e_connect_encrypt(unpack, data, &host_id[V_ENCRYPTION_LOGIN_PRIVATE_START], &host_id[V_ENCRYPTION_LOGIN_N_START]);
-			v_con_set_name_pass(unpack, &unpack[V_ENCRYPTION_LOGIN_KEY_SIZE / 2]);
+			v_con_set_name_pass((char *) unpack, (char *) &unpack[V_ENCRYPTION_LOGIN_KEY_SIZE / 2]);
 			v_con_set_connect_stage(V_CS_PENDING_HOST_CALLBACK);
 			return; 
 		}
