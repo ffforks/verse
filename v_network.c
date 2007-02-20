@@ -162,7 +162,7 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 	return ok;
 }
 
-int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
+int v_n_send_data(VNetworkAddress *address, const void *data, size_t length)
 {
 	struct sockaddr_in	address_in;
 	VSocket			sock;
@@ -206,7 +206,7 @@ unsigned int v_n_wait_for_incoming(unsigned int microseconds)
 
 #endif
 
-int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
+int v_n_receive_data(VNetworkAddress *address, void *data, size_t length)
 {
 	struct	sockaddr_in address_in;
 	size_t	from_length = sizeof address_in, len;
