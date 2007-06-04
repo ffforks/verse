@@ -27,7 +27,7 @@ static void v_send_hidden_connect_contact(void) /*  Stage 0: Clinets inital call
 	unsigned int i, buffer_pos = 0;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 0);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);/* Packing the command */
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);/* Stage 0 */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], V_CS_IDLE);/* Stage 0 */
 
 	key = v_con_get_my_key();
 	for(i = 0; i < V_ENCRYPTION_LOGIN_KEY_SIZE; i++)
@@ -44,7 +44,7 @@ static void v_send_hidden_connect_send_key(void) /*  Stage 1: Hosts reply to any
 	unsigned int i, buffer_pos = 0, s, f;
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 0);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);/* Packing the command */
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 1);/* Stage 1 */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], V_CS_CONTACT);/* Stage 1 */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], V_RELEASE_NUMBER);/* version */
 	v_n_get_current_time(&s, &f);
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], s);/* time, seconds */
@@ -66,7 +66,7 @@ static void v_send_hidden_connect_login(void) /* Stage 2: clients sends encrypte
 
 	buffer_pos += vnp_raw_pack_uint32(&buf[buffer_pos], 1);/* Packing the packet id */
 	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 0);/* Packing the command */
-	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], 2);/* Stage 2 */
+	buffer_pos += vnp_raw_pack_uint8(&buf[buffer_pos], V_CS_CONTACTED);/* Stage 2 */
 	name = v_con_get_name();
 	/* Pad data area with randomness. */
 	for(i = 0; i < sizeof name_pass; i++)
