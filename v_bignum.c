@@ -848,7 +848,7 @@ int main(void)
 	v_bignum_print_hex_lf(x);
 	printf("y:");
 	v_bignum_print_hex_lf(y);
-	printf("r:");
+	printf("z:");
 	v_bignum_print_hex_lf(z);
 	v_bignum_pow_mod(x, y, z);
 	printf(" =");
