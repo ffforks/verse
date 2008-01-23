@@ -8,8 +8,8 @@
 #
 
 CC	?= gcc
-CFLAGS	?= "-I$(shell pwd)" -Wall -Wextra -Wpointer-arith -Wno-unused-parameter -ansi -g -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386
-LDFLAGS	?= -lpam -pg -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386
+CFLAGS	?= "-I$(shell pwd)" -Wall -Wextra -Wpointer-arith -Wno-unused-parameter -ansi -g -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch ppc -arch ppc64 -arch i386 -arch x86_64
+LDFLAGS	?= -lpam -pg -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -arch ppc -arch ppc64 -arch i386 -arch x86_64
 
 AR	?= ar
 ARFLAGS	= -rus
