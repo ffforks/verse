@@ -1,0 +1,4 @@
+Configuration of PAM
+====================
+
+This direcory contains examples of configuration files with verse PAM configuration. If you want to try to use them, then select one of them, rename this file to "verse" and copy this file to /etc/pam.d/. Keep in mind, that user form groups and other users chould only read this file and root should be owner of this configuration file.

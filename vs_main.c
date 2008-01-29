@@ -2,6 +2,26 @@
 ** A simple Verse server.
 */
 
+#if defined _WIN32
+/* Windows doesn't use PAM ... we have to find some similar solution for Windows */
+#else
+/* on UNIX like OS add PAM header files */
+#define VERSE_WITH_PAM 1
+#if defined  __APPLE__
+/* MAC OS X */
+#include <pam/pam_appl.h>
+#include <pam/pam_misc.h>
+#elif defined __linux__
+/* Linux */
+#include <security/pam_appl.h>
+#include <security/pam_misc.h>
+#else
+/* Add path for PAM header files for other UNIX operating systems */
+#undef VERSE_WITH_PAM
+#endif
+/* end of PAM */
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -20,14 +40,139 @@ extern VNodeID	vs_node_create(VNodeID owner_id, unsigned int type);
 extern void	callback_send_node_destroy(void *user_data, VNodeID node_id);
 extern void	vs_reset_owner(VNodeID owner_id);
 
+#if defined VERSE_WITH_PAM
+
+/* verse conversation function for PAM */
+int verse_conv(int num_msg,
+						const struct pam_message **msg,
+						struct pam_response **resp,
+						void *appdata_ptr)
+{
+	struct pam_response *r;
+	int i;
+
+	if (num_msg <= 0 || num_msg > PAM_MAX_NUM_MSG)
+		return (PAM_CONV_ERR);
+
+	if((r=calloc(num_msg,sizeof *r))==NULL)
+		return PAM_BUF_ERR;
+	
+	for(i=0;i<num_msg; i++) {
+		r[i].resp = NULL;
+		r[i].resp_retcode = 0;
+		
+		switch(msg[i]->msg_style) {
+			case PAM_PROMPT_ECHO_ON:
+				fprintf(stdout, "%s", msg[i]->msg);
+				/* not neccessary for out needs */
+				break;
+			case PAM_PROMPT_ECHO_OFF:
+				if(strcmp("Password:",msg[i]->msg)==0) {
+					r[i].resp = strdup((char*)appdata_ptr);
+					if(r[i].resp == NULL)
+						goto fail;
+				}
+				else {
+					fprintf(stdout, "%s", msg[i]->msg);
+				}
+				break;
+			case PAM_ERROR_MSG:
+				fprintf(stderr, "%s\n", msg[i]->msg);
+				break;
+			case PAM_TEXT_INFO:
+				fprintf(stdout, "%s\n", msg[i]->msg);
+				break;
+			default:
+				goto fail;
+		}
+	}
+	*resp = r;
+
+	return PAM_SUCCESS;
+fail:
+	for (i = 0; i < num_msg; i++) {
+		if (r[i].resp != NULL) {
+			memset(r[i].resp, 0, strlen(r[i].resp));
+			free(r[i].resp);
+		}
+	}
+
+	memset(r, 0, num_msg * sizeof *r);
+	*resp = NULL;
+
+	return PAM_CONV_ERR;
+}
+
+/* variable storing pointer at PAM conversation function and application data */
+static struct pam_conv conv = {verse_conv, NULL};
+
+/* terminate pam transaction */
+static void end_user_authentication(pam_handle_t *pamh, int retval)
+{
+	conv.appdata_ptr = NULL;
+	
+	if(pam_end(pamh, retval) != PAM_SUCCESS) {
+		pamh = NULL;
+		fprintf(stderr, "Failed to release authentificator.\n");
+	}
+}
+
+/* authentification of user, it uses only name and password now */
+static int authenticate_user(const char *name,
+								const char *pass,
+								const char *address)
+{
+	pam_handle_t *pamh = NULL;
+	int retval;
+	
+	conv.appdata_ptr = (void*)pass;
+	
+	/* initialization of pam transaction */
+	if((retval = pam_start("verse", name, &conv, &pamh)) == PAM_SUCCESS) {
+		printf("DEBUG: pam_start [OK]\n");
+		/* authenticate user */
+		if((retval = pam_authenticate(pamh, 0)) == PAM_SUCCESS) {
+			printf("DEBUG: pam_authenticate [OK]\n");
+			/* is user's account valid? */
+			if((retval = pam_acct_mgmt(pamh, 0)) == PAM_SUCCESS) {
+				printf("DEBUG: pam_acct_mgmt [OK]\n");
+				end_user_authentication(pamh, retval);
+				return TRUE;
+			}
+			else {
+				printf("DEBUG: pam_acct_mgmt [failed] %d\n", retval);
+				end_user_authentication(pamh, retval);
+				return FALSE;
+			}
+		}
+		else {
+			printf("DEBUG: pam_authenticate [failed] %d\n", retval);
+			end_user_authentication(pamh, retval);
+			return FALSE;
+		}
+	}
+	else {
+		printf("DEBUG: pam_start [failed] %d\n", retval);
+		end_user_authentication(pamh, retval);
+		return FALSE;
+	}
+}
+
+#endif
+
 static void callback_send_connect(void *user, const char *name, const char *pass, const char *address, const uint8 *host_id)
 {
 	VNodeID avatar;
 	VSession *session;
 
-	printf("Connecting '%s'\n", name);
+	printf("Connecting '%s' from %s ... ", name, address);
+#if defined VERSE_WITH_PAM
+	if(authenticate_user(name, pass, address))
+#else
 	if(TRUE)
+#endif
 	{
+		printf("OK\n");
 		avatar = vs_node_create(~0, V_NT_OBJECT);
 		session = verse_send_connect_accept(avatar, address, NULL);
 		vs_add_new_connection(session, name, pass, avatar);
@@ -35,7 +180,8 @@ static void callback_send_connect(void *user, const char *name, const char *pass
 	}
 	else
 	{
-		verse_send_connect_terminate(address, "I'm sorry but you are not welcome here.");
+		printf("failed\n");
+		verse_send_connect_terminate(address, "I'm sorry, but you are not welcome here.");
 	}
 }
 
