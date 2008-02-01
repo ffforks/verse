@@ -9,7 +9,7 @@
 
 CC	?= gcc
 CFLAGS	?= "-I$(shell pwd)" -Wall -Wpointer-arith -Wno-unused-parameter -ansi -g # -pg -O2 -finline-functions
-LDFLAGS	?= #-pg
+LDFLAGS	?= -lpam #-pg
 
 AR	?= ar
 ARFLAGS	= rus
