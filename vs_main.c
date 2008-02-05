@@ -64,10 +64,10 @@ int verse_conv(int num_msg,
 		switch(msg[i]->msg_style) {
 			case PAM_PROMPT_ECHO_ON:
 				fprintf(stdout, "%s", msg[i]->msg);
-				/* not neccessary for out needs */
+				/* not neccessary for our needs */
 				break;
 			case PAM_PROMPT_ECHO_OFF:
-				if(strcmp("Password:",msg[i]->msg)==0) {
+				if(strncmp("Password:",msg[i]->msg,9)==0) {
 					r[i].resp = strdup((char*)appdata_ptr);
 					if(r[i].resp == NULL)
 						goto fail;
