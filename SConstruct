@@ -40,8 +40,10 @@ if sys.platform == 'win32':
     platform_libs = ['ws2_32']
 elif sys.platform == 'linux2':
     print "Building on linux2"
+    platform_libs = ['pam']
 elif sys.platform == 'openbsd3':
     print "Building on openbsd3"
+    platform_libs = ['pam']
 
 
 env_dict = env.Dictionary()
