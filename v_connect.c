@@ -121,7 +121,7 @@ VSession verse_send_connect(const char *name, const char *pass, const char *addr
 #if defined(V_PRINT_SEND_COMMANDS)
 		char ip_string[32];
 #endif
-		session = v_con_connect(a.ip, a.port, V_CS_CONTACT);
+		session = v_con_connect(&a, V_CS_CONTACT);
 #if defined(V_PRINT_SEND_COMMANDS)
 		v_n_get_address_string(&a, ip_string);
 		printf("send: %p = verse_send_connect(name = %s, pass = %s, address = %s (%s), expected_key = %p)\n", session, name, pass, address, ip_string, expected_key);
@@ -340,7 +340,7 @@ VSession verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *h
 
 	if(!v_n_set_network_address(&a, address))
 		return NULL;
-	if(v_co_switch_connection(a.ip, a.port))
+	if(v_co_switch_connection(&a))
 	{
 		if(v_con_get_connect_stage() != V_CS_PENDING_DECISION)
 			return NULL;
@@ -378,12 +378,14 @@ void verse_send_connect_terminate(const char *address, const char *bye)
 		v_send_hidden_connect_terminate(v_con_get_network_address(), v_noq_get_next_out_packet_id(v_con_get_network_queue()), bye);
 	else if(!v_n_set_network_address(&a, address))
 		return;
-	else if(v_co_switch_connection(a.ip, a.port))
+	else if(v_co_switch_connection(&a))
 		v_send_hidden_connect_terminate(v_con_get_network_address(), v_noq_get_next_out_packet_id(v_con_get_network_queue()), bye);
 
 	if(v_con_get_connect_stage() != V_CS_PENDING_DECISION)
 		verse_session_destroy(v_con_get_network_queue());
 }
+
+/* Evil PING stuff */
 
 void verse_send_ping(const char *address, const char *message)
 {
@@ -425,15 +427,14 @@ unsigned int v_unpack_ping(const char *buf, size_t buffer_length)
 }
 
 typedef struct {
-	uint32	ip;
-	uint16	port;
 	char	message[1400];
 	void	*next;
+	VNetworkAddress address;
 } VPingCommand;
 
 static VPingCommand *v_ping_commands = NULL;
 
-boolean v_connect_unpack_ping(const char *buf, size_t buffer_length, uint32 ip, uint16 port)
+boolean v_connect_unpack_ping(const char *buf, size_t buffer_length, VNetworkAddress *address)
 {
 	if(buffer_length > 5)
 	{
@@ -450,8 +451,7 @@ boolean v_connect_unpack_ping(const char *buf, size_t buffer_length, uint32 ip, 
 				VPingCommand *pc;
 
 				pc = malloc(sizeof *pc);
-				pc->ip = ip;
-				pc->port = port;
+				memcpy(&pc->address, address, sizeof(VNetworkAddress));
 				vnp_raw_unpack_string(&buf[buffer_pos], pc->message,
 						      sizeof pc->message, buffer_length - buffer_pos);
 				pc->next = v_ping_commands;
@@ -467,16 +467,13 @@ void v_ping_update(void)
 {
 	VPingCommand *cp;
 	void (* func_ping)(void *user_data, const char *address, const char *text);
-	VNetworkAddress a;
 	char address[64];
 	func_ping = v_fs_get_user_func(5);
 
 	while(v_ping_commands != NULL)
 	{
 		cp = v_ping_commands->next;
-		a.ip = v_ping_commands->ip;
-		a.port = v_ping_commands->port;
-		v_n_get_address_string(&a, address);	
+		v_n_get_address_string(&v_ping_commands->address, address);
 #if defined V_PRINT_RECEIVE_COMMANDS
 		printf("receive: verse_send_ping(address = %s message = %s ); callback = %p\n", address, v_ping_commands->message, v_fs_get_user_func(5));
 #endif

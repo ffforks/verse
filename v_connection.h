@@ -53,10 +53,10 @@ extern void *			v_con_get_network_address_id(unsigned int id);
 extern unsigned int *	v_con_get_network_expected_packet(void);
 extern void *			v_con_get_ordered_storage(void);
 extern void *			v_con_get_func_storage(void);
-extern void *			v_con_connect(uint32 ip, uint16 port, VConnectStage stage);
+extern void *			v_con_connect(VNetworkAddress *address, VConnectStage stage);
 extern unsigned int		v_con_get_network_address_count(void);
 
-extern boolean			v_co_switch_connection(uint32 ip, uint16 port);
+extern boolean			v_co_switch_connection(VNetworkAddress *address);
 
 extern void			v_con_inqueue_timer_update(void);
 

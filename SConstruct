@@ -40,6 +40,7 @@ if sys.platform == 'win32':
     platform_libs = ['ws2_32']
 elif sys.platform == 'linux2':
     print "Building on linux2"
+    debug_flags = ['-ggdb']
     platform_libs = ['pam']
 elif sys.platform == 'openbsd3':
     print "Building on openbsd3"

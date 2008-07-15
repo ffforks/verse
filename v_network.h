@@ -5,11 +5,15 @@
 #if !defined V_NETWORK_H
 #define	V_NETWORK_H
 
+#include <netinet/in.h>
+
 #define VERSE_STD_CONNECT_PORT 4950
 
 typedef struct{
-	unsigned int ip;
-	unsigned short port;
+	/* IPv4 & IPv6 */
+	unsigned int addrtype;
+	struct sockaddr_in addr4;
+	struct sockaddr_in6 addr6;
 }VNetworkAddress;
 
 extern void		v_n_set_port(unsigned short port);

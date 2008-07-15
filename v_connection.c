@@ -94,7 +94,7 @@ extern void *v_fs_create_func_storage(void);
 extern void *v_create_ordered_storage(void);
 extern void v_destroy_ordered_storage(void *data);
 
-void *v_con_connect(uint32 ip, uint16 port, VConnectStage stage) /* creates a new connection slot */
+void *v_con_connect(VNetworkAddress *address, VConnectStage stage) /* creates a new connection slot */
 {
 	v_con_init(); /* init connections, if not done yet */
 	if((VConData.con_count - 1) % CONNECTION_CHUNK_SIZE == 0) /* do we need more slots for connections, then reallocate more space */
@@ -102,8 +102,7 @@ void *v_con_connect(uint32 ip, uint16 port, VConnectStage stage) /* creates a ne
 	VConData.con[VConData.con_count].out_queue = v_noq_create_network_queue(); /* create a out queue fo all out going commands */
 	v_niq_clear(&VConData.con[VConData.con_count].in_queue); /* clear and init the que of incomming packets.*/
 	VConData.con[VConData.con_count].connected = FALSE; /* not yet propperly connected and should not accept commands yet */
-	VConData.con[VConData.con_count].network_address.ip = ip; /* ip address of other side */
-	VConData.con[VConData.con_count].network_address.port = port; /* port used by other side */
+	memcpy((char*)&VConData.con[VConData.con_count].network_address, (char*)address, sizeof(*address)); /* address and port of other side*/
 	VConData.con[VConData.con_count].avatar = 0; /* no avatar set yet*/
 /*	VConData.con[VConData.con_count].packet_id = 2;*/
 	VConData.con[VConData.con_count].destroy_flag = FALSE; /* this is a flag that is set once the connection is about to be destroyed.*/
@@ -145,15 +144,15 @@ VSession verse_session_get(void)
 	return NULL;
 }
 
-uint32 v_co_find_connection(uint32 ip, uint16 port) /* if a packet comes form a ip address what connection does it belong to? */
+uint32 v_co_find_connection(VNetworkAddress *address) /* if a packet comes from a ip address what connection does it belong to? */
 {
 	unsigned int i;
 
 	for(i = 0; i < VConData.con_count; i++)
 	{
-		if(ip == VConData.con[i].network_address.ip &&
-		   port == VConData.con[i].network_address.port &&
-		   VConData.con[i].destroy_flag == 0)
+		if(address->addr4.sin_addr.s_addr == VConData.con[i].network_address.addr4.sin_addr.s_addr &&
+						address->addr4.sin_port == VConData.con[i].network_address.addr4.sin_port &&
+						VConData.con[i].destroy_flag == 0)
 		{
 			return i;
 		}
@@ -161,12 +160,13 @@ uint32 v_co_find_connection(uint32 ip, uint16 port) /* if a packet comes form a 
 	return -1;
 }
 
-boolean v_co_switch_connection(uint32 ip, uint16 port) /* switches to the current connection to one ip address if it exists */
+boolean v_co_switch_connection(VNetworkAddress *address) /* switches to the current connection to one ip address if it exists */
 {
 	unsigned int i;
 	for(i = 0; i < VConData.con_count; i++)
 	{
-		if(ip == VConData.con[i].network_address.ip && port == VConData.con[i].network_address.port)
+		if(address->addr4.sin_addr.s_addr == VConData.con[i].network_address.addr4.sin_addr.s_addr &&
+						address->addr4.sin_port == VConData.con[i].network_address.addr4.sin_port)
 		{
 			VConData.current_connection = i;
 			return TRUE;
@@ -192,7 +192,7 @@ extern void v_unpack_connection(const char *buf, unsigned int buffer_length);
 
 extern void	verse_send_packet_nak(uint32 packet_id);
 extern void	v_callback_connect_terminate(const char *bye);
-extern boolean	v_connect_unpack_ping(const char *buf, size_t buffer_length, uint32 ip, uint16 port);
+extern boolean	v_connect_unpack_ping(const char *buf, size_t buffer_length, VNetworkAddress *address);
 extern void	v_ping_update(void);
 void v_fs_unpack_beginning(uint8 *data, unsigned int length);
 
@@ -211,7 +211,7 @@ boolean v_con_network_listen(void)
 	size = v_n_receive_data(&address, buf, sizeof buf); /* Ask for incoming data from the network. */
 	while(size != -1 && size != 0) /* Did we get any data? */
 	{
-		VConData.current_connection = v_co_find_connection(address.ip, address.port); /* Is there a connection matching the IP and port? */
+		VConData.current_connection = v_co_find_connection(&address); /* Is there a connection matching the IP and port? */
 		vnp_raw_unpack_uint32(buf, &packet_id); /* Unpack the ID of the packet. */
 /*		printf("got packet ID %u, %d bytes, connection %u\n", packet_id, size, VConData.current_connection);*/
 		if(VConData.current_connection < VConData.con_count &&
@@ -233,7 +233,7 @@ boolean v_con_network_listen(void)
 				v_niq_timer_update(&VConData.con[VConData.current_connection].in_queue);
 			}
 		}
-		else if(v_connect_unpack_ping(buf, size, address.ip, address.port))	/* Ping handled. */
+		else if(v_connect_unpack_ping(buf, size, &address))	/* Ping handled. */
 			;
 		else if(v_fs_func_accept_connections()) /* Do we accept connection-attempts? */
 		{
@@ -242,10 +242,10 @@ boolean v_con_network_listen(void)
 			{
 				if(VConData.current_connection < VConData.con_count)
 				{
-					VConData.con[VConData.current_connection].network_address.ip = 0;
+					VConData.con[VConData.current_connection].network_address.addr4.sin_addr.s_addr = 0;
 					VConData.con[VConData.current_connection].destroy_flag = TRUE; /* Destroy old connection if there is one. */
 				}
-				v_con_connect(address.ip, address.port, V_CS_IDLE); /* Create a new connection. */
+				v_con_connect(&address, V_CS_IDLE); /* Create a new connection. */
 				v_unpack_connection(buf, size); /* Unpack the connection-attempt. */
 			}
 		}

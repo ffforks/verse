@@ -122,9 +122,10 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 	struct hostent	*he;
 	char		*colon = NULL, *buf = NULL;
 	boolean		ok = FALSE;
+	unsigned short port;
 
 	v_n_socket_create();
-	address->port = VERSE_STD_CONNECT_TO_PORT;
+	port = VERSE_STD_CONNECT_TO_PORT;
 	/* If a port number is included, as indicated by a colon, we need to work a bit more. */
 	if((colon = strchr(host_name, ':')) != NULL)
 	{
@@ -140,8 +141,8 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 			host_name = buf;
 			if(sscanf(colon + 1, "%u", &tp) == 1)
 			{
-				address->port = (unsigned short) tp;
-				if(address->port != tp)	/* Protect against overflow. */
+				port = (unsigned short) tp;
+				if(port != tp)	/* Protect against overflow. */
 					host_name = NULL;
 			}
 			else
@@ -150,11 +151,19 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 		else
 			return FALSE;
 	}
-	if(host_name != NULL && (he = gethostbyname(host_name)) != NULL)
+	if(host_name != NULL)
 	{
-		memcpy(&address->ip, he->h_addr_list[0], he->h_length);
-		address->ip = ntohl(address->ip);
-		ok = TRUE;
+		if((he = gethostbyname2(host_name, AF_INET)) != NULL) {
+			printf("ipv4\n");
+			memset((char*)&address->addr4, 0, sizeof(struct sockaddr_in));
+			memcpy((char*)&address->addr4.sin_addr, he->h_addr_list[0], he->h_length);
+			address->addrtype = address->addr4.sin_family = he->h_addrtype;
+			address->addr4.sin_port = htons(port);
+			ok = TRUE;
+		}
+		else {
+			perror("gethostbyname2()");
+		}
 	}
 	if(buf != NULL)
 		free(buf);
@@ -170,11 +179,9 @@ int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 
 	if((sock = v_n_socket_create()) == -1 || length == 0)
 		return 0;
-	address_in.sin_family = AF_INET;     /* host byte order */
-	address_in.sin_port = htons(address->port); /* short, network byte order */
-	address_in.sin_addr.s_addr = htonl(address->ip);
-	memset(&address_in.sin_zero, 0, sizeof address_in.sin_zero);
-	ret = sendto(sock, data, length, 0, (struct sockaddr *) &address_in, sizeof(struct sockaddr_in));
+
+	ret = sendto(sock, data, length, 0, (struct sockaddr *) &address->addr4, sizeof(struct sockaddr_in));
+
 	if(ret < 0)
 		fprintf(stderr, "Socket sendto() of %u bytes failed, code %d (%s)\n", (unsigned int) length, errno, strerror(errno));
 	return ret;
@@ -218,10 +225,9 @@ int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
 	address_in.sin_port = htons(my_port); 
 	address_in.sin_addr.s_addr = INADDR_ANY;
 	len = recvfrom(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, &from_length);
-	if(len > 0)
+	if(len > 0 && len!=-1)
 	{
-		address->ip   = ntohl(address_in.sin_addr.s_addr);
-		address->port = ntohs(address_in.sin_port);
+		memcpy((char*)&address->addr4, (char*)&address_in, sizeof(struct sockaddr_in));
 	}
 	return len;
 }
@@ -264,6 +270,8 @@ void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 
 void v_n_get_address_string(const VNetworkAddress *address, char *string)
 {
-	sprintf(string, "%u.%u.%u.%u:%u", address->ip >> 24, (address->ip >> 16) & 0xff,
-		(address->ip >> 8) & 0xff, address->ip & 0xff, address->port);
+	char str[32];
+	inet_ntop(AF_INET, &address->addr4.sin_addr, str, 32);
+	sprintf(string, "%s:%u", str, htons(address->addr4.sin_port));
 }
+
