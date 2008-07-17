@@ -98,6 +98,7 @@ else:
 
 
 env = Environment()
+env['CCFLAGS']=cflags
 env.Replace (CC = user_options_dict['TARGET_CC'])
 env.Replace (CXX = user_options_dict['TARGET_CXX'])
 env.Replace (PATH = user_options_dict['PATH'])
