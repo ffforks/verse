@@ -44,9 +44,11 @@ int main(int argc, char *argv[]	)
 {
 	char buf[1024];
 #if defined _WIN32
+	char *hostname = "localhost";
 	char *username = "username";
 	char *password = "password";
 #else
+	char *hostname = NULL;
 	char *username = NULL;
 	char *pass = NULL;
 #endif
@@ -60,11 +62,12 @@ int main(int argc, char *argv[]	)
 	/* I'm not sure, if getpass() is available at Windows. */
 #else
 	/* get username and password from user */
-	if(argc == 2) {
-		username = argv[1];
+	if(argc == 3) {
+		hostname = argv[1];
+		username = argv[2];
 	}
 	else {
-		printf("Syntax: %s <username>\n", argv[0]);
+		printf("Syntax: %s <hostname> <username>\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 	
@@ -76,7 +79,7 @@ int main(int argc, char *argv[]	)
 
 	if(pass!=NULL) {
 		/* Kick off program by connecting to Verse host on local machine. */
-		verse_send_connect(username, pass, "localhost", NULL);
+		verse_send_connect(username, pass, hostname, NULL);
 		
 		while(TRUE)
 			verse_callback_update(10000);	/* Listen to network, get callbacks. */
