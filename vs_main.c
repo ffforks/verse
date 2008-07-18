@@ -251,12 +251,14 @@ static void usage(void)
 	printf(" -ms:de=DESC\t\tSet description, sent to master server.\n");
 	printf(" -ms:ta=TAGS\t\tSet tags, sent to master server.\n");
 	printf(" -port=PORT\t\tSet port to use for incoming connections.\n");
+	printf(" -4\t\t\tForces Verse server to use IPv4 addresess only.\n");
+	printf(" -6\t\t\tForces Verse server to use IPv6 addresess only.\n");
 	printf(" -version\t\tPrint version information and exit.\n");
 }
 
 int main(int argc, char **argv)
 {
-	uint32		i, seconds, fractions, port = VERSE_STD_CONNECT_PORT;
+	uint32		i, seconds, fractions, port = VERSE_STD_CONNECT_PORT, protocol = 0 /* IPv4 or IPv6 */;
 
 	signal(SIGINT, cb_sigint_handler);
 
@@ -282,6 +284,10 @@ int main(int argc, char **argv)
 			vs_master_set_tags(argv[i] + 7);
 		else if(strncmp(argv[i], "-port=", 6) == 0)
 			port = strtoul(argv[i] + 6, NULL, 0);
+		else if(strncmp(argv[i], "-4", 2) == 0 && protocol!=6)
+			protocol = 4;
+		else if(strncmp(argv[i], "-6", 2) == 0 && protocol!=4)
+			protocol = 6;
 		else if(strcmp(argv[i], "-version") == 0)
 		{
 			printf("r%up%u%s\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
@@ -293,6 +299,7 @@ int main(int argc, char **argv)
 
 	printf("Verse Server r%up%u%s by Eskil Steenberg <http://verse.blender.org/>\n", V_RELEASE_NUMBER, V_RELEASE_PATCH, V_RELEASE_LABEL);
 	verse_set_port(port);	/* The Verse standard port. */
+	verse_set_protocol(protocol);	/* Set used protocol (IPv4 or IPv6) */
 	printf(" Listening on port %d\n", port);
 
 	/* Seed the random number generator. Still rather too weak for crypto, I guess. */

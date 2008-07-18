@@ -40,15 +40,34 @@ typedef char boolean;
 #define	TRUE	1
 #define	FALSE	0
 
-typedef struct{
-	struct sockaddr_in address;
-	struct hostent *he;
-} VNetworkConnection;
-
 #define VERSE_STD_CONNECT_TO_PORT 4950
 
 static VSocket	my_socket = -1;
 static uint16	my_port = 0;
+static uint32	my_protocol = 4;	/* Default protocol is 4, TODO: add autodetection of supported protocols */
+
+boolean compare_ip6_addr(struct in6_addr *addr1, struct in6_addr *addr2)
+{
+	if((addr1->s6_addr[0]==addr2->s6_addr[0]) &&
+			(addr1->s6_addr[1]==addr2->s6_addr[1]) &&
+			(addr1->s6_addr[2]==addr2->s6_addr[2]) &&
+			(addr1->s6_addr[3]==addr2->s6_addr[3]))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+void v_n_set_protocol(unsigned int protocol)
+{
+	if(protocol==0) {
+		/* if not set, then default protocol will be IPv4 */
+		my_protocol = 4;
+		/* TODO: add autodetection if IPv6 could be used */
+	}
+	else {
+		my_protocol = protocol;
+	}
+}
 
 void v_n_set_port(unsigned short port)
 {
@@ -58,11 +77,13 @@ void v_n_set_port(unsigned short port)
 VSocket v_n_socket_create(void)
 {
 	static boolean initialized = FALSE;
-	struct sockaddr_in address;
-        int buffer_size = 1 << 20;
+	struct sockaddr_in address_in4;
+	struct sockaddr_in6 address_in6;
+	int buffer_size = 1 << 20;
 
 	if(my_socket != -1)
 		return my_socket;
+
 #if defined _WIN32
 	if(!initialized)
 	{
@@ -77,8 +98,14 @@ VSocket v_n_socket_create(void)
 	}
 #endif
 	initialized = TRUE;
-	if((my_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-		return -1;
+	if(my_protocol==6) {
+		if((my_socket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+			return -1;
+	}
+	else if(my_protocol==4) {
+		if((my_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+			return -1;
+	}
 #if defined _WIN32
 	{
 		unsigned long	one = 1UL;
@@ -92,13 +119,25 @@ VSocket v_n_socket_create(void)
 		return -1;
 	}
 #endif
-	address.sin_family = AF_INET;     /* host byte order */
-	address.sin_port = htons(my_port); /* short, network byte order */
-	address.sin_addr.s_addr = INADDR_ANY;
-	if(bind(my_socket, (struct sockaddr *) &address, sizeof(struct sockaddr)) != 0)
-	{
-		fprintf(stderr, "v_network: Failed to bind(), code %d (%s)\n", errno, strerror(errno));
-		exit(0); /* FIX ME */
+	if(my_protocol==6) {
+		address_in6.sin6_family = AF_INET6;     /* host byte order */
+		address_in6.sin6_port = htons(my_port); /* short, network byte order */
+		address_in6.sin6_addr = in6addr_any;
+		if(bind(my_socket, (struct sockaddr *) &address_in6, sizeof(address_in6)) != 0)
+		{
+			fprintf(stderr, "v_network: Failed to bind(), code %d (%s)\n", errno, strerror(errno));
+			exit(EXIT_FAILURE); /* FIX ME */
+		}
+	}
+	else if(my_protocol==4) {
+		address_in4.sin_family = AF_INET;     /* host byte order */
+		address_in4.sin_port = htons(my_port); /* short, network byte order */
+		address_in4.sin_addr.s_addr = INADDR_ANY;
+		if(bind(my_socket, (struct sockaddr *) &address_in4, sizeof(address_in4)) != 0)
+		{
+			fprintf(stderr, "v_network: Failed to bind(), code %d (%s)\n", errno, strerror(errno));
+			exit(EXIT_FAILURE); /* FIX ME */
+		}
 	}
 	if(setsockopt(my_socket, SOL_SOCKET, SO_SNDBUF, (const char *) &buffer_size, sizeof buffer_size) != 0)
 		fprintf(stderr, "v_network: Couldn't set send buffer size of socket to %d\n", buffer_size);
@@ -120,14 +159,49 @@ void v_n_socket_destroy(void)
 boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 {
 	struct hostent	*he;
-	char		*colon = NULL, *buf = NULL;
+	char		*colon = NULL, *left_bracket = NULL, *right_bracket = NULL, *buf = NULL, *port_name=NULL, *last_colon=NULL;
 	boolean		ok = FALSE;
 	unsigned short port;
 
-	v_n_socket_create();
 	port = VERSE_STD_CONNECT_TO_PORT;
-	/* If a port number is included, as indicated by a colon, we need to work a bit more. */
-	if((colon = strchr(host_name, ':')) != NULL)
+
+	/* If a port number after IPv6 address is included, as indicated by a bracket and colon, we need to work a bit more.
+	 * Example of URI: [::1]:15283, ip6-localhost:44851 */
+	if((left_bracket = strchr(host_name, '[')) != NULL && (right_bracket = strchr(host_name, ']')) != NULL) {
+			unsigned int tp;
+			int i, len=right_bracket - left_bracket;
+
+			/* parse hostname */
+			buf = (char*)malloc(sizeof(char)*(len));
+			for(i=0, left_bracket++;left_bracket!=right_bracket;i++, left_bracket++) {
+				buf[i] = *left_bracket;
+			}
+			buf[i] = '\0';
+			
+			/* parse port */
+			last_colon = right_bracket+1;
+			if(*last_colon==':') {
+				int j;
+				port_name = (char*)malloc(sizeof(char)*(strlen(host_name)-i-2));
+				for(j=0, i+2, last_colon++; i<strlen(host_name); i++, j++, last_colon++) {
+					port_name[j] = *last_colon;
+				}
+				port_name[j+1] = '\0';
+			}
+			host_name = buf;
+			if(sscanf(port_name, "%u", &tp)==1){
+				port = (unsigned short) tp;
+				if(port!=tp)
+					host_name = NULL;
+			}
+			else {
+				host_name = NULL;
+			}
+			if(port_name) free(port_name);
+	}
+	/* If a port number after  IPv4 address is included, as indicated by a colon, we need to work a bit more.
+	 * Example of URI: 127.0.0.1:11283, localhost:21845 */
+	else if((colon = strchr(host_name, ':')) != NULL)
 	{
 		size_t	hl = strlen(host_name);
 
@@ -151,10 +225,17 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 		else
 			return FALSE;
 	}
+
 	if(host_name != NULL)
 	{
-		if((he = gethostbyname2(host_name, AF_INET)) != NULL) {
-			printf("ipv4\n");
+		if((he = gethostbyname2(host_name, AF_INET6)) != NULL) {
+			memset((char*)&address->addr6, 0, sizeof(struct sockaddr_in));
+			memcpy((char*)&address->addr6.sin6_addr, he->h_addr_list[0], he->h_length);
+			address->addrtype = address->addr6.sin6_family = he->h_addrtype;
+			address->addr6.sin6_port = htons(port);
+			ok = TRUE;
+		}
+		else if((he = gethostbyname2(host_name, AF_INET)) != NULL) {
 			memset((char*)&address->addr4, 0, sizeof(struct sockaddr_in));
 			memcpy((char*)&address->addr4.sin_addr, he->h_addr_list[0], he->h_length);
 			address->addrtype = address->addr4.sin_family = he->h_addrtype;
@@ -165,22 +246,43 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 			perror("gethostbyname2()");
 		}
 	}
-	if(buf != NULL)
-		free(buf);
+
+	/* Free buffer used for parsing URI */
+	if(buf != NULL) free(buf);
+
+	/* When my_socket isn't created, then we can influence type of
+	 * socket for verse client due to address type */
+	if(my_socket==-1) {
+		if(address->addrtype==AF_INET6)
+			my_protocol = 6;
+		else if(address->addrtype==AF_INET)
+			my_protocol = 4;
+
+		/* Create new socket */
+		v_n_socket_create();
+	}
 
 	return ok;
 }
 
 int v_n_send_data(VNetworkAddress *address, const char *data, size_t length)
 {
-	struct sockaddr_in	address_in;
-	VSocket			sock;
+	VSocket		sock;
 	int			ret;
-
+	
 	if((sock = v_n_socket_create()) == -1 || length == 0)
 		return 0;
 
-	ret = sendto(sock, data, length, 0, (struct sockaddr *) &address->addr4, sizeof(struct sockaddr_in));
+
+	if(address->addrtype==AF_INET6){
+/*		char str[32];
+		inet_ntop(AF_INET6, &address->addr6.sin6_addr, str, 32);
+		printf("\tDEBUG: v_n_send_data(), address: %s, port: %d, len: %d\n", str, ntohs(address->addr6.sin6_port), length);*/
+
+		ret = sendto(sock, data, length, 0, (struct sockaddr *) &address->addr6, sizeof(struct sockaddr_in6));
+	}
+	else if(address->addrtype==AF_INET)
+		ret = sendto(sock, data, length, 0, (struct sockaddr *) &address->addr4, sizeof(struct sockaddr_in));
 
 	if(ret < 0)
 		fprintf(stderr, "Socket sendto() of %u bytes failed, code %d (%s)\n", (unsigned int) length, errno, strerror(errno));
@@ -215,19 +317,45 @@ unsigned int v_n_wait_for_incoming(unsigned int microseconds)
 
 int v_n_receive_data(VNetworkAddress *address, char *data, size_t length)
 {
-	struct	sockaddr_in address_in;
-	size_t	from_length = sizeof address_in, len;
+	VSocket	sock;
+	struct	sockaddr_in address_in4;
+	struct	sockaddr_in6 address_in6;
+	size_t	from_length, len;
 
-	if(v_n_socket_create() == -1)
+	if((sock = v_n_socket_create()) == -1)
 		return 0;
-	memset(&address_in, 0, sizeof address_in);
-	address_in.sin_family = AF_INET;
-	address_in.sin_port = htons(my_port); 
-	address_in.sin_addr.s_addr = INADDR_ANY;
-	len = recvfrom(v_n_socket_create(), data, length, 0, (struct sockaddr *) &address_in, &from_length);
-	if(len > 0 && len!=-1)
-	{
-		memcpy((char*)&address->addr4, (char*)&address_in, sizeof(struct sockaddr_in));
+
+	if(my_protocol==6) {
+		from_length = sizeof(address_in6);
+		memset(&address_in6, 0, from_length);
+
+		address_in6.sin6_family = AF_INET6;
+		address_in6.sin6_port = htons(my_port); 
+		address_in6.sin6_addr = in6addr_any;
+		len = recvfrom(sock, data, length, 0, (struct sockaddr *) &address_in6, &from_length);
+		if(len > 0 && len!=-1)
+		{
+/*			char str[32];
+			inet_ntop(AF_INET6, &address_in6.sin6_addr, str, 32);
+			printf("\tDEBUG: IPv6 v_n_receive_data(), address: %s, port: %d, len: %d\n", str, ntohs(address_in6.sin6_port), len);*/
+
+			address->addrtype = AF_INET6;
+			memcpy((char*)&address->addr6, (char*)&address_in6, sizeof(struct sockaddr_in6));
+		}
+	}
+	else if(my_protocol==4) {
+		from_length = sizeof(address_in4);
+		memset(&address_in4, 0, from_length);
+
+		address_in4.sin_family = AF_INET;
+		address_in4.sin_port = htons(my_port); 
+		address_in4.sin_addr.s_addr = INADDR_ANY;
+		len = recvfrom(sock, data, length, 0, (struct sockaddr *) &address_in4, &from_length);
+		if(len > 0 && len!=-1)
+		{
+			address->addrtype = AF_INET;
+			memcpy((char*)&address->addr4, (char*)&address_in4, sizeof(struct sockaddr_in));
+		}
 	}
 	return len;
 }
@@ -271,7 +399,14 @@ void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 void v_n_get_address_string(const VNetworkAddress *address, char *string)
 {
 	char str[32];
-	inet_ntop(AF_INET, &address->addr4.sin_addr, str, 32);
-	sprintf(string, "%s:%u", str, htons(address->addr4.sin_port));
+
+	if(address->addrtype==AF_INET6) {
+		inet_ntop(AF_INET6, &address->addr6.sin6_addr, str, 32);
+		sprintf(string, "[%s]:%u", str, htons(address->addr6.sin6_port));
+	}
+	else if(address->addrtype==AF_INET) {
+		inet_ntop(AF_INET, &address->addr4.sin_addr, str, 32);
+		sprintf(string, "%s:%u", str, htons(address->addr4.sin_port));
+	}
 }
 

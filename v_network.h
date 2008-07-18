@@ -16,7 +16,9 @@ typedef struct{
 	struct sockaddr_in6 addr6;
 }VNetworkAddress;
 
+extern boolean	compare_ip6_addr(struct in6_addr *addr1, struct in6_addr *addr2);
 extern void		v_n_set_port(unsigned short port);
+extern void		v_n_set_protocol(unsigned int protocol);
 extern unsigned int	v_n_wait_for_incoming(unsigned int microseconds);
 extern boolean	v_n_set_network_address(VNetworkAddress *address, const char *host_name);
 extern int		v_n_send_data(VNetworkAddress *address, const char *data, size_t length);

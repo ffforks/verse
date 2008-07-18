@@ -74,6 +74,11 @@ void v_con_init(void) /* since verse doesnt have an init function this function 
 		       &VConData.host_id[V_ENCRYPTION_LOGIN_N_START]);*/ /* default host id if none is set by user */
 }
 
+void verse_set_protocol(uint32 protocol)
+{
+	v_n_set_protocol(protocol);
+}
+
 void verse_set_port(uint16 port)
 {
 	v_n_set_port(port);
@@ -148,13 +153,26 @@ uint32 v_co_find_connection(VNetworkAddress *address) /* if a packet comes from 
 {
 	unsigned int i;
 
-	for(i = 0; i < VConData.con_count; i++)
-	{
-		if(address->addr4.sin_addr.s_addr == VConData.con[i].network_address.addr4.sin_addr.s_addr &&
-						address->addr4.sin_port == VConData.con[i].network_address.addr4.sin_port &&
-						VConData.con[i].destroy_flag == 0)
+	if (address->addrtype==AF_INET6) {
+		for(i = 0; i < VConData.con_count; i++)
 		{
-			return i;
+			if(compare_ip6_addr(&address->addr6.sin6_addr, &VConData.con[i].network_address.addr6.sin6_addr) &&
+							address->addr6.sin6_port == VConData.con[i].network_address.addr6.sin6_port &&
+							VConData.con[i].destroy_flag == 0)
+			{
+				return i;
+			}
+		}
+	}
+	else if (address->addrtype==AF_INET) {
+		for(i = 0; i < VConData.con_count; i++)
+		{
+			if(address->addr4.sin_addr.s_addr == VConData.con[i].network_address.addr4.sin_addr.s_addr &&
+							address->addr4.sin_port == VConData.con[i].network_address.addr4.sin_port &&
+							VConData.con[i].destroy_flag == 0)
+			{
+				return i;
+			}
 		}
 	}
 	return -1;
@@ -163,13 +181,26 @@ uint32 v_co_find_connection(VNetworkAddress *address) /* if a packet comes from 
 boolean v_co_switch_connection(VNetworkAddress *address) /* switches to the current connection to one ip address if it exists */
 {
 	unsigned int i;
-	for(i = 0; i < VConData.con_count; i++)
-	{
-		if(address->addr4.sin_addr.s_addr == VConData.con[i].network_address.addr4.sin_addr.s_addr &&
-						address->addr4.sin_port == VConData.con[i].network_address.addr4.sin_port)
+	if(address->addrtype==AF_INET6) {
+		for(i = 0; i < VConData.con_count; i++)
 		{
-			VConData.current_connection = i;
-			return TRUE;
+			if( compare_ip6_addr(&address->addr6.sin6_addr, &VConData.con[i].network_address.addr6.sin6_addr)&&
+							address->addr6.sin6_port == VConData.con[i].network_address.addr6.sin6_port)
+			{
+				VConData.current_connection = i;
+				return TRUE;
+			}
+		}
+	}
+	else if(address->addrtype==AF_INET) {
+		for(i = 0; i < VConData.con_count; i++)
+		{
+			if(address->addr4.sin_addr.s_addr == VConData.con[i].network_address.addr4.sin_addr.s_addr &&
+							address->addr4.sin_port == VConData.con[i].network_address.addr4.sin_port)
+			{
+				VConData.current_connection = i;
+				return TRUE;
+			}
 		}
 	}
 	return FALSE;
@@ -243,6 +274,10 @@ boolean v_con_network_listen(void)
 				if(VConData.current_connection < VConData.con_count)
 				{
 					VConData.con[VConData.current_connection].network_address.addr4.sin_addr.s_addr = 0;
+					VConData.con[VConData.current_connection].network_address.addr6.sin6_addr.s6_addr[0] = 0;
+					VConData.con[VConData.current_connection].network_address.addr6.sin6_addr.s6_addr[1] = 0;
+					VConData.con[VConData.current_connection].network_address.addr6.sin6_addr.s6_addr[2] = 0;
+					VConData.con[VConData.current_connection].network_address.addr6.sin6_addr.s6_addr[3] = 0;
 					VConData.con[VConData.current_connection].destroy_flag = TRUE; /* Destroy old connection if there is one. */
 				}
 				v_con_connect(&address, V_CS_IDLE); /* Create a new connection. */
