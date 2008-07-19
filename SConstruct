@@ -45,6 +45,11 @@ elif sys.platform == 'linux2':
 elif sys.platform == 'openbsd3':
     print "Building on openbsd3"
     platform_libs = ['pam']
+elif sys.platform == 'darwin':
+    print "Building on darwin"
+    platform_libs = ['pam']
+else:
+    print "Building on", sys.platform
 
 
 env_dict = env.Dictionary()

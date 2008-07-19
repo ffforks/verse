@@ -401,6 +401,7 @@ typedef union {
 } VNABlock;
 
 extern void		verse_set_port(uint16 port);
+extern void		verse_set_protocol(uint32 protocol);
 extern void		verse_host_id_create(uint8 *id);
 extern void		verse_host_id_set(uint8 *id);
 extern void		verse_callback_set(void *send_func, void *callback, void *user_data);
