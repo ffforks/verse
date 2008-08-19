@@ -40,6 +40,7 @@ if sys.platform == 'win32':
     platform_libs = ['ws2_32']
 elif sys.platform == 'linux2':
     print "Building on linux2"
+    debug_flags = ['-ggdb']
 elif sys.platform == 'openbsd3':
     print "Building on openbsd3"
 
@@ -95,6 +96,7 @@ else:
 
 
 env = Environment()
+env['CCFLAGS'] = cflags
 env.Replace (CC = user_options_dict['TARGET_CC'])
 env.Replace (CXX = user_options_dict['TARGET_CXX'])
 env.Replace (PATH = user_options_dict['PATH'])
