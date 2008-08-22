@@ -43,7 +43,6 @@
 #include "v_connection.h"
 #include "v_network.h"
 #include "v_pack.h"
-#include "v_encryption.h"
 #include "v_network_out_que.h"
 #include "v_util.h"
 
@@ -203,22 +202,20 @@ void v_noq_sort_and_collapse_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 void v_noq_send_buf(VNetOutQueue *queue, VCMDBufHead *buf)
 {
 	static int count = 0;
-/*	if(queue->unsent_comands > V_NOQ_MAX_SORTED_COMMANDS)
-	{
 
-*/		if(queue->unsorted == NULL)
-		{
-			queue->unsorted_end = buf;
-			queue->unsorted = buf;
-		}else
-		{
-			queue->unsorted_end->next = buf;
-			queue->unsorted_end = buf;
-		}
-		queue->unsorted_count++;
-/*	}else
-		v_noq_sort_and_colapse_buf(queue, buf);
-*/	count = (count + 1) % 30;
+	if(queue->unsorted == NULL)
+	{
+		queue->unsorted_end = buf;
+		queue->unsorted = buf;
+	} else
+	{
+		queue->unsorted_end->next = buf;
+		queue->unsorted_end = buf;
+	}
+	
+	queue->unsorted_count++;
+	count = (count + 1) % 30; /* Magix number again!!! */
+
 	if(count == 0)
 	{
 		v_con_network_listen();
@@ -247,53 +244,60 @@ void v_noq_sort_unsorted(VNetOutQueue *queue)
 	}
 }
 
+/* Pack some data from sending queue to packet and send it. */
 boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 {
-	static unsigned int my_counter = 0;
 	VCMDBufHead *buf;
 	unsigned int size;
 	uint8 *data;
 	uint32 seconds, fractions;
 	double delta;
+	int i;
 	
 	data = queue->packet_buffer;
 	v_n_get_current_time(&seconds, &fractions);
+
+	/* Delta time of previous sending from this queue */
 	delta = seconds - queue->seconds + (fractions - queue->fractions) / (double) 0xffffffff;
 
+	/* Sort commands in sending queue (how?). */
 	if(queue->unsorted != NULL)	
 		v_noq_sort_unsorted(queue);
 
+	/* No data to send? */
 	if(queue->unsent_size == 0 && delta < 1.0 && (queue->ack_nak == NULL || queue->ack_nak->next == NULL))
 		return FALSE;
 
+	/* Send data from packet buffer. */
 	if(delta > 3.0 && queue->unsent_size == 0 && queue->ack_nak == NULL && queue->packet_buffer_use != 0)
 	{
-/*		printf("A) re-sending last delta=%g\n", delta);*/
 		v_n_send_data(address, data, queue->packet_buffer_use);
 		queue->seconds = seconds;
 		queue->fractions = fractions;
 		return TRUE;
 	}
 
-	size = 4;
+	/* Packet ID is at beginning of packet */
+	vnp_raw_pack_uint32(data, queue->packet_id);
+	size = 4;	/* 4 is size of unit32 (packet_id) */
 	buf = queue->ack_nak;
 	while(buf != NULL && size + buf->size < V_NOQ_MAX_PACKET_SIZE)
 	{
-		vnp_raw_pack_uint32(data, queue->packet_id);
 		queue->ack_nak = buf->next;
 		buf->next = queue->history[queue->slot];
 		queue->history[queue->slot] = buf;
 		buf->packet = queue->packet_id;
-		v_e_data_encrypt_command(data, size, ((VCMDBuffer1500 *)buf)->buf, buf->size, v_con_get_data_key());
+		for(i=0; i < buf->size; i++) data[size+i] = ((VCMDBuffer1500 *)buf)->buf[i];
 		size += buf->size;
 		queue->sent_size += buf->size;
 		buf = queue->ack_nak;
 	}
+
+	/* Send data, when we can't send more. */
 	if(queue->unsent_size == 0 || queue->sent_size >= V_NOQ_WINDOW_SIZE)
 	{
 		if(size > 5)
 		{
-/*			printf("ACK: sending actual size=%u id=%u\n", size, queue->packet_id);*/
 			v_n_send_data(address, data, size);
 			queue->packet_buffer_use = size;
 			queue->seconds = seconds;
@@ -301,40 +305,36 @@ boolean v_noq_send_queue(VNetOutQueue *queue, void *address)
 			queue->packet_id++;
 			return TRUE;
 		}
-/*		printf("returning FALSE from send_queue()\n");*/
 		return FALSE;
 	}
-/*	if(queue->sent_size < V_NOQ_WINDOW_SIZE && queue->unsent_size != 0)*/
+	
+	/* Try to add something more to this packet. */
+	while(queue->unsent_size != 0)
 	{
-		vnp_raw_pack_uint32(data, queue->packet_id);
-		while(queue->unsent_size != 0)
+		queue->slot = ((1 + queue->slot) % V_NOQ_OPTIMIZATION_SLOTS);
+		buf = queue->unsent[queue->slot];
+		if(buf != NULL)
 		{
-			queue->slot = ((1 + queue->slot) % V_NOQ_OPTIMIZATION_SLOTS);
-			buf = queue->unsent[queue->slot];
-			if(buf != NULL)
-			{
-				if(buf->size + size > V_NOQ_MAX_PACKET_SIZE)
-					break;
-				queue->unsent[queue->slot] = buf->next;
-				buf->next = queue->history[queue->slot];
-				queue->history[queue->slot] = buf;
-				buf->packet = queue->packet_id;
-
-				v_e_data_encrypt_command(data, size, ((VCMDBuffer1500 *)buf)->buf, buf->size, v_con_get_data_key());
-				size += buf->size;
-				queue->unsent_comands--;
-				queue->unsent_size -= buf->size;
-				queue->sent_size += buf->size;
-				my_counter++;
-			}
+			if(buf->size + size > V_NOQ_MAX_PACKET_SIZE)
+				break;
+			queue->unsent[queue->slot] = buf->next;
+			buf->next = queue->history[queue->slot];
+			queue->history[queue->slot] = buf;
+			buf->packet = queue->packet_id;
+			for(i=0; i < buf->size; i++) data[size+i] = ((VCMDBuffer1500 *)buf)->buf[i];
+			size += buf->size;
+			queue->unsent_comands--;
+			queue->unsent_size -= buf->size;
+			queue->sent_size += buf->size;
 		}
-		v_n_send_data(address, data, size);
-		queue->packet_buffer_use = size;
-		queue->packet_id++;
-/*		size = vnp_raw_pack_uint32(data, queue->packet_id);*/
-		queue->seconds = seconds;
-		queue->fractions = fractions;	
 	}
+
+	v_n_send_data(address, data, size);
+	queue->packet_buffer_use = size;
+	queue->packet_id++;
+	queue->seconds = seconds;
+	queue->fractions = fractions;
+
 	return TRUE;
 }
 

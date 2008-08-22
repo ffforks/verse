@@ -190,7 +190,7 @@ static int authenticate_user(const char *name,
 
 #endif
 
-static void callback_send_connect(void *user, const char *name, const char *pass, const char *address, const uint8 *host_id)
+static void callback_send_connect(void *user, const char *name, const char *pass, const char *address)
 {
 	VNodeID avatar;
 	VSession *session;
@@ -204,9 +204,8 @@ static void callback_send_connect(void *user, const char *name, const char *pass
 	{
 		printf("OK\n");
 		avatar = vs_node_create(~0, V_NT_OBJECT);
-		session = verse_send_connect_accept(avatar, address, NULL);
+		session = verse_send_connect_accept(avatar, address);
 		vs_add_new_connection(session, name, pass, avatar);
-/*		vs_avatar_init(avatar, name);*/
 	}
 	else
 	{
@@ -222,37 +221,6 @@ static void callback_send_connect_terminate(void *user, char *address, char *bye
 	callback_send_node_destroy(NULL, vs_get_avatar());
 	verse_session_destroy(vs_get_session());
 	vs_remove_connection();
-}
-
-static void vs_load_host_id(const char *file_name)
-{
-	FILE	*f;
-	uint8	id[V_HOST_ID_SIZE];
-	size_t	got;
-
-	/* Attempt to read key from given filename. Fails silently. */
-	if((f = fopen(file_name, "rb")) != NULL)
-	{
-		if((got = fread(id, 1, sizeof id, f)) > 0)
-		{
-			printf("Loaded %u-bit host ID key successfully\n", 8 * (got / 3));
-			verse_host_id_set(id);
-		}
-		fclose(f);
-		if(got)
-			return;
-	}
-	/* If file didn't open, or reading failed, generate a new key and write it out. */
-	verse_host_id_create(id);
-	verse_host_id_set(id);
-	if((f = fopen(file_name, "wb")) != NULL)
-	{
-		if(fwrite(id, sizeof id, 1, f) != 1)
-			fprintf(stderr, "Warning: Couldn't write host ID to \"%s\"\n", file_name);
-		fclose(f);
-	}
-	else
-		fprintf(stderr, "Warning: Couldn't open \"%s\" for host ID writing\n", file_name);
 }
 
 static void cb_sigint_handler(int sig)
@@ -332,11 +300,6 @@ int main(int argc, char **argv)
 	verse_set_protocol(protocol);	/* Set used protocol (IPv4 or IPv6) */
 	printf(" Listening on port %d\n", port);
 
-	/* Seed the random number generator. Still rather too weak for crypto, I guess. */
-	v_n_get_current_time(&seconds, &fractions);
-	srand(seconds ^ fractions);
-
-	vs_load_host_id("host_id.rsa");
 	vs_init_node_storage();
 	vs_o_callback_init();
 	vs_g_callback_init();

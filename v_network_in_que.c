@@ -133,18 +133,27 @@ char *v_niq_store(VNetInQueue *queue, size_t length, unsigned int packet_id)
 
 	v_niq_timer_update(queue);
 
+	/* We have already received packet with this ID */
 	if(packet_id < queue->packet_id)
 		return NULL;
-	
+
+	/* We expect packet with 'queue->packet_id', but we received 
+	 * packet with 'packet_id'. We have to send NAK commands for
+	 * all not received (probably lost packets) with ID smaller
+	 * then 'packet_id'. */
 	while(queue->packet_id != packet_id)
 	{
 		verse_send_packet_nak(queue->packet_id++);
 		if(queue->packet_id == 0)
 			queue->packet_id++;
 	}
+
+	/* ID of next expected packet */
 	queue->packet_id++;
 	if(queue->packet_id == 0)
 		queue->packet_id++;
+
+	/* Send ACK command for successfuly received packet */
 	verse_send_packet_ack(packet_id);
 
 	if(v_niq_temp == NULL)

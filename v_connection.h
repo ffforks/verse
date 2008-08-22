@@ -67,16 +67,6 @@ extern void				v_con_set_time(uint32 seconds, uint32 fractions);
 extern void				v_con_set_connect_stage(VConnectStage stage);
 extern VConnectStage	v_con_get_connect_stage(void);
 
-
-extern uint8			*v_con_get_my_key(void);
-extern uint8			*v_con_get_other_key(void);
-extern uint8			*v_con_get_host_id(void);
-extern uint8			**v_con_get_expected_key(void);
-
-extern void				v_con_set_data_key(const uint8 *key);
-extern const uint8 *			v_con_get_data_key(void);
-
-
 extern void *			v_con_get_network_queue(void);
 extern VNetworkAddress *v_con_get_network_address(void);
 extern void *			v_con_get_network_address_id(unsigned int id);

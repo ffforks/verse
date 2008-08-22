@@ -148,7 +148,6 @@ cmd_gen_deps.pop()
 lib_source_files = (['v_cmd_buf.c',
 					 'v_connect.c',
 					 'v_connection.c',
-					 'v_encryption.c',
 					 'v_func_storage.c',
 					 'v_man_pack_node.c',
 					 'v_network.c',
@@ -156,10 +155,7 @@ lib_source_files = (['v_cmd_buf.c',
 					 'v_network_out_que.c',
 					 'v_pack.c',
 					 'v_pack_method.c',
-					 'v_prime.c',
-					 'v_randgen.c',
 					 'v_util.c',
-					 'v_bignum.c'
 					 ])
 lib_source_files.extend(cmd_gen_deps)
 

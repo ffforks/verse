@@ -45,7 +45,6 @@
 #include "v_network_out_que.h"
 #include "v_network.h"
 #include "v_connection.h"
-#include "v_encryption.h"
 
 unsigned int v_unpack_connect(const char *buf, unsigned int buffer_length)
 {

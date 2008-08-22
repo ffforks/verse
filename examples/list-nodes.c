@@ -79,7 +79,7 @@ int main(int argc, char *argv[]	)
 
 	if(pass!=NULL) {
 		/* Kick off program by connecting to Verse host on local machine. */
-		verse_send_connect(username, pass, hostname, NULL);
+		verse_send_connect(username, pass, hostname);
 		
 		while(TRUE)
 			verse_callback_update(10000);	/* Listen to network, get callbacks. */

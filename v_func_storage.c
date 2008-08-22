@@ -175,13 +175,16 @@ void v_fs_unpack(uint8 *data, unsigned int length)
 	uint32 i, output, pack_id;
 	uint8 cmd_id, last = 255;
 
-	i = vnp_raw_unpack_uint32(data, &pack_id); /* each packet starts with a 32 bit id */
-	vnp_raw_unpack_uint8(&data[i], &cmd_id);
+	i = vnp_raw_unpack_uint32(data, &pack_id); /* Each packet starts with a 32 bit id */
+	vnp_raw_unpack_uint8(&data[i], &cmd_id); /* Then follows command ID */
+
+	/* Skiping of ack_nak commands at begining? */
 	while(i < length && (cmd_id == 7 || cmd_id == 8))
 	{
 		i += 5;
 		vnp_raw_unpack_uint8(&data[i], &cmd_id);
 	}
+
 	while(i < length)
 	{
 		i += vnp_raw_unpack_uint8(&data[i], &cmd_id);
@@ -192,7 +195,7 @@ void v_fs_unpack(uint8 *data, unsigned int length)
 			if(output == (unsigned int) -1)	/* Can this happen? Should be size_t or int, depending. */
 			{
 				printf("** Aborting decode, command %u unpacker returned failure\n", cmd_id);
-/*				verse_send_packet_nak(pack_id);*/
+				/* verse_send_packet_nak(pack_id); */
 				return;
 			}
 			last = cmd_id;

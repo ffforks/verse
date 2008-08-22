@@ -41,7 +41,6 @@
 #include "v_network_out_que.h"
 #include "v_cmd_gen.h"
 #include "v_connection.h"
-#include "v_encryption.h"
 #include "v_util.h"
 
 #if !defined(V_GENERATE_FUNC_MODE)
@@ -59,19 +58,14 @@ typedef struct {
 	VNetworkAddress	network_address;
 	boolean			connected;
 	unsigned int	avatar;
-/*	unsigned int	packet_id;*/
 	int32			timedelta_s;
 	uint32			timedelta_f;
 	boolean			destroy_flag;
 	void			*ordered_storage;
-	char			name[V_ENCRYPTION_LOGIN_KEY_SIZE / 2];
-	char			pass[V_ENCRYPTION_LOGIN_KEY_SIZE / 2];
+	char			name[32];
+	char			pass[32];
 	VConnectStage	connect_stage;
 	unsigned int	stage_atempts;
-	uint8			key_my[V_ENCRYPTION_LOGIN_KEY_FULL_SIZE];
-	uint8			key_other[V_ENCRYPTION_LOGIN_KEY_FULL_SIZE];
-	uint8			key_data[V_ENCRYPTION_DATA_KEY_SIZE];
-	uint8			*expected_key;
 } VConnection;
 
 static struct {
@@ -82,7 +76,6 @@ static struct {
 	void			*unified_func_storage;
 	uint16			connect_port;
 	unsigned int	pending_packets;
-	uint8			host_id[V_ENCRYPTION_LOGIN_KEY_FULL_SIZE];
 } VConData;
 
 extern void cmd_buf_init(void);
@@ -99,9 +92,6 @@ void v_con_init(void) /* since verse doesnt have an init function this function 
 	memset(VConData.con, 0, CONNECTION_CHUNK_SIZE * sizeof *VConData.con);	/* Clear the memory. */
 	VConData.con_count = 0;
 	VConData.pending_packets = 0;
-/*	v_e_connect_create_key(&VConData.host_id[V_ENCRYPTION_LOGIN_PRIVATE_START],
-		       &VConData.host_id[V_ENCRYPTION_LOGIN_PUBLIC_START],
-		       &VConData.host_id[V_ENCRYPTION_LOGIN_N_START]);*/ /* default host id if none is set by user */
 }
 
 void verse_set_protocol(uint32 protocol)
@@ -112,17 +102,6 @@ void verse_set_protocol(uint32 protocol)
 void verse_set_port(uint16 port)
 {
 	v_n_set_port(port);
-}
-
-void verse_host_id_create(uint8 *id)
-{
-	v_e_connect_create_key(&id[V_ENCRYPTION_LOGIN_PRIVATE_START],
-			       &id[V_ENCRYPTION_LOGIN_PUBLIC_START], &id[V_ENCRYPTION_LOGIN_N_START]);
-}
-
-void verse_host_id_set(uint8 *id)
-{
-	memcpy(VConData.host_id, id, V_ENCRYPTION_LOGIN_KEY_FULL_SIZE);
 }
 
 extern void *v_fs_create_func_storage(void);
@@ -148,7 +127,6 @@ void *v_con_connect(VNetworkAddress *address, VConnectStage stage) /* creates a 
 	VConData.con[VConData.con_count].stage_atempts = 0; /* each stage in the connection prosess is atempted multiple times to avoid failiure if packets get lost*/
 	VConData.con[VConData.con_count].timedelta_s = 0; /* number of seconds since last incomming packet to the connection*/
 	VConData.con[VConData.con_count].timedelta_f = 0; /* number of fractions of a second since last incomming packet to the connection*/
-	VConData.con[VConData.con_count].expected_key = NULL; /* expected hist id if this is a client */
 	VConData.current_connection = VConData.con_count; /* set the new connection to the current*/
 	++VConData.con_count; /* add one to the number of connections*/
 	return VConData.con[VConData.current_connection].out_queue;
@@ -244,11 +222,6 @@ void v_con_inqueue_timer_update(void)
 	}
 }
 
-/*
-extern void	v_fs_buf_unpack(const uint8 *data, unsigned int length);
-extern void	v_fs_buf_store_pack(uint8 *data, unsigned int length);
-extern boolean	v_fs_buf_unpack_stored(void);
-*/
 extern void v_unpack_connection(const char *buf, unsigned int buffer_length);
 
 extern void	verse_send_packet_nak(uint32 packet_id);
@@ -261,7 +234,8 @@ void v_fs_unpack_beginning(uint8 *data, unsigned int length);
 boolean v_con_network_listen(void)
 {
 	VNetworkAddress address;
-	uint8 buf[V_MAX_CONNECT_PACKET_SIZE], *store;
+	uint8 *store;
+	uint8 buf[V_MAX_CONNECT_PACKET_SIZE];
 	int size = 0;
 	unsigned int connection;
 	uint32 packet_id;
@@ -270,21 +244,26 @@ boolean v_con_network_listen(void)
 	v_con_init(); /* Init if needed. */
 	connection = VConData.current_connection; /* Store current connection in a local variable so that we can restore it later. */
 	size = v_n_receive_data(&address, buf, sizeof buf); /* Ask for incoming data from the network. */
+
 	while(size != -1 && size != 0) /* Did we get any data? */
 	{
 		VConData.current_connection = v_co_find_connection(&address); /* Is there a connection matching the IP and port? */
 		vnp_raw_unpack_uint32(buf, &packet_id); /* Unpack the ID of the packet. */
-/*		printf("got packet ID %u, %d bytes, connection %u\n", packet_id, size, VConData.current_connection);*/
+		/* printf("got packet ID %u, %d bytes, connection %u\n", packet_id, size, VConData.current_connection); */
+		
+		/* If this isn't a packet from an existing connection, disregard it. */
 		if(VConData.current_connection < VConData.con_count &&
-		   !(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED && packet_id == 0)) /* If this isn't a packet from an existing connection, disregard it. */
+		   !(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED && packet_id == 0))
 		{
-			if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED) /* Is this connection initialized? */
+			/* Is this connection initialized? */
+			if(VConData.con[VConData.current_connection].connect_stage == V_CS_CONNECTED)
 			{
 				store = v_niq_store(&VConData.con[VConData.current_connection].in_queue, size, packet_id); /* Store the packet. */
 				if(store != NULL)
 				{
+					int i;
 					VConData.pending_packets++; /* We now have one more packet pending unpack. */
-					v_e_data_decrypt_packet(store, buf, size, VConData.con[VConData.current_connection].key_data); /* Decrypt the packet. */
+					for(i=0; i<size; i++) store[i] = buf[i]; /* Copy content of packet to queue */
 					v_fs_unpack_beginning(store, size);
 				}
 			}
@@ -298,8 +277,9 @@ boolean v_con_network_listen(void)
 			;
 		else if(v_fs_func_accept_connections()) /* Do we accept connection-attempts? */
 		{
+			/* Is it a new client, or an old client that we haven't heard form in some time? */
 			if(VConData.current_connection >= VConData.con_count ||
-			   V_RE_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue)) /* Is it a new client, or an old client that we haven't heard form in some time? */
+			   V_RE_CONNECTON_TIME_OUT < v_niq_time_out(&VConData.con[VConData.current_connection].in_queue))
 			{
 				if(VConData.current_connection < VConData.con_count)
 				{
@@ -381,8 +361,6 @@ void verse_callback_update(unsigned int microseconds)
 			v_noq_destroy_network_queue(VConData.con[VConData.current_connection].out_queue);
 			VConData.pending_packets -= v_niq_free(&VConData.con[VConData.current_connection].in_queue);
 			v_destroy_ordered_storage(VConData.con[VConData.current_connection].ordered_storage);
-			if(VConData.con[VConData.current_connection].expected_key != NULL)
-				free(VConData.con[VConData.current_connection].expected_key);
 			if(VConData.con_count - 1 != VConData.current_connection)
 				VConData.con[VConData.current_connection] = VConData.con[VConData.con_count - 1];
 			VConData.con_count--;
@@ -463,36 +441,6 @@ void v_con_set_connect_stage(VConnectStage stage)
 VConnectStage v_con_get_connect_stage(void)
 {
 	return VConData.con[VConData.current_connection].connect_stage;
-}
-
-uint8 *v_con_get_my_key(void)
-{
-	return VConData.con[VConData.current_connection].key_my;
-}
-
-uint8 *v_con_get_other_key(void)
-{
-	return VConData.con[VConData.current_connection].key_other;
-}
-
-uint8 **v_con_get_expected_key(void)
-{
-	return &VConData.con[VConData.current_connection].expected_key;
-}
-
-uint8 * v_con_get_host_id(void)
-{
-	return VConData.host_id;
-}
-
-void v_con_set_data_key(const uint8 *key)
-{
-	memcpy(VConData.con[VConData.current_connection].key_data, key, V_ENCRYPTION_DATA_KEY_SIZE);
-}
-
-const uint8 * v_con_get_data_key(void)
-{
-	return VConData.con[VConData.current_connection].key_data;
 }
 
 void * v_con_get_network_queue(void)
