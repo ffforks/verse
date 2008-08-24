@@ -260,6 +260,7 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 
 	if(host_name != NULL)
 	{
+		
 #ifdef _WIN32
 		if((he = gethostbyname(host_name))!=NULL) {
 			if(he->h_addrtype == AF_INET6) {
@@ -277,10 +278,14 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 				address->addr4.sin_port = htons(port);
 				ok = TRUE;
 			} else {
-				printf("couldn't resolve\n");
+				printf("unsupported protocol\n");
 				perror("gethostbyname()");
 			}
+		} else {
+			printf("couldn't resolve\n");
+			perror("gethostbyname()");
 		}
+		
 #else
 		if((he = gethostbyname2(host_name, AF_INET6)) != NULL) {
 			memset((char*)&address->addr6, 0, sizeof(struct sockaddr_in));
@@ -300,6 +305,8 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 			perror("gethostbyname2()");
 		}
 #endif
+	} else {
+		printf("hostname == NULL\n");
 	}
 
 	/* Free buffer used for parsing URI */
