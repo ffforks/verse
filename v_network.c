@@ -33,9 +33,11 @@
  */
 
 #if defined _WIN32
-#include <winsock.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 typedef unsigned int uint;
 typedef SOCKET VSocket;
+#define inet_ntop InetNtop
 #else
 typedef int VSocket;
 #include <fcntl.h>
@@ -258,6 +260,28 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 
 	if(host_name != NULL)
 	{
+#ifdef _WIN32
+		if((he = gethostbyname(host_name))!=NULL) {
+			if(he->h_addrtype == AF_INET6) {
+				printf("AF_INET6\n");
+				memset((char*)&address->addr6, 0, sizeof(struct sockaddr_in));
+				memcpy((char*)&address->addr6.sin6_addr, he->h_addr_list[0], he->h_length);
+				address->addrtype = address->addr6.sin6_family = he->h_addrtype;
+				address->addr6.sin6_port = htons(port);
+				ok = TRUE;
+			} else if(he->h_addrtype == AF_INET) {
+				printf("AF_INET\n");
+				memset((char*)&address->addr4, 0, sizeof(struct sockaddr_in));
+				memcpy((char*)&address->addr4.sin_addr, he->h_addr_list[0], he->h_length);
+				address->addrtype = address->addr4.sin_family = he->h_addrtype;
+				address->addr4.sin_port = htons(port);
+				ok = TRUE;
+			} else {
+				printf("couldn't resolve\n");
+				perror("gethostbyname()");
+			}
+		}
+#else
 		if((he = gethostbyname2(host_name, AF_INET6)) != NULL) {
 			memset((char*)&address->addr6, 0, sizeof(struct sockaddr_in));
 			memcpy((char*)&address->addr6.sin6_addr, he->h_addr_list[0], he->h_length);
@@ -275,6 +299,7 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 		else {
 			perror("gethostbyname2()");
 		}
+#endif
 	}
 
 	/* Free buffer used for parsing URI */

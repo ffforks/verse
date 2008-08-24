@@ -35,7 +35,12 @@
 #if !defined V_NETWORK_H
 #define	V_NETWORK_H
 
+#ifndef _WIN32
 #include <netinet/in.h>
+#else
+#include <winsock2.h>
+#include <ws2ipdef.h>
+#endif
 
 #define VERSE_STD_CONNECT_PORT 4950
 

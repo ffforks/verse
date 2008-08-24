@@ -7,7 +7,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include <string.h>
 
 #include "verse.h"      /* Bring in the Verse API. */
@@ -46,7 +48,7 @@ int main(int argc, char *argv[]	)
 #if defined _WIN32
 	char *hostname = "localhost";
 	char *username = "username";
-	char *password = "password";
+	char *pass = "password";
 #else
 	char *hostname = NULL;
 	char *username = NULL;
@@ -57,6 +59,8 @@ int main(int argc, char *argv[]	)
 	verse_callback_set(verse_send_connect_accept,    callback_accept_connect, NULL);
 	verse_callback_set(verse_send_node_create,	     callback_node_create, NULL);
 	verse_callback_set(verse_send_connect_terminate, callback_connect_terminate, NULL);
+	
+	printf("Callbacks set\n");
 
 #if defined _WIN32
 	/* I'm not sure, if getpass() is available at Windows. */
@@ -82,7 +86,7 @@ int main(int argc, char *argv[]	)
 		verse_send_connect(username, pass, hostname);
 		
 		while(TRUE)
-			verse_callback_update(10000);	/* Listen to network, get callbacks. */
+			verse_callback_update(10);	/* Listen to network, get callbacks. */
 
 		return EXIT_SUCCESS;		/* This is never reached. */
 	}

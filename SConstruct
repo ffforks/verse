@@ -21,7 +21,7 @@ root_build_dir = '..' + os.sep + 'build' + os.sep
 config_file = 'config.opts'
 version = '1.0'
 
-env = Environment ()
+env = Environment (ENV=os.environ)
 
 defines = []
 cflags = []
@@ -68,7 +68,7 @@ else:
     config.write ("TARGET_AR = %r\n"%(env_dict['AR']))
     config.write ("PATH = %r\n"%(os.environ['PATH']))
 
-user_options_env = Environment()
+user_options_env = Environment(ENV=os.environ)
 user_options = Options (config_file)
 user_options.AddOptions(
     (EnumOption ('BUILD_BINARY',
@@ -102,7 +102,7 @@ else:
         platform_linkflags += ['/DEBUG','/PDB:verse.pdb']
 
 
-env = Environment()
+env = Environment(ENV=os.environ)
 env['CCFLAGS']=cflags
 env.Replace (CC = user_options_dict['TARGET_CC'])
 env.Replace (CXX = user_options_dict['TARGET_CXX'])
@@ -122,7 +122,7 @@ cmd_gen_files = (['v_cmd_gen.c',
 
 cmd_gen_deps = (['v_gen_pack_init.c'])
 
-proto_env = env.Copy()
+proto_env = env.Clone()
 proto_env.Append(CPPDEFINES=['V_GENERATE_FUNC_MODE'])
 mkprot_tool = proto_env.Program(target = 'mkprot', source = cmd_gen_files)
 
@@ -176,16 +176,16 @@ server_source_files = (['vs_connection.c',
 
 verse_example_sources = (['examples/list-nodes.c'])
 
-verselib_env = env.Copy()
+verselib_env = env.Clone()
 verselib_env.Append(CPPDEFINES = defines)
 
-verseserver_env = env.Copy()
+verseserver_env = env.Clone()
 verseserver_env.Append(CPPDEFINES = defines)
 verseserver_env.Append (LIBS=['libverse'])
 verseserver_env.Append (LIBPATH = ['.'])
 verseserver_env.Append (LIBS= platform_libs)
 
-verseexample_env = env.Copy()
+verseexample_env = env.Clone()
 verseexample_env.Append(CPPDEFINES = defines)
 verseexample_env.Append (LIBS=['libverse'])
 verseexample_env.Append (LIBPATH = ['.'])
@@ -193,6 +193,7 @@ verseexample_env.Append (LIBS= platform_libs)
 verseexample_env.Append (CPPPATH = ['.'])
 
 verselib = verselib_env.Library(target='libverse', source=lib_source_files)
+versedll = verselib_env.Library(target='verse', source=lib_source_files)
 verseserver_env.Program(target='verse', source=server_source_files)
 verseexample_env.Program(target='list-nodes', source=verse_example_sources)
 
