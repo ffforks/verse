@@ -12,6 +12,40 @@ extern "C" {
 
 #define	VERSE_H
 
+/*
+ * $Id$ 
+ *
+ * ***** BEGIN BSD LICENSE BLOCK *****
+ *
+ * Copyright (c) 2005-2008, The Uni-Verse Consortium.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * ***** END BSD LICENSE BLOCK *****
+ *
+ */
+
 #if !defined VERSE_TYPES
 #define	VERSE_TYPES
 
@@ -402,8 +436,6 @@ typedef union {
 
 extern void		verse_set_port(uint16 port);
 extern void		verse_set_protocol(uint32 protocol);
-extern void		verse_host_id_create(uint8 *id);
-extern void		verse_host_id_set(uint8 *id);
 extern void		verse_callback_set(void *send_func, void *callback, void *user_data);
 extern void		verse_callback_update(uint32 microseconds);
 extern void		verse_session_set(VSession session);
@@ -425,8 +457,8 @@ extern boolean	verse_method_call_unpack(const VNOPackedParams *data, uint32 para
 
 /* Command sending functions begin. ----------------------------------------- */
 
-extern VSession verse_send_connect(const char *name, const char *pass, const char *address, const uint8 *expected_host_id);
-extern VSession verse_send_connect_accept(VNodeID avatar, const char *address, uint8 *host_id);
+extern VSession verse_send_connect(const char *name, const char *pass, const char *address);
+extern VSession verse_send_connect_accept(VNodeID avatar, const char *address);
 extern void verse_send_connect_terminate(const char *address, const char *bye);
 extern void verse_send_ping(const char *address, const char *message);
 extern void verse_send_node_index_subscribe(uint32 mask);
