@@ -39,7 +39,7 @@
 #include <netinet/in.h>
 #else
 #include <winsock2.h>
-#include <ws2ipdef.h>
+#include <ws2tcpip.h>
 #endif
 
 #define VERSE_STD_CONNECT_PORT 4950

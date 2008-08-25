@@ -106,18 +106,11 @@ void v_n_set_port(unsigned short port)
 	my_port = port;
 }
 
-VSocket v_n_socket_create(void)
-{
-	static boolean initialized = FALSE;
-	struct sockaddr_in address_in4;
-	struct sockaddr_in6 address_in6;
-	int buffer_size = 1 << 20;
-
-	if(my_socket != -1)
-		return my_socket;
-
+static boolean net_initialized = FALSE;
 #if defined _WIN32
-	if(!initialized)
+void init_wsa(void)
+{
+	if(!net_initialized)
 	{
 		WSADATA wsaData;
 
@@ -128,8 +121,23 @@ VSocket v_n_socket_create(void)
 		}
 
 	}
+}
 #endif
-	initialized = TRUE;
+
+VSocket v_n_socket_create(void)
+{
+	
+	struct sockaddr_in address_in4;
+	struct sockaddr_in6 address_in6;
+	int buffer_size = 1 << 20;
+
+	if(my_socket != -1)
+		return my_socket;
+
+#if defined _WIN32
+	init_wsa();
+#endif
+	net_initialized = TRUE;
 	if(my_protocol==6) {
 		if((my_socket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP)) == -1)
 			return -1;
@@ -262,16 +270,16 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 	{
 		
 #ifdef _WIN32
+		init_wsa();
+		
 		if((he = gethostbyname(host_name))!=NULL) {
 			if(he->h_addrtype == AF_INET6) {
-				printf("AF_INET6\n");
 				memset((char*)&address->addr6, 0, sizeof(struct sockaddr_in));
 				memcpy((char*)&address->addr6.sin6_addr, he->h_addr_list[0], he->h_length);
 				address->addrtype = address->addr6.sin6_family = he->h_addrtype;
 				address->addr6.sin6_port = htons(port);
 				ok = TRUE;
 			} else if(he->h_addrtype == AF_INET) {
-				printf("AF_INET\n");
 				memset((char*)&address->addr4, 0, sizeof(struct sockaddr_in));
 				memcpy((char*)&address->addr4.sin_addr, he->h_addr_list[0], he->h_length);
 				address->addrtype = address->addr4.sin_family = he->h_addrtype;
@@ -282,7 +290,40 @@ boolean v_n_set_network_address(VNetworkAddress *address, const char *host_name)
 				perror("gethostbyname()");
 			}
 		} else {
-			printf("couldn't resolve\n");
+			int errcode = WSAGetLastError();
+			switch(errcode) {
+				case WSANOTINITIALISED:
+					printf("Not initialised: %d\n", errcode);
+					break;
+				case WSAENETDOWN:
+					printf("Network subsystem failed: %d\n", errcode);
+					break;
+				case WSAHOST_NOT_FOUND:
+					printf("Authorative host not found: %d\n", errcode);
+					break;
+				case WSATRY_AGAIN:
+					printf("Nonauthorative host not found, or server failure: %d\n", errcode);
+					break;
+				case WSANO_RECOVERY:
+					printf("Nonrecoverable error occurred: %d\n", errcode);
+					break;
+				case WSANO_DATA:
+					printf("Valid name, no data record of requested type: %d\n", errcode);
+					break;
+				case WSAEINPROGRESS:
+					printf("A blocking WSA 1.1 call is in progress, or the service provider is still processing a callback function: %d\n", errcode);
+					break;
+				case WSAEFAULT:
+					printf("The name parameter is not a valid part of the user address space: %d\n", errcode);
+					break;
+				case WSAEINTR:
+					printf("A blocking WSA 1.1 call was cancelled through WSACancelBlockingCall: %d\n", errcode);
+					break;
+				default:
+					printf("Unknown network error occurred\n");
+					break;
+			}
+			
 			perror("gethostbyname()");
 		}
 		
