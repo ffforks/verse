@@ -501,8 +501,11 @@ void v_n_get_current_time(uint32 *seconds, uint32 *fractions)
 
 void v_n_get_address_string(const VNetworkAddress *address, char *string)
 {
-	char str[32];
+	char str[46];
 
+	#if defined _WIN32
+	sprintf(string, "%s", inet_ntoa(address->addr4.sin_addr));
+	#else
 	if(address->addrtype==AF_INET6) {
 		inet_ntop(AF_INET6, &address->addr6.sin6_addr, str, 32);
 		sprintf(string, "[%s]:%u", str, htons(address->addr6.sin6_port));
@@ -511,5 +514,6 @@ void v_n_get_address_string(const VNetworkAddress *address, char *string)
 		inet_ntop(AF_INET, &address->addr4.sin_addr, str, 32);
 		sprintf(string, "%s:%u", str, htons(address->addr4.sin_port));
 	}
+	#endif
 }
 
