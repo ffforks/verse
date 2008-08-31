@@ -145,7 +145,7 @@ VSession verse_send_connect(const char *name, const char *pass, const char *addr
 	else
 	{
 #if defined(V_PRINT_SEND_COMMANDS)
-		printf("send: NULL = verse_send_connect(name = %s, pass = %s, address = %s (Unressolved DNS));\n",
+		printf("send: NULL = verse_send_connect(name = %s, pass = %s, address = %s (Unresolved DNS));\n",
 				name, pass, address);
 #endif
 		return NULL;
@@ -278,7 +278,6 @@ void v_unpack_connection(const char *buf, unsigned int buffer_length)
 		buffer_pos += vnp_raw_unpack_uint32(&buf[buffer_pos], &avatar); /* Unpacking avatar ID */
 		v_con_set_avatar(avatar); /* Set avatar ID*/
 		v_con_set_connect_stage(V_CS_PENDING_CLIENT_CALLBACK_ACCEPT); /* Set stage */
-		v_send_hidden_connect_send_key(); /* TODO: rename ... we don't send any key anymore */
 		return; 
 	}
 	if(cmd_id == 2 && V_CS_PENDING_ACCEPT == v_con_get_connect_stage()) /* reseved by client */
